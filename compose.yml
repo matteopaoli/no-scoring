@@ -1,0 +1,42 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: layerguard-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  web:
+    image: layerguard-dashboard
+    build:
+      context: ./
+      dockerfile: ./apps/web/Dockerfile
+      target: dev
+    # volumes:
+    #   - ./:/app
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    develop:
+      watch:
+        - action: sync
+          path: ./
+          target: /app/
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: package.json
+    ports:
+      - "3000:3000"
+
+volumes:
+  postgres_data:
+  minio_data:
+  minio_config:
