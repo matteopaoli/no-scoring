@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1725888190178,
+      "tag": "0000_complete_colonel_america",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1725888815746,
+      "tag": "0001_whole_serpent_society",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1725888886546,
+      "tag": "0002_closed_black_widow",
+      "breakpoints": true
+    }
+  ]
+}

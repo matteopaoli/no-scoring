@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:15
-    container_name: layerguard-db
+    container_name: db
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -13,13 +13,11 @@ services:
     restart: unless-stopped
 
   web:
-    image: layerguard-dashboard
+    container_name: web
     build:
-      context: ./
-      dockerfile: ./apps/web/Dockerfile
-      target: dev
-    # volumes:
-    #   - ./:/app
+      context: .
+      dockerfile: ./Dockerfile
+      target: ${WEB_TARGET}
     environment:
       - NODE_ENV=development
       - CHOKIDAR_USEPOLLING=true
@@ -35,6 +33,18 @@ services:
           path: package.json
     ports:
       - "3000:3000"
+  
+  # workspace:
+  #   container_name: workspace
+  #   build:
+  #     context: .
+  #     dockerfile: './workspace/Dockerfile'
+  #   stdin_open: true  # Keep stdin open to interact with the container
+  #   tty: true         # Allocate a pseudo-TTY to allow interaction with the shell
+  #   user: "${UID}:${GID}"  # Run as the current user
+  #   restart: always   # This is where you define the restart 
+  #   volumes:
+  #     - ./:/workspace
 
 volumes:
   postgres_data:
