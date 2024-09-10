@@ -1,0 +1,23 @@
+{
+  "signIn": "Accedi",
+  "enterEmailPassword": "Inserisci la tua email e password per accedere!",
+  "signInWithGoogle": "Accedi con Google",
+  "or": "oppure",
+  "email": "Email",
+  "requiredField": "*",
+  "password": "Password",
+  "passwordPlaceholder": "Min. 8 caratteri",
+  "keepMeLoggedIn": "Mantieni l'accesso",
+  "forgotPassword": "Password dimenticata?",
+  "notRegisteredYet": "Non sei ancora registrato?",
+  "createAccount": "Crea un account",
+  "title": "Next.js + Postgres Auth Starter (localizzato)",
+  "description": "Questo è un kit di avvio {nextjs} che utilizza {nextauth} per un accesso semplice tramite email + password e un database {postgres} per memorizzare i dati.",
+  "nextjs": "Next.js",
+  "nextauth": "NextAuth.js",
+  "postgres": "Postgres",
+  "protected_page": "Pagina Protetta",
+  "deploy_vercel": "Distribuisci su Vercel",
+  "wrongCredentialsMessage": "E-mail o password errata"
+
+}

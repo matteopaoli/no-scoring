@@ -1,25 +1,11 @@
-import Link from 'next/link';
-import { Form } from 'app/form';
-import { redirect } from 'next/navigation';
-import { createUser, getUser } from 'app/db';
-import { SubmitButton } from 'app/submit-button';
+"use client";
 
-export default function Login() {
-  async function register(formData: FormData) {
-    'use server';
-    let email = formData.get('email') as string;
-    let password = formData.get('password') as string;
-    let user = await getUser(email);
+import { Form } from "@/app/form";
+import { SubmitButton } from "@/app/submit-button";
+import { Link } from "@chakra-ui/next-js";
+import register from "./signup.action";
 
-    if (user) {
-      return 'User already exists'; // TODO: Handle errors with useFormStatus
-    } else {
-      
-      await createUser(email, password);
-      redirect('/login');
-    }
-  }
-
+export default function Signup() {
   return (
     <div className="flex h-screen w-screen items-center justify-center bg-gray-50">
       <div className="z-10 w-full max-w-md overflow-hidden rounded-2xl border border-gray-100 shadow-xl">
@@ -32,11 +18,11 @@ export default function Login() {
         <Form action={register}>
           <SubmitButton>Sign Up</SubmitButton>
           <p className="text-center text-sm text-gray-600">
-            {'Already have an account? '}
+            {"Already have an account? "}
             <Link href="/login" className="font-semibold text-gray-800">
               Sign in
             </Link>
-            {' instead.'}
+            {" instead."}
           </p>
         </Form>
       </div>

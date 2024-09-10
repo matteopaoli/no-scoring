@@ -17,20 +17,6 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
-      target: ${WEB_TARGET}
-    environment:
-      - NODE_ENV=development
-      - CHOKIDAR_USEPOLLING=true
-      - WATCHPACK_POLLING=true
-    develop:
-      watch:
-        - action: sync
-          path: ./
-          target: /app/
-          ignore:
-            - node_modules/
-        - action: rebuild
-          path: package.json
     ports:
       - "3000:3000"
   
@@ -48,5 +34,3 @@ services:
 
 volumes:
   postgres_data:
-  minio_data:
-  minio_config:

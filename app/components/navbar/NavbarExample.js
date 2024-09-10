@@ -150,7 +150,7 @@ export default function AuthNavbar(props) {
   }
 
   const createPagesLinks = (routes) => {
-    return routes.map((link) => {
+    return routes.map((link, i) => {
       if (
         link.name === "Applications" ||
         link.name === "Ecommerce" ||
@@ -164,7 +164,7 @@ export default function AuthNavbar(props) {
       }
       if (link.name === "Pricing Page") {
         return (
-          <Stack direction='column'>
+          <Stack direction='column' key={i}>
             <Stack
               direction='row'
               spacing='6px'
@@ -184,7 +184,7 @@ export default function AuthNavbar(props) {
       }
       if (link.authIcon) {
         return (
-          <Stack direction='column'>
+          <Stack direction='column' key={i}>
             <Stack
               direction='row'
               spacing='6px'
@@ -204,7 +204,7 @@ export default function AuthNavbar(props) {
       } else {
         if (link.component) {
           return (
-            <NavLink to={link.layout + link.path}>
+            <NavLink to={link.layout + link.path} key={i}>
               <MenuItem
                 ps='36px'
                 py='0px'
@@ -226,7 +226,7 @@ export default function AuthNavbar(props) {
   const createExtraLinks = (routes) => {
     return routes.map((link) => {
       return (
-        <NavLink to={link.layout + link.path}>
+        <NavLink to={link.layout + link.path} key={i}>
           <MenuItem
             ps='36px'
             py='0px'
@@ -245,7 +245,7 @@ export default function AuthNavbar(props) {
     return routes.map((link) => {
       if (link.authIcon && link.collapse === true) {
         return (
-          <Stack direction='column' my='auto'>
+          <Stack direction='column' my='auto' key={i}>
             <Stack
               direction='row'
               spacing='0px'
@@ -270,7 +270,7 @@ export default function AuthNavbar(props) {
         );
       } else {
         return (
-          <NavLink to={link.layout + link.path}>
+          <NavLink to={link.layout + link.path} key={i}>
             <Text color='red' fontSize='sm' fontWeight='normal'>
               {link.name}
             </Text>
@@ -283,7 +283,7 @@ export default function AuthNavbar(props) {
   const createApplicationLinks = (routes) => {
     return routes.map((link) => {
       return (
-        <NavLink to={link.layout + link.path}>
+        <NavLink to={link.layout + link.path} key={i}>
           <Stack direction='row' spacing='12px' align='center' cursor='pointer'>
             <IconBox bg='blue.500' color='white' h='30px' w='30px'>
               {link.authIcon}
@@ -301,7 +301,7 @@ export default function AuthNavbar(props) {
     return routes.map((link) => {
       if (link.authIcon) {
         return (
-          <Stack direction='column'>
+          <Stack direction='column' key={i}>
             <Stack
               direction='row'
               spacing='6px'
@@ -321,7 +321,7 @@ export default function AuthNavbar(props) {
       } else {
         if (link.component) {
           return (
-            <NavLink to={link.layout + link.path}>
+            <NavLink to={link.layout + link.path} key={i}>
               <MenuItem
                 ps='36px'
                 py='0px'

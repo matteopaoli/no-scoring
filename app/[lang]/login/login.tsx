@@ -1,45 +1,4 @@
 'use client'
-import Link from 'next/link';
-import { Form } from 'app/form';
-import { signIn } from 'app/auth';
-import { SubmitButton } from 'app/submit-button';
-
-// export default function Login() {
-//   return (
-//     <div className="flex h-screen w-screen items-center justify-center bg-gray-50">
-//       <div className="z-10 w-full max-w-md overflow-hidden rounded-2xl border border-gray-100 shadow-xl">
-//         <div className="flex flex-col items-center justify-center space-y-3 border-b border-gray-200 bg-white px-4 py-6 pt-8 text-center sm:px-16">
-//           <h3 className="text-xl font-semibold">Sign In</h3>
-//           <p className="text-sm text-gray-500">
-//             Use your email and password to sign in
-//           </p>
-//         </div>
-//         <Form
-//           action={async (formData: FormData) => {
-//             'use server';
-//             await signIn('credentials', {
-//               redirectTo: '/protected',
-//               email: formData.get('email') as string,
-//               password: formData.get('password') as string,
-//             });
-//           }}
-//         >
-//           <SubmitButton>Sign in</SubmitButton>
-//           <p className="text-center text-sm text-gray-600">
-//             {"Don't have an account? "}
-//             <Link href="/register" className="font-semibold text-gray-800">
-//               Sign up
-//             </Link>
-//             {' for free.'}
-//           </p>
-//         </Form>
-//       </div>
-//     </div>
-//   );
-// }
-
-/* eslint-disable */
-
 import React from "react";
 // Chakra imports
 import {
@@ -48,6 +7,7 @@ import {
   Checkbox,
   Flex,
   FormControl,
+  FormErrorMessage,
   FormLabel,
   Heading,
   Icon,
@@ -65,8 +25,18 @@ import { FcGoogle } from "react-icons/fc";
 import { MdOutlineRemoveRedEye } from "react-icons/md";
 import { RiEyeCloseLine } from "react-icons/ri";
 import login from './login.action';
+import { Link } from "@chakra-ui/next-js";
+import { useDictionary } from "../DictionaryProvider";
+import { useFormState } from "react-dom";
 
-function SignIn() {
+const initialState: Record<string, any> = {}
+
+export default function SignIn() {
+  const t = useDictionary();
+  const [formState, action] = useFormState(login, initialState)
+  console.log(formState?.status)
+  console.log(formState?.status === 'error')
+
   // Chakra color mode
   const textColor = useColorModeValue("navy.700", "white");
   const textColorSecondary = "gray.400";
@@ -85,6 +55,7 @@ function SignIn() {
   );
   const [show, setShow] = React.useState(false);
   const handleClick = () => setShow(!show);
+
   return (
     <DefaultAuth>
       <Flex
@@ -101,7 +72,7 @@ function SignIn() {
         flexDirection='column'>
         <Box me='auto'>
           <Heading color={textColor} fontSize='36px' mb='10px'>
-            Sign In
+            {t('signIn')}
           </Heading>
           <Text
             mb='36px'
@@ -109,7 +80,7 @@ function SignIn() {
             color={textColorSecondary}
             fontWeight='400'
             fontSize='md'>
-            Enter your email and password to sign in!
+            {t('enterEmailPassword')}
           </Text>
         </Box>
         <Flex
@@ -136,17 +107,17 @@ function SignIn() {
             _active={googleActive}
             _focus={googleActive}>
             <Icon as={FcGoogle} w='20px' h='20px' me='10px' />
-            Sign in with Google
+            {t('signInWithGoogle')}
           </Button>
           <Flex align='center' mb='25px'>
             <HSeparator />
             <Text color='gray.400' mx='14px'>
-              or
+              {t('or')}
             </Text>
             <HSeparator />
           </Flex>
-          <form action={login}>
-          <FormControl>
+          <form action={action}>
+          <FormControl isInvalid={formState?.status === 'error'}>
             <FormLabel
               display='flex'
               ms='4px'
@@ -154,11 +125,10 @@ function SignIn() {
               fontWeight='500'
               color={textColor}
               mb='8px'>
-              Email<Text color={brandStars}>*</Text>
+              {t('email')}<Text color={brandStars}>{t('requiredField')}</Text>
             </FormLabel>
             <Input
               isRequired={true}
-              variant='auth'
               fontSize='sm'
               ms={{ base: "0px", md: "0px" }}
               type='email'
@@ -174,17 +144,15 @@ function SignIn() {
               fontWeight='500'
               color={textColor}
               display='flex'>
-              Password<Text color={brandStars}>*</Text>
+              {t('password')}<Text color={brandStars}>{t('requiredField')}</Text>
             </FormLabel>
             <InputGroup size='md'>
               <Input
                 isRequired={true}
                 fontSize='sm'
-                placeholder='Min. 8 characters'
-                mb='24px'
+                placeholder={t('passwordPlaceholder')}
                 size='lg'
                 type={show ? "text" : "password"}
-                variant='auth'
                 name="password"
               />
               <InputRightElement display='flex' alignItems='center' mt='4px'>
@@ -196,7 +164,10 @@ function SignIn() {
                 />
               </InputRightElement>
             </InputGroup>
-            <Flex justifyContent='space-between' align='center' mb='24px'>
+            {formState?.status === 'error' ? (
+              <FormErrorMessage>{t('wrongCredentialsMessage')}</FormErrorMessage>
+            ) : null}
+            <Flex justifyContent='space-between' align='center' my='24px'>
               <FormControl display='flex' alignItems='center'>
                 <Checkbox
                   id='remember-login'
@@ -209,7 +180,7 @@ function SignIn() {
                   fontWeight='normal'
                   color={textColor}
                   fontSize='sm'>
-                  Keep me logged in
+                  {t('keepMeLoggedIn')}
                 </FormLabel>
               </FormControl>
               <Link href='/auth/forgot-password'>
@@ -218,7 +189,7 @@ function SignIn() {
                   fontSize='sm'
                   w='124px'
                   fontWeight='500'>
-                  Forgot password?
+                  {t('forgotPassword')}
                 </Text>
               </Link>
             </Flex>
@@ -230,7 +201,7 @@ function SignIn() {
               w='100%'
               h='50'
               mb='24px'>
-              Sign In
+              {t('signIn')}
             </Button>
           </FormControl>
           </form>
@@ -241,14 +212,14 @@ function SignIn() {
             maxW='100%'
             mt='0px'>
             <Text color={textColorDetails} fontWeight='400' fontSize='14px'>
-              Not registered yet?
+              {t('notRegisteredYet')}
               <Link href='/register'>
                 <Text
                   color={textColorBrand}
                   as='span'
                   ms='5px'
                   fontWeight='500'>
-                  Create an Account
+                  {t('createAccount')}
                 </Text>
               </Link>
             </Text>
@@ -258,6 +229,3 @@ function SignIn() {
     </DefaultAuth>
   );
 }
-
-export default SignIn;
-

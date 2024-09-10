@@ -24,8 +24,6 @@ export const {
           // TODO:  ACCOUNT EXISTS BUT HAS TO SIGN IN THROUGH PROVI
         }
         let passwordsMatch = await compare(password, user.password!);
-        console.log("password!!",passwordsMatch)
-        console.log(user)
         if (passwordsMatch) return user as any;
       },
     }),
