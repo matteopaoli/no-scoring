@@ -1,12 +1,15 @@
+'use client'
+
 /* eslint-disable */
 import React from "react";
-import { NavLink, useLocation } from "react-router-dom";
 // chakra imports
 import { Box, Flex, HStack, Text, useColorModeValue } from "@chakra-ui/react";
+import { Link } from "@chakra-ui/next-js";
+import { usePathname } from "next/navigation";
 
 export function SidebarLinks(props) {
+  const pathname = usePathname()
   //   Chakra color mode
-  let location = useLocation();
   let activeColor = useColorModeValue("gray.700", "white");
   let inactiveColor = useColorModeValue(
     "secondaryGray.600",
@@ -20,7 +23,7 @@ export function SidebarLinks(props) {
 
   // verifies if routeName is the one active (in browser input)
   const activeRoute = (routeName) => {
-    return location.pathname.includes(routeName);
+    return pathname.includes(routeName);
   };
 
   // this function creates the links from the secondary accordions (for example auth -> sign-in -> default)
@@ -52,7 +55,7 @@ export function SidebarLinks(props) {
         route.layout === "/rtl"
       ) {
         return (
-          <NavLink key={index} to={route.layout + route.path}>
+          <Link key={index} href={route.layout + route.path}>
             {route.icon ? (
               <Box>
                 <HStack
@@ -122,7 +125,7 @@ export function SidebarLinks(props) {
                 </HStack>
               </Box>
             )}
-          </NavLink>
+          </Link>
         );
       }
     });

@@ -9,7 +9,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 // Custom components
-import Card from "components/card/Card.js";
+import Card from "@/app/components/card/Card.js";
 // Custom icons
 import React from "react";
 
