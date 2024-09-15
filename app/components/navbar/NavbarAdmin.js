@@ -8,10 +8,10 @@ export default function AdminNavbar(props) {
 	const [ scrolled, setScrolled ] = useState(false);
 
 	useEffect(() => {
-		window.addEventListener('scroll', changeNavbar);
+		window?.addEventListener('scroll', changeNavbar);
 
 		return () => {
-			window.removeEventListener('scroll', changeNavbar);
+			window?.removeEventListener('scroll', changeNavbar);
 		};
 	});
 
@@ -29,8 +29,9 @@ export default function AdminNavbar(props) {
 	let secondaryMargin = '0px';
 	let paddingX = '15px';
 	let gap = '0px';
+
 	const changeNavbar = () => {
-		if (window.scrollY > 1) {
+		if (window && window.scrollY > 1) {
 			setScrolled(true);
 		} else {
 			setScrolled(false);

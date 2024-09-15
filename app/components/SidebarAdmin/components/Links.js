@@ -23,7 +23,7 @@ export function SidebarLinks(props) {
 
   // verifies if routeName is the one active (in browser input)
   const activeRoute = (routeName) => {
-    return pathname.endsWith(routeName);
+    return pathname.includes(routeName);
   };
 
   // this function creates the links from the secondary accordions (for example auth -> sign-in -> default)
@@ -55,7 +55,7 @@ export function SidebarLinks(props) {
         route.layout === "/rtl"
       ) {
         return (
-          <Link key={index} href={route.path}>
+          <Link key={index} href={route.layout + route.path}>
             {route.icon ? (
               <Box>
                 <HStack

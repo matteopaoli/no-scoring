@@ -4,8 +4,6 @@ import {
   Button,
   Flex,
   Icon,
-  Image,
-  Link,
   Menu,
   MenuButton,
   MenuItem,
@@ -15,22 +13,21 @@ import {
   useColorMode,
 } from "@chakra-ui/react";
 // Custom Components
-import { ItemContent } from "../../components/menu/ItemContent";
 import { SearchBar } from "../../components/navbar/searchBar/SearchBar";
 import { SidebarResponsive } from "../../components/sidebar/Sidebar";
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useContext } from "react";
 // Assets
-import navImage from "./Navbar.png";
-import { MdNotificationsNone, MdInfoOutline } from "react-icons/md";
 import { IoMdMoon, IoMdSunny } from "react-icons/io";
-import { FaEthereum } from "react-icons/fa";
 import logout from "@/app/signout.action";
-import routes from '@/app/routes'
+import routes from "@/app/routes";
+import { UserContext } from "@/app/contexts/UserContext";
+import { FaEthereum } from "react-icons/fa";
 
 export default function HeaderLinks(props) {
   const { secondary } = props;
   const { colorMode, toggleColorMode } = useColorMode();
+  const session = useContext(UserContext)
   // Chakra Color Mode
   const navbarIcon = useColorModeValue("gray.400", "white");
   let menuBg = useColorModeValue("white", "navy.800");
@@ -47,11 +44,11 @@ export default function HeaderLinks(props) {
   const borderButton = useColorModeValue("secondaryGray.500", "whiteAlpha.200");
   return (
     <Flex
-      w={{ sm: "100%", md: "auto" }}
+      w={{ sm: '100%', md: 'auto' }}
       alignItems="center"
       flexDirection="row"
       bg={menuBg}
-      flexWrap={secondary ? { base: "wrap", md: "nowrap" } : "unset"}
+      flexWrap={secondary ? { base: 'wrap', md: 'nowrap' } : 'unset'}
       p="10px"
       borderRadius="30px"
       boxShadow={shadow}
@@ -59,59 +56,15 @@ export default function HeaderLinks(props) {
       <SearchBar
         mb={() => {
           if (secondary) {
-            return { base: "10px", md: "unset" };
+            return { base: '10px', md: 'unset' };
           }
-          return "unset";
+          return 'unset';
         }}
         me="10px"
         borderRadius="30px"
       />
-      <Flex
-        bg={ethBg}
-        display={secondary ? "flex" : "none"}
-        borderRadius="30px"
-        ms="auto"
-        p="6px"
-        align="center"
-        me="6px"
-      >
-        <Flex
-          align="center"
-          justify="center"
-          bg={ethBox}
-          h="29px"
-          w="29px"
-          borderRadius="30px"
-          me="7px"
-        >
-          <Icon color={ethColor} w="9px" h="14px" as={FaEthereum} />
-        </Flex>
-        <Text
-          w="max-content"
-          color={ethColor}
-          fontSize="sm"
-          fontWeight="700"
-          me="6px"
-        >
-          1,924
-          <Text as="span" display={{ base: "none", md: "unset" }}>
-            {" "}
-            ETH
-          </Text>
-        </Text>
-      </Flex>
       <SidebarResponsive routes={routes} />
       <Menu>
-        <MenuButton p="0px">
-          <Icon
-            mt="6px"
-            as={MdNotificationsNone}
-            color={navbarIcon}
-            w="18px"
-            h="18px"
-            me="10px"
-          />
-        </MenuButton>
         <MenuList
           boxShadow={shadow}
           p="20px"
@@ -119,9 +72,9 @@ export default function HeaderLinks(props) {
           bg={menuBg}
           border="none"
           mt="22px"
-          me={{ base: "30px", md: "unset" }}
-          minW={{ base: "unset", md: "400px", xl: "450px" }}
-          maxW={{ base: "360px", md: "unset" }}
+          me={{ base: '30px', md: 'unset' }}
+          minW={{ base: 'unset', md: '400px', xl: '450px' }}
+          maxW={{ base: '360px', md: 'unset' }}
         >
           <Flex w="100%" mb="20px">
             <Text fontSize="md" fontWeight="600" color={textColor}>
@@ -136,88 +89,6 @@ export default function HeaderLinks(props) {
             >
               Mark all read
             </Text>
-          </Flex>
-          <Flex flexDirection="column">
-            <MenuItem
-              _hover={{ bg: "none" }}
-              _focus={{ bg: "none" }}
-              px="0"
-              borderRadius="8px"
-              mb="10px"
-            >
-              <ItemContent info="Horizon UI Dashboard PRO" />
-            </MenuItem>
-            <MenuItem
-              _hover={{ bg: "none" }}
-              _focus={{ bg: "none" }}
-              px="0"
-              borderRadius="8px"
-              mb="10px"
-            >
-              <ItemContent info="Horizon Design System Free" />
-            </MenuItem>
-          </Flex>
-        </MenuList>
-      </Menu>
-
-      <Menu>
-        <MenuButton p="0px">
-          <Icon
-            mt="6px"
-            as={MdInfoOutline}
-            color={navbarIcon}
-            w="18px"
-            h="18px"
-            me="10px"
-          />
-        </MenuButton>
-        <MenuList
-          boxShadow={shadow}
-          p="20px"
-          me={{ base: "30px", md: "unset" }}
-          borderRadius="20px"
-          bg={menuBg}
-          border="none"
-          mt="22px"
-          minW={{ base: "unset" }}
-          maxW={{ base: "360px", md: "unset" }}
-        >
-          <Image src={navImage} borderRadius="16px" mb="28px" />
-          <Flex flexDirection="column">
-            <Link w="100%" href="https://horizon-ui.com/pro">
-              <Button w="100%" h="44px" mb="10px" variant="brand">
-                Buy Horizon UI PRO
-              </Button>
-            </Link>
-            <Link
-              w="100%"
-              href="https://horizon-ui.com/documentation/docs/introduction"
-            >
-              <Button
-                w="100%"
-                h="44px"
-                mb="10px"
-                border="1px solid"
-                bg="transparent"
-                borderColor={borderButton}
-              >
-                See Documentation
-              </Button>
-            </Link>
-            <Link
-              w="100%"
-              href="https://github.com/horizon-ui/horizon-ui-chakra-ts"
-            >
-              <Button
-                w="100%"
-                h="44px"
-                variant="no-hover"
-                color={textColor}
-                bg="transparent"
-              >
-                Try Horizon Free
-              </Button>
-            </Link>
           </Flex>
         </MenuList>
       </Menu>
@@ -237,13 +108,13 @@ export default function HeaderLinks(props) {
           h="18px"
           w="18px"
           color={navbarIcon}
-          as={colorMode === "light" ? IoMdMoon : IoMdSunny}
+          as={colorMode === 'light' ? IoMdMoon : IoMdSunny}
         />
       </Button>
       <Menu>
         <MenuButton p="0px">
           <Avatar
-            _hover={{ cursor: "pointer" }}
+            _hover={{ cursor: 'pointer' }}
             color="white"
             name="Adela Parkson"
             bg="#11047A"
@@ -277,34 +148,30 @@ export default function HeaderLinks(props) {
           </Flex>
           <Flex flexDirection="column" p="10px">
             <MenuItem
-              _hover={{ bg: "none" }}
-              _focus={{ bg: "none" }}
+              _hover={{ bg: 'none' }}
+              _focus={{ bg: 'none' }}
               borderRadius="8px"
               px="14px"
             >
               <Text fontSize="sm">Profile Settings</Text>
             </MenuItem>
             <MenuItem
-              _hover={{ bg: "none" }}
-              _focus={{ bg: "none" }}
+              _hover={{ bg: 'none' }}
+              _focus={{ bg: 'none' }}
               borderRadius="8px"
               px="14px"
             >
               <Text fontSize="sm">Newsletter Settings</Text>
             </MenuItem>
-            <form
-              action={logout}
+            <MenuItem
+              _hover={{ bg: 'none' }}
+              _focus={{ bg: 'none' }}
+              color="red.400"
+              borderRadius="8px"
+              px="14px"
             >
-              <MenuItem
-                _hover={{ bg: "none" }}
-                _focus={{ bg: "none" }}
-                color="red.400"
-                borderRadius="8px"
-                px="14px"
-              >
-                <Button type="submit"><Text fontSize="sm">Log out</Text></Button>
-              </MenuItem>
-            </form>
+              <Text fontSize="sm">Log out</Text>
+            </MenuItem>
           </Flex>
         </MenuList>
       </Menu>

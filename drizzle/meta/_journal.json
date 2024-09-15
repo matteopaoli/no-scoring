@@ -22,6 +22,27 @@
       "when": 1725888886546,
       "tag": "0002_closed_black_widow",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1726397674593,
+      "tag": "0003_secret_miracleman",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1726401732946,
+      "tag": "0004_perpetual_the_hood",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1726419448093,
+      "tag": "0005_magical_starhawk",
+      "breakpoints": true
     }
   ]
 }

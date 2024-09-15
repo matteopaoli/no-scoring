@@ -40,7 +40,7 @@ export const DictionaryProvider = ({ children }: { children: ReactNode }) => {
   const value = useMemo(() => dictionaries[language as keyof typeof dictionaries], [language]);
 
   return (
-    <DictionaryContext.Provider value={value}>
+    <DictionaryContext.Provider value={dictionaries['it']}>
       {children}
     </DictionaryContext.Provider>
   );

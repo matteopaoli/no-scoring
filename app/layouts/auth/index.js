@@ -13,9 +13,6 @@ export default function Auth() {
   // states and functions
   const [toggleSidebar, setToggleSidebar] = useState(false);
   // functions for changing the states from components
-  const getRoute = () => {
-    return window.location.pathname !== '/auth/full-screen-maps';
-  };
   const getRoutes = (routes) => {
     return routes.map((route, key) => {
       if (route.layout === '/auth') {

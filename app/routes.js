@@ -7,51 +7,44 @@ import {
   MdHome,
   MdLock,
   MdOutlineShoppingCart,
+  MdOutlineVerifiedUser,
 } from 'react-icons/md';
-
-// Admin Imports
-import MainDashboard from '@/app/views/admin/default';
-import NFTMarketplace from '@/app/views/admin/marketplace';
-import Profile from '@/app/views/admin/profile';
-import DataTables from '@/app/views/admin/dataTables';
 
 const routes = [
   {
-    name: 'Main Dashboard',
+    name: 'Dashboard',
     layout: '/admin',
-    path: '/default',
+    path: '/admin',
     icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
-    component: <MainDashboard />,
   },
   {
-    name: 'NFT Marketplace',
+    name: 'Utenti',
     layout: '/admin',
-    path: '/nft-marketplace',
+    path: '/admin/users',
     icon: (
       <Icon
-        as={MdOutlineShoppingCart}
+        as={MdOutlineVerifiedUser}
         width="20px"
         height="20px"
         color="inherit"
       />
     ),
-    component: <NFTMarketplace />,
     secondary: true,
   },
-  {
-    name: 'Data Tables',
-    layout: '/admin',
-    icon: <Icon as={MdBarChart} width="20px" height="20px" color="inherit" />,
-    path: '/data-tables',
-    component: <DataTables />,
-  },
-  {
-    name: 'Profile',
-    layout: '/admin',
-    path: '/profile',
-    icon: <Icon as={MdPerson} width="20px" height="20px" color="inherit" />,
-    component: <Profile />,
-  },
+  // {
+  //   name: 'Data Tables',
+  //   layout: '/admin',
+  //   icon: <Icon as={MdBarChart} width="20px" height="20px" color="inherit" />,
+  //   path: '/data-tables',
+  //   component: <DataTables />,
+  // },
+  // {
+  //   name: 'Profile',
+  //   layout: '/admin',
+  //   path: '/profile',
+  //   icon: <Icon as={MdPerson} width="20px" height="20px" color="inherit" />,
+  //   component: <Profile />,
+  // },
 ];
 
 export default routes;

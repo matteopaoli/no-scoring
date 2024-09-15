@@ -6,7 +6,7 @@ import { signIn } from "../../auth";
 export default async function login(prevState: Record<string, any>, formData: FormData): Promise<Record<string, any>> {
   try {
     await signIn("credentials", {
-      redirectTo: "/en/protected",
+      redirectTo: "/en/app",
       email: formData.get("email") as string,
       password: formData.get("password") as string,
     });

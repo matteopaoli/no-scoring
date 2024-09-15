@@ -34,8 +34,6 @@ const initialState: Record<string, any> = {}
 export default function SignIn() {
   const t = useDictionary();
   const [formState, action] = useFormState(login, initialState)
-  console.log(formState?.status)
-  console.log(formState?.status === 'error')
 
   // Chakra color mode
   const textColor = useColorModeValue("navy.700", "white");

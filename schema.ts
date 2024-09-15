@@ -5,6 +5,8 @@ import {
   text,
   primaryKey,
   integer,
+  serial,
+  numeric,
 } from "drizzle-orm/pg-core"
 import postgres from "postgres"
 import { drizzle } from "drizzle-orm/postgres-js"
@@ -24,7 +26,16 @@ export const users = pgTable("user", {
   password: text("password"),
   emailVerified: timestamp("emailVerified", { mode: "date" }),
   image: text("image"),
+  stripeSecretKey: text('stripeSecretKey').notNull(),
+  role: text('role').notNull(),
+  businessTypeId: integer("businessTypeId").references(() => businessType.id),
 })
+
+export const businessType = pgTable('businessType', {
+  id: serial('id').primaryKey(), // Auto-incrementing ID
+  name: text('name').notNull(), // Name of the business type
+  commissionRate: numeric('commissionRate', { precision: 5, scale: 2 }).notNull(), // Commission rate with 5 digits and 2 decimals
+});
  
 export const accounts = pgTable(
   "account",

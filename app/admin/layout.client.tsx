@@ -1,48 +1,31 @@
 "use client";
 
-// Chakra imports
-import { Portal, Box, useDisclosure } from "@chakra-ui/react";
-import Footer from "../../components/footer/FooterAdmin.js";
-// Layout components
-import Navbar from "../../components/navbar/NavbarAdmin.js";
-import Sidebar from "../../components/SidebarAdmin/Sidebar.js";
-import { SidebarContext } from "../../contexts/SidebarContext";
-import React, { useState } from "react";
-import routes from "@/app/routes.js";
+import { ReactNode, useContext, useState } from "react";
+import routes from "../routes";
+import { usePathname } from "next/navigation";
+import { Box, Portal, useDisclosure } from "@chakra-ui/react";
+import { SidebarContext } from "../contexts/SidebarContext";
+import AdminNavbar from "../components/navbar/NavbarAdmin";
+import Footer from "../components/footer/FooterAdmin";
+import Sidebar from "../components/sidebar/Sidebar";
 
-// Custom Chakra theme
-export default function Dashboard(props) {
-  const { ...rest } = props;
-  // states and functions
-  const [fixed] = useState(false);
+export default function AdminLayout({
+  children,
+  ...rest
+}: Record<string, any> & { children: ReactNode }) {
   const [toggleSidebar, setToggleSidebar] = useState(false);
-  // functions for changing the states from components
-  // const getRoute = () => {
-  //   return window.location.pathname !== '/admin/full-screen-maps';
-  // };
-  // const getActiveRoute = (routes) => {
-  // let activeRoute = 'Default Brand Text';
-  // for (let i = 0; i < routes.length; i++) {
-  //   if (routes[i].collapse) {
-  //     let collapseActiveRoute = getActiveRoute(routes[i].items);
-  //     if (collapseActiveRoute !== activeRoute) {
-  //       return collapseActiveRoute;
-  //     }
-  //   } else if (routes[i].category) {
-  //     let categoryActiveRoute = getActiveRoute(routes[i].items);
-  //     if (categoryActiveRoute !== activeRoute) {
-  //       return categoryActiveRoute;
-  //     }
-  //   } else {
-  //     if (
-  //       window.location.href.indexOf(routes[i].layout + routes[i].path) !== -1
-  //     ) {
-  //       return routes[i].name;
-  //     }
-  //   }
-  // }
-  // return activeRoute;
-  // };
+  const pathname = usePathname();
+
+  const getActiveRoute = (): string => {
+    let activeRoute = "Default Brand Text";
+    for (let i = 0; i < routes.length; i++) {
+      if (pathname.startsWith(routes[i].path)) {
+        return routes[i].name;
+      }
+    }
+    return activeRoute;
+  };
+
   // const getActiveNavbar = (routes) => {
   //   let activeNavbar = false;
   //   for (let i = 0; i < routes.length; i++) {
@@ -113,7 +96,7 @@ export default function Dashboard(props) {
             setToggleSidebar,
           }}
         >
-          {/* <Sidebar routes={routes} display="none" {...rest} /> */}
+          <Sidebar routes={routes} display="none" {...rest} />
           <Box
             float="right"
             minHeight="100vh"
@@ -130,13 +113,13 @@ export default function Dashboard(props) {
           >
             <Portal>
               <Box>
-                <Navbar
+                <AdminNavbar
                   onOpen={onOpen}
-                  logoText={"Horizon UI Dashboard PRO"}
+                  logoText="Horizon UI Dashboard PR"
                   brandText={getActiveRoute()}
                   secondary={true}
                   message={"Hello"}
-                  fixed={fixed}
+                  fixed={false}
                   {...rest}
                 />
               </Box>
@@ -148,7 +131,7 @@ export default function Dashboard(props) {
               minH="100vh"
               pt="50px"
             >
-              {props.children}
+              {children}
             </Box>
             <Box>
               <Footer />

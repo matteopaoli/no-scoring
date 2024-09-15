@@ -1,21 +1,27 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
-import { pgTable, serial, varchar } from 'drizzle-orm/pg-core';
 import { eq } from 'drizzle-orm';
 import postgres from 'postgres';
 import { genSaltSync, hashSync } from 'bcrypt-ts';
-import { users } from 'schema'
+import { businessType, users } from 'schema'
 
 let client = postgres(`${process.env.POSTGRES_URL!}`);
 let db = drizzle(client);
 
 export async function getUser(email: string) {
-  return (await db.select().from(users).where(eq(users.email, email)))?.[0];
+  return (await db.select().from(users).where(eq(users.email, email)))?.[0];``
 }
 
-export async function createUser(email: string, password: string) {
-
+export async function createUser(email: string, stripeSecretKey: string, businessTypeId: number) {
   let salt = genSaltSync(10);
-  let hash = hashSync(password, salt);
+  let hash = hashSync('PayTomorrow!2024', salt);
+  return await db.insert(users).values({ email, stripeSecretKey, role: 'user', businessTypeId, password: hash });
+}
 
-  return await db.insert(users).values({ email, password: hash });
+export async function setPassword(password: string) {
+  // let salt = genSaltSync(10);
+  // let hash = hashSync(password, salt);
+}
+
+export async function getBusinessTypes() {
+  return await db.select().from(businessType)
 }
