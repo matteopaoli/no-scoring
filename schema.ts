@@ -29,6 +29,7 @@ export const users = pgTable("user", {
   stripeSecretKey: text('stripeSecretKey').notNull(),
   role: text('role').notNull(),
   businessTypeId: integer("businessTypeId").references(() => businessType.id),
+  businessName: text("businessName").notNull()
 })
 
 export const businessType = pgTable('businessType', {

@@ -112,6 +112,31 @@ export default function createUserPage({
               />
               {errors.filter(e => e.path.includes('email')).map(m => <FormErrorMessage>{m.message}</FormErrorMessage>)}
             </FormControl>
+            <FormControl isInvalid={errors.some(e => e.path.includes('email'))}>
+              <FormLabel
+                display="flex"
+                ms="4px"
+                fontSize="sm"
+                fontWeight="500"
+                color={textColor}
+                mb="8px"
+                mt="24px"
+              >
+                Nome azienda
+                <Text color={brandStars}>*</Text>
+              </FormLabel>
+              <Input
+                isRequired={true}
+                fontSize="sm"
+                ms={{ base: "0px", md: "0px" }}
+                type="text"
+                placeholder="Pinco Pallino s.r.l."
+                fontWeight="500"
+                size="lg"
+                name="businessName"
+              />
+              {errors.filter(e => e.path.includes('email')).map(m => <FormErrorMessage>{m.message}</FormErrorMessage>)}
+            </FormControl>
             <FormControl isInvalid={errors.some(e => e.path.includes('businessTypeId'))}>
               <FormLabel
                 display="flex"

@@ -43,6 +43,13 @@
       "when": 1726419448093,
       "tag": "0005_magical_starhawk",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1726479073121,
+      "tag": "0006_funny_tyger_tiger",
+      "breakpoints": true
     }
   ]
 }

@@ -126,10 +126,10 @@ export default function AdminLayout({
             </Portal>
             <Box
               mx="auto"
-              p={{ base: "20px", md: "30px" }}
+              px={{ base: "20px", md: "30px" }}
               pe="20px"
               minH="100vh"
-              pt="50px"
+              pt="130px"
             >
               {children}
             </Box>

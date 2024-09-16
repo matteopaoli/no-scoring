@@ -9,12 +9,12 @@ export default async function AdminLayout({
 }: Record<string, any> & { children: ReactNode }) {
   const session = await auth()
   return (
-    // <UserContextProvider
-    //   value={session}
-    // >
+    <UserContextProvider
+      value={session}
+    >
       <Client {...rest}>
         <>{children}</>
       </Client> 
-    // </UserContextProvider> 
+    </UserContextProvider> 
   );
 }
