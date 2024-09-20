@@ -26,8 +26,8 @@ import { MdOutlineRemoveRedEye } from "react-icons/md";
 import { RiEyeCloseLine } from "react-icons/ri";
 import login from './login.action';
 import { Link } from "@chakra-ui/next-js";
-import { useDictionary } from "@/app/DictionaryProvider";
 import { useFormState } from "react-dom";
+import { useDictionary } from "@/app/DictionaryProvider";
 
 const initialState: Record<string, any> = {}
 

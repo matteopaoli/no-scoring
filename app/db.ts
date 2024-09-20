@@ -2,7 +2,7 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import { eq, getTableColumns } from "drizzle-orm";
 import postgres from "postgres";
 import { genSaltSync, hashSync } from "bcrypt-ts";
-import { businessType, users, commissionRules } from "schema";
+import { businessType, users, commissionRules, stores, userStoreRoles } from "schema";
 
 let client = postgres(`${process.env.POSTGRES_URL!}`);
 let db = drizzle(client);
@@ -22,16 +22,18 @@ interface BusinessType {
 }
 
 export interface User {
-    id: string;
-    name: string;
-    email: string;
-    password: string;
-    emailVerified: Date;
-    image: string | null;
-    stripeSecretKey: string;
-    role: string;
-    businessTypeId: number;
-    businessName: string;
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  email: string;
+  password: string;
+  emailVerified: Date;
+  image: string | null;
+  stripeSecretKey: string;
+  role: string;
+  businessTypeId: number;
+  businessName: string;
+  onboardingCompleted: boolean;
 }
 
 export async function getUser(email: string) {
@@ -133,4 +135,90 @@ export async function getUsers() {
     .select({ ...rest, businessType: businessType.name })
     .from(users)
     .leftJoin(businessType, eq(users.businessTypeId, businessType.id)) as Omit<User, 'password' | 'role' | 'businessTypeId'>[]
+}
+
+
+export async function updateProfile({
+  firstName,
+  lastName,
+  profileImage,
+  email,
+}: {
+  firstName: string;
+  lastName: string;
+  profileImage?: Blob | null; // Profilo immagine opzionale
+  email: string;
+}) {
+  // Converti l'immagine in un formato compatibile con il database se necessario
+  let profileImageData: string | null = null;
+  if (profileImage) {
+    // Se hai un modo per gestire le immagini (es. base64, path a file remoto, etc.)
+    profileImageData = await convertImageToBase64(profileImage); // Funzione di esempio
+  }
+
+  // Esegui l'aggiornamento del profilo nel database
+  return await db
+    .update(users)
+    .set({
+      firstName,
+      lastName,
+      image: profileImageData, // Inserisci l'immagine solo se presente
+    })
+    .where(eq(users.email, email)); // Assumi che l'email sia usata come chiave univoca
+}
+
+// Esempio di funzione per convertire l'immagine in base64 (opzionale)
+async function convertImageToBase64(image: Blob): Promise<string> {
+  // Converti il Blob in un Buffer leggibile in Node.js
+  const buffer = await image.arrayBuffer();
+  const base64Image = Buffer.from(buffer).toString("base64");
+  return base64Image;
+}
+
+export async function createStore({
+  storeName,
+  storeLogo,
+  email,
+}: {
+  storeName: string;
+  storeLogo: Blob | null;
+  email: string;
+  userId: number;
+  role: string;
+}) {
+  // Convert logo to base64 if provided
+  let logoData: string | null = null;
+  if (storeLogo) {
+    logoData = await convertImageToBase64(storeLogo);
+  }
+
+  // Insert the new store into the database
+  const newStore = await db.insert(stores).values({
+    name: storeName,
+    image: logoData,
+  }).returning(); // Optionally return the inserted store details
+
+  // Get the newly created store ID
+  const storeId = newStore[0]?.id; // Assuming the store ID is 
+  const { id: userId } = await getUser(email)
+
+  // Insert the user-store role association
+  if (storeId) {
+    await db.insert(userStoreRoles).values({
+      userId,
+      storeId,
+      role: 'admin',
+    });
+  }
+
+  return { newStore, success: true }; // Return the newly created store and success status
+}
+
+export async function completeOnboarding(email: string) {
+  return await db
+  .update(users)
+  .set({
+    onboardingCompleted: true
+  })
+  .where(eq(users.email, email));
 }

@@ -21,7 +21,8 @@ export const users = pgTable("user", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
-  name: text("name"),
+  firstName: text("firstName"),
+  lastName: text("lastName"),
   email: text("email").unique(),
   password: text("password"),
   emailVerified: timestamp("emailVerified", { mode: "date" }),
@@ -29,7 +30,24 @@ export const users = pgTable("user", {
   stripeSecretKey: text('stripeSecretKey').notNull(),
   role: text('role').notNull(),
   businessTypeId: integer("businessTypeId").references(() => businessType.id),
-  businessName: text("businessName").notNull()
+  businessName: text("businessName").notNull(),
+  onboardingCompleted: boolean("onboardingCompleted").default(false)
+})
+
+export const stores = pgTable("store", {
+  id: text("id")
+  .primaryKey()
+  .$defaultFn(() => crypto.randomUUID()),
+  name: text("name").notNull(),
+  createdAt: timestamp("createdAt").defaultNow(),
+  image: text('image'),
+})
+
+export const userStoreRoles = pgTable("userStoreRole", {
+  userId: text("userId").notNull().references(() => users.id),
+  storeId: text("storeId").notNull().references(() => stores.id),
+  role: text('role').notNull(),
+  createdAt: timestamp("createdAt").defaultNow()
 })
 
 export const businessType = pgTable('businessType', {

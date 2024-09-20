@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
-import { UserContextProvider } from "../contexts/UserContext";
+import { UserContextProvider } from "@/app/contexts/UserContext";
 import Client from './layout.client'
-import { auth } from "../auth";
+import { auth } from "@/app/auth";
 
 export default async function AdminLayout({
   children,

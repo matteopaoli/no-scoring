@@ -29,7 +29,7 @@ export default auth((req) => {
     } else if (isAdminReservedPage) {
       req.nextUrl.pathname = `/admin/login`;
     }
-    // return NextResponse.redirect(req.nextUrl);
+    return NextResponse.redirect(req.nextUrl);
   } else return NextResponse.next();
 
   // if (["/api", "/admin"].some((x) => pathname.startsWith(x))) {

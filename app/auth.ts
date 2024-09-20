@@ -21,7 +21,6 @@ export const {
         let user = await getUser(email);
         if (!user) return null;
         let passwordsMatch = await compare(password, user.password!);
-        console.log(passwordsMatch)
         if (passwordsMatch) return user as any;
       },
     }),
