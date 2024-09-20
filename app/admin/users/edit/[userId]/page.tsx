@@ -1,8 +1,15 @@
-import { getBusinessTypes } from "@/app/db";
+import { getBusinessTypes, getUser, getUserById } from "@/app/db";
 import Client from "./page.client";
 import { Box, Flex } from "@chakra-ui/react";
-export default async function CreateUserPage() {
+import { redirect } from "next/navigation";
+export default async function CreateUserPage({ params }: { params: { userId: string } }) {
   const businessTypes = await getBusinessTypes();
+  const user = await getUserById(params.userId)
+
+  if (!user) {
+    redirect('/admin/users?error=true&type=not-found')
+  }
+
   const businessTypesOptions = businessTypes.map((b) => (
     <option value={b.id}>{b.name}</option>
   ));
@@ -22,7 +29,7 @@ export default async function CreateUserPage() {
       mx="auto"
       flexDirection="column"
     >
-      <Client businessTypesOptions={businessTypesOptions} />
+      <Client businessTypesOptions={businessTypesOptions} existingUser={user} />
     </Flex>
   );
 }

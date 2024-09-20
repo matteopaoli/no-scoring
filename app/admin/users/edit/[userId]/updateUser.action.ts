@@ -1,6 +1,6 @@
 "use server";
 
-import { createUser, getBusinessTypes, getUser } from "@/app/db";
+import { updateUser, getBusinessTypes, getUser } from "@/app/db";
 import { redirect } from "next/navigation";
 import { z, ZodType } from "zod";
 
@@ -19,20 +19,17 @@ export async function numericEnum<TValues extends readonly number[]>(
   }) as ZodType<TValues[number]>;
 }
 
-export default async function createUserAction(
+export default async function updateUserAction(
   prevState: string | null,
   formData: FormData
 ): Promise<string> {
   const businessTypeIds = (await getBusinessTypes()).map((b) => b.id);
 
-  const createUserSchema = z.object({
+  const updateUserSchema = z.object({
     email: z
       .string()
       .min(1, "Inserire un indirizzo email valido")
-      .email("Inserire un indirizzo email valido") // Add email format validation
-      .refine(async (email) => !(await getUser(email)), {
-        message: "L'utente esiste già",
-      }),
+      .email("Inserire un indirizzo email valido"), // Email format validation
     businessName: z.string().min(1, "Inserire un nome valido"),
     stripeApiKey: z
       .string()
@@ -42,20 +39,31 @@ export default async function createUserAction(
       ), // Stripe API key validation
     businessTypeId: await numericEnum(businessTypeIds),
   });
-  createUserSchema.safeParse({
-    name: formData.get("email"),
-  });
-  const validation = await createUserSchema.safeParseAsync({
+
+  // Parse and validate the form data
+  const validation = await updateUserSchema.safeParseAsync({
     email: formData.get("email"),
     stripeApiKey: formData.get("stripeApiKey"),
     businessTypeId: Number(formData.get("businessType")),
     businessName: formData.get("businessName"),
   });
+
   if (!validation.success) {
     return JSON.stringify(validation.error);
   }
 
   const { email, stripeApiKey, businessTypeId, businessName } = validation.data;
-  await createUser(email, stripeApiKey, businessTypeId, businessName);
-  redirect("/admin/users?success=true&action=create");
+
+  // Check if the user exists before updating
+  const existingUser = await getUser(email);
+  if (!existingUser) {
+    return JSON.stringify({
+      error: "Utente non trovato", // User not found
+    });
+  }
+
+  // Update the user
+  await updateUser(email, stripeApiKey, businessTypeId, businessName);
+  
+  redirect("/admin/users?success=true&action=update");
 }

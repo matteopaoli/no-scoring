@@ -1,0 +1,1 @@
+ALTER TABLE "commissionRules" ALTER COLUMN "maxAmount" DROP NOT NULL;

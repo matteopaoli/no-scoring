@@ -1,10 +1,10 @@
-"use client";
+'use client';
 /* eslint-disable */
 
 import {
   Box,
   Flex,
-  Icon,
+  Progress,
   Table,
   Tbody,
   Td,
@@ -13,117 +13,93 @@ import {
   Thead,
   Tr,
   useColorModeValue,
-} from "@chakra-ui/react";
+} from '@chakra-ui/react';
 import {
   createColumnHelper,
   flexRender,
   getCoreRowModel,
   getSortedRowModel,
   useReactTable,
-} from "@tanstack/react-table";
-import { MdOutlineEdit } from "react-icons/md";
+} from '@tanstack/react-table';
 // Custom components
-import Card from "@/app/components/card/Card";
-import Menu from "./UsersTableMenu";
-import { useMemo, useState } from "react";
-import { User } from "@/app/db";
-import { Link } from "@chakra-ui/next-js";
+import Card from '@/app/components/card/Card';
+import Menu from './BusinessTypesTableMenu';
+import { useMemo, useState } from 'react';
 
 // Assets
 
 type UsersTableProps = {
-  tableData: Omit<User, 'password' | 'role' | 'businessTypeId'>[]
-};
+    tableData: Record<string, any>[]
+}
 
 const columnHelper = createColumnHelper();
 
 // const columns = columnsDataCheck;
 export default function UsersTable({ tableData }: UsersTableProps) {
   const [sorting, setSorting] = useState([]);
-  const textColor = useColorModeValue("secondaryGray.900", "white");
-  const borderColor = useColorModeValue("gray.200", "whiteAlpha.100");
-  const columns = useMemo(
-    () => [
-      columnHelper.accessor("email", {
-        id: "email",
-        header: () => (
-          <Text
-            justifyContent="space-between"
-            align="center"
-            fontSize={{ sm: "10px", lg: "12px" }}
-            color="gray.400"
-          >
-            E-mail
-          </Text>
-        ),
-        cell: (info) => (
-          <Flex align="center">
-            <Text color={textColor} fontSize="sm" fontWeight="700">
-              {info.getValue()}
-            </Text>
-          </Flex>
-        ),
-      }),
-      columnHelper.accessor("businessName", {
-        id: "businessName",
-        header: () => (
-          <Text
-            justifyContent="space-between"
-            align="center"
-            fontSize={{ sm: "10px", lg: "12px" }}
-            color="gray.400"
-          >
-            Nome azienda
-          </Text>
-        ),
-        cell: (info) => (
-          <Flex align="center">
-            <Text color={textColor} fontSize="sm" fontWeight="700">
-              {info.getValue()}
-            </Text>
-          </Flex>
-        ),
-      }),
-      columnHelper.accessor("businessType", {
-        id: "businessType",
-        header: () => (
-          <Text
-            justifyContent="space-between"
-            align="center"
-            fontSize={{ sm: "10px", lg: "12px" }}
-            color="gray.400"
-          >
-            Tipo Business
-          </Text>
-        ),
-        cell: (info) => (
+  const textColor = useColorModeValue('secondaryGray.900', 'white');
+  const borderColor = useColorModeValue('gray.200', 'whiteAlpha.100');
+  const columns = useMemo(() => [
+    columnHelper.accessor('name', {
+      id: 'name',
+      header: () => (
+        <Text
+          justifyContent="space-between"
+          align="center"
+          fontSize={{ sm: '10px', lg: '12px' }}
+          color="gray.400"
+        >
+          Nome categoria
+        </Text>
+      ),
+      cell: (info) => (
+        <Flex align="center">
           <Text color={textColor} fontSize="sm" fontWeight="700">
             {info.getValue()}
           </Text>
-        ),
-      }),
-      columnHelper.accessor("id", {
-        id: "id",
-        header: () => (
-          <Text
-            justifyContent="space-between"
-            align="center"
-            fontSize={{ sm: "10px", lg: "12px" }}
-            color="gray.400"
-          >
-            Azioni
+        </Flex>
+      ),
+    }),
+    columnHelper.accessor('businessName', {
+      id: 'businessName',
+      header: () => (
+        <Text
+          justifyContent="space-between"
+          align="center"
+          fontSize={{ sm: '10px', lg: '12px' }}
+          color="gray.400"
+        >
+          Nome azienda
+        </Text>
+      ),
+      cell: (info) => (
+        <Flex align="center">
+          <Text color={textColor} fontSize="sm" fontWeight="700">
+            {info.getValue()}
           </Text>
-        ),
-        cell: (info) => (
-          <Link href={`/admin/users/edit/${info.getValue()}`}>
-            <Icon as={MdOutlineEdit} width="20px" height="20px" color="inherit" />
-          </Link>
-        ),
-      }),
-    ],
-    [textColor]
-  );
-  console.log(tableData);
+        </Flex>
+      ),
+    }),
+    columnHelper.accessor('businessType', {
+      id: 'businessType',
+      header: () => (
+        <Text
+          justifyContent="space-between"
+          align="center"
+          fontSize={{ sm: '10px', lg: '12px' }}
+          color="gray.400"
+        >
+          Tipo Business
+        </Text>
+      ),
+      cell: (info) => (
+        <Text color={textColor} fontSize="sm" fontWeight="700">
+          {info.getValue()}
+        </Text>
+      ),
+    }),
+  ], [textColor]);
+  console.log(tableData)
   const [data] = useState(() => [...tableData]);
   const table = useReactTable({
     data,
@@ -141,7 +117,7 @@ export default function UsersTable({ tableData }: UsersTableProps) {
       flexDirection="column"
       w="100%"
       px="0px"
-      overflowX={{ sm: "scroll", lg: "hidden" }}
+      overflowX={{ sm: 'scroll', lg: 'hidden' }}
     >
       <Flex px="25px" mb="8px" justifyContent="space-between" align="center">
         <Text
@@ -172,16 +148,16 @@ export default function UsersTable({ tableData }: UsersTableProps) {
                       <Flex
                         justifyContent="space-between"
                         align="center"
-                        fontSize={{ sm: "10px", lg: "12px" }}
+                        fontSize={{ sm: '10px', lg: '12px' }}
                         color="gray.400"
                       >
                         {flexRender(
                           header.column.columnDef.header,
-                          header.getContext()
+                          header.getContext(),
                         )}
                         {{
-                          asc: "",
-                          desc: "",
+                          asc: '',
+                          desc: '',
                         }[header.column.getIsSorted()] ?? null}
                       </Flex>
                     </Th>
@@ -201,13 +177,13 @@ export default function UsersTable({ tableData }: UsersTableProps) {
                       return (
                         <Td
                           key={cell.id}
-                          fontSize={{ sm: "14px" }}
-                          minW={{ sm: "150px", md: "200px", lg: "auto" }}
+                          fontSize={{ sm: '14px' }}
+                          minW={{ sm: '150px', md: '200px', lg: 'auto' }}
                           borderColor="transparent"
                         >
                           {flexRender(
                             cell.column.columnDef.cell,
-                            cell.getContext()
+                            cell.getContext(),
                           )}
                         </Td>
                       );

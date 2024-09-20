@@ -1,0 +1,1 @@
+ALTER TABLE "businessType" ADD COLUMN "commissionType" text NOT NULL;

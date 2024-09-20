@@ -50,6 +50,34 @@
       "when": 1726479073121,
       "tag": "0006_funny_tyger_tiger",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1726635067010,
+      "tag": "0007_ancient_marvel_zombies",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1726635394213,
+      "tag": "0008_clumsy_nighthawk",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1726635435505,
+      "tag": "0009_illegal_starfox",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1726635871169,
+      "tag": "0010_nostalgic_norman_osborn",
+      "breakpoints": true
     }
   ]
 }

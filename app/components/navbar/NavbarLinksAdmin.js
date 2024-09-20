@@ -20,12 +20,11 @@ import React, { useContext } from "react";
 // Assets
 import { IoMdMoon, IoMdSunny } from "react-icons/io";
 import logout from "@/app/signout.action";
-import routes from "@/app/routes";
 import { UserContext } from "@/app/contexts/UserContext";
 import { FaEthereum } from "react-icons/fa";
 
 export default function HeaderLinks(props) {
-  const { secondary } = props;
+  const { secondary, routes } = props;
   const { colorMode, toggleColorMode } = useColorMode();
   const session = useContext(UserContext)
   // Chakra Color Mode

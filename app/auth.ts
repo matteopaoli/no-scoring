@@ -20,10 +20,8 @@ export const {
       async authorize({ email, password }: any) {
         let user = await getUser(email);
         if (!user) return null;
-        if (!user.password) {
-          // TODO:  ACCOUNT EXISTS BUT HAS TO SIGN IN THROUGH PROVI
-        }
         let passwordsMatch = await compare(password, user.password!);
+        console.log(passwordsMatch)
         if (passwordsMatch) return user as any;
       },
     }),

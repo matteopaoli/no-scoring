@@ -1,15 +1,15 @@
 "use client";
 
 import { ReactNode, useContext, useState } from "react";
-import routes from "../routes.admin";
+import routes from "../../routes.app";
 import { usePathname } from "next/navigation";
 import { Box, Portal, useDisclosure } from "@chakra-ui/react";
-import { SidebarContext } from "../contexts/SidebarContext";
-import AdminNavbar from "../components/navbar/NavbarAdmin";
-import Footer from "../components/footer/FooterAdmin";
-import Sidebar from "../components/sidebar/Sidebar";
+import { SidebarContext } from "../../contexts/SidebarContext";
+import AdminNavbar from "../../components/navbar/NavbarAdmin";
+import Footer from "../../components/footer/FooterAdmin";
+import Sidebar from "../../components/sidebar/Sidebar";
 
-export default function AdminLayout({
+export default function AppClientLayout({
   children,
   ...rest
 }: Record<string, any> & { children: ReactNode }) {
@@ -120,7 +120,6 @@ export default function AdminLayout({
                   secondary={true}
                   // message={""}
                   fixed={false}
-                  routes={routes}
                   {...rest}
                 />
               </Box>

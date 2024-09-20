@@ -35,7 +35,16 @@ export const users = pgTable("user", {
 export const businessType = pgTable('businessType', {
   id: serial('id').primaryKey(), // Auto-incrementing ID
   name: text('name').notNull(), // Name of the business type
-  commissionRate: numeric('commissionRate', { precision: 5, scale: 2 }).notNull(), // Commission rate with 5 digits and 2 decimals
+});
+
+// New table to store commission rules
+export const commissionRules = pgTable('commissionRules', {
+  id: serial('id').primaryKey(), // Auto-incrementing ID for the rule
+  businessTypeId: integer('businessTypeId').references(() => businessType.id).notNull(), // Foreign key to businessType
+  minAmount: numeric('minAmount', { precision: 10, scale: 2 }).notNull(), // Minimum amount for the commission range
+  maxAmount: numeric('maxAmount', { precision: 10, scale: 2 }), // Maximum amount for the commission range
+  commissionType: text('commissionType').notNull(), // 'flat' or 'percentage'
+  commissionValue: numeric('commissionValue', { precision: 10, scale: 2 }).notNull(), // Value of the commission (flat amount or percentage)
 });
  
 export const accounts = pgTable(

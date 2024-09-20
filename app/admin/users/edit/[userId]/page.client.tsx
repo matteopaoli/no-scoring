@@ -13,32 +13,40 @@ import {
 } from "@chakra-ui/react";
 import { ReactNode, useEffect, useState } from "react";
 import { useFormState } from "react-dom";
-import createUserAction from "./createUser.action";
+import updateUserAction from "./updateUser.action"; // Replace with your update user action
+import { User } from "@/app/db";
 
 const initialState: string | null = null;
 
-type CreateUserPageProps = {
+type UpdateUserPageProps = {
   businessTypesOptions: ReactNode[];
+  existingUser: User
 };
 
-export default function createUserPage({
+export default function UpdateUserPage({
   businessTypesOptions,
-}: CreateUserPageProps) {
-  const [formState, action] = useFormState(createUserAction, initialState);
+  existingUser,
+}: UpdateUserPageProps) {
+  const [formState, action] = useFormState(updateUserAction, initialState);
   const [errors, setErrors] = useState<Record<string, any>[]>([]);
 
   useEffect(() => {
     if (formState) {
       const { issues } = JSON.parse(formState);
+      console.log(issues);
       setErrors(issues);
     }
   }, [formState]);
 
+  console.log(formState);
+
   // Chakra color mode
   const textColor = useColorModeValue("navy.700", "white");
   const brandStars = useColorModeValue("brand.500", "brand.400");
+
   return (
     <form action={action} style={{ width: '100%' }}>
+      {/* Email is read-only */}
       <FormControl isInvalid={errors.some((e) => e.path.includes("email"))}>
         <FormLabel
           display="flex"
@@ -53,11 +61,11 @@ export default function createUserPage({
           <Text color={brandStars}>*</Text>
         </FormLabel>
         <Input
-          isRequired={true}
           fontSize="sm"
           ms={{ base: "0px", md: "0px" }}
           type="email"
-          placeholder="mail@email.com"
+          value={existingUser.email}
+          readOnly={true} // Email cannot be changed
           fontWeight="500"
           size="lg"
           name="email"
@@ -68,6 +76,7 @@ export default function createUserPage({
             <FormErrorMessage>{m.message}</FormErrorMessage>
           ))}
       </FormControl>
+
       <FormControl isInvalid={errors.some((e) => e.path.includes("businessName"))}>
         <FormLabel
           display="flex"
@@ -87,16 +96,18 @@ export default function createUserPage({
           ms={{ base: "0px", md: "0px" }}
           type="text"
           placeholder="Pinco Pallino s.r.l."
+          defaultValue={existingUser.businessName}
           fontWeight="500"
           size="lg"
           name="businessName"
         />
         {errors
-          .filter((e) => e.path.includes("email"))
+          .filter((e) => e.path.includes("businessName"))
           .map((m) => (
             <FormErrorMessage>{m.message}</FormErrorMessage>
           ))}
       </FormControl>
+
       <FormControl
         isInvalid={errors.some((e) => e.path.includes("businessTypeId"))}
       >
@@ -121,6 +132,7 @@ export default function createUserPage({
           fontWeight="500"
           size="lg"
           name="businessType"
+          defaultValue={existingUser.businessTypeId}
         >
           {businessTypesOptions}
         </Select>
@@ -130,6 +142,7 @@ export default function createUserPage({
             <FormErrorMessage>{m.message}</FormErrorMessage>
           ))}
       </FormControl>
+
       <FormControl
         isInvalid={errors.some((e) => e.path.includes("stripeApiKey"))}
       >
@@ -150,6 +163,7 @@ export default function createUserPage({
           fontSize="sm"
           ms={{ base: "0px", md: "0px" }}
           placeholder="Stripe API Token"
+          defaultValue={existingUser.stripeSecretKey}
           fontWeight="500"
           size="lg"
           name="stripeApiKey"
@@ -160,6 +174,7 @@ export default function createUserPage({
             <FormErrorMessage>{m.message}</FormErrorMessage>
           ))}
       </FormControl>
+
       <Button
         type="submit"
         fontSize="sm"
@@ -169,7 +184,7 @@ export default function createUserPage({
         h="50"
         mt="24px"
       >
-        Aggiungi utente
+        Aggiorna utente
       </Button>
     </form>
   );
