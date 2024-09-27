@@ -3,12 +3,10 @@
 module.exports = {
   apps: [
     {
-      name: "nextjs-app", // Name of your application
-      script: "node_modules/.bin/next", // Path to the Next.js executable
-      args: "start -p 3000", // Arguments to run the app (start on port 3000)
-      cwd: "~/no-scoring", // Working directory (replace with your app's path)
-      instances: "max", // Number of instances (use 'max' to utilize all CPU cores)
-      exec_mode: "cluster", // Enables clustering mode
+      name: "paytomorrow-app", // Name of your application
+      script: "npm", // Path to the Next.js executable5
+      args: "start", // Arguments to run the app (start on port 3000)
+      cwd: "./", // Working directory (replace with your app's path)
       env: {
         NODE_ENV: "production", // Set the environment to production
         // Add other environment variables here
