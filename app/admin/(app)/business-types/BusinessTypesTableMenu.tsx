@@ -95,7 +95,7 @@ export default function Banner(props) {
           mb='10px'>
           <Flex align='center'>
             <Icon as={MdOutlinePerson} h='16px' w='16px' me='8px' />
-            <Link fontSize='sm' fontWeight='400' href="/admin/users/new">
+            <Link fontSize='sm' fontWeight='400' href="/admin/business-types/new">
               Crea nuovo
             </Link>
           </Flex>

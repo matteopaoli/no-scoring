@@ -12,13 +12,13 @@ services:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
 
-  web:
-    container_name: web
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-    ports:
-      - "3000:3000"
+  # web:
+  #   container_name: web
+  #   build:
+  #     context: .
+  #     dockerfile: ./Dockerfile
+  #   ports:
+  #     - "3000:3000"
   
   # workspace:
   #   container_name: workspace

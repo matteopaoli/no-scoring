@@ -2,9 +2,9 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import { eq, getTableColumns } from "drizzle-orm";
 import postgres from "postgres";
 import { genSaltSync, hashSync } from "bcrypt-ts";
-import { businessType, users, commissionRules, stores, userStoreRoles } from "schema";
+import { businessType, users, commissionRules, stores, userStoreRoles, products } from "schema";
 
-let client = postgres(`${process.env.POSTGRES_URL!}`);
+let client = postgres(`${process.env.DATABASE_URL!}`);
 let db = drizzle(client);
 
 interface CommissionRule {
@@ -13,6 +13,7 @@ interface CommissionRule {
   maxAmount: number | null; // maxAmount can be null for infinite range
   commissionType: string;
   commissionValue: number;
+  businessTypeId?: number;  
 }
 
 interface BusinessType {
@@ -34,6 +35,7 @@ export interface User {
   businessTypeId: number;
   businessName: string;
   onboardingCompleted: boolean;
+  stripeUserId: string;
 }
 
 export async function getUser(email: string) {
@@ -44,14 +46,12 @@ export async function getUserById(id: string) {
   return (await db.select().from(users).where(eq(users.id, id)))?.[0] as User;
 }
 
-
-
-
 export async function createUser(
   email: string,
   stripeSecretKey: string,
   businessTypeId: number,
-  businessName: string
+  businessName: string,
+  stripeUserId: string
 ) {
   let salt = genSaltSync(10);
   let hash = hashSync("PayTomorrow!2024", salt);
@@ -62,6 +62,7 @@ export async function createUser(
     businessTypeId,
     password: hash,
     businessName,
+    stripeUserId
   });
 }
 
@@ -69,7 +70,8 @@ export async function updateUser(
   email: string,
   stripeSecretKey: string,
   businessTypeId: number,
-  businessName: string
+  businessName: string,
+  stripeUserId: string,
 ) {
   return await db
     .update(users)
@@ -77,6 +79,7 @@ export async function updateUser(
       stripeSecretKey,
       businessTypeId,
       businessName,
+      stripeUserId
     })
     .where(eq(users.email, email));
 }
@@ -120,7 +123,7 @@ export async function getBusinessTypes(): Promise<BusinessType[]> {
         minAmount: Number(minAmount),
         maxAmount: maxAmount !== null? Number(maxAmount) : null,
         commissionType: commissionType!,
-        commissionValue: Number(commissionValue)
+        commissionValue: Number(commissionValue),
       });
     }
   });
@@ -221,4 +224,146 @@ export async function completeOnboarding(email: string) {
     onboardingCompleted: true
   })
   .where(eq(users.email, email));
+}
+
+export async function createBusinessType(bt: BusinessType) {
+  // Insert the new business type into the database
+  const newBusinessType = await db.insert(businessType).values({
+    name: bt.name,
+  }).returning();
+
+  // Get the newly created business type ID
+  const businessTypeId = newBusinessType[0].id!;
+
+  if (businessTypeId && bt.commissionRules.length > 0) {
+    // Insert each commission rule associated with the business type
+    for (const rule of bt.commissionRules) {
+      await db.insert(commissionRules).values({
+        businessTypeId,
+        minAmount: rule.minAmount,
+        maxAmount: rule.maxAmount,
+        commissionType: rule.commissionType,
+        commissionValue: rule.commissionValue,
+      });
+    }
+  }
+
+  return { success: true, businessType: newBusinessType[0] };
+}
+
+export async function getBusinessTypeById(businessTypeId: number): Promise<BusinessType | null> {
+  // Query to fetch the business type along with its commission rules
+  const result = await db
+    .select({
+      id: businessType.id,
+      name: businessType.name,
+      commissionRuleId: commissionRules.id,
+      minAmount: commissionRules.minAmount,
+      maxAmount: commissionRules.maxAmount,
+      commissionType: commissionRules.commissionType,
+      commissionValue: commissionRules.commissionValue
+    })
+    .from(businessType)
+    .leftJoin(commissionRules, eq(commissionRules.businessTypeId, businessType.id))
+    .where(eq(businessType.id, businessTypeId));
+
+  // If no business type is found, return null
+  if (result.length === 0) {
+    return null; 
+  }
+
+  // Initialize the business type object with the first result
+  const groupedBusinessType: BusinessType = {
+    id: result[0].id,
+    name: result[0].name,
+    commissionRules: []
+  };
+
+  // Loop through the results to populate the commission rules
+  result.forEach(row => {
+    const { commissionRuleId, minAmount, maxAmount, commissionType, commissionValue } = row;
+
+    // Check if the commission rule ID is not null and add it to the commission rules array
+    if (commissionRuleId !== null) {
+      groupedBusinessType.commissionRules.push({
+        id: commissionRuleId,
+        minAmount: Number(minAmount),
+        maxAmount: maxAmount !== null ? Number(maxAmount) : null,
+        commissionType: commissionType!,
+        commissionValue: Number(commissionValue),
+      });
+    }
+  });
+
+  return groupedBusinessType; // Return the populated business type object
+}
+
+
+export async function getExistingCommissionRules(businessTypeId: number): Promise<CommissionRule[]> {
+  const result = await db
+    .select({
+      id: commissionRules.id,
+      businessTypeId: commissionRules.businessTypeId,
+      minAmount: commissionRules.minAmount,
+      maxAmount: commissionRules.maxAmount,
+      commissionType: commissionRules.commissionType,
+      commissionValue: commissionRules.commissionValue
+    })
+    .from(commissionRules)
+    .where(eq(commissionRules.businessTypeId, businessTypeId));
+
+  // Map the result into the CommissionRule array format
+  const existingRules: CommissionRule[] = result.map(rule => ({
+    id: rule.id,
+    businessTypeId: rule.businessTypeId,
+    minAmount: Number(rule.minAmount),
+    maxAmount: rule.maxAmount !== null ? Number(rule.maxAmount) : null,
+    commissionType: rule.commissionType,
+    commissionValue: Number(rule.commissionValue),
+  }));
+
+  return existingRules;
+}
+
+type BusinessTypeUpdateData = {
+  name?: string;
+};
+
+export async function updateBusinessType(businessTypeId: number, data: BusinessTypeUpdateData, cr: CommissionRule[] = []) {
+  // Update the business type details
+  const updatedBusinessType = await db
+    .update(businessType)
+    .set({
+      ...(data.name && { name: data.name }),
+      ...(data.description && { description: data.description }),
+    })
+    .where(eq(businessType.id, businessTypeId))
+    .returning();
+
+  // If there are commission rules, update them
+  if (cr.length > 0) {
+    // First, delete existing commission rules associated with the business type
+    await db.delete(commissionRules).where(eq(commissionRules.businessTypeId, businessTypeId));
+
+    // Insert updated commission rules
+    for (const rule of cr) {
+      await db.insert(commissionRules).values({
+        businessTypeId,
+        minAmount: rule.minAmount,
+        maxAmount: rule.maxAmount,
+        commissionType: rule.commissionType,
+        commissionValue: rule.commissionValue,
+      });
+    }
+  }
+
+  return updatedBusinessType[0];
+}
+
+export async function getProduct(id: string) {
+  return (await db.select().from(products).where(eq(products.id, id)))?.[0]
+}
+
+export async function updateProduct(productId: string, paymentLinkId: string, qrcode: string, tagImage: string) {
+  return await db.update(products).set({ paymentLinkId, qrcode, tagImage }).where(eq(products.id, productId))
 }

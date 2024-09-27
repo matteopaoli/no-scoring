@@ -41,6 +41,9 @@ export default async function createUserAction(
         "Inserire una Chiave Segreta valida (sk_live_************************)"
       ), // Stripe API key validation
     businessTypeId: await numericEnum(businessTypeIds),
+    stripeUserId: z.string().regex(/^acct_[a-zA-Z0-9]+$/, {
+      message: "Il formato dell'ID utente di Stripe non è valido. Dovrebbe iniziare con 'acct_' seguito da caratteri alfanumerici.",
+    })
   });
   createUserSchema.safeParse({
     name: formData.get("email"),
@@ -50,12 +53,13 @@ export default async function createUserAction(
     stripeApiKey: formData.get("stripeApiKey"),
     businessTypeId: Number(formData.get("businessType")),
     businessName: formData.get("businessName"),
+    stripeUserId: formData.get('stripeUserId')
   });
   if (!validation.success) {
     return JSON.stringify(validation.error);
   }
 
-  const { email, stripeApiKey, businessTypeId, businessName } = validation.data;
-  await createUser(email, stripeApiKey, businessTypeId, businessName);
+  const { email, stripeApiKey, businessTypeId, businessName, stripeUserId } = validation.data;
+  await createUser(email, stripeApiKey, businessTypeId, businessName, stripeUserId);
   redirect("/admin/users?success=true&action=create");
 }

@@ -1,8 +1,8 @@
-import { NextAuthConfig } from 'next-auth';
+import { NextAuthConfig } from "next-auth";
 
 export const authConfig = {
   pages: {
-    signIn: '/login',
+    signIn: "/login",
   },
   providers: [
     // added later in auth.ts since it requires bcrypt which is only compatible with Node.js
@@ -11,14 +11,20 @@ export const authConfig = {
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       let isLoggedIn = !!auth?.user;
-      let isReservedPage = /^\/[a-z]{2}\/app/.test(nextUrl.pathname)
+      let isReservedPage = /^\/[a-z]{2}\/app/.test(nextUrl.pathname);
 
       if (isReservedPage) {
         if (isLoggedIn) return true;
         return false; // Redirect unauthenticated users to login page
       }
-
       return true;
+    },
+    async jwt({ token, user }) {
+      if (user) {
+        // Add user id to the token
+        token.userId = user.id;
+      }
+      return token;
     },
   },
 } satisfies NextAuthConfig;

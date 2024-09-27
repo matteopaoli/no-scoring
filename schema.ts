@@ -31,7 +31,8 @@ export const users = pgTable("user", {
   role: text('role').notNull(),
   businessTypeId: integer("businessTypeId").references(() => businessType.id),
   businessName: text("businessName").notNull(),
-  onboardingCompleted: boolean("onboardingCompleted").default(false)
+  onboardingCompleted: boolean("onboardingCompleted").default(false),
+  stripeUserId: text('stripeUserId').notNull()
 })
 
 export const stores = pgTable("store", {
@@ -54,6 +55,13 @@ export const businessType = pgTable('businessType', {
   id: serial('id').primaryKey(), // Auto-incrementing ID
   name: text('name').notNull(), // Name of the business type
 });
+
+export const products = pgTable("product", {
+  id: text('id').notNull(),
+  qrcode: text('qrcode'),
+  tagImage: text('tagImage'),
+  paymentLinkId: text('paymentLinkId')
+})
 
 // New table to store commission rules
 export const commissionRules = pgTable('commissionRules', {

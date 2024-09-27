@@ -130,7 +130,7 @@ export default function AdminLayout({
               px={{ base: "20px", md: "30px" }}
               pe="20px"
               minH="100vh"
-              pt="130px"
+              pt={{ base: '240px', md: '130px' }}
             >
               {children}
             </Box>

@@ -6,6 +6,7 @@ import {
   Flex,
   Icon,
   Image,
+  Portal,
   Table,
   Tbody,
   Td,
@@ -14,21 +15,26 @@ import {
   Thead,
   Tr,
   useColorModeValue,
+  useMediaQuery,
 } from "@chakra-ui/react";
 import {
   createColumnHelper,
   flexRender,
   getCoreRowModel,
   getSortedRowModel,
+  Row,
   useReactTable,
+  VisibilityState,
 } from "@tanstack/react-table";
 import { MdOutlineEdit } from "react-icons/md";
 // Custom components
 import Card from "@/app/components/card/Card";
 import Menu from "./ProductsTableMenu";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "@chakra-ui/next-js";
 import type Stripe from "stripe";
+import { generatePaymentMethods } from "./generatePaymentMethods.action";
+import ProductSidebar from "./ProductSidebar";
 
 // Default image URL
 const DEFAULT_IMAGE_URL = "/img/product-placeholder.png"
@@ -41,9 +47,28 @@ const columnHelper = createColumnHelper<Stripe.Product>();
 
 export default function ProductsTable({ tableData }: ProductsTableProps) {
   const [sorting, setSorting] = useState([]);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [activeProductId, setActiveProductId] = useState<string | null>(null);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    images: false
+  });
+  const [isMdViewport] = useMediaQuery('(min-width: 768px)')
+
+  useEffect(() => {
+    if (isMdViewport) {
+      setColumnVisibility({
+        description: true
+      })
+    }
+    else {
+      setColumnVisibility({
+        description: false
+      })
+    }
+  }, [isMdViewport])
+  
   const textColor = useColorModeValue("secondaryGray.900", "white");
   const borderColor = useColorModeValue("gray.200", "whiteAlpha.100");
-
   const columns = useMemo(
     () => [
       columnHelper.accessor("images", {
@@ -111,24 +136,6 @@ export default function ProductsTable({ tableData }: ProductsTableProps) {
           </Text>
         ),
       }),
-      columnHelper.accessor("id", {
-        id: "id",
-        header: () => (
-          <Text
-            justifyContent="space-between"
-            align="center"
-            fontSize={{ sm: "10px", lg: "12px" }}
-            color="gray.400"
-          >
-            Azioni
-          </Text>
-        ),
-        cell: (info) => (
-          <Link href={`/admin/products/edit/${info.getValue()}`}>
-            <Icon as={MdOutlineEdit} width="20px" height="20px" color="inherit" />
-          </Link>
-        ),
-      }),
     ],
     [textColor]
   );
@@ -139,12 +146,19 @@ export default function ProductsTable({ tableData }: ProductsTableProps) {
     columns,
     state: {
       sorting,
+      columnVisibility
     },
+    onColumnVisibilityChange: setColumnVisibility,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     debugTable: true,
   });
+
+  const onRowClick = (row: Row<Stripe.Product>) => {
+    setIsSidebarOpen(true)
+    setActiveProductId(row.original.id)
+  }
 
   return (
     <Card
@@ -165,7 +179,7 @@ export default function ProductsTable({ tableData }: ProductsTableProps) {
         <Menu />
       </Flex>
       <Box>
-        <Table variant="simple" color="gray.500" mb="24px" mt="12px">
+        <Table variant="simple" color="gray.500" mb="24px" mt="12px" >
           <Thead>
             {table.getHeaderGroups().map((headerGroup) => (
               <Tr key={headerGroup.id}>
@@ -206,13 +220,13 @@ export default function ProductsTable({ tableData }: ProductsTableProps) {
               .rows.slice(0, 11)
               .map((row) => {
                 return (
-                  <Tr key={row.id}>
+                  <Tr key={row.id} onClick={() => onRowClick(row)} style={{ cursor: 'pointer' }}>
                     {row.getVisibleCells().map((cell) => {
                       return (
                         <Td
                           key={cell.id}
                           fontSize={{ sm: "14px" }}
-                          minW={{ sm: "150px", md: "200px", lg: "auto" }}
+                          minW={{ sm: "100px", md: "200px", lg: "auto" }}
                           borderColor="transparent"
                         >
                           {flexRender(
@@ -228,6 +242,9 @@ export default function ProductsTable({ tableData }: ProductsTableProps) {
           </Tbody>
         </Table>
       </Box>
+      <Portal>
+        <ProductSidebar onClose={() => setIsSidebarOpen(false)} isOpen={isSidebarOpen} productId={activeProductId} />
+      </Portal>
     </Card>
   );
 }

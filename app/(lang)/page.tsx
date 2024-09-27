@@ -1,7 +1,7 @@
 'use client'
 
 import { Link } from '@chakra-ui/next-js';
-import { useDictionary } from './DictionaryProvider'; // Adjust the import path if necessary
+import { useDictionary } from '@/app/DictionaryProvider'; // Adjust the import path if necessary
 
 export default function Page() {
   const t = useDictionary();

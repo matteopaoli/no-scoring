@@ -4,6 +4,7 @@
 import {
   Box,
   Flex,
+  Icon,
   Progress,
   Table,
   Tbody,
@@ -25,6 +26,8 @@ import {
 import Card from '@/app/components/card/Card';
 import Menu from './BusinessTypesTableMenu';
 import { useMemo, useState } from 'react';
+import { Link } from '@chakra-ui/next-js';
+import { MdOutlineEdit } from 'react-icons/md';
 
 // Assets
 
@@ -96,6 +99,24 @@ export default function UsersTable({ tableData }: UsersTableProps) {
         <Text color={textColor} fontSize="sm" fontWeight="700">
           {info.getValue()}
         </Text>
+      ),
+    }),
+    columnHelper.accessor("id", {
+      id: "id",
+      header: () => (
+        <Text
+          justifyContent="space-between"
+          align="center"
+          fontSize={{ sm: "10px", lg: "12px" }}
+          color="gray.400"
+        >
+          Azioni
+        </Text>
+      ),
+      cell: (info) => (
+        <Link href={`/admin/business-types/edit/${info.getValue()}`}>
+          <Icon as={MdOutlineEdit} width="20px" height="20px" color="inherit" />
+        </Link>
       ),
     }),
   ], [textColor]);

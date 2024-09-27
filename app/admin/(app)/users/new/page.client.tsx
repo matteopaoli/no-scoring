@@ -21,7 +21,7 @@ type CreateUserPageProps = {
   businessTypesOptions: ReactNode[];
 };
 
-export default function createUserPage({
+export default function CreateUserPage({
   businessTypesOptions,
 }: CreateUserPageProps) {
   const [formState, action] = useFormState(createUserAction, initialState);
@@ -65,7 +65,7 @@ export default function createUserPage({
         {errors
           .filter((e) => e.path.includes("email"))
           .map((m) => (
-            <FormErrorMessage>{m.message}</FormErrorMessage>
+            <FormErrorMessage key={m.message}>{m.message}</FormErrorMessage>
           ))}
       </FormControl>
       <FormControl isInvalid={errors.some((e) => e.path.includes("businessName"))}>
@@ -156,6 +156,36 @@ export default function createUserPage({
         />
         {errors
           .filter((e) => e.path.includes("stripeApiKey"))
+          .map((m) => (
+            <FormErrorMessage>{m.message}</FormErrorMessage>
+          ))}
+      </FormControl>
+      <FormControl
+        isInvalid={errors.some((e) => e.path.includes("stripeUserId"))}
+      >
+        <FormLabel
+          display="flex"
+          ms="4px"
+          fontSize="sm"
+          fontWeight="500"
+          color={textColor}
+          mb="8px"
+          mt="24px"
+        >
+          ID Stripe Utente
+          <Text color={brandStars}>*</Text>
+        </FormLabel>
+        <Textarea
+          isRequired={true}
+          fontSize="sm"
+          ms={{ base: "0px", md: "0px" }}
+          placeholder="Stripe API Token"
+          fontWeight="500"
+          size="lg"
+          name="stripeUserId"
+        />
+        {errors
+          .filter((e) => e.path.includes("stripeUserId"))
           .map((m) => (
             <FormErrorMessage>{m.message}</FormErrorMessage>
           ))}

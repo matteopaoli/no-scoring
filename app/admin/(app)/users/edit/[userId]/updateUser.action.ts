@@ -38,6 +38,9 @@ export default async function updateUserAction(
         "Inserire una Chiave Segreta valida (sk_live_************************)"
       ), // Stripe API key validation
     businessTypeId: await numericEnum(businessTypeIds),
+    stripeUserId: z.string().regex(/^acct_[a-zA-Z0-9]+$/, {
+      message: "Il formato dell'ID utente di Stripe non è valido. Dovrebbe iniziare con 'acct_' seguito da caratteri alfanumerici.",
+    })
   });
 
   // Parse and validate the form data
@@ -46,13 +49,14 @@ export default async function updateUserAction(
     stripeApiKey: formData.get("stripeApiKey"),
     businessTypeId: Number(formData.get("businessType")),
     businessName: formData.get("businessName"),
+    stripeUserId: formData.get('stripeUserId')
   });
 
   if (!validation.success) {
     return JSON.stringify(validation.error);
   }
 
-  const { email, stripeApiKey, businessTypeId, businessName } = validation.data;
+  const { email, stripeApiKey, businessTypeId, businessName, stripeUserId } = validation.data;
 
   // Check if the user exists before updating
   const existingUser = await getUser(email);
@@ -63,7 +67,7 @@ export default async function updateUserAction(
   }
 
   // Update the user
-  await updateUser(email, stripeApiKey, businessTypeId, businessName);
+  await updateUser(email, stripeApiKey, businessTypeId, businessName, stripeUserId);
   
   redirect("/admin/users?success=true&action=update");
 }

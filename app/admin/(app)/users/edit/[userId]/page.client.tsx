@@ -139,7 +139,7 @@ export default function UpdateUserPage({
         {errors
           .filter((e) => e.path.includes("businessTypeId"))
           .map((m) => (
-            <FormErrorMessage>{m.message}</FormErrorMessage>
+            <FormErrorMessage key={m.message}>{m.message}</FormErrorMessage>
           ))}
       </FormControl>
 
@@ -171,10 +171,40 @@ export default function UpdateUserPage({
         {errors
           .filter((e) => e.path.includes("stripeApiKey"))
           .map((m) => (
-            <FormErrorMessage>{m.message}</FormErrorMessage>
+            <FormErrorMessage key={m.message}>{m.message}</FormErrorMessage>
           ))}
       </FormControl>
-
+      <FormControl
+        isInvalid={errors.some((e) => e.path.includes("stripeUserId"))}
+      >
+        <FormLabel
+          display="flex"
+          ms="4px"
+          fontSize="sm"
+          fontWeight="500"
+          color={textColor}
+          mb="8px"
+          mt="24px"
+        >
+          ID Stripe Utente
+          <Text color={brandStars}>*</Text>
+        </FormLabel>
+        <Input
+          isRequired={true}
+          fontSize="sm"
+          ms={{ base: "0px", md: "0px" }}
+          placeholder="Stripe API Token"
+          fontWeight="500"
+          size="lg"
+          defaultValue={existingUser.stripeUserId}
+          name="stripeUserId"
+        />
+        {errors
+          .filter((e) => e.path.includes("stripeUserId"))
+          .map((m) => (
+            <FormErrorMessage key={m.message}>{m.message}</FormErrorMessage>
+          ))}
+      </FormControl>
       <Button
         type="submit"
         fontSize="sm"
