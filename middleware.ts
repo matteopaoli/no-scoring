@@ -20,7 +20,7 @@ export default auth((req) => {
 
   // if (pathnameHasLocale) {
   let isAppReservedPage = /^\/app/.test(req.nextUrl.pathname);
-  let isAdminReservedPage = /^\/admin/.test(req.nextUrl.pathname);
+  let isAdminReservedPage = /^\/admin(?!\/login).*/.test(req.nextUrl.pathname);
   let isReservedPage = isAppReservedPage || isAdminReservedPage;
 
   if (isReservedPage && !req.auth) {
