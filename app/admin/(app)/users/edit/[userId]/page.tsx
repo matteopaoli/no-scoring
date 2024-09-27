@@ -11,7 +11,7 @@ export default async function CreateUserPage({ params }: { params: { userId: str
   }
 
   const businessTypesOptions = businessTypes.map((b) => (
-    <option value={b.id}>{b.name}</option>
+    <option value={b.id} key={b.id}>{b.name}</option>
   ));
 
   return (

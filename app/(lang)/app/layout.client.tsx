@@ -96,7 +96,7 @@ export default function AppClientLayout({
             setToggleSidebar,
           }}
         >
-          <Sidebar routes={routes} display="none" {...rest} />
+          <Sidebar routes={routes} {...rest} />
           <Box
             float="right"
             minHeight="100vh"
@@ -115,7 +115,6 @@ export default function AppClientLayout({
               <Box>
                 <AdminNavbar
                   onOpen={onOpen}
-                  logoText="Horizon UI Dashboard PRO"
                   brandText={getActiveRoute()}
                   secondary={true}
                   // message={""}

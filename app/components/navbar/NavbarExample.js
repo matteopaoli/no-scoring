@@ -19,7 +19,7 @@ import {
   SimpleGrid,
 } from "@chakra-ui/react";
 import IconBox from "@/app/components/icons/IconBox";
-import { SidebarResponsive } from @/componentssidebar/Sidebar";
+import { SidebarResponsive } from "@/app/components/sidebar/Sidebar";
 import PropTypes from "prop-types";
 import React from "react";
 import { AiFillStar } from "react-icons/ai";

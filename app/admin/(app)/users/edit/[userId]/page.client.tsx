@@ -73,7 +73,7 @@ export default function UpdateUserPage({
         {errors
           .filter((e) => e.path.includes("email"))
           .map((m) => (
-            <FormErrorMessage>{m.message}</FormErrorMessage>
+            <FormErrorMessage key={m.message}>{m.message}</FormErrorMessage>
           ))}
       </FormControl>
 
@@ -104,7 +104,7 @@ export default function UpdateUserPage({
         {errors
           .filter((e) => e.path.includes("businessName"))
           .map((m) => (
-            <FormErrorMessage>{m.message}</FormErrorMessage>
+            <FormErrorMessage key={m.message}>{m.message}</FormErrorMessage>
           ))}
       </FormControl>
 

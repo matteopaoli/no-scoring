@@ -33,7 +33,6 @@ import Menu from "./ProductsTableMenu";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@chakra-ui/next-js";
 import type Stripe from "stripe";
-import { generatePaymentMethods } from "./generatePaymentMethods.action";
 import ProductSidebar from "./ProductSidebar";
 
 // Default image URL

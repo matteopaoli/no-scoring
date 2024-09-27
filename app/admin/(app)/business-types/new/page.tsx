@@ -63,7 +63,7 @@ export default function CreateUserPage() {
           mb="8px"
           mt="24px"
         >
-          Nome dell'attività
+          Nome dell&apos;attività
           <Text color={brandStars}>*</Text>
         </FormLabel>
         <Input

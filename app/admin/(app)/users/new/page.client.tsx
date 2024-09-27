@@ -94,7 +94,7 @@ export default function CreateUserPage({
         {errors
           .filter((e) => e.path.includes("email"))
           .map((m) => (
-            <FormErrorMessage>{m.message}</FormErrorMessage>
+            <FormErrorMessage key={m.message}>{m.message}</FormErrorMessage>
           ))}
       </FormControl>
       <FormControl
@@ -127,7 +127,7 @@ export default function CreateUserPage({
         {errors
           .filter((e) => e.path.includes("businessTypeId"))
           .map((m) => (
-            <FormErrorMessage>{m.message}</FormErrorMessage>
+            <FormErrorMessage key={m.message}>{m.message}</FormErrorMessage>
           ))}
       </FormControl>
       <FormControl
@@ -157,7 +157,7 @@ export default function CreateUserPage({
         {errors
           .filter((e) => e.path.includes("stripeApiKey"))
           .map((m) => (
-            <FormErrorMessage>{m.message}</FormErrorMessage>
+            <FormErrorMessage key={m.message}>{m.message}</FormErrorMessage>
           ))}
       </FormControl>
       <FormControl
@@ -187,7 +187,7 @@ export default function CreateUserPage({
         {errors
           .filter((e) => e.path.includes("stripeUserId"))
           .map((m) => (
-            <FormErrorMessage>{m.message}</FormErrorMessage>
+            <FormErrorMessage key={m.message}>{m.message}</FormErrorMessage>
           ))}
       </FormControl>
       <Button
