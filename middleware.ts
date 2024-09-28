@@ -1,9 +1,9 @@
 import NextAuth from "next-auth";
 import { authConfig } from "app/auth.config";
 import { NextResponse } from "next/server";
+import { getUser } from "./app/db";
 
 const { auth } = NextAuth(authConfig);
-
 
 export default auth((req) => {
   // const locales = ["en", "it"];
@@ -19,18 +19,40 @@ export default auth((req) => {
   // });
 
   // if (pathnameHasLocale) {
-  let isAppReservedPage = /^\/app/.test(req.nextUrl.pathname);
-  let isAdminReservedPage = /^\/admin(?!\/login).*/.test(req.nextUrl.pathname);
-  let isReservedPage = isAppReservedPage || isAdminReservedPage;
+  const isAppReservedPage = /^\/app/.test(req.nextUrl.pathname);
+  const isAdminReservedPage = /^\/admin(?!\/login).*/.test(
+    req.nextUrl.pathname
+  );
 
+  // Determine if it's a reserved page
+  const isReservedPage = isAppReservedPage || isAdminReservedPage;
+
+  if (!isReservedPage) {
+    return NextResponse.next()
+  }
+
+  // If the page is reserved and the user is not authenticated, redirect to login
   if (isReservedPage && !req.auth) {
-    if (isAppReservedPage) {
-      req.nextUrl.pathname = `/login`;
-    } else if (isAdminReservedPage) {
-      req.nextUrl.pathname = `/admin/login`;
-    }
+    req.nextUrl.pathname = isAppReservedPage ? "/login" : "/admin/login";
     return NextResponse.redirect(req.nextUrl);
-  } else return NextResponse.next();
+  }
+
+  // If the page is reserved and the user is authenticated, check user role
+  if (isReservedPage && req.auth) {
+    // Redirect based on user role
+    if (isAppReservedPage && req.auth?.user?.role !== "user") {
+      req.nextUrl.pathname = "/login"; // User with wrong role trying to access app page
+      return NextResponse.redirect(req.nextUrl);
+    }
+
+    if (isAdminReservedPage && req.auth?.user?.role !== "admin") {
+      req.nextUrl.pathname = "/admin/login"; // Admin with wrong role trying to access admin page
+      return NextResponse.redirect(req.nextUrl);
+    }
+  }
+  
+  // Allow the request to continue if it's not a reserved page or valid access
+  return NextResponse.next();
 
   // if (["/api", "/admin"].some((x) => pathname.startsWith(x))) {
   //   return NextResponse.next();

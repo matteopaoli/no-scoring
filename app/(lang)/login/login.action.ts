@@ -2,7 +2,6 @@
 
 import { AuthError } from "next-auth";
 import { signIn } from "../../auth";
-import { redirect } from "next/navigation";
 
 export default async function login(
   prevState: Record<string, any>,
@@ -13,6 +12,7 @@ export default async function login(
       email: formData.get("email"),
       password: formData.get("password"),
       redirectTo: "/app",
+      role: 'user'
     });
   } catch (error) {
     if (error instanceof AuthError) {

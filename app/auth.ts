@@ -17,11 +17,11 @@ export const {
   session: { strategy: "jwt" },
   providers: [
     Credentials({
-      async authorize({ email, password }: any) {
-        let user = await getUser(email);
+    async authorize(credentials, req) {
+        let user = await getUser(credentials.email as string);
         if (!user) return null;
-        let passwordsMatch = await compare(password, user.password!);
-        if (passwordsMatch) return user as any;
+        let passwordsMatch = await compare(credentials.password as string, user.password!);
+        if (passwordsMatch && user.role === credentials.role) return user as any;
       },
     }),
   ],

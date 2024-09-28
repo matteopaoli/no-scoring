@@ -38,8 +38,8 @@ export interface User {
   stripeUserId: string;
 }
 
-export async function getUser(email: string) {
-  return (await db.select().from(users).where(eq(users.email, email)))?.[0] as User;
+export async function getUser(email?: string | null) {
+  return (await db.select().from(users).where(eq(users.email, email ?? '')))?.[0] as User;
 }
 
 export async function getUserById(id: string) {

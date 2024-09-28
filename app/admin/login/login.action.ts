@@ -4,27 +4,27 @@ import { AuthError } from "next-auth";
 import { signIn } from "../../auth";
 import { redirect } from "next/navigation";
 
-export default async function login(prevState: Record<string, any>, formData: FormData): Promise<Record<string, any>> {
+export default async function login(
+  prevState: Record<string, any>,
+  formData: FormData
+) {
   try {
     await signIn("credentials", {
-      redirectTo: "/en/app",
-      email: formData.get("email") as string,
-      password: formData.get("password") as string,
+      email: formData.get("email"),
+      password: formData.get("password"),
+      redirectTo: "/admin",
+      role: 'admin'
     });
-    redirect('/app')
-  }
-  catch (error) {
-    console.log(error)
+  } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {
-        case 'CredentialsSignin':
-          return { msg: "Invalid credentials" , status: "error"};
+        case "CredentialsSignin":
+          return { error: "Invalid credentials!" };
         default:
-            return { msg: "Something went wrong", status: "error" };
+          return { error: "Something went wrong!" };
       }
     }
-    return {
-      msg: "Something went wrong", status: "error"
-    }
+
+    throw error;
   }
 }
