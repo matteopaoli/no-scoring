@@ -3,6 +3,9 @@ import { eq, getTableColumns } from "drizzle-orm";
 import postgres from "postgres";
 import { genSaltSync, hashSync } from "bcrypt-ts";
 import { businessType, users, commissionRules, stores, userStoreRoles, products } from "schema";
+import Stripe from "stripe";
+import { generateQrCodeWithLogo } from "./utils/images";
+import { createGenericProduct } from "./utils/stripe";
 
 let client = postgres(`${process.env.DATABASE_URL!}`);
 let db = drizzle(client);
@@ -51,19 +54,38 @@ export async function createUser(
   stripeSecretKey: string,
   businessTypeId: number,
   businessName: string,
-  stripeUserId: string
+  stripeUserId: string,
+  stripeLegAccountId: string,
 ) {
   let salt = genSaltSync(10);
   let hash = hashSync("PayTomorrow!2024", salt);
-  return await db.insert(users).values({
+
+  const stripe = new Stripe(stripeSecretKey)
+
+  const genericProduct = await createGenericProduct(stripe)
+
+  await stripe.webhookEndpoints.create({
+    enabled_events: ['checkout.session.completed'],
+    url: 'https://app.paytomorrow.it/api/stripe/webhook',
+  })
+
+  await db.insert(users).values({
     email,
     stripeSecretKey,
     role: "user",
     businessTypeId,
     password: hash,
     businessName,
-    stripeUserId
+    stripeUserId,
+    stripeLegAccountId
   });
+
+  await db.insert(products).values({
+    id: genericProduct.productId,
+    paymentLinkId: genericProduct.paymentLink.id,
+    qrcode: await generateQrCodeWithLogo(genericProduct.paymentLink.url),
+    tagImage: ''
+  })
 }
 
 export async function updateUser(
@@ -137,6 +159,7 @@ export async function getUsers() {
   return await db
     .select({ ...rest, businessType: businessType.name })
     .from(users)
+    .where(eq(users.role, 'user'))
     .leftJoin(businessType, eq(users.businessTypeId, businessType.id)) as Omit<User, 'password' | 'role' | 'businessTypeId'>[]
 }
 

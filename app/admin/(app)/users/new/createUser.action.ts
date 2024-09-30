@@ -43,6 +43,9 @@ export default async function createUserAction(
     businessTypeId: await numericEnum(businessTypeIds),
     stripeUserId: z.string().regex(/^acct_[a-zA-Z0-9]+$/, {
       message: "Il formato dell'ID utente di Stripe non è valido. Dovrebbe iniziare con 'acct_' seguito da caratteri alfanumerici.",
+    }),
+    stripeLegAccountId: z.string().regex(/^acct_[a-zA-Z0-9]+$/, {
+      message: "Il formato dell'ID LEG di Stripe non è valido. Dovrebbe iniziare con 'acct_' seguito da caratteri alfanumerici.",
     })
   });
   createUserSchema.safeParse({
@@ -53,13 +56,14 @@ export default async function createUserAction(
     stripeApiKey: formData.get("stripeApiKey"),
     businessTypeId: Number(formData.get("businessType")),
     businessName: formData.get("businessName"),
-    stripeUserId: formData.get('stripeUserId')
+    stripeUserId: formData.get('stripeUserId'),
+    stripeLegAccountId: formData.get('stripeLegAccountId')
   });
   if (!validation.success) {
     return JSON.stringify(validation.error);
   }
 
-  const { email, stripeApiKey, businessTypeId, businessName, stripeUserId } = validation.data;
-  await createUser(email, stripeApiKey, businessTypeId, businessName, stripeUserId);
+  const { email, stripeApiKey, businessTypeId, businessName, stripeUserId, stripeLegAccountId } = validation.data;
+  await createUser(email, stripeApiKey, businessTypeId, businessName, stripeUserId, stripeLegAccountId);
   redirect("/admin/users?success=true&action=create");
 }

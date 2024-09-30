@@ -127,6 +127,13 @@
       "when": 1727364156670,
       "tag": "0017_noisy_scourge",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1727679297275,
+      "tag": "0018_magenta_tusk",
+      "breakpoints": true
     }
   ]
 }

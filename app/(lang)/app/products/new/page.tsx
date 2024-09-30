@@ -3,7 +3,6 @@
 import {
   Box,
   Button,
-  Checkbox,
   FormControl,
   FormErrorMessage,
   FormLabel,
@@ -18,15 +17,11 @@ const initialState: string | null = null;
 
 export default function CreateOrEditProductPage() {
   const [errors, setErrors] = useState<Record<string, any>[]>([]);
-  const [generatePaymentMethods, setGeneratePaymentMethods] = useState(false);
 
   // Chakra color mode
   const textColor = useColorModeValue("navy.700", "white");
   const brandStars = useColorModeValue("brand.500", "brand.400");
 
-  const handleCheckboxChange = () => {
-    setGeneratePaymentMethods(!generatePaymentMethods);
-  };
 
   return (
     <Box width={{ base: '100%', md: '500px' }}>
@@ -146,18 +141,6 @@ export default function CreateOrEditProductPage() {
             .map((m) => (
               <FormErrorMessage key={m.message}>{m.message}</FormErrorMessage>
             ))}
-        </FormControl>
-
-        {/* Checkbox for generating payment methods */}
-        <FormControl>
-          <Checkbox
-            mt="24px"
-            isChecked={generatePaymentMethods}
-            onChange={handleCheckboxChange}
-            colorScheme="brand"
-          >
-            Genera metodi di pagamento per questo prodotto
-          </Checkbox>
         </FormControl>
 
         <Button

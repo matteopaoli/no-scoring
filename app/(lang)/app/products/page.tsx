@@ -8,7 +8,8 @@ export default async function ProductsPage() {
     const user = await getUser(session?.user?.email!)
     
     const stripe = new Stripe(user.stripeSecretKey)
-    const { data: products } = await stripe.products.list()
+    const { data } = await stripe.products.list()
+    const products = data.filter(x => x.name !== 'Prodotto generico')
   
     return (
         <>

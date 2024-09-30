@@ -190,6 +190,36 @@ export default function CreateUserPage({
             <FormErrorMessage key={m.message}>{m.message}</FormErrorMessage>
           ))}
       </FormControl>
+      <FormControl
+        isInvalid={errors.some((e) => e.path.includes("stripeLegAccountId"))}
+      >
+        <FormLabel
+          display="flex"
+          ms="4px"
+          fontSize="sm"
+          fontWeight="500"
+          color={textColor}
+          mb="8px"
+          mt="24px"
+        >
+          ID Stripe LEG
+          <Text color={brandStars}>*</Text>
+        </FormLabel>
+        <Textarea
+          isRequired={true}
+          fontSize="sm"
+          ms={{ base: "0px", md: "0px" }}
+          placeholder="Stripe API Token"
+          fontWeight="500"
+          size="lg"
+          name="stripeLegAccountId"
+        />
+        {errors
+          .filter((e) => e.path.includes("stripeUserId"))
+          .map((m) => (
+            <FormErrorMessage key={m.message}>{m.message}</FormErrorMessage>
+          ))}
+      </FormControl>
       <Button
         type="submit"
         fontSize="sm"

@@ -32,7 +32,8 @@ export const users = pgTable("user", {
   businessTypeId: integer("businessTypeId").references(() => businessType.id),
   businessName: text("businessName").notNull(),
   onboardingCompleted: boolean("onboardingCompleted").default(false),
-  stripeUserId: text('stripeUserId').notNull()
+  stripeUserId: text('stripeUserId').notNull(),
+  stripeLegAccountId: text('stripeLegAccountId')
 })
 
 export const stores = pgTable("store", {
