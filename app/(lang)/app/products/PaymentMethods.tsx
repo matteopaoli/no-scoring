@@ -4,7 +4,6 @@ import {
   Button,
   Flex,
   Image,
-  Link,
   Spinner,
   Text,
   Tooltip,
@@ -53,10 +52,8 @@ const PaymentMethods: React.FC<PaymentMethodsProps> = ({ imageData, paymentLink,
   return (
     <VStack spacing={4} width="full">
       <Box
-        borderWidth="1px"
         borderColor={borderColor}
         borderRadius="md"
-        padding="4"
         backgroundColor={bgBox}
         width="100%"
       >
@@ -90,43 +87,46 @@ const PaymentMethods: React.FC<PaymentMethodsProps> = ({ imageData, paymentLink,
             <Spinner />
           ) : (
             <>
-              <Text fontWeight="bold">QR Code</Text>
-              <Box height="200px" width="full" display="flex" alignItems="center">
-                {qrCode ? (
-                  <Flex w="100%" alignItems="center" justifyContent="space-between">
-                    <Image src={qrCode} alt="QR Code" boxSize="100px" objectFit="contain" />
-                    <Button
-                      mt={2}
-                      onClick={() => downloadBase64Image(qrCode, 'qrcode.png')}
-                      backgroundColor={bgButton}
-                      _hover={{ bg: bgButtonHover }}
-                    >
-                      Scarica QR Code
-                    </Button>
-                  </Flex>
-                ) : (
-                  <Image src="/img/image-not-available.jpg" width={150} />
-                )}
-              </Box>
-              
-              <Text fontWeight="bold">Etichetta</Text>
-              <Box height="200px" width="full" display="flex" alignItems="center" mt={2}>
-                {priceTag ? (
-                  <>
-                    <Image src={`data:image/png;base64,${priceTag}`} alt="Price Tag" boxSize="100px" objectFit="contain" />
-                    <Button
-                      mt={2}
-                      onClick={() => downloadBase64Image(`data:image/png;base64,${priceTag}`, 'pricetag.png')}
-                      backgroundColor={bgButton}
-                      _hover={{ bg: bgButtonHover }}
-                    >
-                      Scarica Etichetta
-                    </Button>
-                  </>
-                ) : (
-                  <Image src="/img/image-not-available.jpg" width={150} />
-                )}
-              </Box>
+              <Text fontWeight="bold">QR Code e Etichetta</Text>
+              <Flex justify="space-between" align="flex-start" mt={2}>
+                {/* QR Code Section */}
+                <Box height="200px" display="flex" flexDirection="column" alignItems="center" width="50%">
+                  {qrCode ? (
+                    <>
+                      <Image src={qrCode} alt="QR Code" boxSize="100px" objectFit="contain" />
+                      <Button
+                        mt={2}
+                        onClick={() => downloadBase64Image(qrCode, 'qrcode.png')}
+                        backgroundColor={bgButton}
+                        _hover={{ bg: bgButtonHover }}
+                      >
+                        Scarica QR Code
+                      </Button>
+                    </>
+                  ) : (
+                    <Image src="/img/image-not-available.jpg" width={150} />
+                  )}
+                </Box>
+                
+                {/* Price Tag Section */}
+                <Box height="200px" display="flex" flexDirection="column" alignItems="center" width="50%">
+                  {priceTag ? (
+                    <>
+                      <Image src={`data:image/png;base64,${priceTag}`} alt="Price Tag" boxSize="100px" objectFit="contain" />
+                      <Button
+                        mt={2}
+                        onClick={() => downloadBase64Image(`data:image/png;base64,${priceTag}`, 'pricetag.png')}
+                        backgroundColor={bgButton}
+                        _hover={{ bg: bgButtonHover }}
+                      >
+                        Scarica Etichetta
+                      </Button>
+                    </>
+                  ) : (
+                    <Image src="/img/image-not-available.jpg" width={150} />
+                  )}
+                </Box>
+              </Flex>
             </>
           )}
         </Box>

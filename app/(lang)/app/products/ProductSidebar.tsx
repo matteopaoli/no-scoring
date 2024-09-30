@@ -1,4 +1,4 @@
-import { useEffect, useState, Suspense, lazy } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import {
   Drawer,
   DrawerBody,
@@ -12,6 +12,7 @@ import {
   Flex,
 } from '@chakra-ui/react';
 import PaymentMethods from './PaymentMethods';
+import { useRouter } from 'next/navigation';
 
 type ProductSidebarProps = {
   isOpen: boolean;
@@ -32,6 +33,7 @@ const fetchProductData = async (productId: string) => {
 export default function ProductSidebar({ isOpen, onClose, btnRef, productId }: ProductSidebarProps) {
   const [product, setProduct] = useState<Record<string, any> | null>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter()
 
   useEffect(() => {
     if (productId) {
@@ -49,6 +51,16 @@ export default function ProductSidebar({ isOpen, onClose, btnRef, productId }: P
       fetchProduct();
     }
   }, [productId]);
+
+  const handleEdit = () => {
+    // Implement edit functionality here
+    console.log("Edit product", productId);
+  };
+
+  const handleDelete = () => {
+    // Implement delete functionality here
+    console.log("Delete product", productId);
+  };
 
   return (
     <Drawer
@@ -88,10 +100,14 @@ export default function ProductSidebar({ isOpen, onClose, btnRef, productId }: P
         </DrawerBody>
 
         <DrawerFooter>
-          <Button variant='outline' mr={3} onClick={onClose}>
-            Cancel
-          </Button>
-          <Button colorScheme='blue'>Save</Button>
+          <Flex justifyContent="space-between" w="100%">
+            <Button colorScheme='red' onClick={handleDelete}>
+              Elimina
+            </Button>
+            <Button colorScheme='blue' onClick={() => router.push(`/app/products/edit/${[productId]}`)}>
+              Modifica
+            </Button>
+          </Flex>
         </DrawerFooter>
       </DrawerContent>
     </Drawer>

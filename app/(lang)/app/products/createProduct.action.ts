@@ -4,13 +4,10 @@ import { auth } from "@/app/auth";
 import { createProduct, getUser } from "@/app/db";
 import Stripe from "stripe";
 import { z } from "zod";
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-import { v4 as uuidv4 } from "uuid"; // To generate unique file names
 import { createPaymentLink } from "@/app/utils/stripe";
 import { generateQrCodeWithLogo, generateTagImage } from "@/app/utils/images";
-
-// Initialize S3 client (assuming the region and credentials are set up in your environment)
-const s3 = new S3Client();
+import { redirect } from "next/navigation";
+import { uploadImageToS3 } from "@/app/utils/s3";
 
 export default async function createProductAction(prevState, formData: FormData): Promise<string> {
   const session = await auth();
@@ -60,13 +57,10 @@ export default async function createProductAction(prevState, formData: FormData)
     name,
     description,
     images: imageUrl ? [imageUrl] : [],
-  });
-
-  // Create the price for the product
-  const priceData = await stripe.prices.create({
-    unit_amount: Math.round(price * 100), // Stripe requires price in cents
-    currency: "eur", // Adjust the currency if necessary
-    product: product.id,
+    default_price_data: {
+      currency: 'eur',
+      unit_amount: Math.round(price * 100)
+    }
   });
 
   const paymentLink = await createPaymentLink(stripe, product.id)
@@ -75,25 +69,5 @@ export default async function createProductAction(prevState, formData: FormData)
 
   await createProduct({ id: product.id, paymentLinkId: paymentLink.id, qrcode })
 
-  return JSON.stringify({ product, price: priceData });
-}
-
-// Upload the image to S3 and return the public URL
-async function uploadImageToS3(file: File): Promise<string> {
-  const imageBuffer = await file.arrayBuffer();
-  const imageKey = `${uuidv4()}-${file.name}`; // Generate a unique filename
-
-  const params = {
-    Bucket: "paytomorrow", // Replace with your S3 bucket name
-    Key: imageKey,
-    Body: Buffer.from(imageBuffer),
-    ContentType: file.type, // Set the content type (image/jpeg, image/png, etc.)
-  };
-
-  // Upload the image to S3
-  const command = new PutObjectCommand(params);
-  await s3.send(command);
-
-  // Return the public URL for the uploaded image
-  return `https://${params.Bucket}.s3.amazonaws.com/${imageKey}`;
+  redirect('/app/products?success=true&action=create')
 }
