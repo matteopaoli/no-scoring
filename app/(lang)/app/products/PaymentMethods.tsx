@@ -32,20 +32,6 @@ const PaymentMethods: React.FC<PaymentMethodsProps> = ({ imageData, paymentLink,
     if (imageData.priceTag) setPriceTag(imageData.priceTag);
   }, [imageData]);
 
-  const fetchImages = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch('/api/products/payment-methods', { method: 'POST', body: JSON.stringify({ productId }) }); // Replace with your actual API endpoint
-      const data = await response.json();
-      setQrCode(data.qrCode);
-      setPriceTag(data.priceTag);
-    } catch (error) {
-      console.error('Error fetching images:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // Clipboard functionality for copying the payment link
   const { hasCopied, onCopy } = useClipboard(paymentLink);
 
@@ -144,10 +130,6 @@ const PaymentMethods: React.FC<PaymentMethodsProps> = ({ imageData, paymentLink,
             </>
           )}
         </Box>
-
-        <Button onClick={fetchImages} isLoading={loading} mt={4}>
-          Genera metodi di pagamento
-        </Button>
       </Box>
     </VStack>
   );

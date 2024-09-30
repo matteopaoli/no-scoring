@@ -38,7 +38,7 @@ export async function createPaymentLink(stripe: Stripe, productId: string) {
         },
       ],
     });
-    return paymentLink.id;
+    return paymentLink;
   } catch (error) {
     console.error("Error retrieving or creating payment link:", error);
     throw new Error("Unable to retrieve or create payment link");

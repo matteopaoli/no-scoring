@@ -45,6 +45,6 @@ export async function generateQrCodeWithLogo(paymentLinkUrl: string): Promise<st
   }
 }
 
-export async function generateTagImage(paymentLinkUrl: string): Promise<string> {
+export async function generateTagImage(qrCode: string): Promise<string> {
    
 }

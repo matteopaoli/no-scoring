@@ -3,6 +3,7 @@
 import {
   Box,
   Button,
+  Checkbox,
   FormControl,
   FormErrorMessage,
   FormLabel,
@@ -13,19 +14,20 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 
+import createProduct from '../createProduct.action'
+import { useFormState } from "react-dom";
+
 const initialState: string | null = null;
 
 export default function CreateOrEditProductPage() {
   const [errors, setErrors] = useState<Record<string, any>[]>([]);
-
+  const [formState, action] = useFormState(createProduct, '')
   // Chakra color mode
   const textColor = useColorModeValue("navy.700", "white");
   const brandStars = useColorModeValue("brand.500", "brand.400");
-
-
   return (
     <Box width={{ base: '100%', md: '500px' }}>
-      <form /*action={action}*/ style={{ width: '100%' }}>
+      <form action={action} style={{ width: '100%' }}>
         <FormControl isInvalid={errors.some((e) => e.path.includes("name"))}>
           <FormLabel
             display="flex"
@@ -103,6 +105,7 @@ export default function CreateOrEditProductPage() {
             fontSize="sm"
             ms={{ base: "0px", md: "0px" }}
             type="number"
+            step=".01"
             placeholder="Prezzo"
             fontWeight="500"
             size="lg"
@@ -142,7 +145,6 @@ export default function CreateOrEditProductPage() {
               <FormErrorMessage key={m.message}>{m.message}</FormErrorMessage>
             ))}
         </FormControl>
-
         <Button
           type="submit"
           fontSize="sm"

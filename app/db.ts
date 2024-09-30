@@ -39,6 +39,7 @@ export interface User {
   businessName: string;
   onboardingCompleted: boolean;
   stripeUserId: string;
+  stripeLegAccountId: string;
 }
 
 export async function getUser(email?: string | null) {
@@ -385,6 +386,10 @@ export async function updateBusinessType(businessTypeId: number, data: BusinessT
 
 export async function getProduct(id: string) {
   return (await db.select().from(products).where(eq(products.id, id)))?.[0]
+}
+
+export async function createProduct(product) {
+  return await db.insert(products).values(product)
 }
 
 export async function updateProduct(productId: string, paymentLinkId: string, qrcode: string, tagImage: string) {
