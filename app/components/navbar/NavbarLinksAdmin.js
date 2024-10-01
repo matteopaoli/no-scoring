@@ -52,7 +52,7 @@ export default function HeaderLinks(props) {
       borderRadius="30px"
       boxShadow={shadow}
     >
-      <SearchBar
+      {/* <SearchBar
         mb={() => {
           if (secondary) {
             return { base: '10px', md: 'unset' };
@@ -61,7 +61,7 @@ export default function HeaderLinks(props) {
         }}
         me="10px"
         borderRadius="30px"
-      />
+      /> */}
       <SidebarResponsive routes={routes} />
       <Menu>
         <MenuList
@@ -92,7 +92,7 @@ export default function HeaderLinks(props) {
         </MenuList>
       </Menu>
 
-      <Button
+      {/* <Button
         variant="no-hover"
         bg="transparent"
         p="0px"
@@ -109,7 +109,7 @@ export default function HeaderLinks(props) {
           color={navbarIcon}
           as={colorMode === 'light' ? IoMdMoon : IoMdSunny}
         />
-      </Button>
+      </Button> */}
       <Menu>
         <MenuButton p="0px">
           <Avatar

@@ -56,6 +56,7 @@ const PaymentMethods: React.FC<PaymentMethodsProps> = ({ imageData, paymentLink,
         borderRadius="md"
         backgroundColor={bgBox}
         width="100%"
+        p="20px"
       >
         <Text fontWeight="bold">Link di Pagamento</Text>
         <Tooltip label={hasCopied ? 'Copied!' : 'Click to copy'} aria-label="A tooltip">

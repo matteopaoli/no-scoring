@@ -8,6 +8,8 @@ import {
   MdOutlineVerifiedUser,
 } from 'react-icons/md';
 
+import { IoMdCube } from "react-icons/io";
+
 const routes = [
   {
     name: 'Dashboard',
@@ -19,7 +21,7 @@ const routes = [
     name: 'Prodotti',
     layout: '/admin',
     path: '/app/products',
-    icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
+    icon: <Icon as={IoMdCube} width="20px" height="20px" color="inherit" />,
   },
 ];
 

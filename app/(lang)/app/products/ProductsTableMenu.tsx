@@ -13,6 +13,7 @@ import {
   useDisclosure,
   useColorModeValue,
 } from "@chakra-ui/react";
+import { IoMdCube } from "react-icons/io";
 // Assets
 import {
   MdOutlineMoreHoriz,
@@ -94,7 +95,7 @@ export default function Banner(props) {
           }}
           mb='10px'>
           <Flex align='center'>
-            <Icon as={MdOutlinePerson} h='16px' w='16px' me='8px' />
+            <Icon as={IoMdCube} h='16px' w='16px' me='8px' />
             <Link fontSize='sm' fontWeight='400' href="/app/products/new">
               Crea nuovo
             </Link>
