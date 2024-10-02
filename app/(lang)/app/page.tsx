@@ -10,12 +10,15 @@ export default async function ProtectedPage() {
   const user = await getUser(session.user.email)
   const stripe = new Stripe(user.stripeSecretKey)
   const stripeGenericProductId = (await stripe.products.list({ active: true })).data.find(x => x.name === 'Prodotto generico')?.id
-  console.log("POOOO", stripeGenericProductId)
+  console.log(stripeGenericProductId)
   if (!stripeGenericProductId) {
     throw new Error()
   }
 
   const genericProduct = await getProduct(stripeGenericProductId)
+
+
+  console.log(genericProduct)
 
   return (
     <>

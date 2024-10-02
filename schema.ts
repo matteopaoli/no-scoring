@@ -33,7 +33,12 @@ export const users = pgTable("user", {
   businessName: text("businessName").notNull(),
   onboardingCompleted: boolean("onboardingCompleted").default(false),
   stripeUserId: text('stripeUserId').notNull(),
-  stripeLegAccountId: text('stripeLegAccountId')
+  stripeLegAccountId: text('stripeLegAccountId'),
+})
+
+export const webhookSecrets = pgTable("webhookSecret", {
+  accountId: text('accountId'),
+  secret: text('secret'),
 })
 
 export const stores = pgTable("store", {

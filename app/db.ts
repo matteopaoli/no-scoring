@@ -2,7 +2,7 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import { eq, getTableColumns } from "drizzle-orm";
 import postgres from "postgres";
 import { genSaltSync, hashSync } from "bcrypt-ts";
-import { businessType, users, commissionRules, stores, userStoreRoles, products } from "schema";
+import { businessType, users, commissionRules, stores, userStoreRoles, products, webhookSecrets } from "schema";
 import Stripe from "stripe";
 import { generateQrCodeWithLogo } from "./utils/images";
 import { createGenericProduct } from "./utils/stripe";
@@ -50,6 +50,14 @@ export async function getUserById(id: string) {
   return (await db.select().from(users).where(eq(users.id, id)))?.[0] as User;
 }
 
+export async function getUserByStripeAccountId(id: string) {
+  return (await db.select().from(users).where(eq(users.stripeUserId, id)))?.[0] as User
+}
+
+export async function getWebhookSecret(id: string) {
+  return (await db.select().from(webhookSecrets).where(eq(webhookSecrets.accountId, id)))?.[0]
+}
+
 export async function createUser(
   email: string,
   stripeSecretKey: string,
@@ -65,7 +73,7 @@ export async function createUser(
 
   const genericProduct = await createGenericProduct(stripe)
 
-  await stripe.webhookEndpoints.create({
+  const webhook = await stripe.webhookEndpoints.create({
     enabled_events: ['checkout.session.completed'],
     url: 'https://app.paytomorrow.it/api/stripe/webhook',
   })
@@ -86,6 +94,11 @@ export async function createUser(
     paymentLinkId: genericProduct.paymentLink.id,
     qrcode: await generateQrCodeWithLogo(genericProduct.paymentLink.url),
     tagImage: ''
+  })
+
+  await db.insert(webhookSecrets).values({
+    accountId: stripeUserId,
+    secret: webhook.secret
   })
 }
 
