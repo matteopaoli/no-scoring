@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     throw new Error('Merchant not found');
   }
 
-  const stripe = new Stripe(merchant.stripeSecretKey);
+  const stripe = new Stripe('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');
   const { secret } = await getWebhookSecret(merchantAccount);
   
   if (!secret) {
