@@ -75,7 +75,7 @@ export async function createUser(
 
   const webhook = await stripe.webhookEndpoints.create({
     enabled_events: ['checkout.session.completed'],
-    url: 'https://app.paytomorrow.it/api/stripe/webhook',
+    url: `https://app.paytomorrow.it/api/stripe/webhook?merchantId=${stripeUserId}`,
   })
 
   await db.insert(users).values({

@@ -4,21 +4,24 @@ import Stripe from "stripe";
 
 export async function POST(request: NextRequest) {
   const sig = request.headers.get('stripe-signature');
-  const merchantAccount = request.headers.get('stripe-account');
+  const searchParams = request.nextUrl.searchParams;
+  const merchantAccountId = searchParams.get('merchantId');
   
-  if (!merchantAccount) {
-    throw new Error('No Stripe account header');
+  if (!merchantAccountId) {
+    throw new Error('No merchant account param');
   }
 
-  const merchant = await getUserByStripeAccountId(merchantAccount);
+  const merchant = await getUserByStripeAccountId(merchantAccountId);
   if (!merchant) {
     throw new Error('Merchant not found');
   }
 
-  const stripe = new Stripe('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');
-  const { secret } = await getWebhookSecret(merchantAccount);
+  const stripe = new Stripe(merchant.stripeSecretKey);
+  const webhook = await getWebhookSecret(merchantAccountId);
+
+  console.log(webhook)
   
-  if (!secret) {
+  if (!webhook) {
     throw new Error('No secret in db');
   }
 
@@ -30,7 +33,7 @@ export async function POST(request: NextRequest) {
       return new NextResponse("Invalid webhook signature", { status: 400 });
     }
 
-    event = stripe.webhooks.constructEvent(rawBody, sig, secret);
+    event = stripe.webhooks.constructEvent(rawBody, sig, webhook.secret);
     console.log(event);
 
     // Check if the event type is checkout.session.completed
@@ -38,7 +41,7 @@ export async function POST(request: NextRequest) {
       const session = event.data.object as Stripe.Checkout.Session;
 
       // Retrieve the amount of the purchase
-      const amount = session.amount_total!; // Amount is in cents
+      const amount = session.amount_total; // Amount is in cents
       console.log(`Amount: ${amount}`);
 
       // Calculate 1.5% of the amount
@@ -47,7 +50,7 @@ export async function POST(request: NextRequest) {
       // Create a transfer to the connected account
       const transfer = await stripe.transfers.create({
         amount: transferAmount,
-        currency: 'eur', // Use the same currency as the session
+        currency: session.currency, // Use the same currency as the session
         destination: merchant.stripeLegAccountId, // Connected account ID
         description: `Transfer for session ${session.id}`, // Optional description
       });
