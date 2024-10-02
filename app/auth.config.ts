@@ -23,11 +23,15 @@ export const authConfig = {
         // Add user id to the token
         token.userId = user.id;
         token.role = user.role
+        token.firstName = user.firstName
+        token.image = user.image
       }
       return token;
     },
     async session({session, token }) {
       session.user.role = token.role;
+      session.user.firstName = token.firstName
+      session.user.image = token.image
       return Promise.resolve(session);
     }
   },

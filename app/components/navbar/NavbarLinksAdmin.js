@@ -22,6 +22,7 @@ import { IoMdMoon, IoMdSunny } from "react-icons/io";
 import logout from "@/app/signout.action";
 import { UserContext } from "@/app/contexts/UserContext";
 import { FaEthereum } from "react-icons/fa";
+import signOutAction from '@/app/signout.action' 
 
 export default function HeaderLinks(props) {
   const { secondary, routes } = props;
@@ -41,6 +42,7 @@ export default function HeaderLinks(props) {
     "14px 17px 40px 4px rgba(112, 144, 176, 0.06)"
   );
   const borderButton = useColorModeValue("secondaryGray.500", "whiteAlpha.200");
+
   return (
     <Flex
       w={{ sm: '100%', md: 'auto' }}
@@ -142,7 +144,7 @@ export default function HeaderLinks(props) {
               fontWeight="700"
               color={textColor}
             >
-              👋&nbsp; Hey, Adela
+              👋&nbsp; Hey, {session.user.name}
             </Text>
           </Flex>
           <Flex flexDirection="column" p="10px">
@@ -152,24 +154,25 @@ export default function HeaderLinks(props) {
               borderRadius="8px"
               px="14px"
             >
-              <Text fontSize="sm">Profile Settings</Text>
+              <Text fontSize="sm">Modifica Profilo</Text>
             </MenuItem>
-            <MenuItem
+            {/* <MenuItem
               _hover={{ bg: 'none' }}
               _focus={{ bg: 'none' }}
               borderRadius="8px"
               px="14px"
             >
               <Text fontSize="sm">Newsletter Settings</Text>
-            </MenuItem>
+            </MenuItem> */}
             <MenuItem
               _hover={{ bg: 'none' }}
               _focus={{ bg: 'none' }}
               color="red.400"
               borderRadius="8px"
               px="14px"
+              onClick={() => signOutAction()}
             >
-              <Text fontSize="sm">Log out</Text>
+              <Text fontSize="sm">Disconnetti</Text>
             </MenuItem>
           </Flex>
         </MenuList>

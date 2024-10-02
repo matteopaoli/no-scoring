@@ -92,7 +92,7 @@ export default function SignIn() {
           mx={{ base: "auto", lg: "unset" }}
           me='auto'
           mb={{ base: "20px", md: "auto" }}>
-          <Button
+          {/* <Button
             fontSize='sm'
             me='0px'
             mb='26px'
@@ -107,14 +107,14 @@ export default function SignIn() {
             _focus={googleActive}>
             <Icon as={FcGoogle} w='20px' h='20px' me='10px' />
             {t('signInWithGoogle')}
-          </Button>
-          <Flex align='center' mb='25px'>
+          </Button> */}
+          {/* <Flex align='center' mb='25px'>
             <HSeparator />
             <Text color='gray.400' mx='14px'>
               {t('or')}
             </Text>
             <HSeparator />
-          </Flex>
+          </Flex> */}
           <form action={action}>
           <FormControl isInvalid={formState?.status === 'error'}>
             <FormLabel
@@ -204,7 +204,7 @@ export default function SignIn() {
             </Button>
           </FormControl>
           </form>
-          <Flex
+          {/* <Flex
             flexDirection='column'
             justifyContent='center'
             alignItems='start'
@@ -222,7 +222,7 @@ export default function SignIn() {
                 </Text>
               </Link>
             </Text>
-          </Flex>
+          </Flex> */}
         </Flex>
       </Flex>
     </DefaultAuth>

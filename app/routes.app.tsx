@@ -23,6 +23,10 @@ const routes = [
     path: '/app/products',
     icon: <Icon as={IoMdCube} width="20px" height="20px" color="inherit" />,
   },
+  {
+    name: 'Crea Prodotto',
+    path: '/app/products/new',
+  },
 ];
 
 export default routes;

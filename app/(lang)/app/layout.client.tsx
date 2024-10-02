@@ -18,11 +18,17 @@ export default function AppClientLayout({
 
   const getActiveRoute = (): string => {
     let activeRoute = "Default Brand Text";
+    
     for (let i = 0; i < routes.length; i++) {
-      if (pathname.startsWith(routes[i].path)) {
+      // Compare only the base path without considering query parameters or trailing slashes
+      const cleanRoute = routes[i].path.replace(/\/$/, ''); // remove trailing slash
+      const cleanPathname = pathname.split('?')[0].replace(/\/$/, ''); // remove trailing slash and query parameters
+      
+      if (cleanPathname === cleanRoute) {
         return routes[i].name;
       }
     }
+    
     return activeRoute;
   };
 
