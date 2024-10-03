@@ -19,7 +19,7 @@ import {
 } from "@chakra-ui/react";
 // Custom components
 import { HSeparator } from "@/app/components/separator/Separator";
-import DefaultAuth from "@/app/layouts/auth/Default";
+import DefaultAuth from "@/app/layouts/admin/Auth";
 // Assets
 import { FcGoogle } from "react-icons/fc";
 import { MdOutlineRemoveRedEye } from "react-icons/md";
@@ -34,7 +34,7 @@ const initialState: Record<string, any> = {}
 export default function SignIn() {
   const t = useDictionary();
   const [formState, action] = useFormState(login, initialState)
-  console.log(formState)
+  console.log(formState.error)
 
   // Chakra color mode
   const textColor = useColorModeValue("navy.700", "white");
@@ -60,7 +60,7 @@ export default function SignIn() {
       <Flex
         maxW={{ base: "100%", md: "max-content" }}
         w='100%'
-        mx={{ base: "auto", lg: "0px" }}
+        mx={{ base: "auto" }}
         me='auto'
         h='100%'
         alignItems='start'
@@ -71,7 +71,7 @@ export default function SignIn() {
         flexDirection='column'>
         <Box me='auto'>
           <Heading color={textColor} fontSize='36px' mb='10px'>
-            {t('signIn')}
+            {t('signIn')} (Admin)
           </Heading>
           <Text
             mb='36px'
@@ -92,31 +92,8 @@ export default function SignIn() {
           mx={{ base: "auto", lg: "unset" }}
           me='auto'
           mb={{ base: "20px", md: "auto" }}>
-          <Button
-            fontSize='sm'
-            me='0px'
-            mb='26px'
-            py='15px'
-            h='50px'
-            borderRadius='16px'
-            bg={googleBg}
-            color={googleText}
-            fontWeight='500'
-            _hover={googleHover}
-            _active={googleActive}
-            _focus={googleActive}>
-            <Icon as={FcGoogle} w='20px' h='20px' me='10px' />
-            {t('signInWithGoogle')}
-          </Button>
-          <Flex align='center' mb='25px'>
-            <HSeparator />
-            <Text color='gray.400' mx='14px'>
-              {t('or')}
-            </Text>
-            <HSeparator />
-          </Flex>
           <form action={action}>
-          <FormControl isInvalid={formState?.status === 'error'}>
+          <FormControl isInvalid={formState?.error}>
             <FormLabel
               display='flex'
               ms='4px'
@@ -163,10 +140,10 @@ export default function SignIn() {
                 />
               </InputRightElement>
             </InputGroup>
-            {formState?.status === 'error' ? (
+            {formState?.error ? (
               <FormErrorMessage>{t('wrongCredentialsMessage')}</FormErrorMessage>
             ) : null}
-            <Flex justifyContent='space-between' align='center' my='24px'>
+            {/* <Flex justifyContent='space-between' align='center' my='24px'>
               <FormControl display='flex' alignItems='center'>
                 <Checkbox
                   id='remember-login'
@@ -191,8 +168,9 @@ export default function SignIn() {
                   {t('forgotPassword')}
                 </Text>
               </Link>
-            </Flex>
+            </Flex> */}
             <Button
+              mt="24px"
               type="submit"
               fontSize='sm'
               variant='brand'
@@ -204,25 +182,6 @@ export default function SignIn() {
             </Button>
           </FormControl>
           </form>
-          <Flex
-            flexDirection='column'
-            justifyContent='center'
-            alignItems='start'
-            maxW='100%'
-            mt='0px'>
-            <Text color={textColorDetails} fontWeight='400' fontSize='14px'>
-              {t('notRegisteredYet')}
-              <Link href='/register'>
-                <Text
-                  color={textColorBrand}
-                  as='span'
-                  ms='5px'
-                  fontWeight='500'>
-                  {t('createAccount')}
-                </Text>
-              </Link>
-            </Text>
-          </Flex>
         </Flex>
       </Flex>
     </DefaultAuth>

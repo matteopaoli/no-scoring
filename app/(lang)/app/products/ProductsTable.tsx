@@ -165,6 +165,8 @@ export default function ProductsTable({ tableData }: ProductsTableProps) {
   };
 
   // Pagination logic: slice the data based on the current page
+  console.log('totalProducts', totalProducts)
+  console.log('totalPages', totalPages)
   const paginatedRows = table
     .getRowModel()
     .rows.slice((currentPage - 1) * PRODUCTS_PER_PAGE, currentPage * PRODUCTS_PER_PAGE);

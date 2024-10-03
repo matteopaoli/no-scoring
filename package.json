@@ -22,6 +22,7 @@
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.18",
     "bcrypt-ts": "^5.0.0",
+    "canvas": "^2.11.2",
     "dotenv": "^16.4.5",
     "drizzle-orm": "^0.33.0",
     "framer-motion": "^11.5.4",

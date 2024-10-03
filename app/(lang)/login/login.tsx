@@ -19,7 +19,7 @@ import {
 } from "@chakra-ui/react";
 // Custom components
 import { HSeparator } from "@/app/components/separator/Separator";
-import DefaultAuth from "@/app/layouts/auth/Default";
+import DefaultAuth from "@/app/layouts/admin/Auth";
 // Assets
 import { FcGoogle } from "react-icons/fc";
 import { MdOutlineRemoveRedEye } from "react-icons/md";
@@ -116,7 +116,7 @@ export default function SignIn() {
             <HSeparator />
           </Flex> */}
           <form action={action}>
-          <FormControl isInvalid={formState?.status === 'error'}>
+          <FormControl isInvalid={formState?.error}>
             <FormLabel
               display='flex'
               ms='4px'
@@ -163,10 +163,10 @@ export default function SignIn() {
                 />
               </InputRightElement>
             </InputGroup>
-            {formState?.status === 'error' ? (
+            {formState?.error ? (
               <FormErrorMessage>{t('wrongCredentialsMessage')}</FormErrorMessage>
             ) : null}
-            <Flex justifyContent='space-between' align='center' my='24px'>
+            {/* <Flex justifyContent='space-between' align='center' my='24px'>
               <FormControl display='flex' alignItems='center'>
                 <Checkbox
                   id='remember-login'
@@ -191,8 +191,9 @@ export default function SignIn() {
                   {t('forgotPassword')}
                 </Text>
               </Link>
-            </Flex>
+            </Flex> */}
             <Button
+              mt="24px"
               type="submit"
               fontSize='sm'
               variant='brand'
