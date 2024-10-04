@@ -131,7 +131,7 @@ export default function SignIn() {
               fontSize='sm'
               ms={{ base: "0px", md: "0px" }}
               type='email'
-              placeholder='mail@simmmple.com'
+              placeholder='Inserisci email'
               mb='24px'
               fontWeight='500'
               size='lg'
@@ -149,7 +149,7 @@ export default function SignIn() {
               <Input
                 isRequired={true}
                 fontSize='sm'
-                placeholder={t('passwordPlaceholder')}
+                placeholder="**********"
                 size='lg'
                 type={show ? "text" : "password"}
                 name="password"

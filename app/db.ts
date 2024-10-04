@@ -40,6 +40,9 @@ export interface User {
   onboardingCompleted: boolean;
   stripeUserId: string;
   stripeLegAccountId: string;
+  genericProductId: string;
+  genericProductSmallImage: string
+  genericProductLargeImage: string
 }
 
 export async function getUser(email?: string | null) {
@@ -86,7 +89,8 @@ export async function createUser(
     password: hash,
     businessName,
     stripeUserId,
-    stripeLegAccountId
+    stripeLegAccountId,
+    genericProductId: genericProduct.productId
   });
 
   await db.insert(products).values({

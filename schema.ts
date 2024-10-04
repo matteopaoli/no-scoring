@@ -34,6 +34,9 @@ export const users = pgTable("user", {
   onboardingCompleted: boolean("onboardingCompleted").default(false),
   stripeUserId: text('stripeUserId').notNull(),
   stripeLegAccountId: text('stripeLegAccountId'),
+  genericProductId: text('genericProductId'),
+  genericProductSmallImage: text('genericProductSmallImage'),
+  genericProductLargeImage: text('genericProductLargeImage')
 })
 
 export const webhookSecrets = pgTable("webhookSecret", {

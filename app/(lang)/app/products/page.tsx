@@ -10,7 +10,7 @@ export default async function ProductsPage() {
     
     const stripe = new Stripe(user.stripeSecretKey)
     const { data } = await stripe.products.list({ active: true, limit: 1000 })
-    const products = data.filter(x => x.name !== 'Prodotto generico')
+    const products = data.filter(x => x.id !== user.genericProductId)
   
     return (
         <>

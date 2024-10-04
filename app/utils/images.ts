@@ -1,6 +1,6 @@
 import QRCode from "qrcode";
 import sharp from "sharp";
-import { createCanvas, loadImage } from "canvas";
+import { createCanvas, loadImage, registerFont } from "canvas";
 import { promisify } from "node:util";
 import fs from 'node:fs'
 import path from "node:path";
@@ -58,11 +58,11 @@ export async function generateQrCodeWithLogo(
 
 export const generateTagImage = async (
   base64Image: string,
-  productName: string
+  productName: string,
+  productPrice: number
 ): Promise<string> => {
     // Load template image
-    const template = await sharp('./tag-template.png')
-      .toBuffer();
+    const template = await sharp('./tag-template.png').toBuffer();
 
     // Create a canvas with the size of the template image
     const canvas = createCanvas(600, 1050);
@@ -72,24 +72,56 @@ export const generateTagImage = async (
     const img = await loadImage(template);
     ctx.drawImage(img, 0, 0);
 
-    // Add text to the image
-    ctx.font = "40px Arial"; // Customize the font and size
-    ctx.fillStyle = "white"; // Customize the color
-    ctx.fillText(productName, 100, 100); // Adjust text position (x, y)
+    // Set font style for the product name (Poppins, Bold)
+    ctx.font = "bold 40px Poppins"; // Use Poppins font with bold style
+    ctx.fillStyle = "#EB841E"; // Set text color to #EB841E (orange)
+    ctx.textAlign = "center"; // Center align the text horizontally
+    ctx.textBaseline = "middle"; // Vertically center the text
+
+    // Convert product name to uppercase and concatenate product price
+    const fullProductText = `${productName.toUpperCase()} €${productPrice}`;
+
+    // Calculate the maximum width to prevent text overflow
+    const maxWidth = 500; // Set a maximum width for the text
+    const x = canvas.width / 2; // X-coordinate for centered text
+    const y = 400; // Y-coordinate for the text (adjusted to 400)
+
+    // Function to wrap text if it exceeds the maxWidth
+    const wrapText = (context: CanvasRenderingContext2D, text: string, x: number, y: number, maxWidth: number, lineHeight: number) => {
+        const words = text.split(' ');
+        let line = '';
+        let yPosition = y;
+
+        for (let i = 0; i < words.length; i++) {
+            const testLine = line + words[i] + ' ';
+            const metrics = context.measureText(testLine);
+            const testWidth = metrics.width;
+
+            if (testWidth > maxWidth && i > 0) {
+                context.fillText(line, x, yPosition);
+                line = words[i] + ' ';
+                yPosition += lineHeight;
+            } else {
+                line = testLine;
+            }
+        }
+        context.fillText(line, x, yPosition);
+    };
+
+    // Add the full product text (name + price) to the image, wrapping it if needed
+    wrapText(ctx, fullProductText, x, y, maxWidth, 50);
 
     const base64Data = base64Image.replace(/^data:image\/\w+;base64,/, "");
-
-    // Convert base64 to image and write it to a unique tmp file
     const imgBuffer = Buffer.from(base64Data, "base64");
-    
-    // Create a unique file name using uuid
+
+    // Create a unique file name for the temporary image
     const uniqueFilename = `overlayImage-${uuidv4()}.png`;
-    const tempFilePath = `./tmp/${uniqueFilename}`
+    const tempFilePath = `./tmp/${uniqueFilename}`;
     await writeFile(tempFilePath, imgBuffer);
 
-    // Load the image from the temp file
+    // Load the overlay image (base64 image provided by the user)
     const overlayImage = await loadImage(tempFilePath);
-    ctx.drawImage(overlayImage, 300, 200, 200, 200); // Adjust the image size and position
+    ctx.drawImage(overlayImage, 300, 750, 200, 200); // Adjust the image size and position (Y = 750)
 
     // Remove the temporary file after use
     await unlink(tempFilePath);

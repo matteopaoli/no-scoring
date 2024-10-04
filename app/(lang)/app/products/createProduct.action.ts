@@ -65,7 +65,7 @@ export default async function createProductAction(prevState, formData: FormData)
 
   const paymentLink = await createPaymentLink(stripe, product.id)
   const qrcode = await generateQrCodeWithLogo(paymentLink.url)
-  const tagImage = await generateTagImage(qrcode, name)
+  const tagImage = await generateTagImage(qrcode, name, price)
 
   await createProduct({ id: product.id, paymentLinkId: paymentLink.id, qrcode, tagImage })
 
