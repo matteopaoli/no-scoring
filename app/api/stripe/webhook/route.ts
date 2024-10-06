@@ -47,12 +47,15 @@ export async function POST(request: NextRequest) {
       // Calculate 1.5% of the amount
       const transferAmount = Math.round(amount * 0.015); // Convert to the smallest currency unit
 
+      const paymentIntent = await stripe.paymentIntents.retrieve(event.data.object.payment_intent as string)
+
       // Create a transfer to the connected account
       const transfer = await stripe.transfers.create({
         amount: transferAmount,
         currency: session.currency, // Use the same currency as the session
         destination: merchant.stripeLegAccountId, // Connected account ID
         description: `Transfer for session ${session.id}`, // Optional description
+        source_transaction: paymentIntent.latest_charge as string
       });
 
       console.log(`Transfer successful: ${transfer.id}`);
