@@ -6,6 +6,7 @@ import {
   MdPerson,
   MdHome,
   MdOutlineVerifiedUser,
+  MdPointOfSale,
 } from 'react-icons/md';
 
 import { IoMdCube } from "react-icons/io";
@@ -27,6 +28,12 @@ const routes = [
     name: 'Crea Prodotto',
     path: '/app/products/new',
   },
+  {
+    name: 'Vendite',
+    layout: '/admin',
+    path: '/app/sales',
+    icon: <Icon as={MdPointOfSale} width="20px" height="20px" color="inherit" />,
+  }
 ];
 
 export default routes;
