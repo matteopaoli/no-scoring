@@ -4,7 +4,7 @@ import postgres from "postgres";
 import { genSaltSync, hashSync } from "bcrypt-ts";
 import { businessType, users, commissionRules, stores, userStoreRoles, products, webhookSecrets } from "schema";
 import Stripe from "stripe";
-import { generateQrCodeWithLogo } from "./utils/images";
+import { generateQrCodeWithLogo, generateGenericProductImages } from "./utils/images";
 import { createGenericProduct } from "./utils/stripe";
 
 let client = postgres(`${process.env.DATABASE_URL!}`);
@@ -81,6 +81,9 @@ export async function createUser(
     url: `https://app.paytomorrow.it/api/stripe/webhook?merchantId=${stripeUserId}`,
   })
 
+  const genericProductQrCode = await generateQrCodeWithLogo(genericProduct.paymentLink.url)
+  const { genericProductSmallImage, genericProductLargeImage } = await generateGenericProductImages(genericProductQrCode)
+
   await db.insert(users).values({
     email,
     stripeSecretKey,
@@ -90,13 +93,16 @@ export async function createUser(
     businessName,
     stripeUserId,
     stripeLegAccountId,
-    genericProductId: genericProduct.productId
+    genericProductId: genericProduct.productId,
+    genericProductSmallImage,
+    genericProductLargeImage
   });
+
 
   await db.insert(products).values({
     id: genericProduct.productId,
     paymentLinkId: genericProduct.paymentLink.id,
-    qrcode: await generateQrCodeWithLogo(genericProduct.paymentLink.url),
+    qrcode: genericProductQrCode,
     tagImage: ''
   })
 

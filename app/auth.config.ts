@@ -24,6 +24,7 @@ export const authConfig = {
         token.userId = user.id;
         token.role = user.role
         token.firstName = user.firstName
+        token.lastName = user.lastName
         token.image = user.image
       }
       return token;
@@ -31,6 +32,7 @@ export const authConfig = {
     async session({session, token }) {
       session.user.role = token.role;
       session.user.firstName = token.firstName
+      session.user.lastName = token.lastName
       session.user.image = token.image
       return Promise.resolve(session);
     }

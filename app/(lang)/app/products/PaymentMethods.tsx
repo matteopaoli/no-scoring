@@ -11,6 +11,7 @@ import {
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react';
+import CopyTextBox from '@/app/components/copyTextBox/CopyTextBox';
 
 interface PaymentMethodsProps {
   imageData: {
@@ -59,29 +60,7 @@ const PaymentMethods: React.FC<PaymentMethodsProps> = ({ imageData, paymentLink,
         p="20px"
       >
         <Text fontWeight="bold">Link di Pagamento</Text>
-        <Tooltip label={hasCopied ? 'Copied!' : 'Click to copy'} aria-label="A tooltip">
-          <Box
-            display="flex"
-            alignItems="center"
-            justifyContent="space-between"
-            cursor="pointer"
-            onClick={onCopy}
-            padding="4"
-            width="full"
-            borderRadius="md"
-            _hover={{ bg: bgButtonHover }}
-          >
-            <span style={{ color: textColor }}>{paymentLink}</span>
-            <Button
-              size="sm"
-              onClick={onCopy}
-              backgroundColor={bgButton}
-              _hover={{ bg: bgButtonHover }}
-            >
-              Copy
-            </Button>
-          </Box>
-        </Tooltip>
+        <CopyTextBox>{paymentLink}</CopyTextBox>
         
         <Box display="flex" flexDirection="column" width="full" mt={4}>
           {loading ? (

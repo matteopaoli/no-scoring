@@ -12,9 +12,14 @@ export default async function ProtectedPage() {
   const user = await getUser(session.user.email);
 
   return (
-    <>
-      <Text fontSize="32px">Ciao, {session?.user?.firstName}</Text>
+    <Box p={4}>
+      <Text fontSize="32px" fontWeight="bold" mb={2}>
+        Ciao, {session?.user?.firstName}!
+      </Text>
+      <Text fontSize="18px" mb={6}>
+        Se hai bisogno di assistenza, non esitare a contattare il nostro team di supporto!
+      </Text>
       <GenericProductCard />
-    </>
+    </Box>
   );
 }

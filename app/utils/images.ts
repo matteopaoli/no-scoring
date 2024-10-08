@@ -132,3 +132,82 @@ export const generateTagImage = async (
     // Convert buffer to base64 and return
     return buffer.toString('base64');
 };
+
+export const generateGenericProductImages = async (
+  base64QRCode: string
+): Promise<{ genericProductSmallImage: string; genericProductLargeImage: string }> => {
+  // Define the templates
+  const smallTemplatePath = './generic-small-template.png';
+  const largeTemplatePath = './generic-large-template.png';
+
+  // Define image resolutions
+  const smallImageResolution = { width: 1417, height: 600 };
+  const largeImageResolution = { width: 1410, height: 2000 };
+
+  // Helper function to generate the image with QR code overlay
+  const generateImageWithQRCode = async (
+    templatePath: string,
+    imageResolution: { width: number; height: number },
+    qrPosition: { x: number; y: number; size: number }
+  ): Promise<string> => {
+    // Load template image
+    const template = await sharp(templatePath).toBuffer();
+
+    // Create a canvas with the size of the template image
+    const canvas = createCanvas(imageResolution.width, imageResolution.height);
+    const ctx = canvas.getContext("2d");
+
+    // Load the template image into the canvas
+    const img = await loadImage(template);
+    ctx.drawImage(img, 0, 0);
+
+    // Convert base64 QR code to buffer
+    const base64Data = base64QRCode.replace(/^data:image\/\w+;base64,/, "");
+    const qrCodeBuffer = Buffer.from(base64Data, "base64");
+
+    // Create a unique file name for the temporary QR code image
+    const uniqueFilename = `qrImage-${uuidv4()}.png`;
+    const tempFilePath = `./tmp/${uniqueFilename}`;
+    await writeFile(tempFilePath, qrCodeBuffer);
+
+    // Load the QR code image
+    const qrCodeImage = await loadImage(tempFilePath);
+
+    // Draw the QR code on the canvas at the specified position and size
+    ctx.drawImage(qrCodeImage, qrPosition.x, qrPosition.y, qrPosition.size, qrPosition.size);
+
+    // Remove the temporary file after use
+    await unlink(tempFilePath);
+
+    // Get the final image buffer and compress it
+    const buffer = canvas.toBuffer("image/png");
+
+    // Compress the image using sharp
+    const compressedBuffer = await sharp(buffer)
+      .jpeg({ quality: 80 }) // Use JPEG format and set quality (0-100)
+      .toBuffer();
+
+    // Convert compressed buffer to base64 and return with data URI prefix
+    return `data:image/jpeg;base64,${compressedBuffer.toString('base64')}`; // Use PNG prefix if saving as PNG
+  };
+
+  // Generate the small image with QR code
+  const genericProductSmallImage = await generateImageWithQRCode(
+    smallTemplatePath,
+    smallImageResolution,
+    { x: 1000, y: 170, size: 300 } // Adjust the size and position for the small image
+  );
+
+  // Generate the large image with QR code
+  const genericProductLargeImage = await generateImageWithQRCode(
+    largeTemplatePath,
+    largeImageResolution,
+    { x: 880, y: 1160, size: 380 } // Adjust the size and position for the large image
+  );
+
+  // Return both images as an object
+  return {
+    genericProductSmallImage,
+    genericProductLargeImage,
+  };
+};
