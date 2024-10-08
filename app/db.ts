@@ -187,11 +187,13 @@ export async function updateProfile({
   lastName,
   profileImage,
   email,
+  password
 }: {
   firstName: string;
   lastName: string;
   profileImage?: Blob | null; // Profilo immagine opzionale
   email: string;
+  password?: string
 }) {
   // Converti l'immagine in un formato compatibile con il database se necessario
   let profileImageData: string | null = null;
@@ -201,7 +203,7 @@ export async function updateProfile({
   }
 
   // Esegui l'aggiornamento del profilo nel database
-  return await db
+  await db
     .update(users)
     .set({
       firstName,
@@ -209,6 +211,10 @@ export async function updateProfile({
       image: profileImageData, // Inserisci l'immagine solo se presente
     })
     .where(eq(users.email, email)); // Assumi che l'email sia usata come chiave univoca
+
+    if (password) {
+      await updatePassword(password, email)
+    }
 }
 
 // Esempio di funzione per convertire l'immagine in base64 (opzionale)
@@ -411,4 +417,10 @@ export async function createProduct(product) {
 
 export async function updateProduct(productId: string, paymentLinkId: string, qrcode: string, tagImage: string) {
   return await db.update(products).set({ paymentLinkId, qrcode, tagImage }).where(eq(products.id, productId))
+}
+
+async function updatePassword(password: string, userEmail: string) {
+  let salt = genSaltSync(10);
+  let hash = hashSync(password, salt);
+  return await db.update(users).set({ password: hash }).where(eq(users.email, userEmail))
 }

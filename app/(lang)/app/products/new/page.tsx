@@ -3,154 +3,73 @@
 import {
   Box,
   Button,
-  Checkbox,
-  FormControl,
-  FormErrorMessage,
-  FormLabel,
-  Input,
-  Text,
-  Textarea,
+  Grid,
+  GridItem,
   useColorModeValue,
 } from "@chakra-ui/react";
-import { useState } from "react";
 
-import createProduct from '../createProduct.action'
+import createProduct from "../createProduct.action";
 import { useFormState } from "react-dom";
-
-const initialState: string | null = null;
+import InputField from "@/app/components/fields/InputField"; // Import the InputField component
+import TextArea from "@/app/components/fields/TextArea"; // Import the TextArea component
+import ImageInput from "@/app/components/fields/ImageInput";
+import getFormErrors from "@/app/utils/getFormErrors";
 
 export default function CreateOrEditProductPage() {
-  const [errors, setErrors] = useState<Record<string, any>[]>([]);
-  const [formState, action] = useFormState(createProduct, '')
+  const [errors, action] = useFormState(createProduct, []);
+
   // Chakra color mode
-  const textColor = useColorModeValue("navy.700", "white");
-  const brandStars = useColorModeValue("brand.500", "brand.400");
   return (
-    <Box width={{ base: '100%', md: '500px' }}>
-      <form action={action} style={{ width: '100%' }}>
-        <FormControl isInvalid={errors.some((e) => e.path.includes("name"))}>
-          <FormLabel
-            display="flex"
-            ms="4px"
-            fontSize="sm"
-            fontWeight="500"
-            color={textColor}
-            mb="8px"
-            mt="24px"
-          >
-            Nome Prodotto
-            <Text color={brandStars}>*</Text>
-          </FormLabel>
-          <Input
-            isRequired={true}
-            fontSize="sm"
-            ms={{ base: "0px", md: "0px" }}
-            type="text"
-            placeholder="Nome del prodotto"
-            fontWeight="500"
-            size="lg"
-            name="name"
-          />
-          {errors
-            .filter((e) => e.path.includes("name"))
-            .map((m) => (
-              <FormErrorMessage key={m.message}>{m.message}</FormErrorMessage>
-            ))}
-        </FormControl>
+    <Box width={{ base: "100%" }} pl={{ md: "24px" }}>
+      <form action={action} style={{ width: "100%" }}>
+        <Grid templateColumns={{ base: "1fr", md: "1fr 1fr", lg: '1fr 1fr 1fr' }} gap={6}>
+          <GridItem>
+            <InputField
+              id="product-name"
+              label="Nome Prodotto"
+              name="name"
+              placeholder="Nome del prodotto"
+              isRequired={true}
+              errors={getFormErrors(errors, 'name')}
+            />
 
-        <FormControl isInvalid={errors.some((e) => e.path.includes("description"))}>
-          <FormLabel
-            display="flex"
-            ms="4px"
-            fontSize="sm"
-            fontWeight="500"
-            color={textColor}
-            mb="8px"
-            mt="24px"
-          >
-            Descrizione
-            <Text color={brandStars}>*</Text>
-          </FormLabel>
-          <Textarea
-            isRequired={true}
-            fontSize="sm"
-            ms={{ base: "0px", md: "0px" }}
-            placeholder="Descrizione del prodotto"
-            fontWeight="500"
-            size="lg"
-            name="description"
-          />
-          {errors
-            .filter((e) => e.path.includes("description"))
-            .map((m) => (
-              <FormErrorMessage key={m.message}>{m.message}</FormErrorMessage>
-            ))}
-        </FormControl>
+            {/* Price Field */}
+            <InputField
+              id="product-price"
+              label="Prezzo"
+              name="price"
+              placeholder="Prezzo"
+              type="number"
+              isRequired={true}
+              step=".01"
+              errors={getFormErrors(errors, 'price')}
+            />
 
-        <FormControl isInvalid={errors.some((e) => e.path.includes("price"))}>
-          <FormLabel
-            display="flex"
-            ms="4px"
-            fontSize="sm"
-            fontWeight="500"
-            color={textColor}
-            mb="8px"
-            mt="24px"
-          >
-            Prezzo
-            <Text color={brandStars}>*</Text>
-          </FormLabel>
-          <Input
-            isRequired={true}
-            fontSize="sm"
-            ms={{ base: "0px", md: "0px" }}
-            type="number"
-            step=".01"
-            placeholder="Prezzo"
-            fontWeight="500"
-            size="lg"
-            name="price"
-          />
-          {errors
-            .filter((e) => e.path.includes("price"))
-            .map((m) => (
-              <FormErrorMessage key={m.message}>{m.message}</FormErrorMessage>
-            ))}
-        </FormControl>
-
-        <FormControl isInvalid={errors.some((e) => e.path.includes("image"))}>
-          <FormLabel
-            display="flex"
-            ms="4px"
-            fontSize="sm"
-            fontWeight="500"
-            color={textColor}
-            mb="8px"
-            mt="24px"
-          >
-            Immagine del Prodotto
-          </FormLabel>
-          <Input
-            fontSize="sm"
-            ms={{ base: "0px", md: "0px" }}
-            type="file"
-            accept="image/*"
-            fontWeight="500"
-            size="lg"
-            name="image"
-          />
-          {errors
-            .filter((e) => e.path.includes("image"))
-            .map((m) => (
-              <FormErrorMessage key={m.message}>{m.message}</FormErrorMessage>
-            ))}
-        </FormControl>
+            {/* Product Description Field (using TextArea) */}
+            <TextArea
+              id="product-description"
+              label="Descrizione"
+              name="description"
+              placeholder="Descrizione del prodotto"
+              isRequired={true}
+              errors={getFormErrors(errors, 'description')}
+            />
+          </GridItem>
+          {/* Product Name Field */}
+          <GridItem>
+            <ImageInput
+              name="image"
+              label="Immagine Prodotto"
+              id="product-image"
+            />
+          </GridItem>
+        </Grid>
         <Button
           type="submit"
           fontSize="sm"
           variant="brand"
           fontWeight="500"
-          w="100%"
+          w={{ base: '100%', md: '300px' }}
           h="50"
           mt="24px"
         >

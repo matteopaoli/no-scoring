@@ -8,8 +8,13 @@ import { createPaymentLink } from "@/app/utils/stripe";
 import { generateQrCodeWithLogo, generateTagImage } from "@/app/utils/images";
 import { redirect } from "next/navigation";
 import { uploadImageToS3 } from "@/app/utils/s3";
+import formatZodErrors from "@/app/utils/formatZodErrors";
+import { FormActionReturnType } from "@/app/types";
 
-export default async function createProductAction(prevState, formData: FormData): Promise<string> {
+export default async function createProductAction(
+  prevState,
+  formData: FormData
+): FormActionReturnType {
   const session = await auth();
   const user = await getUser(session?.user?.email);
   if (!user) {
@@ -37,7 +42,7 @@ export default async function createProductAction(prevState, formData: FormData)
   });
 
   if (!validation.success) {
-    return JSON.stringify(validation.error);
+    return formatZodErrors(validation);
   }
 
   const { name, description, price, image } = validation.data;
@@ -58,16 +63,21 @@ export default async function createProductAction(prevState, formData: FormData)
     description,
     images: imageUrl ? [imageUrl] : [],
     default_price_data: {
-      currency: 'eur',
-      unit_amount: Math.round(price * 100)
-    }
+      currency: "eur",
+      unit_amount: Math.round(price * 100),
+    },
   });
 
-  const paymentLink = await createPaymentLink(stripe, product.id)
-  const qrcode = await generateQrCodeWithLogo(paymentLink.url)
-  const tagImage = await generateTagImage(qrcode, name, price)
+  const paymentLink = await createPaymentLink(stripe, product.id);
+  const qrcode = await generateQrCodeWithLogo(paymentLink.url);
+  const tagImage = await generateTagImage(qrcode, name, price);
 
-  await createProduct({ id: product.id, paymentLinkId: paymentLink.id, qrcode, tagImage })
+  await createProduct({
+    id: product.id,
+    paymentLinkId: paymentLink.id,
+    qrcode,
+    tagImage,
+  });
 
-  redirect('/app/products?success=true&action=create')
+  redirect("/app/products?success=true&action=create");
 }

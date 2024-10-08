@@ -1,0 +1,1 @@
+export type FormActionReturnType = Promise<{ field: string; message: string }[]>

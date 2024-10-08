@@ -1,12 +1,12 @@
 "use server";
 
-import { createUser, getBusinessTypes, getUser } from "@/app/db";
+import { createUser, getBusinessTypes, getUser, getUserByStripeAccountId } from "@/app/db";
+import { FormActionReturnType } from "@/app/types";
+import formatZodErrors from "@/app/utils/formatZodErrors";
 import { redirect } from "next/navigation";
 import { z, ZodType } from "zod";
 
-export async function numericEnum<TValues extends readonly number[]>(
-  values: TValues
-) {
+export async function numericEnum<TValues extends readonly number[]>(values: TValues) {
   return z.number().superRefine((val, ctx) => {
     if (!values.includes(val)) {
       ctx.addIssue({
@@ -20,9 +20,9 @@ export async function numericEnum<TValues extends readonly number[]>(
 }
 
 export default async function createUserAction(
-  prevState: string | null,
+  prevState: Awaited<FormActionReturnType>,
   formData: FormData
-): Promise<string> {
+): FormActionReturnType {
   const businessTypeIds = (await getBusinessTypes()).map((b) => b.id);
 
   const createUserSchema = z.object({
@@ -48,22 +48,39 @@ export default async function createUserAction(
       message: "Il formato dell'ID LEG di Stripe non è valido. Dovrebbe iniziare con 'acct_' seguito da caratteri alfanumerici.",
     })
   });
-  createUserSchema.safeParse({
-    name: formData.get("email"),
-  });
+
+  // Validate form data against the schema
   const validation = await createUserSchema.safeParseAsync({
     email: formData.get("email"),
     stripeApiKey: formData.get("stripeApiKey"),
-    businessTypeId: Number(formData.get("businessType")),
+    businessTypeId: Number(formData.get("businessTypeId")),
     businessName: formData.get("businessName"),
     stripeUserId: formData.get('stripeUserId'),
     stripeLegAccountId: formData.get('stripeLegAccountId')
   });
+
   if (!validation.success) {
-    return JSON.stringify(validation.error);
+    return formatZodErrors(validation)
   }
 
   const { email, stripeApiKey, businessTypeId, businessName, stripeUserId, stripeLegAccountId } = validation.data;
+
+  // Check for existing user with the same email or Stripe account ID
+  const existingUserByEmail = await getUser(email);
+  const existingUserByStripeId = await getUserByStripeAccountId(stripeUserId);
+
+  if (existingUserByEmail) {
+    return [{ field: 'email', message: 'L\'utente esiste già' }]
+  }
+
+  if (existingUserByStripeId) {
+    return [{
+      field: 'stripeUserId',
+      message: "L'ID utente di Stripe fornito è già associato a un altro account."
+    }];
+  }
+
+  // If no existing user, proceed to create the new user
   await createUser(email, stripeApiKey, businessTypeId, businessName, stripeUserId, stripeLegAccountId);
   redirect("/admin/users?success=true&action=create");
 }

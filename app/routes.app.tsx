@@ -29,6 +29,10 @@ const routes = [
     path: '/app/products/new',
   },
   {
+    name: 'Modifica Profilo',
+    path: '/app/settings/user',
+  },
+  {
     name: 'Vendite',
     layout: '/admin',
     path: '/app/sales',

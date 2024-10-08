@@ -2,20 +2,17 @@
 
 import {
   Button,
-  FormControl,
-  FormErrorMessage,
-  FormLabel,
-  Input,
-  Select,
   Text,
-  Textarea,
   useColorModeValue,
+  Box,
 } from "@chakra-ui/react";
-import { ReactNode, useEffect, useState } from "react";
-import { useFormState } from "react-dom";
+import { ReactNode } from "react";
 import createUserAction from "./createUser.action";
-
-const initialState: string | null = null;
+import { useFormState } from "react-dom";
+import InputField from "@/app/components/fields/InputField"; // Import the InputField component
+import TextArea from "@/app/components/fields/TextArea"; // Import the TextArea component
+import getFormErrors from "@/app/utils/getFormErrors"; // Utility for fetching errors
+import Select from "@/app/components/fields/Select";
 
 type CreateUserPageProps = {
   businessTypesOptions: ReactNode[];
@@ -24,213 +21,82 @@ type CreateUserPageProps = {
 export default function CreateUserPage({
   businessTypesOptions,
 }: CreateUserPageProps) {
-  const [formState, action] = useFormState(createUserAction, initialState);
-  const [errors, setErrors] = useState<Record<string, any>[]>([]);
-
-  useEffect(() => {
-    if (formState) {
-      const { issues } = JSON.parse(formState);
-      setErrors(issues);
-    }
-  }, [formState]);
+  const [errors, action] = useFormState(createUserAction, []);
 
   // Chakra color mode
   const textColor = useColorModeValue("navy.700", "white");
   const brandStars = useColorModeValue("brand.500", "brand.400");
+
   return (
-    <form action={action} style={{ width: '100%' }}>
-      <FormControl isInvalid={errors.some((e) => e.path.includes("email"))}>
-        <FormLabel
-          display="flex"
-          ms="4px"
-          fontSize="sm"
-          fontWeight="500"
-          color={textColor}
-          mb="8px"
-          mt="24px"
-        >
-          Email
-          <Text color={brandStars}>*</Text>
-        </FormLabel>
-        <Input
-          isRequired={true}
-          fontSize="sm"
-          ms={{ base: "0px", md: "0px" }}
-          type="email"
-          placeholder="mail@email.com"
-          fontWeight="500"
-          size="lg"
+    <Box width="100%">
+      <form action={action} style={{ width: '100%' }}>
+        <InputField
+          id="user-email"
+          label="Email"
           name="email"
-        />
-        {errors
-          .filter((e) => e.path.includes("email"))
-          .map((m) => (
-            <FormErrorMessage key={m.message}>{m.message}</FormErrorMessage>
-          ))}
-      </FormControl>
-      <FormControl isInvalid={errors.some((e) => e.path.includes("businessName"))}>
-        <FormLabel
-          display="flex"
-          ms="4px"
-          fontSize="sm"
-          fontWeight="500"
-          color={textColor}
-          mb="8px"
-          mt="24px"
-        >
-          Nome azienda
-          <Text color={brandStars}>*</Text>
-        </FormLabel>
-        <Input
+          placeholder="mail@email.com"
           isRequired={true}
-          fontSize="sm"
-          ms={{ base: "0px", md: "0px" }}
-          type="text"
-          placeholder="Pinco Pallino s.r.l."
-          fontWeight="500"
-          size="lg"
+          errors={getFormErrors(errors, 'email')}
+        />
+        
+        <InputField
+          id="business-name"
+          label="Nome azienda"
           name="businessName"
+          placeholder="Pinco Pallino s.r.l."
+          isRequired={true}
+          errors={getFormErrors(errors, 'businessName')}
         />
-        {errors
-          .filter((e) => e.path.includes("email"))
-          .map((m) => (
-            <FormErrorMessage key={m.message}>{m.message}</FormErrorMessage>
-          ))}
-      </FormControl>
-      <FormControl
-        isInvalid={errors.some((e) => e.path.includes("businessTypeId"))}
-      >
-        <FormLabel
-          display="flex"
-          ms="4px"
-          fontSize="sm"
-          fontWeight="500"
-          color={textColor}
-          mb="8px"
-          mt="24px"
-        >
-          Tipo Business
-          <Text color={brandStars}>*</Text>
-        </FormLabel>
+
         <Select
-          isRequired={true}
-          fontSize="sm"
-          ms={{ base: "0px", md: "0px" }}
+          id="business-type"
+          label="Tipo Business"
+          name="businessTypeId"
           placeholder="Seleziona uno"
-          mb="24px"
-          fontWeight="500"
-          size="lg"
-          name="businessType"
+          isRequired={true}
+          errors={getFormErrors(errors, 'businessTypeId')}
         >
-          {businessTypesOptions}
+        {businessTypesOptions}
         </Select>
-        {errors
-          .filter((e) => e.path.includes("businessTypeId"))
-          .map((m) => (
-            <FormErrorMessage key={m.message}>{m.message}</FormErrorMessage>
-          ))}
-      </FormControl>
-      <FormControl
-        isInvalid={errors.some((e) => e.path.includes("stripeApiKey"))}
-      >
-        <FormLabel
-          display="flex"
-          ms="4px"
-          fontSize="sm"
-          fontWeight="500"
-          color={textColor}
-          mb="8px"
-          mt="24px"
-        >
-          Stripe API Token
-          <Text color={brandStars}>*</Text>
-        </FormLabel>
-        <Textarea
-          isRequired={true}
-          fontSize="sm"
-          ms={{ base: "0px", md: "0px" }}
-          placeholder="Stripe API Token"
-          fontWeight="500"
-          size="lg"
+        <TextArea
+          id="stripe-api-key"
+          label="Stripe API Token"
           name="stripeApiKey"
-        />
-        {errors
-          .filter((e) => e.path.includes("stripeApiKey"))
-          .map((m) => (
-            <FormErrorMessage key={m.message}>{m.message}</FormErrorMessage>
-          ))}
-      </FormControl>
-      <FormControl
-        isInvalid={errors.some((e) => e.path.includes("stripeUserId"))}
-      >
-        <FormLabel
-          display="flex"
-          ms="4px"
-          fontSize="sm"
-          fontWeight="500"
-          color={textColor}
-          mb="8px"
-          mt="24px"
-        >
-          ID Stripe Utente
-          <Text color={brandStars}>*</Text>
-        </FormLabel>
-        <Textarea
-          isRequired={true}
-          fontSize="sm"
-          ms={{ base: "0px", md: "0px" }}
           placeholder="Stripe API Token"
-          fontWeight="500"
-          size="lg"
+          isRequired={true}
+          errors={getFormErrors(errors, 'stripeApiKey')}
+        />
+
+        <TextArea
+          id="stripe-user-id"
+          label="ID Stripe Utente"
           name="stripeUserId"
+          placeholder="ID Stripe Utente"
+          isRequired={true}
+          errors={getFormErrors(errors, 'stripeUserId')}
         />
-        {errors
-          .filter((e) => e.path.includes("stripeUserId"))
-          .map((m) => (
-            <FormErrorMessage key={m.message}>{m.message}</FormErrorMessage>
-          ))}
-      </FormControl>
-      <FormControl
-        isInvalid={errors.some((e) => e.path.includes("stripeLegAccountId"))}
-      >
-        <FormLabel
-          display="flex"
-          ms="4px"
+
+        <TextArea
+          id="stripe-leg-account-id"
+          label="ID Stripe LEG"
+          name="stripeLegAccountId"
+          placeholder="ID Stripe LEG"
+          isRequired={true}
+          errors={getFormErrors(errors, 'stripeLegAccountId')}
+        />
+
+        <Button
+          type="submit"
           fontSize="sm"
+          variant="brand"
           fontWeight="500"
-          color={textColor}
-          mb="8px"
+          w="100%"
+          h="50"
           mt="24px"
         >
-          ID Stripe LEG
-          <Text color={brandStars}>*</Text>
-        </FormLabel>
-        <Textarea
-          isRequired={true}
-          fontSize="sm"
-          ms={{ base: "0px", md: "0px" }}
-          placeholder="Stripe API Token"
-          fontWeight="500"
-          size="lg"
-          name="stripeLegAccountId"
-        />
-        {errors
-          .filter((e) => e.path.includes("stripeUserId"))
-          .map((m) => (
-            <FormErrorMessage key={m.message}>{m.message}</FormErrorMessage>
-          ))}
-      </FormControl>
-      <Button
-        type="submit"
-        fontSize="sm"
-        variant="brand"
-        fontWeight="500"
-        w="100%"
-        h="50"
-        mt="24px"
-      >
-        Aggiungi utente
-      </Button>
-    </form>
+          Aggiungi utente
+        </Button>
+      </form>
+    </Box>
   );
 }

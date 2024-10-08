@@ -23,6 +23,7 @@ import logout from "@/app/signout.action";
 import { UserContext } from "@/app/contexts/UserContext";
 import { FaEthereum } from "react-icons/fa";
 import signOutAction from '@/app/signout.action' 
+import { useRouter } from "next/navigation";
 
 export default function HeaderLinks(props) {
   const { secondary, routes } = props;
@@ -42,6 +43,7 @@ export default function HeaderLinks(props) {
     "14px 17px 40px 4px rgba(112, 144, 176, 0.06)"
   );
   const borderButton = useColorModeValue("secondaryGray.500", "whiteAlpha.200");
+  const router = useRouter()
 
   return (
     <Flex
@@ -153,6 +155,7 @@ export default function HeaderLinks(props) {
               _focus={{ bg: 'none' }}
               borderRadius="8px"
               px="14px"
+              onClick={() => router.push('/app/settings/user')}
             >
               <Text fontSize="sm">Modifica Profilo</Text>
             </MenuItem>
