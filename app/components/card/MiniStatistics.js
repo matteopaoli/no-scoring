@@ -1,5 +1,4 @@
-// Chakra imports
-// Chakra imports
+'use client'
 import {
   Flex,
   Stat,
