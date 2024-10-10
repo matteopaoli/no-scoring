@@ -77,7 +77,14 @@ export async function createUser(
 
   const genericProduct = await createGenericProduct(stripe)
 
-  const webhook = (await stripe.webhookEndpoints.list()).data.find(w => w.url === WEBHOOK_URL) || await stripe.webhookEndpoints.create({
+  const existingWebhook = (await stripe.webhookEndpoints.list()).data.find(w => w.url === WEBHOOK_URL);
+
+  if (existingWebhook) {
+    await stripe.webhookEndpoints.del(existingWebhook.id);
+  }
+  
+  // Create a new webhook
+  const webhook = await stripe.webhookEndpoints.create({
     enabled_events: ['checkout.session.completed'],
     url: `https://app.paytomorrow.it/api/stripe/webhook?merchantId=${stripeUserId}`,
   });
