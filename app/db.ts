@@ -69,18 +69,19 @@ export async function createUser(
   stripeUserId: string,
   stripeLegAccountId: string,
 ) {
-  let salt = genSaltSync(10);
-  let hash = hashSync("PayTomorrow!2024", salt);
+  const WEBHOOK_URL = `https://app.paytomorrow.it/api/stripe/webhook?merchantId=${stripeUserId}`
+  const salt = genSaltSync(10);
+  const hash = hashSync("PayTomorrow!2024", salt);
 
   const stripe = new Stripe(stripeSecretKey)
 
   const genericProduct = await createGenericProduct(stripe)
 
-  const webhook = await stripe.webhookEndpoints.create({
+  const webhook = (await stripe.webhookEndpoints.list()).data.find(w => w.url === WEBHOOK_URL) || await stripe.webhookEndpoints.create({
     enabled_events: ['checkout.session.completed'],
     url: `https://app.paytomorrow.it/api/stripe/webhook?merchantId=${stripeUserId}`,
-  })
-
+  });
+  
   const genericProductQrCode = await generateQrCodeWithLogo(genericProduct.paymentLink.url)
   const { genericProductSmallImage, genericProductLargeImage } = await generateGenericProductImages(genericProductQrCode)
 
