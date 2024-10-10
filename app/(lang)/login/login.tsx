@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import React from "react";
 // Chakra imports
 import {
@@ -16,6 +16,8 @@ import {
   InputRightElement,
   Text,
   useColorModeValue,
+  Alert,
+  AlertIcon,
 } from "@chakra-ui/react";
 // Custom components
 import { HSeparator } from "@/app/components/separator/Separator";
@@ -28,13 +30,15 @@ import login from './login.action';
 import { Link } from "@chakra-ui/next-js";
 import { useDictionary } from "@/app/DictionaryProvider";
 import { useFormState } from "react-dom";
+import { useSearchParams } from "next/navigation"; // Add this import
 
 const initialState: Record<string, any> = {}
 
 export default function SignIn() {
   const t = useDictionary();
-  const [formState, action] = useFormState(login, initialState)
-  console.log(formState)
+  const [formState, action] = useFormState(login, initialState);
+  const searchParams = useSearchParams();
+  const onboardingComplete = searchParams.get('onboarding-complete') === 'true'; // Check for the query param
 
   // Chakra color mode
   const textColor = useColorModeValue("navy.700", "white");
@@ -69,6 +73,12 @@ export default function SignIn() {
         px={{ base: "25px", md: "0px" }}
         mt={{ base: "40px", md: "14vh" }}
         flexDirection='column'>
+        {onboardingComplete && ( // Conditionally render the alert
+          <Alert status='success' mb='20px'>
+            <AlertIcon />
+            Procedura di onboarding completata. Per favore autenticati di nuovo.
+          </Alert>
+        )}
         <Box me='auto'>
           <Heading color={textColor} fontSize='36px' mb='10px'>
             {t('signIn')}
@@ -92,138 +102,70 @@ export default function SignIn() {
           mx={{ base: "auto", lg: "unset" }}
           me='auto'
           mb={{ base: "20px", md: "auto" }}>
-          {/* <Button
-            fontSize='sm'
-            me='0px'
-            mb='26px'
-            py='15px'
-            h='50px'
-            borderRadius='16px'
-            bg={googleBg}
-            color={googleText}
-            fontWeight='500'
-            _hover={googleHover}
-            _active={googleActive}
-            _focus={googleActive}>
-            <Icon as={FcGoogle} w='20px' h='20px' me='10px' />
-            {t('signInWithGoogle')}
-          </Button> */}
-          {/* <Flex align='center' mb='25px'>
-            <HSeparator />
-            <Text color='gray.400' mx='14px'>
-              {t('or')}
-            </Text>
-            <HSeparator />
-          </Flex> */}
           <form action={action}>
-          <FormControl isInvalid={formState?.error}>
-            <FormLabel
-              display='flex'
-              ms='4px'
-              fontSize='sm'
-              fontWeight='500'
-              color={textColor}
-              mb='8px'>
-              {t('email')}<Text color={brandStars}>{t('requiredField')}</Text>
-            </FormLabel>
-            <Input
-              isRequired={true}
-              fontSize='sm'
-              ms={{ base: "0px", md: "0px" }}
-              type='email'
-              placeholder='Inserisci email'
-              mb='24px'
-              fontWeight='500'
-              size='lg'
-              name="email"
-            />
-            <FormLabel
-              ms='4px'
-              fontSize='sm'
-              fontWeight='500'
-              color={textColor}
-              display='flex'>
-              {t('password')}<Text color={brandStars}>{t('requiredField')}</Text>
-            </FormLabel>
-            <InputGroup size='md'>
+            <FormControl isInvalid={formState?.error}>
+              <FormLabel
+                display='flex'
+                ms='4px'
+                fontSize='sm'
+                fontWeight='500'
+                color={textColor}
+                mb='8px'>
+                {t('email')}<Text color={brandStars}>{t('requiredField')}</Text>
+              </FormLabel>
               <Input
                 isRequired={true}
                 fontSize='sm'
-                placeholder="**********"
+                ms={{ base: "0px", md: "0px" }}
+                type='email'
+                placeholder='Inserisci email'
+                mb='24px'
+                fontWeight='500'
                 size='lg'
-                type={show ? "text" : "password"}
-                name="password"
+                name="email"
               />
-              <InputRightElement display='flex' alignItems='center' mt='4px'>
-                <Icon
-                  color={textColorSecondary}
-                  _hover={{ cursor: "pointer" }}
-                  as={show ? RiEyeCloseLine : MdOutlineRemoveRedEye}
-                  onClick={handleClick}
-                />
-              </InputRightElement>
-            </InputGroup>
-            {formState?.error ? (
-              <FormErrorMessage>{t('wrongCredentialsMessage')}</FormErrorMessage>
-            ) : null}
-            {/* <Flex justifyContent='space-between' align='center' my='24px'>
-              <FormControl display='flex' alignItems='center'>
-                <Checkbox
-                  id='remember-login'
-                  colorScheme='brandScheme'
-                  me='10px'
-                />
-                <FormLabel
-                  htmlFor='remember-login'
-                  mb='0'
-                  fontWeight='normal'
-                  color={textColor}
-                  fontSize='sm'>
-                  {t('keepMeLoggedIn')}
-                </FormLabel>
-              </FormControl>
-              <Link href='/auth/forgot-password'>
-                <Text
-                  color={textColorBrand}
+              <FormLabel
+                ms='4px'
+                fontSize='sm'
+                fontWeight='500'
+                color={textColor}
+                display='flex'>
+                {t('password')}<Text color={brandStars}>{t('requiredField')}</Text>
+              </FormLabel>
+              <InputGroup size='md'>
+                <Input
+                  isRequired={true}
                   fontSize='sm'
-                  w='124px'
-                  fontWeight='500'>
-                  {t('forgotPassword')}
-                </Text>
-              </Link>
-            </Flex> */}
-            <Button
-              mt="24px"
-              type="submit"
-              fontSize='sm'
-              variant='brand'
-              fontWeight='500'
-              w='100%'
-              h='50'
-              mb='24px'>
-              {t('signIn')}
-            </Button>
-          </FormControl>
+                  placeholder="**********"
+                  size='lg'
+                  type={show ? "text" : "password"}
+                  name="password"
+                />
+                <InputRightElement display='flex' alignItems='center' mt='4px'>
+                  <Icon
+                    color={textColorSecondary}
+                    _hover={{ cursor: "pointer" }}
+                    as={show ? RiEyeCloseLine : MdOutlineRemoveRedEye}
+                    onClick={handleClick}
+                  />
+                </InputRightElement>
+              </InputGroup>
+              {formState?.error ? (
+                <FormErrorMessage>{t('wrongCredentialsMessage')}</FormErrorMessage>
+              ) : null}
+              <Button
+                mt="24px"
+                type="submit"
+                fontSize='sm'
+                variant='brand'
+                fontWeight='500'
+                w='100%'
+                h='50'
+                mb='24px'>
+                {t('signIn')}
+              </Button>
+            </FormControl>
           </form>
-          {/* <Flex
-            flexDirection='column'
-            justifyContent='center'
-            alignItems='start'
-            maxW='100%'
-            mt='0px'>
-            <Text color={textColorDetails} fontWeight='400' fontSize='14px'>
-              {t('notRegisteredYet')}
-              <Link href='/register'>
-                <Text
-                  color={textColorBrand}
-                  as='span'
-                  ms='5px'
-                  fontWeight='500'>
-                  {t('createAccount')}
-                </Text>
-              </Link>
-            </Text>
-          </Flex> */}
         </Flex>
       </Flex>
     </DefaultAuth>
