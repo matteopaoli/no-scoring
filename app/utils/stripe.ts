@@ -51,7 +51,7 @@ export async function getPaymentLinkUrl(stripe: Stripe, paymentLinkId: string): 
 
 export async function createGenericProduct(stripe: Stripe) {
   const product = await stripe.products.create({
-    name: 'Prodotto generico'
+    name: 'Inserisci l\'importo desiderato'
   })
 
   const price = await stripe.prices.create({
