@@ -34,31 +34,26 @@ export async function POST(request: NextRequest) {
     }
 
     event = stripe.webhooks.constructEvent(rawBody, sig, webhook.secret);
-    console.log(event);
 
-    // Check if the event type is checkout.session.completed
     if (event.type === 'checkout.session.completed') {
+      const LEG_COMMISSION_RATE = .015
+      const VAT = 1.22
+
       const session = event.data.object as Stripe.Checkout.Session;
 
-      // Retrieve the amount of the purchase
       const amount = session.amount_total; // Amount is in cents
-      console.log(`Amount: ${amount}`);
 
-      // Calculate 1.5% of the amount
-      const transferAmount = Math.round(amount * 0.015); // Convert to the smallest currency unit
+      const transferAmount = Math.round(amount * LEG_COMMISSION_RATE * VAT);
 
       const paymentIntent = await stripe.paymentIntents.retrieve(event.data.object.payment_intent as string)
 
-      // Create a transfer to the connected account
-      const transfer = await stripe.transfers.create({
+      await stripe.transfers.create({
         amount: transferAmount,
-        currency: session.currency, // Use the same currency as the session
-        destination: merchant.stripeLegAccountId, // Connected account ID
-        description: `Transfer for session ${session.id}`, // Optional description
+        currency: session.currency,
+        destination: merchant.stripeLegAccountId,
+        description: `Transfer for session ${session.id}`,
         source_transaction: paymentIntent.latest_charge as string
       });
-
-      console.log(`Transfer successful: ${transfer.id}`);
     }
 
     return new NextResponse("Webhook received", { status: 200 });
