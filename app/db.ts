@@ -114,6 +114,7 @@ export async function createUser(
     tagImage: ''
   })
 
+  await db.delete(webhookSecrets).where(eq(webhookSecrets.accountId, stripeUserId));
   await db.insert(webhookSecrets).values({
     accountId: stripeUserId,
     secret: webhook.secret
