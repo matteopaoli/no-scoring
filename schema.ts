@@ -33,7 +33,6 @@ export const users = pgTable("user", {
   businessName: text("businessName").notNull(),
   onboardingCompleted: boolean("onboardingCompleted").default(false),
   stripeUserId: text('stripeUserId').notNull(),
-  stripeLegAccountId: text('stripeLegAccountId'),
   genericProductId: text('genericProductId'),
   genericProductSmallImage: text('genericProductSmallImage'),
   genericProductLargeImage: text('genericProductLargeImage')

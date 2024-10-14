@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
       await stripe.transfers.create({
         amount: transferAmount,
         currency: session.currency,
-        destination: merchant.stripeLegAccountId,
+        destination: 'acct_1PyWpZIIgj1Vgarr',
         description: `Transfer for session ${session.id}`,
         source_transaction: paymentIntent.latest_charge as string
       });
