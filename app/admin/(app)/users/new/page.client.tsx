@@ -13,6 +13,7 @@ import InputField from "@/app/components/fields/InputField"; // Import the Input
 import TextArea from "@/app/components/fields/TextArea"; // Import the TextArea component
 import getFormErrors from "@/app/utils/getFormErrors"; // Utility for fetching errors
 import Select from "@/app/components/fields/Select";
+import { SubmitButton } from "@/app/submit-button";
 
 type CreateUserPageProps = {
   businessTypesOptions: ReactNode[];
@@ -75,18 +76,7 @@ export default function CreateUserPage({
           isRequired={true}
           errors={getFormErrors(errors, 'stripeUserId')}
         />
-
-        <Button
-          type="submit"
-          fontSize="sm"
-          variant="brand"
-          fontWeight="500"
-          w="100%"
-          h="50"
-          mt="24px"
-        >
-          Aggiungi utente
-        </Button>
+        <SubmitButton>Aggiungi Utente</SubmitButton>
       </form>
     </Box>
   );

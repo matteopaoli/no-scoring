@@ -8,19 +8,22 @@ import {
   useColorModeValue,
   Checkbox,
   Text,
+  Spinner,
 } from "@chakra-ui/react";
 
 import createProduct from "../createProduct.action";
-import { useFormState } from "react-dom";
+import { useFormState, useFormStatus } from "react-dom";
 import InputField from "@/app/components/fields/InputField"; // Import the InputField component
 import TextArea from "@/app/components/fields/TextArea"; // Import the TextArea component
 import ImageInput from "@/app/components/fields/ImageInput";
 import getFormErrors from "@/app/utils/getFormErrors";
 import PriceInput from "@/app/components/fields/PriceField";
 import { useState } from "react";
+import SubmitButton from "../../../../components/SubmitButton";
 
 export default function CreateOrEditProductPage() {
   const [errors, action] = useFormState(createProduct, []);
+  const { pending } = useFormStatus()
   const [includeCommission, setIncludeCommission] = useState(false);
   const [finalPrice, setFinalPrice] = useState(0);
 
@@ -97,17 +100,7 @@ export default function CreateOrEditProductPage() {
             />
           </GridItem>
         </Grid>
-        <Button
-          type="submit"
-          fontSize="sm"
-          variant="brand"
-          fontWeight="500"
-          w={{ base: '100%', md: '300px' }}
-          h="50"
-          mt="24px"
-        >
-          Salva prodotto
-        </Button>
+        <SubmitButton>Salva Prodotto</SubmitButton>
       </form>
     </Box>
   );
