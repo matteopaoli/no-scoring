@@ -39,6 +39,7 @@ export interface User {
   businessName: string;
   onboardingCompleted: boolean;
   stripeUserId: string;
+  stripeLegAccountId: string;
   genericProductId: string;
   genericProductSmallImage: string
   genericProductLargeImage: string
@@ -66,6 +67,7 @@ export async function createUser(
   businessTypeId: number,
   businessName: string,
   stripeUserId: string,
+  stripeLegAccountId: string,
 ) {
   const WEBHOOK_URL = `https://app.paytomorrow.it/api/stripe/webhook?merchantId=${stripeUserId}`
   const salt = genSaltSync(10);
@@ -98,6 +100,7 @@ export async function createUser(
     password: hash,
     businessName,
     stripeUserId,
+    stripeLegAccountId,
     genericProductId: genericProduct.productId,
     genericProductSmallImage,
     genericProductLargeImage

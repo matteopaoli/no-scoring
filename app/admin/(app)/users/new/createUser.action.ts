@@ -46,6 +46,9 @@ export default async function createUserAction(
     stripeUserId: z.string().trim().regex(/^acct_[a-zA-Z0-9]+$/, {
       message: "Il formato dell'ID utente di Stripe non è valido. Dovrebbe iniziare con 'acct_' seguito da caratteri alfanumerici.",
     }),
+    stripeLegAccountId: z.string().regex(/^acct_[a-zA-Z0-9]+$/, {
+      message: "Il formato dell'ID LEG di Stripe non è valido. Dovrebbe iniziare con 'acct_' seguito da caratteri alfanumerici.",
+    })
   });
 
   // Validate form data against the schema
@@ -55,13 +58,14 @@ export default async function createUserAction(
     businessTypeId: Number(formData.get("businessTypeId")),
     businessName: formData.get("businessName"),
     stripeUserId: formData.get('stripeUserId'),
+    stripeLegAccountId: formData.get('stripeLegAccountId')
   });
 
   if (!validation.success) {
     return formatZodErrors(validation)
   }
 
-  const { email, stripeApiKey, businessTypeId, businessName, stripeUserId } = validation.data;
+  const { email, stripeApiKey, businessTypeId, businessName, stripeUserId, stripeLegAccountId } = validation.data;
 
   // Check for existing user with the same email or Stripe account ID
   const existingUserByEmail = await getUser(email);
@@ -79,6 +83,6 @@ export default async function createUserAction(
   }
 
   // If no existing user, proceed to create the new user
-  await createUser(email, stripeApiKey, businessTypeId, businessName, stripeUserId);
+  await createUser(email, stripeApiKey, businessTypeId, businessName, stripeUserId, stripeLegAccountId);
   redirect("/admin/users?success=true&action=create");
 }

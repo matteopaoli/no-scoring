@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  Button,
-  Text,
-  useColorModeValue,
-  Box,
-} from "@chakra-ui/react";
+import { Button, Text, useColorModeValue, Box } from "@chakra-ui/react";
 import { ReactNode } from "react";
 import createUserAction from "./createUser.action";
 import { useFormState } from "react-dom";
@@ -30,23 +25,23 @@ export default function CreateUserPage({
 
   return (
     <Box width="100%">
-      <form action={action} style={{ width: '100%' }}>
+      <form action={action} style={{ width: "100%" }}>
         <InputField
           id="user-email"
           label="Email"
           name="email"
           placeholder="mail@email.com"
           isRequired={true}
-          errors={getFormErrors(errors, 'email')}
+          errors={getFormErrors(errors, "email")}
         />
-        
+
         <InputField
           id="business-name"
           label="Nome azienda"
           name="businessName"
           placeholder="Pinco Pallino s.r.l."
           isRequired={true}
-          errors={getFormErrors(errors, 'businessName')}
+          errors={getFormErrors(errors, "businessName")}
         />
 
         <Select
@@ -55,9 +50,9 @@ export default function CreateUserPage({
           name="businessTypeId"
           placeholder="Seleziona uno"
           isRequired={true}
-          errors={getFormErrors(errors, 'businessTypeId')}
+          errors={getFormErrors(errors, "businessTypeId")}
         >
-        {businessTypesOptions}
+          {businessTypesOptions}
         </Select>
         <TextArea
           id="stripe-api-key"
@@ -65,7 +60,7 @@ export default function CreateUserPage({
           name="stripeApiKey"
           placeholder="Stripe API Token"
           isRequired={true}
-          errors={getFormErrors(errors, 'stripeApiKey')}
+          errors={getFormErrors(errors, "stripeApiKey")}
         />
 
         <TextArea
@@ -74,7 +69,16 @@ export default function CreateUserPage({
           name="stripeUserId"
           placeholder="ID Stripe Utente"
           isRequired={true}
-          errors={getFormErrors(errors, 'stripeUserId')}
+          errors={getFormErrors(errors, "stripeUserId")}
+        />
+
+        <TextArea
+          id="stripe-leg-account-id"
+          label="ID Stripe LEG"
+          name="stripeLegAccountId"
+          placeholder="ID Stripe LEG"
+          isRequired={true}
+          errors={getFormErrors(errors, "stripeLegAccountId")}
         />
         <SubmitButton>Aggiungi Utente</SubmitButton>
       </form>
