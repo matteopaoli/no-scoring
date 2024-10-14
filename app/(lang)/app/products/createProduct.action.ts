@@ -36,7 +36,7 @@ export default async function createProductAction(
       z.number().positive("Price must be a positive number")
     ),
     image: z.instanceof(File).optional(), // Optional product image
-    includeCommission: z.string().optional(), // Checkbox for including commission
+    includeCommission: z.string().nullable().optional(), // Checkbox for including commission
   });
 
   const validation = createProductSchema.safeParse({
