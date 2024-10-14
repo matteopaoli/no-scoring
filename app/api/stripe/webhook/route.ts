@@ -19,7 +19,6 @@ export async function POST(request: NextRequest) {
   const stripe = new Stripe(merchant.stripeSecretKey);
   const webhook = await getWebhookSecret(merchantAccountId);
   // webhook.secret = 'whsec_88ee09d943ae2353bfa77ed1ca6242975826e5303ddfaeaa1fa854d1123c6cd1'
-  console.log(webhook)
   
   if (!webhook) {
     throw new Error('No secret in db');

@@ -11,7 +11,6 @@ const StepStore: React.FC = () => {
 
   useEffect(() => {
     if (storeFormState) {
-      console.log(storeFormState)
       setStoreErrors(storeFormState?.issues ?? []);
     }
   }, [storeFormState]);

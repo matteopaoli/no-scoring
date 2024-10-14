@@ -17,18 +17,28 @@ import { SearchBar } from "../../components/navbar/searchBar/SearchBar";
 import { SidebarResponsive } from "../../components/sidebar/Sidebar";
 import PropTypes from "prop-types";
 import React, { useContext } from "react";
-// Assets
-import { IoMdMoon, IoMdSunny } from "react-icons/io";
-import logout from "@/app/signout.action";
+// Assets;
 import { UserContext } from "@/app/contexts/UserContext";
-import { FaEthereum } from "react-icons/fa";
-import signOutAction from '@/app/signout.action' 
+import signOutAction from "@/app/signout.action";
 import { useRouter } from "next/navigation";
 
-export default function HeaderLinks(props) {
-  const { secondary, routes } = props;
+type HeaderLinksProps = {
+  variant: string;
+  fixed: boolean;
+  secondary: boolean;
+  onOpen: () => void;
+  routes: unknown[];
+};
+
+export default function HeaderLinks({
+  variant,
+  fixed,
+  secondary,
+  onOpen,
+  routes,
+}: HeaderLinksProps) {
   const { colorMode, toggleColorMode } = useColorMode();
-  const session = useContext(UserContext)
+  const session = useContext(UserContext);
   // Chakra Color Mode
   const navbarIcon = useColorModeValue("gray.400", "white");
   let menuBg = useColorModeValue("white", "navy.800");
@@ -43,15 +53,15 @@ export default function HeaderLinks(props) {
     "14px 17px 40px 4px rgba(112, 144, 176, 0.06)"
   );
   const borderButton = useColorModeValue("secondaryGray.500", "whiteAlpha.200");
-  const router = useRouter()
+  const router = useRouter();
 
   return (
     <Flex
-      w={{ sm: '100%', md: 'auto' }}
+      w={{ sm: "100%", md: "auto" }}
       alignItems="center"
       flexDirection="row"
       bg={menuBg}
-      flexWrap={secondary ? { base: 'wrap', md: 'nowrap' } : 'unset'}
+      flexWrap={secondary ? { base: "wrap", md: "nowrap" } : "unset"}
       p="10px"
       borderRadius="30px"
       boxShadow={shadow}
@@ -75,9 +85,9 @@ export default function HeaderLinks(props) {
           bg={menuBg}
           border="none"
           mt="22px"
-          me={{ base: '30px', md: 'unset' }}
-          minW={{ base: 'unset', md: '400px', xl: '450px' }}
-          maxW={{ base: '360px', md: 'unset' }}
+          me={{ base: "30px", md: "unset" }}
+          minW={{ base: "unset", md: "400px", xl: "450px" }}
+          maxW={{ base: "360px", md: "unset" }}
         >
           <Flex w="100%" mb="20px">
             <Text fontSize="md" fontWeight="600" color={textColor}>
@@ -117,7 +127,7 @@ export default function HeaderLinks(props) {
       <Menu>
         <MenuButton p="0px">
           <Avatar
-            _hover={{ cursor: 'pointer' }}
+            _hover={{ cursor: "pointer" }}
             color="white"
             name={`${session.user.firstName} ${session.user.lastName}`}
             bg="#11047A"
@@ -151,11 +161,11 @@ export default function HeaderLinks(props) {
           </Flex>
           <Flex flexDirection="column" p="10px">
             <MenuItem
-              _hover={{ bg: 'none' }}
-              _focus={{ bg: 'none' }}
+              _hover={{ bg: "none" }}
+              _focus={{ bg: "none" }}
               borderRadius="8px"
               px="14px"
-              onClick={() => router.push('/app/settings/user')}
+              onClick={() => router.push("/admin/settings/user")}
             >
               <Text fontSize="sm">Modifica Profilo</Text>
             </MenuItem>
@@ -168,8 +178,8 @@ export default function HeaderLinks(props) {
               <Text fontSize="sm">Newsletter Settings</Text>
             </MenuItem> */}
             <MenuItem
-              _hover={{ bg: 'none' }}
-              _focus={{ bg: 'none' }}
+              _hover={{ bg: "none" }}
+              _focus={{ bg: "none" }}
               color="red.400"
               borderRadius="8px"
               px="14px"

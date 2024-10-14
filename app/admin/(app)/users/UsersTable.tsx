@@ -123,7 +123,6 @@ export default function UsersTable({ tableData }: UsersTableProps) {
     ],
     [textColor]
   );
-  console.log(tableData);
   const [data] = useState(() => [...tableData]);
   const table = useReactTable({
     data,

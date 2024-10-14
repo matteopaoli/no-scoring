@@ -16,7 +16,6 @@ export async function GET(request: NextRequest) {
     return new Response('Error', { status: 400 })
   }
   const product = await getProduct(productId)
-  console.log(product)
   if (product.paymentLinkId) {
     const paymentLink = await stripe.paymentLinks.retrieve(product.paymentLinkId)
     return Response.json({ ...product, paymentLink }, { status: 200 })

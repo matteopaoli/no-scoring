@@ -1,10 +1,21 @@
-// Chakra Imports
 import { Box, Breadcrumb, BreadcrumbItem, BreadcrumbLink, Flex, Link, Text, useColorModeValue } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 import React, { useState, useEffect } from 'react';
-import AdminNavbarLinks from '@/app/components/navbar/NavbarLinksAdmin';
+import NavbarLinks from '@/app/components/navbar/NavbarLinks';
 
-export default function AdminNavbar(props) {
+type NavbarProps = {
+	brandText: string,
+	variant: string,
+	secondary: boolean,
+	fixed: boolean,
+	onOpen: () => void;
+  message: string
+  routes: unknown,
+  logoText: string
+};
+
+
+export default function AdminNavbar({ secondary, message, brandText, routes, onOpen, fixed, logoText }: NavbarProps) {
 	const [ scrolled, setScrolled ] = useState(false);
 
 	useEffect(() => {
@@ -14,8 +25,6 @@ export default function AdminNavbar(props) {
 			window?.removeEventListener('scroll', changeNavbar);
 		};
 	});
-
-	const { secondary, message, brandText, routes } = props;
 
 	// Here are all the props that may change depending on navbar's type or state.(secondary, variant, scrolled)
 	let mainText = useColorModeValue('navy.700', 'white');
@@ -123,11 +132,11 @@ export default function AdminNavbar(props) {
 					</Link>
 				</Box>
 				<Box ms='auto' w={{ sm: '100%', md: 'unset' }}>
-					<AdminNavbarLinks
-						onOpen={props.onOpen}
-						logoText={props.logoText}
-						secondary={props.secondary}
-						fixed={props.fixed}
+					<NavbarLinks
+						onOpen={onOpen}
+						logoText={logoText}
+						secondary={secondary}
+						fixed={fixed}
 						scrolled={scrolled}
 						routes={routes}
 					/>
@@ -137,11 +146,3 @@ export default function AdminNavbar(props) {
 		</Box>
 	);
 }
-
-AdminNavbar.propTypes = {
-	brandText: PropTypes.string,
-	variant: PropTypes.string,
-	secondary: PropTypes.bool,
-	fixed: PropTypes.bool,
-	onOpen: PropTypes.func
-};

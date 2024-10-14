@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { updateProfile } from "@/app/db"; // Assumed update user method
+import { getUser, updateProfile } from "@/app/db"; // Assumed update user method
 import { redirect } from "next/navigation";
 import { auth } from "@/app/auth";
 import { FormActionReturnType } from "@/app/types";
@@ -61,13 +61,14 @@ export default async function updateUserAction(prevState, formData: FormData): F
 
   // Update the user (retrieved via the session)
   const session = await auth();
-  if (!session?.user?.email) {
+  const user = await getUser(session.user.email)
+  if (!user?.email) {
     redirect("/login");
   }
 
   // Prepare update payload, only include password if provided
   const updateData: { email: string; firstName: string; lastName: string; password?: string } = {
-    email: session.user.email,
+    email: user.email,
     firstName: firstName as string,
     lastName: lastName as string,
   };
@@ -77,6 +78,9 @@ export default async function updateUserAction(prevState, formData: FormData): F
   }
 
   await updateProfile(updateData);
+  if (user.role === 'admin') {
+    redirect('/admin?success=true"')
+  }
 
   redirect("/app?success=true"); // Redirect after successful update
 }

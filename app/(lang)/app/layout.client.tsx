@@ -5,7 +5,7 @@ import routes from "@/app/routes.app";
 import { usePathname } from "next/navigation";
 import { Box, Portal, useDisclosure } from "@chakra-ui/react";
 import { SidebarContext } from "@/app/contexts/SidebarContext";
-import AdminNavbar from "@/app/components/navbar/NavbarAdmin";
+import Navbar from "@/app/components/navbar/Navbar";
 import Footer from "@/app/components/footer/FooterAdmin";
 import Sidebar from "@/app/components/sidebar/Sidebar";
 
@@ -119,11 +119,11 @@ export default function AppClientLayout({
           >
             <Portal>
               <Box>
-                <AdminNavbar
+                <Navbar
                   onOpen={onOpen}
                   brandText={getActiveRoute()}
                   secondary={true}
-                  // message={""}
+                  message={""}
                   fixed={false}
                   {...rest}
                 />

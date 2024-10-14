@@ -33,12 +33,9 @@ export default function UpdateUserPage({
   useEffect(() => {
     if (formState) {
       const { issues } = JSON.parse(formState);
-      console.log(issues);
       setErrors(issues);
     }
   }, [formState]);
-
-  console.log(formState);
 
   // Chakra color mode
   const textColor = useColorModeValue("navy.700", "white");

@@ -33,9 +33,6 @@ export async function createBusinessTypeAction(prevState, formData: FormData) {
     commissionRules: formData.getAll('commissionRules')
   });
 
-  for (var pair of formData.entries()) {
-    console.log(pair[0]+ ', ' + pair[1]); 
-  }
   if (!parsedData.success) {
     return { issues: parsedData.error.errors };
   }
