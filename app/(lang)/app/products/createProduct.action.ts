@@ -28,10 +28,15 @@ export default async function createProductAction(
     name: z.string().min(1, "Name is required"),
     description: z.string().optional(),
     price: z.preprocess(
-      (val) => parseFloat(val as string),
+      (val) => {
+        // Replace the comma with a dot before parsing
+        const priceString = (val as string).replace(",", ".");
+        return parseFloat(priceString);
+      },
       z.number().positive("Price must be a positive number")
     ),
     image: z.instanceof(File).optional(), // Optional product image
+    includeCommission: z.string().optional(), // Checkbox for including commission
   });
 
   const validation = createProductSchema.safeParse({
@@ -39,13 +44,14 @@ export default async function createProductAction(
     description: formData.get("description"),
     price: formData.get("price"),
     image: formData.get("image"),
+    includeCommission: formData.get("includeCommission"), // Capture the checkbox value
   });
 
   if (!validation.success) {
     return formatZodErrors(validation);
   }
 
-  const { name, description, price, image } = validation.data;
+  const { name, description, price, image, includeCommission } = validation.data;
 
   let imageUrl: string | null = null;
 
@@ -57,10 +63,16 @@ export default async function createProductAction(
     }
   }
 
+  // Modify the description if the checkbox is checked
+  let finalDescription = description || "";
+  if (includeCommission) {
+    finalDescription += "\n\nIl prezzo è stato aumentato per includere le commissioni associate al pagamento in più rate.";
+  }
+
   // Create the product in Stripe
   const product = await stripe.products.create({
     name,
-    description,
+    description: finalDescription, // Use the updated description
     images: imageUrl ? [imageUrl] : [],
     default_price_data: {
       currency: "eur",
@@ -79,5 +91,5 @@ export default async function createProductAction(
     tagImage,
   });
 
-  redirect("/app/products?success=true&action=create");
+  redirect("/app/products?success=true&action=createProduct");
 }

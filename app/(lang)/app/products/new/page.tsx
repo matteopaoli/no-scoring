@@ -6,6 +6,8 @@ import {
   Grid,
   GridItem,
   useColorModeValue,
+  Checkbox,
+  Text,
 } from "@chakra-ui/react";
 
 import createProduct from "../createProduct.action";
@@ -14,14 +16,32 @@ import InputField from "@/app/components/fields/InputField"; // Import the Input
 import TextArea from "@/app/components/fields/TextArea"; // Import the TextArea component
 import ImageInput from "@/app/components/fields/ImageInput";
 import getFormErrors from "@/app/utils/getFormErrors";
+import PriceInput from "@/app/components/fields/PriceField";
+import { useState } from "react";
 
 export default function CreateOrEditProductPage() {
   const [errors, action] = useFormState(createProduct, []);
+  const [includeCommission, setIncludeCommission] = useState(false);
+  const [finalPrice, setFinalPrice] = useState(0);
 
-  // Chakra color mode
+  const handlePriceChange = (event) => {
+    const price = parseFloat(event.target.value.replace(',', '.')) || 0;
+    const commission = price * 0.015; // 1.5% commission
+    const vat = commission * 0.22; // 22% VAT on commission
+    const calculatedPrice = price + commission + vat; // Add commission and VAT to price
+    setFinalPrice(calculatedPrice);
+  };
+
+  const handleSubmit = async (formData: FormData) => {
+    if (includeCommission) {
+      formData.set("price", finalPrice.toFixed(2));
+    }
+    await action(formData);
+  };
+
   return (
     <Box width={{ base: "100%" }} pl={{ md: "24px" }}>
-      <form action={action} style={{ width: "100%" }}>
+      <form action={handleSubmit} style={{ width: "100%" }}>
         <Grid templateColumns={{ base: "1fr", md: "1fr 1fr", lg: '1fr 1fr 1fr' }} gap={6}>
           <GridItem>
             <InputField
@@ -33,16 +53,15 @@ export default function CreateOrEditProductPage() {
               errors={getFormErrors(errors, 'name')}
             />
 
-            {/* Price Field */}
-            <InputField
+            <PriceInput
               id="product-price"
               label="Prezzo"
               name="price"
+              type="text"
               placeholder="Prezzo"
-              type="number"
               isRequired={true}
-              step=".01"
               errors={getFormErrors(errors, 'price')}
+              onChange={handlePriceChange}
             />
 
             {/* Product Description Field (using TextArea) */}
@@ -54,8 +73,22 @@ export default function CreateOrEditProductPage() {
               isRequired={true}
               errors={getFormErrors(errors, 'description')}
             />
+
+            <Checkbox
+              isChecked={includeCommission}
+              onChange={() => setIncludeCommission(!includeCommission)}
+              mt={4}
+              name="includeCommission"
+              value="yes"
+            >
+              <Text as="span">Commissioni a carico del cliente</Text>
+            </Checkbox>
+            {includeCommission && (
+              <Text mt={2}>
+                Prezzo finale: €{finalPrice.toFixed(2)}
+              </Text>
+            )}
           </GridItem>
-          {/* Product Name Field */}
           <GridItem>
             <ImageInput
               name="image"

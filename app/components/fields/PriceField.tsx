@@ -9,7 +9,7 @@ import {
   FormErrorMessage,
 } from "@chakra-ui/react";
 // Custom components
-import React from "react";
+import React, { useState } from "react";
 
 interface DefaultProps {
   id: string;
@@ -21,7 +21,7 @@ interface DefaultProps {
   isInvalid?: boolean;
   errorMessage?: string;
   [key: string]: any; // This allows passing additional props
-  errors: string[]
+  errors: string[];
 }
 
 const Default: React.FC<DefaultProps> = (props) => {
@@ -41,6 +41,25 @@ const Default: React.FC<DefaultProps> = (props) => {
 
   // Chakra Color Mode
   const textColorPrimary = useColorModeValue("secondaryGray.900", "white");
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    // Allow keys: backspace (8), delete (46), left arrow (37), right arrow (39), comma (188 or 44)
+    // And numeric keys (48-57 for digits 0-9 on standard keyboard, 96-105 for numpad digits)
+    if (
+      !(
+        (event.key >= '0' && event.key <= '9') || // Allow digits
+        event.key === ',' || // Allow comma
+        event.key === 'Backspace' ||
+        event.key === 'Delete' ||
+        event.key === 'ArrowLeft' ||
+        event.key === 'ArrowRight'
+      )
+    ) {
+      event.preventDefault();
+      return
+    }
+  };
+
 
   return (
     <FormControl isInvalid={errors.length > 0} mb={mb || "30px"}>
@@ -70,8 +89,11 @@ const Default: React.FC<DefaultProps> = (props) => {
         _placeholder={{ fontWeight: "400", color: "secondaryGray.600" }}
         h="44px"
         maxH="44px"
+        onKeyDown={handleKeyDown}
+        onChange={onChange}
       />
-      {errors.length > 0 && errors.map(e => <FormErrorMessage key={e}>{e}</FormErrorMessage>)}
+      {errors.length > 0 &&
+        errors.map((e) => <FormErrorMessage key={e}>{e}</FormErrorMessage>)}
     </FormControl>
   );
 };

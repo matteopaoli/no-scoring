@@ -1,32 +1,7 @@
-"use client";
-/* eslint-disable */
+'use client'
 
-import {
-  Box,
-  Flex,
-  Icon,
-  Image,
-  Portal,
-  Table,
-  Tbody,
-  Td,
-  Text,
-  Th,
-  Thead,
-  Tr,
-  useColorModeValue,
-  useMediaQuery,
-  Button,
-} from "@chakra-ui/react";
-import {
-  createColumnHelper,
-  flexRender,
-  getCoreRowModel,
-  getSortedRowModel,
-  Row,
-  useReactTable,
-  VisibilityState,
-} from "@tanstack/react-table";
+import { Box, Flex, Icon, Image, Portal, Table, Tbody, Td, Text, Th, Thead, Tr, useColorModeValue, useMediaQuery, Button } from "@chakra-ui/react";
+import { createColumnHelper, flexRender, getCoreRowModel, getSortedRowModel, Row, useReactTable, VisibilityState } from "@tanstack/react-table";
 import { MdOutlineEdit } from "react-icons/md";
 // Custom components
 import Card from "@/app/components/card/Card";
@@ -78,12 +53,7 @@ export default function ProductsTable({ tableData }: ProductsTableProps) {
       columnHelper.accessor("images", {
         id: "image",
         header: () => (
-          <Text
-            justifyContent="space-between"
-            align="center"
-            fontSize={{ sm: "10px", lg: "12px" }}
-            color="gray.400"
-          >
+          <Text justifyContent="space-between" align="center" fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
             Immagine
           </Text>
         ),
@@ -92,25 +62,14 @@ export default function ProductsTable({ tableData }: ProductsTableProps) {
           const imageUrl = images.length > 0 ? images[0] : DEFAULT_IMAGE_URL;
 
           return (
-            <Image
-              src={imageUrl}
-              alt="Product Image"
-              boxSize="50px"
-              borderRadius="md"
-              fallbackSrc={DEFAULT_IMAGE_URL}
-            />
+            <Image src={imageUrl} alt="Product Image" boxSize="50px" borderRadius="md" fallbackSrc={DEFAULT_IMAGE_URL} />
           );
         },
       }),
       columnHelper.accessor("name", {
         id: "name",
         header: () => (
-          <Text
-            justifyContent="space-between"
-            align="center"
-            fontSize={{ sm: "10px", lg: "12px" }}
-            color="gray.400"
-          >
+          <Text justifyContent="space-between" align="center" fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
             Nome Prodotto
           </Text>
         ),
@@ -125,12 +84,7 @@ export default function ProductsTable({ tableData }: ProductsTableProps) {
       columnHelper.accessor("description", {
         id: "description",
         header: () => (
-          <Text
-            justifyContent="space-between"
-            align="center"
-            fontSize={{ sm: "10px", lg: "12px" }}
-            color="gray.400"
-          >
+          <Text justifyContent="space-between" align="center" fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
             Descrizione
           </Text>
         ),
@@ -164,24 +118,12 @@ export default function ProductsTable({ tableData }: ProductsTableProps) {
     setActiveProductId(row.original.id);
   };
 
-  const paginatedRows = table
-    .getRowModel()
-    .rows.slice((currentPage - 1) * PRODUCTS_PER_PAGE, currentPage * PRODUCTS_PER_PAGE);
+  const paginatedRows = table.getRowModel().rows.slice((currentPage - 1) * PRODUCTS_PER_PAGE, currentPage * PRODUCTS_PER_PAGE);
 
   return (
-    <Card
-      flexDirection="column"
-      w="100%"
-      px="0px"
-      overflowX={{ sm: "scroll", lg: "hidden" }}
-    >
+    <Card flexDirection="column" w="100%" px="0px" overflowX={{ sm: "scroll", lg: "hidden" }}>
       <Flex px="25px" mb="8px" justifyContent="space-between" align="center">
-        <Text
-          color={textColor}
-          fontSize="22px"
-          fontWeight="700"
-          lineHeight="100%"
-        >
+        <Text color={textColor} fontSize="22px" fontWeight="700" lineHeight="100%">
           Lista Prodotti
         </Text>
         <Menu />
@@ -201,16 +143,8 @@ export default function ProductsTable({ tableData }: ProductsTableProps) {
                       cursor="pointer"
                       onClick={header.column.getToggleSortingHandler()}
                     >
-                      <Flex
-                        justifyContent="space-between"
-                        align="center"
-                        fontSize={{ sm: "10px", lg: "12px" }}
-                        color="gray.400"
-                      >
-                        {flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                      <Flex justifyContent="space-between" align="center" fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
+                        {flexRender(header.column.columnDef.header, header.getContext())}
                         {{
                           asc: "",
                           desc: "",
@@ -225,7 +159,12 @@ export default function ProductsTable({ tableData }: ProductsTableProps) {
           <Tbody>
             {paginatedRows.map((row) => {
               return (
-                <Tr key={row.id} onClick={() => onRowClick(row)} style={{ cursor: "pointer" }}>
+                <Tr
+                  key={row.id}
+                  onClick={() => onRowClick(row)}
+                  style={{ cursor: "pointer", transition: "background-color 0.2s" }}
+                  _hover={{ backgroundColor: 'gray.100'}} // Add hover effect
+                >
                   {row.getVisibleCells().map((cell) => {
                     return (
                       <Td
@@ -234,10 +173,7 @@ export default function ProductsTable({ tableData }: ProductsTableProps) {
                         minW={{ sm: "100px", md: "200px", lg: "auto" }}
                         borderColor="transparent"
                       >
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </Td>
                     );
                   })}
@@ -250,19 +186,13 @@ export default function ProductsTable({ tableData }: ProductsTableProps) {
 
       {/* Pagination Controls */}
       <Flex justify="space-between" align="center" px="25px" mb="8px">
-        <Button
-          onClick={() => setCurrentPage(currentPage - 1)}
-          isDisabled={currentPage === 1}
-        >
+        <Button onClick={() => setCurrentPage(currentPage - 1)} isDisabled={currentPage === 1}>
           Precedente
         </Button>
         <Text>
           Pagina {currentPage} di {totalPages}
         </Text>
-        <Button
-          onClick={() => setCurrentPage(currentPage + 1)}
-          isDisabled={currentPage === totalPages}
-        >
+        <Button onClick={() => setCurrentPage(currentPage + 1)} isDisabled={currentPage === totalPages}>
           Successivo
         </Button>
       </Flex>

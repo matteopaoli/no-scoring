@@ -1,5 +1,6 @@
 import Client from "./layout.client";
 import { auth } from "@/app/auth";
+import Callout from "@/app/components/Callout";
 import { getUser } from "@/app/db";
 import { redirect } from "next/navigation";
 
@@ -16,6 +17,7 @@ export default async function AppLayout({
 
   return (
     <Client>
+      <Callout autoDismiss={true} dismissDuration={5000} />
       <>{children}</>
     </Client>
   );
