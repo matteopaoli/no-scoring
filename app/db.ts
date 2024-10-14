@@ -89,7 +89,7 @@ export async function createUser(
     url: `https://app.paytomorrow.it/api/stripe/webhook?merchantId=${stripeUserId}`,
   });
   
-  const genericProductQrCode = await generateQrCodeWithLogo(genericProduct.paymentLink.url)
+const genericProductQrCode = await generateQrCodeWithLogo(genericProduct.paymentLink.url)
   const { genericProductSmallImage, genericProductLargeImage } = await generateGenericProductImages(genericProductQrCode)
 
   await db.insert(users).values({
@@ -439,3 +439,8 @@ async function updatePassword(password: string, userEmail: string) {
   let hash = hashSync(password, salt);
   return await db.update(users).set({ password: hash }).where(eq(users.email, userEmail))
 }
+
+export async function deleteUser(id: string) {
+  await db.delete(userStoreRoles).where(eq(userStoreRoles.userId, id))
+  return await db.delete(users).where(eq(users.id, id))
+} 

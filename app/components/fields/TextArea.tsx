@@ -20,6 +20,7 @@ interface TextAreaProps {
   errors: string[];
   mb?: string;
   name: string;
+  defaultValue: string;
 }
 
 const TextArea: React.FC<TextAreaProps> = ({
@@ -30,7 +31,8 @@ const TextArea: React.FC<TextAreaProps> = ({
   isRequired = false,
   mb,
   name,
-  errors
+  errors,
+  defaultValue
 }) => {
   // Chakra Color Mode
   const textColorPrimary = useColorModeValue("secondaryGray.900", "white");
@@ -55,6 +57,7 @@ const TextArea: React.FC<TextAreaProps> = ({
           )}
         </FormLabel>
         <Textarea
+          defaultValue={defaultValue}
           name={name}
           id={id}
           placeholder={placeholder}

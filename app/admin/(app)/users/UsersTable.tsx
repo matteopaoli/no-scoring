@@ -3,6 +3,7 @@
 
 import {
   Box,
+  Button,
   Flex,
   Icon,
   Table,
@@ -13,6 +14,13 @@ import {
   Thead,
   Tr,
   useColorModeValue,
+  useDisclosure,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
 } from "@chakra-ui/react";
 import {
   createColumnHelper,
@@ -21,38 +29,55 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { MdOutlineEdit } from "react-icons/md";
-// Custom components
+import { MdOutlineEdit, MdDeleteOutline } from "react-icons/md";
 import Card from "@/app/components/card/Card";
 import Menu from "./UsersTableMenu";
 import { useMemo, useState } from "react";
 import { User } from "@/app/db";
 import { Link } from "@chakra-ui/next-js";
 
-// Assets
-
 type UsersTableProps = {
-  tableData: Omit<User, 'password' | 'role' | 'businessTypeId'>[]
+  tableData: Omit<User, "password" | "role" | "businessTypeId">[];
 };
 
 const columnHelper = createColumnHelper();
 
-// const columns = columnsDataCheck;
 export default function UsersTable({ tableData }: UsersTableProps) {
   const [sorting, setSorting] = useState([]);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
   const textColor = useColorModeValue("secondaryGray.900", "white");
   const borderColor = useColorModeValue("gray.200", "whiteAlpha.100");
+
+  const handleDelete = async () => {
+    if (!selectedUserId) return;
+    try {
+      const response = await fetch(`/api/users/${selectedUserId}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        // Handle successful deletion (e.g., refetch data or update state)
+        console.log("User deleted successfully");
+      } else {
+        console.error("Failed to delete the user");
+      }
+    } catch (error) {
+      console.error("Error deleting user:", error);
+    } finally {
+      setSelectedUserId(null);
+      onClose();
+      window.location.reload()
+    }
+  };
+
   const columns = useMemo(
     () => [
       columnHelper.accessor("email", {
         id: "email",
         header: () => (
-          <Text
-            justifyContent="space-between"
-            align="center"
-            fontSize={{ sm: "10px", lg: "12px" }}
-            color="gray.400"
-          >
+          <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
             E-mail
           </Text>
         ),
@@ -67,12 +92,7 @@ export default function UsersTable({ tableData }: UsersTableProps) {
       columnHelper.accessor("businessName", {
         id: "businessName",
         header: () => (
-          <Text
-            justifyContent="space-between"
-            align="center"
-            fontSize={{ sm: "10px", lg: "12px" }}
-            color="gray.400"
-          >
+          <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
             Nome azienda
           </Text>
         ),
@@ -87,12 +107,7 @@ export default function UsersTable({ tableData }: UsersTableProps) {
       columnHelper.accessor("businessType", {
         id: "businessType",
         header: () => (
-          <Text
-            justifyContent="space-between"
-            align="center"
-            fontSize={{ sm: "10px", lg: "12px" }}
-            color="gray.400"
-          >
+          <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
             Tipo Business
           </Text>
         ),
@@ -105,24 +120,33 @@ export default function UsersTable({ tableData }: UsersTableProps) {
       columnHelper.accessor("id", {
         id: "id",
         header: () => (
-          <Text
-            justifyContent="space-between"
-            align="center"
-            fontSize={{ sm: "10px", lg: "12px" }}
-            color="gray.400"
-          >
+          <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
             Azioni
           </Text>
         ),
         cell: (info) => (
-          <Link href={`/admin/users/edit/${info.getValue()}`}>
-            <Icon as={MdOutlineEdit} width="20px" height="20px" color="inherit" />
-          </Link>
+          <Flex gap="8px">
+            <Link href={`/admin/users/edit/${info.getValue()}`}>
+              <Icon as={MdOutlineEdit} width="20px" height="20px" color="inherit" />
+            </Link>
+            <Icon
+              as={MdDeleteOutline}
+              width="20px"
+              height="20px"
+              color="red.500"
+              cursor="pointer"
+              onClick={() => {
+                setSelectedUserId(info.getValue());
+                onOpen();
+              }}
+            />
+          </Flex>
         ),
       }),
     ],
-    [textColor]
+    [textColor, onOpen]
   );
+
   const [data] = useState(() => [...tableData]);
   const table = useReactTable({
     data,
@@ -135,20 +159,11 @@ export default function UsersTable({ tableData }: UsersTableProps) {
     getSortedRowModel: getSortedRowModel(),
     debugTable: true,
   });
+
   return (
-    <Card
-      flexDirection="column"
-      w="100%"
-      px="0px"
-      overflowX={{ sm: "scroll", lg: "hidden" }}
-    >
+    <Card flexDirection="column" w="100%" px="0px" overflowX={{ sm: "scroll", lg: "hidden" }}>
       <Flex px="25px" mb="8px" justifyContent="space-between" align="center">
-        <Text
-          color={textColor}
-          fontSize="22px"
-          fontWeight="700"
-          lineHeight="100%"
-        >
+        <Text color={textColor} fontSize="22px" fontWeight="700" lineHeight="100%">
           Lista Utenti
         </Text>
         <Menu />
@@ -158,65 +173,48 @@ export default function UsersTable({ tableData }: UsersTableProps) {
           <Thead>
             {table.getHeaderGroups().map((headerGroup) => (
               <Tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <Th
-                      key={header.id}
-                      colSpan={header.colSpan}
-                      pe="10px"
-                      borderColor={borderColor}
-                      cursor="pointer"
-                      onClick={header.column.getToggleSortingHandler()}
-                    >
-                      <Flex
-                        justifyContent="space-between"
-                        align="center"
-                        fontSize={{ sm: "10px", lg: "12px" }}
-                        color="gray.400"
-                      >
-                        {flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                        {{
-                          asc: "",
-                          desc: "",
-                        }[header.column.getIsSorted()] ?? null}
-                      </Flex>
-                    </Th>
-                  );
-                })}
+                {headerGroup.headers.map((header) => (
+                  <Th key={header.id} colSpan={header.colSpan} pe="10px" borderColor={borderColor}>
+                    <Flex align="center">
+                      {flexRender(header.column.columnDef.header, header.getContext())}
+                    </Flex>
+                  </Th>
+                ))}
               </Tr>
             ))}
           </Thead>
           <Tbody>
-            {table
-              .getRowModel()
-              .rows.slice(0, 11)
-              .map((row) => {
-                return (
-                  <Tr key={row.id}>
-                    {row.getVisibleCells().map((cell) => {
-                      return (
-                        <Td
-                          key={cell.id}
-                          fontSize={{ sm: "14px" }}
-                          minW={{ sm: "150px", md: "200px", lg: "auto" }}
-                          borderColor="transparent"
-                        >
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )}
-                        </Td>
-                      );
-                    })}
-                  </Tr>
-                );
-              })}
+            {table.getRowModel().rows.slice(0, 11).map((row) => (
+              <Tr key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <Td key={cell.id} fontSize={{ sm: "14px" }} minW={{ sm: "150px", md: "200px" }} borderColor="transparent">
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </Td>
+                ))}
+              </Tr>
+            ))}
           </Tbody>
         </Table>
       </Box>
+
+      {/* Confirmation Modal */}
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Conferma Eliminazione</ModalHeader>
+          <ModalBody>
+            Sei sicuro di voler eliminare questo utente?
+          </ModalBody>
+          <ModalFooter>
+            <Button onClick={onClose} mr={3}>
+              Annulla
+            </Button>
+            <Button colorScheme="red" onClick={handleDelete}>
+              Elimina
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Card>
   );
 }
