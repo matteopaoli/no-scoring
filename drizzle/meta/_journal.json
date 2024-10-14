@@ -155,6 +155,13 @@
       "when": 1728044681231,
       "tag": "0021_fancy_hiroim",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1728872876302,
+      "tag": "0022_exotic_elektra",
+      "breakpoints": true
     }
   ]
 }
