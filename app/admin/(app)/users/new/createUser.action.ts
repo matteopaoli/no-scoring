@@ -30,18 +30,20 @@ export default async function createUserAction(
       .string()
       .min(1, "Inserire un indirizzo email valido")
       .email("Inserire un indirizzo email valido") // Add email format validation
+      .trim()
       .refine(async (email) => !(await getUser(email)), {
         message: "L'utente esiste già",
       }),
     businessName: z.string().min(1, "Inserire un nome valido"),
     stripeApiKey: z
       .string()
+      .trim()
       .regex(
         /^sk_live_[0-9a-zA-Z]{24,}/,
         "Inserire una Chiave Segreta valida (sk_live_************************)"
       ), // Stripe API key validation
     businessTypeId: await numericEnum(businessTypeIds),
-    stripeUserId: z.string().regex(/^acct_[a-zA-Z0-9]+$/, {
+    stripeUserId: z.string().trim().regex(/^acct_[a-zA-Z0-9]+$/, {
       message: "Il formato dell'ID utente di Stripe non è valido. Dovrebbe iniziare con 'acct_' seguito da caratteri alfanumerici.",
     }),
   });
