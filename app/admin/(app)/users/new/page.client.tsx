@@ -76,15 +76,6 @@ export default function CreateUserPage({
           errors={getFormErrors(errors, 'stripeUserId')}
         />
 
-        <TextArea
-          id="stripe-leg-account-id"
-          label="ID Stripe LEG"
-          name="stripeLegAccountId"
-          placeholder="ID Stripe LEG"
-          isRequired={true}
-          errors={getFormErrors(errors, 'stripeLegAccountId')}
-        />
-
         <Button
           type="submit"
           fontSize="sm"
