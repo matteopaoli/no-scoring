@@ -16,7 +16,7 @@ export default async function AppLayout({
   }
 
   return (
-    <Client>
+    <Client user={user}>
       <Callout autoDismiss={true} dismissDuration={5000} />
       <>{children}</>
     </Client>

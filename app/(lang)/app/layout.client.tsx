@@ -11,6 +11,7 @@ import Sidebar from "@/app/components/sidebar/Sidebar";
 
 export default function AppClientLayout({
   children,
+  user,
   ...rest
 }: Record<string, any> & { children: ReactNode }) {
   const [toggleSidebar, setToggleSidebar] = useState(false);
@@ -125,6 +126,7 @@ export default function AppClientLayout({
                   secondary={true}
                   message={""}
                   fixed={false}
+                  user={user}
                   {...rest}
                 />
               </Box>

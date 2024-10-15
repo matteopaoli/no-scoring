@@ -21,6 +21,7 @@ import React, { useContext } from "react";
 import { UserContext } from "@/app/contexts/UserContext";
 import signOutAction from "@/app/signout.action";
 import { useRouter } from "next/navigation";
+import { User } from "@/app/db";
 
 type HeaderLinksProps = {
   variant: string;
@@ -28,6 +29,7 @@ type HeaderLinksProps = {
   secondary: boolean;
   onOpen: () => void;
   routes: unknown[];
+  user: User;
 };
 
 export default function HeaderLinks({
@@ -36,9 +38,9 @@ export default function HeaderLinks({
   secondary,
   onOpen,
   routes,
+  user,
 }: HeaderLinksProps) {
   const { colorMode, toggleColorMode } = useColorMode();
-  const session = useContext(UserContext);
   // Chakra Color Mode
   const navbarIcon = useColorModeValue("gray.400", "white");
   let menuBg = useColorModeValue("white", "navy.800");
@@ -129,7 +131,7 @@ export default function HeaderLinks({
           <Avatar
             _hover={{ cursor: "pointer" }}
             color="white"
-            name={`${session.user.firstName} ${session.user.lastName}`}
+            name={`${user.firstName} ${user.lastName}`}
             bg="#11047A"
             size="sm"
             w="40px"
@@ -156,7 +158,7 @@ export default function HeaderLinks({
               fontWeight="700"
               color={textColor}
             >
-              👋&nbsp; Hey, {session.user.firstName}
+              👋&nbsp; Hey, {user.firstName}
             </Text>
           </Flex>
           <Flex flexDirection="column" p="10px">

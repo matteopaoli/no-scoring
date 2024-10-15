@@ -1,4 +1,4 @@
-import { Box, SimpleGrid } from "@chakra-ui/react";
+import { Box, Flex } from "@chakra-ui/react";
 import DocumentCard from "./DocumentCard";
 
 const documents = [
@@ -22,12 +22,12 @@ const documents = [
 
 export default function DocumentsPage() {
   return (
-    <Box p={5}>
-      <SimpleGrid columns={{ base: 1, md: 8 }} spacing={10}>
+    <Box p={5} mt="50px">
+      <Flex maxW="1000px" gap="10px" flexWrap="wrap">
         {documents.map((doc, index) => (
           <DocumentCard key={index} document={doc} />
         ))}
-      </SimpleGrid>
+      </Flex>
     </Box>
   );
 }

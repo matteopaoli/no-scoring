@@ -32,5 +32,5 @@ export async function createStoreAction(prevState: unknown, formData: FormData) 
   await createStore({ storeName, storeLogo, email: user.email });
   await completeOnboarding(user.email)
 
-  await signOut({ redirectTo: '/login?onboarding-complete=true' })
+  redirect('/app')
 }

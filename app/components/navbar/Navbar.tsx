@@ -1,7 +1,7 @@
 import { Box, Breadcrumb, BreadcrumbItem, BreadcrumbLink, Flex, Link, Text, useColorModeValue } from '@chakra-ui/react';
-import PropTypes from 'prop-types';
 import React, { useState, useEffect } from 'react';
 import NavbarLinks from '@/app/components/navbar/NavbarLinks';
+import { User } from '@/app/db';
 
 type NavbarProps = {
 	brandText: string,
@@ -10,12 +10,13 @@ type NavbarProps = {
 	fixed: boolean,
 	onOpen: () => void;
   message: string
-  routes: unknown,
+  routes: unknown[],
   logoText: string
+	user: User
 };
 
 
-export default function AdminNavbar({ secondary, message, brandText, routes, onOpen, fixed, logoText }: NavbarProps) {
+export default function Navbar({ secondary, message, brandText, routes, onOpen, fixed, logoText, user }: NavbarProps) {
 	const [ scrolled, setScrolled ] = useState(false);
 
 	useEffect(() => {
@@ -139,6 +140,7 @@ export default function AdminNavbar({ secondary, message, brandText, routes, onO
 						fixed={fixed}
 						scrolled={scrolled}
 						routes={routes}
+						user={user}
 					/>
 				</Box>
 			</Flex>
