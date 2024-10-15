@@ -2,9 +2,20 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import { eq, getTableColumns } from "drizzle-orm";
 import postgres from "postgres";
 import { genSaltSync, hashSync } from "bcrypt-ts";
-import { businessType, users, commissionRules, stores, userStoreRoles, products, webhookSecrets } from "schema";
+import {
+  businessType,
+  users,
+  commissionRules,
+  stores,
+  userStoreRoles,
+  products,
+  webhookSecrets,
+} from "schema";
 import Stripe from "stripe";
-import { generateQrCodeWithLogo, generateGenericProductImages } from "./utils/images";
+import {
+  generateQrCodeWithLogo,
+  generateGenericProductImages,
+} from "./utils/images";
 import { createGenericProduct } from "./utils/stripe";
 
 let client = postgres(`${process.env.DATABASE_URL!}`);
@@ -16,7 +27,7 @@ interface CommissionRule {
   maxAmount: number | null; // maxAmount can be null for infinite range
   commissionType: string;
   commissionValue: number;
-  businessTypeId?: number;  
+  businessTypeId?: number;
 }
 
 interface BusinessType {
@@ -41,12 +52,17 @@ export interface User {
   stripeUserId: string;
   stripeLegAccountId: string;
   genericProductId: string;
-  genericProductSmallImage: string
-  genericProductLargeImage: string
+  genericProductSmallImage: string;
+  genericProductLargeImage: string;
 }
 
 export async function getUser(email?: string | null) {
-  return (await db.select().from(users).where(eq(users.email, email ?? '')))?.[0] as User;
+  return (
+    await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email ?? ""))
+  )?.[0] as User;
 }
 
 export async function getUserById(id: string) {
@@ -54,11 +70,18 @@ export async function getUserById(id: string) {
 }
 
 export async function getUserByStripeAccountId(id: string) {
-  return (await db.select().from(users).where(eq(users.stripeUserId, id)))?.[0] as User
+  return (
+    await db.select().from(users).where(eq(users.stripeUserId, id))
+  )?.[0] as User;
 }
 
 export async function getWebhookSecret(id: string) {
-  return (await db.select().from(webhookSecrets).where(eq(webhookSecrets.accountId, id)))?.[0]
+  return (
+    await db
+      .select()
+      .from(webhookSecrets)
+      .where(eq(webhookSecrets.accountId, id))
+  )?.[0];
 }
 
 export async function createUser(
@@ -67,58 +90,79 @@ export async function createUser(
   businessTypeId: number,
   businessName: string,
   stripeUserId: string,
-  stripeLegAccountId: string,
+  stripeLegAccountId: string
 ) {
-  const WEBHOOK_URL = `https://app.paytomorrow.it/api/stripe/webhook?merchantId=${stripeUserId}`
+  const WEBHOOK_URL = `https://app.paytomorrow.it/api/stripe/webhook?merchantId=${stripeUserId}`;
   const salt = genSaltSync(10);
   const hash = hashSync("PayTomorrow!2024", salt);
 
-  const stripe = new Stripe(stripeSecretKey)
+  const stripe = new Stripe(stripeSecretKey);
 
-  const genericProduct = await createGenericProduct(stripe)
+  const genericProduct = await createGenericProduct(stripe);
 
-  const existingWebhook = (await stripe.webhookEndpoints.list()).data.find(w => w.url === WEBHOOK_URL);
+  const existingWebhook = (await stripe.webhookEndpoints.list()).data.find(
+    (w) => w.url === WEBHOOK_URL
+  );
 
   if (existingWebhook) {
     await stripe.webhookEndpoints.del(existingWebhook.id);
   }
-  
+
   // Create a new webhook
   const webhook = await stripe.webhookEndpoints.create({
-    enabled_events: ['checkout.session.completed'],
+    enabled_events: ["checkout.session.completed"],
     url: `https://app.paytomorrow.it/api/stripe/webhook?merchantId=${stripeUserId}`,
   });
-  
-const genericProductQrCode = await generateQrCodeWithLogo(genericProduct.paymentLink.url)
-  const { genericProductSmallImage, genericProductLargeImage } = await generateGenericProductImages(genericProductQrCode)
 
-  await db.insert(users).values({
-    email,
-    stripeSecretKey,
-    role: "user",
-    businessTypeId,
-    password: hash,
-    businessName,
-    stripeUserId,
-    stripeLegAccountId,
-    genericProductId: genericProduct.productId,
-    genericProductSmallImage,
-    genericProductLargeImage
-  });
+  const genericProductQrCode = await generateQrCodeWithLogo(
+    genericProduct.paymentLink.url
+  );
+  const { genericProductSmallImage, genericProductLargeImage } =
+    await generateGenericProductImages(genericProductQrCode);
+  await db
+    .transaction(async (tx) => {
+      // Insert user and get the returned user
+      const user = await tx
+        .insert(users)
+        .values({
+          email,
+          stripeSecretKey,
+          role: "user",
+          businessTypeId,
+          password: hash,
+          businessName,
+          stripeUserId,
+          stripeLegAccountId,
+          genericProductId: genericProduct.productId,
+          genericProductSmallImage,
+          genericProductLargeImage,
+        })
+        .returning();
 
+      // Insert product with the userId from the user created
+      await tx.insert(products).values({
+        id: genericProduct.productId,
+        paymentLinkId: genericProduct.paymentLink.id,
+        qrcode: genericProductQrCode,
+        tagImage: "",
+        userId: user[0].id, // Assuming user[0] contains the new user
+      });
 
-  await db.insert(products).values({
-    id: genericProduct.productId,
-    paymentLinkId: genericProduct.paymentLink.id,
-    qrcode: genericProductQrCode,
-    tagImage: ''
-  })
+      // Delete previous webhook secret
+      await tx
+        .delete(webhookSecrets)
+        .where(eq(webhookSecrets.accountId, stripeUserId));
 
-  await db.delete(webhookSecrets).where(eq(webhookSecrets.accountId, stripeUserId));
-  await db.insert(webhookSecrets).values({
-    accountId: stripeUserId,
-    secret: webhook.secret
-  })
+      // Insert new webhook secret
+      await tx.insert(webhookSecrets).values({
+        accountId: stripeUserId,
+        secret: webhook.secret,
+      });
+    })
+    .catch((error) => {
+      console.error("Transaction failed:", error);
+      throw error; // Optionally rethrow the error for further handling
+    });
 }
 
 export async function updateUser(
@@ -126,7 +170,7 @@ export async function updateUser(
   stripeSecretKey: string,
   businessTypeId: number,
   businessName: string,
-  stripeUserId: string,
+  stripeUserId: string
 ) {
   return await db
     .update(users)
@@ -134,7 +178,7 @@ export async function updateUser(
       stripeSecretKey,
       businessTypeId,
       businessName,
-      stripeUserId
+      stripeUserId,
     })
     .where(eq(users.email, email));
 }
@@ -153,22 +197,33 @@ export async function getBusinessTypes(): Promise<BusinessType[]> {
       minAmount: commissionRules.minAmount,
       maxAmount: commissionRules.maxAmount,
       commissionType: commissionRules.commissionType,
-      commissionValue: commissionRules.commissionValue
+      commissionValue: commissionRules.commissionValue,
     })
     .from(businessType)
-    .leftJoin(commissionRules, eq(commissionRules.businessTypeId, businessType.id));
+    .leftJoin(
+      commissionRules,
+      eq(commissionRules.businessTypeId, businessType.id)
+    );
 
   // Group commission rules by businessType
   const groupedResult: Record<number, BusinessType> = {};
 
-  result.forEach(row => {
-    const { id, name, commissionRuleId, minAmount, maxAmount, commissionType, commissionValue } = row;
+  result.forEach((row) => {
+    const {
+      id,
+      name,
+      commissionRuleId,
+      minAmount,
+      maxAmount,
+      commissionType,
+      commissionValue,
+    } = row;
 
     if (!groupedResult[id]) {
       groupedResult[id] = {
         id,
         name,
-        commissionRules: []
+        commissionRules: [],
       };
     }
 
@@ -176,7 +231,7 @@ export async function getBusinessTypes(): Promise<BusinessType[]> {
       groupedResult[id].commissionRules.push({
         id: commissionRuleId,
         minAmount: Number(minAmount),
-        maxAmount: maxAmount !== null? Number(maxAmount) : null,
+        maxAmount: maxAmount !== null ? Number(maxAmount) : null,
         commissionType: commissionType!,
         commissionValue: Number(commissionValue),
       });
@@ -186,29 +241,30 @@ export async function getBusinessTypes(): Promise<BusinessType[]> {
   return Object.values(groupedResult);
 }
 
-
 export async function getUsers() {
   const { password, role, businessTypeId, ...rest } = getTableColumns(users);
-  return await db
+  return (await db
     .select({ ...rest, businessType: businessType.name })
     .from(users)
-    .where(eq(users.role, 'user'))
-    .leftJoin(businessType, eq(users.businessTypeId, businessType.id)) as Omit<User, 'password' | 'role' | 'businessTypeId'>[]
+    .where(eq(users.role, "user"))
+    .leftJoin(businessType, eq(users.businessTypeId, businessType.id))) as Omit<
+    User,
+    "password" | "role" | "businessTypeId"
+  >[];
 }
-
 
 export async function updateProfile({
   firstName,
   lastName,
   profileImage,
   email,
-  password
+  password,
 }: {
   firstName: string;
   lastName: string;
   profileImage?: Blob | null; // Profilo immagine opzionale
   email: string;
-  password?: string
+  password?: string;
 }) {
   // Converti l'immagine in un formato compatibile con il database se necessario
   let profileImageData: string | null = null;
@@ -227,9 +283,9 @@ export async function updateProfile({
     })
     .where(eq(users.email, email)); // Assumi che l'email sia usata come chiave univoca
 
-    if (password) {
-      await updatePassword(password, email)
-    }
+  if (password) {
+    await updatePassword(password, email);
+  }
 }
 
 // Esempio di funzione per convertire l'immagine in base64 (opzionale)
@@ -258,21 +314,24 @@ export async function createStore({
   }
 
   // Insert the new store into the database
-  const newStore = await db.insert(stores).values({
-    name: storeName,
-    image: logoData,
-  }).returning(); // Optionally return the inserted store details
+  const newStore = await db
+    .insert(stores)
+    .values({
+      name: storeName,
+      image: logoData,
+    })
+    .returning(); // Optionally return the inserted store details
 
   // Get the newly created store ID
-  const storeId = newStore[0]?.id; // Assuming the store ID is 
-  const { id: userId } = await getUser(email)
+  const storeId = newStore[0]?.id; // Assuming the store ID is
+  const { id: userId } = await getUser(email);
 
   // Insert the user-store role association
   if (storeId) {
     await db.insert(userStoreRoles).values({
       userId,
       storeId,
-      role: 'admin',
+      role: "admin",
     });
   }
 
@@ -281,18 +340,21 @@ export async function createStore({
 
 export async function completeOnboarding(email: string) {
   return await db
-  .update(users)
-  .set({
-    onboardingCompleted: true
-  })
-  .where(eq(users.email, email));
+    .update(users)
+    .set({
+      onboardingCompleted: true,
+    })
+    .where(eq(users.email, email));
 }
 
 export async function createBusinessType(bt: BusinessType) {
   // Insert the new business type into the database
-  const newBusinessType = await db.insert(businessType).values({
-    name: bt.name,
-  }).returning();
+  const newBusinessType = await db
+    .insert(businessType)
+    .values({
+      name: bt.name,
+    })
+    .returning();
 
   // Get the newly created business type ID
   const businessTypeId = newBusinessType[0].id!;
@@ -313,7 +375,9 @@ export async function createBusinessType(bt: BusinessType) {
   return { success: true, businessType: newBusinessType[0] };
 }
 
-export async function getBusinessTypeById(businessTypeId: number): Promise<BusinessType | null> {
+export async function getBusinessTypeById(
+  businessTypeId: number
+): Promise<BusinessType | null> {
   // Query to fetch the business type along with its commission rules
   const result = await db
     .select({
@@ -323,27 +387,36 @@ export async function getBusinessTypeById(businessTypeId: number): Promise<Busin
       minAmount: commissionRules.minAmount,
       maxAmount: commissionRules.maxAmount,
       commissionType: commissionRules.commissionType,
-      commissionValue: commissionRules.commissionValue
+      commissionValue: commissionRules.commissionValue,
     })
     .from(businessType)
-    .leftJoin(commissionRules, eq(commissionRules.businessTypeId, businessType.id))
+    .leftJoin(
+      commissionRules,
+      eq(commissionRules.businessTypeId, businessType.id)
+    )
     .where(eq(businessType.id, businessTypeId));
 
   // If no business type is found, return null
   if (result.length === 0) {
-    return null; 
+    return null;
   }
 
   // Initialize the business type object with the first result
   const groupedBusinessType: BusinessType = {
     id: result[0].id,
     name: result[0].name,
-    commissionRules: []
+    commissionRules: [],
   };
 
   // Loop through the results to populate the commission rules
-  result.forEach(row => {
-    const { commissionRuleId, minAmount, maxAmount, commissionType, commissionValue } = row;
+  result.forEach((row) => {
+    const {
+      commissionRuleId,
+      minAmount,
+      maxAmount,
+      commissionType,
+      commissionValue,
+    } = row;
 
     // Check if the commission rule ID is not null and add it to the commission rules array
     if (commissionRuleId !== null) {
@@ -360,8 +433,9 @@ export async function getBusinessTypeById(businessTypeId: number): Promise<Busin
   return groupedBusinessType; // Return the populated business type object
 }
 
-
-export async function getExistingCommissionRules(businessTypeId: number): Promise<CommissionRule[]> {
+export async function getExistingCommissionRules(
+  businessTypeId: number
+): Promise<CommissionRule[]> {
   const result = await db
     .select({
       id: commissionRules.id,
@@ -369,13 +443,13 @@ export async function getExistingCommissionRules(businessTypeId: number): Promis
       minAmount: commissionRules.minAmount,
       maxAmount: commissionRules.maxAmount,
       commissionType: commissionRules.commissionType,
-      commissionValue: commissionRules.commissionValue
+      commissionValue: commissionRules.commissionValue,
     })
     .from(commissionRules)
     .where(eq(commissionRules.businessTypeId, businessTypeId));
 
   // Map the result into the CommissionRule array format
-  const existingRules: CommissionRule[] = result.map(rule => ({
+  const existingRules: CommissionRule[] = result.map((rule) => ({
     id: rule.id,
     businessTypeId: rule.businessTypeId,
     minAmount: Number(rule.minAmount),
@@ -391,7 +465,11 @@ type BusinessTypeUpdateData = {
   name?: string;
 };
 
-export async function updateBusinessType(businessTypeId: number, data: BusinessTypeUpdateData, cr: CommissionRule[] = []) {
+export async function updateBusinessType(
+  businessTypeId: number,
+  data: BusinessTypeUpdateData,
+  cr: CommissionRule[] = []
+) {
   // Update the business type details
   const updatedBusinessType = await db
     .update(businessType)
@@ -405,7 +483,9 @@ export async function updateBusinessType(businessTypeId: number, data: BusinessT
   // If there are commission rules, update them
   if (cr.length > 0) {
     // First, delete existing commission rules associated with the business type
-    await db.delete(commissionRules).where(eq(commissionRules.businessTypeId, businessTypeId));
+    await db
+      .delete(commissionRules)
+      .where(eq(commissionRules.businessTypeId, businessTypeId));
 
     // Insert updated commission rules
     for (const rule of cr) {
@@ -423,24 +503,47 @@ export async function updateBusinessType(businessTypeId: number, data: BusinessT
 }
 
 export async function getProduct(id: string) {
-  return (await db.select().from(products).where(eq(products.id, id)))?.[0]
+  return (await db.select().from(products).where(eq(products.id, id)))?.[0];
 }
 
 export async function createProduct(product) {
-  return await db.insert(products).values(product)
+  return await db.insert(products).values(product);
 }
 
-export async function updateProduct(productId: string, paymentLinkId: string, qrcode: string, tagImage: string) {
-  return await db.update(products).set({ paymentLinkId, qrcode, tagImage }).where(eq(products.id, productId))
+export async function updateProduct(
+  productId: string,
+  paymentLinkId: string,
+  qrcode: string,
+  tagImage: string
+) {
+  return await db
+    .update(products)
+    .set({ paymentLinkId, qrcode, tagImage })
+    .where(eq(products.id, productId));
 }
 
 async function updatePassword(password: string, userEmail: string) {
   let salt = genSaltSync(10);
   let hash = hashSync(password, salt);
-  return await db.update(users).set({ password: hash }).where(eq(users.email, userEmail))
+  return await db
+    .update(users)
+    .set({ password: hash })
+    .where(eq(users.email, userEmail));
 }
 
 export async function deleteUser(id: string) {
-  await db.delete(userStoreRoles).where(eq(userStoreRoles.userId, id))
-  return await db.delete(users).where(eq(users.id, id))
-} 
+  await db.delete(userStoreRoles).where(eq(userStoreRoles.userId, id));
+  await db.delete(products).where(eq(products.userId, id));
+  const user = await getUserById(id);
+  await db
+    .delete(webhookSecrets)
+    .where(eq(webhookSecrets.accountId, user.stripeUserId));
+  return await db.delete(users).where(eq(users.id, id));
+}
+
+export async function acceptTOS(email: string) {
+  return await db
+    .update(users)
+    .set({ tosAccepted: true, tosAcceptedAt: new Date() })
+    .where(eq(users.email, email));
+}

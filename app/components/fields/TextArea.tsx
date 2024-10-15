@@ -20,7 +20,7 @@ interface TextAreaProps {
   errors: string[];
   mb?: string;
   name: string;
-  defaultValue: string;
+  defaultValue?: string;
 }
 
 const TextArea: React.FC<TextAreaProps> = ({

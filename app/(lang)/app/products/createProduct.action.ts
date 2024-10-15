@@ -89,6 +89,7 @@ export default async function createProductAction(
     paymentLinkId: paymentLink.id,
     qrcode,
     tagImage,
+    userId: user.id
   });
 
   redirect("/app/products?success=true&action=createProduct");

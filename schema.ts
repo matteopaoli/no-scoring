@@ -36,7 +36,9 @@ export const users = pgTable("user", {
   stripeLegAccountId: text('stripeLegAccountId'),
   genericProductId: text('genericProductId'),
   genericProductSmallImage: text('genericProductSmallImage'),
-  genericProductLargeImage: text('genericProductLargeImage')
+  genericProductLargeImage: text('genericProductLargeImage'),
+  tosAccepted: boolean("tosAccepted").notNull().default(false),
+  tosAcceptedAt: timestamp("tosAcceptedAt", { mode: "date" }),
 })
 
 export const webhookSecrets = pgTable("webhookSecret", {
@@ -69,9 +71,11 @@ export const products = pgTable("product", {
   id: text('id').notNull(),
   qrcode: text('qrcode'),
   tagImage: text('tagImage'),
-  paymentLinkId: text('paymentLinkId')
-})
-
+  paymentLinkId: text('paymentLinkId'),
+  userId: text('userId') // Foreign key to the users table
+    .notNull()
+    .references(() => users.id) // References the id field in the users table
+});
 // New table to store commission rules
 export const commissionRules = pgTable('commissionRules', {
   id: serial('id').primaryKey(), // Auto-incrementing ID for the rule

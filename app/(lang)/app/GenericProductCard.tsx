@@ -25,7 +25,6 @@ const GenericProductCard = async () => {
       bg="gray.100"
       borderRadius="md"
       boxShadow="md"
-      maxW="700px"
     >
       <Text fontSize="2xl" fontWeight="bold" mb={4}>
         Link di pagamento editabile

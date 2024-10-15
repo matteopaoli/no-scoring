@@ -20,6 +20,7 @@ interface CalloutProps {
 // Full message strings for actions in Italian
 const actionMessages: Record<string, string> = {
   createProduct: 'Il prodotto è stato creato con successo.',
+  removeAccount: 'Il tuo account è stato rimosso correttamente',
   update: 'Il prodotto è stato aggiornato con successo.',
   process: 'Il prodotto è stato elaborato con successo.',
 };

@@ -31,6 +31,7 @@ import { Link } from "@chakra-ui/next-js";
 import { useDictionary } from "@/app/DictionaryProvider";
 import { useFormState } from "react-dom";
 import { useSearchParams } from "next/navigation"; // Add this import
+import Callout from "@/app/components/Callout";
 
 const initialState: Record<string, any> = {}
 
@@ -61,6 +62,7 @@ export default function SignIn() {
 
   return (
     <DefaultAuth>
+      <Callout autoDismiss={true} dismissDuration={5000} />
       <Flex
         maxW={{ base: "100%", md: "max-content" }}
         w='100%'

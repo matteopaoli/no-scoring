@@ -155,6 +155,20 @@
       "when": 1728044681231,
       "tag": "0021_fancy_hiroim",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1728960228969,
+      "tag": "0022_red_agent_zero",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1728962872209,
+      "tag": "0023_blushing_mauler",
+      "breakpoints": true
     }
   ]
 }

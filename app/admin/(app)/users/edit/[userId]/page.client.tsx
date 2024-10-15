@@ -8,7 +8,7 @@ import InputField from "@/app/components/fields/InputField";
 import TextArea from "@/app/components/fields/TextArea";
 import getFormErrors from "@/app/utils/getFormErrors";
 import Select from "@/app/components/fields/Select";
-import { SubmitButton } from "@/app/submit-button";
+import SubmitButton from "@/app/components/SubmitButton";
 import { User } from "@/app/db";
 
 type UpdateUserPageProps = {

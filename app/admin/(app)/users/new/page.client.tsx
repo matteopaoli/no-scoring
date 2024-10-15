@@ -8,7 +8,7 @@ import InputField from "@/app/components/fields/InputField"; // Import the Input
 import TextArea from "@/app/components/fields/TextArea"; // Import the TextArea component
 import getFormErrors from "@/app/utils/getFormErrors"; // Utility for fetching errors
 import Select from "@/app/components/fields/Select";
-import { SubmitButton } from "@/app/submit-button";
+import SubmitButton from "@/app/components/SubmitButton";
 
 type CreateUserPageProps = {
   businessTypesOptions: ReactNode[];
