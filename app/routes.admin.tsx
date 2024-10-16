@@ -37,6 +37,10 @@ const routes = [
     icon: <Icon as={MdBarChart} width="20px" height="20px" color="inherit" />,
     path: '/admin/business-types',
   },
+  {
+    name: "Modifica Profilo",
+    path: "/admin/settings/user",
+  },
   // {
   //   name: 'Profile',
   //   layout: '/admin',

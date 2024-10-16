@@ -36,7 +36,7 @@ export default async function createProductAction(
       },
       z.number().positive("Price must be a positive number")
     ),
-    image: z.instanceof(File).optional().refine((file) => file?.size ?? 0 <= MAX_FILE_SIZE, `L'immagine non puó superare i 5MB.`), // Optional product image
+    image: z.union([z.instanceof(Blob), z.undefined()]).refine((file) => (file?.size ?? 0) <= MAX_FILE_SIZE, `L'immagine non puó superare i 5MB.`),
     includeCommission: z.string().nullable().optional(), // Checkbox for including commission
   });
 
@@ -44,7 +44,7 @@ export default async function createProductAction(
     name: formData.get("name"),
     description: formData.get("description"),
     price: formData.get("price"),
-    image: formData.get("image"),
+    image: formData.get("image") ?? undefined,
     includeCommission: formData.get("includeCommission"), // Capture the checkbox value
   });
 

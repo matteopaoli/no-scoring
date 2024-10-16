@@ -11,7 +11,7 @@ export const authConfig = {
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       let isLoggedIn = !!auth?.user;
-      let isReservedPage = /^\/[a-z]{2}\/app/.test(nextUrl.pathname);
+      let isReservedPage = /^\/app/.test(nextUrl.pathname);
       if (isReservedPage) {
         if (isLoggedIn) return true;
         return false; // Redirect unauthenticated users to login page
@@ -20,12 +20,10 @@ export const authConfig = {
     },
     async jwt({ token, user }: { token, user }) {
       if (user) {
-        // Add user id to the token
         token.userId = user.id;
         token.role = user.role
         token.firstName = user.firstName
         token.lastName = user.lastName
-        token.image = user.image
       }
       return token;
     },
@@ -33,7 +31,6 @@ export const authConfig = {
       session.user.role = token.role;
       session.user.firstName = token.firstName
       session.user.lastName = token.lastName
-      session.user.image = token.image
       return Promise.resolve(session);
     }
   },

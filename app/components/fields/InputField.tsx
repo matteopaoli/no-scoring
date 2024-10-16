@@ -24,7 +24,7 @@ interface DefaultProps {
   errors: string[]
 }
 
-const Default: React.FC<DefaultProps> = (props) => {
+const InputField: React.FC<DefaultProps> = (props) => {
   const {
     id,
     label,
@@ -76,4 +76,4 @@ const Default: React.FC<DefaultProps> = (props) => {
   );
 };
 
-export default Default;
+export default InputField;

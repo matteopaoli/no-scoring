@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   Avatar,
   Button,
@@ -9,15 +9,17 @@ import {
   useColorModeValue,
   VStack,
   Text,
+  IconButton,
+  Flex,
 } from "@chakra-ui/react";
-import { MdOutlineFileUpload } from "react-icons/md";
+import { MdOutlineDelete, MdOutlineFileUpload } from "react-icons/md";
 
 interface ProfileImageInputProps {
   name: string; // Name attribute for FormData compatibility
   label: string;
   id: string;
   fullName: string;
-  image: string;
+  image?: string;
 }
 
 const ProfileImageInput: React.FC<ProfileImageInputProps> = ({
@@ -27,14 +29,15 @@ const ProfileImageInput: React.FC<ProfileImageInputProps> = ({
   fullName,
   image,
 }) => {
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | undefined>(image);
   const [error, setError] = useState<string | null>(null);
-
+  const [hasInteracted, setHasInteracted] = useState(false);
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const textColorPrimary = useColorModeValue("secondaryGray.900", "white");
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setHasInteracted(true);
     const selectedFile = event.target.files?.[0];
-
     if (selectedFile) {
       // Check if the file size exceeds 5MB
       const maxSizeInMB = 5;
@@ -46,6 +49,15 @@ const ProfileImageInput: React.FC<ProfileImageInputProps> = ({
       setError(null); // Clear any previous errors
       const newImageUrl = URL.createObjectURL(selectedFile);
       setImageUrl(newImageUrl);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setHasInteracted(true);
+    setImageUrl(undefined);
+    const inputElement = document.getElementById(id) as HTMLInputElement;
+    if (inputElement) {
+      inputElement.value = "";
     }
   };
 
@@ -69,26 +81,44 @@ const ProfileImageInput: React.FC<ProfileImageInputProps> = ({
           name={fullName}
           bg="#11047A"
           size="2xl"
-          src={imageUrl || image || undefined}
+          src={imageUrl || undefined}
         />
         <Input
           type="file"
           accept="image/*"
           onChange={handleFileChange}
           mt={4}
-          name={name}
+          name={hasInteracted ? name : undefined}
           hidden
+          ref={inputRef}
         />
-        <Button
-          mt={4}
-          colorScheme="brand"
-          onClick={() => document.getElementsByName(name)[0]?.click()} // Trigger input click
-          leftIcon={<MdOutlineFileUpload />}
-          variant="outline"
-        >
-          Carica
-        </Button>
-        {error && <Text color="red.500" fontSize="sm">{error}</Text>}
+        <Flex gap={1} alignItems="center">
+          <Button
+            mt={4}
+            colorScheme="brand"
+            onClick={() => inputRef?.current?.click()}
+            leftIcon={<MdOutlineFileUpload />}
+            variant="outline"
+          >
+            Carica
+          </Button>
+          {imageUrl && (
+            <IconButton
+              aria-label="remove"
+              size="lg"
+              mt={4}
+              colorScheme="red"
+              onClick={handleRemoveImage}
+              variant="ghost"
+              icon={<MdOutlineDelete />}
+            />
+          )}
+        </Flex>
+        {error && (
+          <Text color="red.500" fontSize="sm">
+            {error}
+          </Text>
+        )}
       </VStack>
     </FormControl>
   );

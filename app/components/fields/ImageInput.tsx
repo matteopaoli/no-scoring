@@ -1,39 +1,53 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Button,
+  Flex,
   FormControl,
   FormLabel,
+  IconButton,
   Image,
   Input,
+  SimpleGrid,
   useColorModeValue,
   VStack,
 } from "@chakra-ui/react";
+import { MdOutlineDelete, MdOutlineFileUpload } from "react-icons/md";
 
 interface ImageInputProps {
-  name: string; // Name attribute for FormData compatibility
+  name: string;
   label: string;
   id: string;
+  image?: string;
 }
 
-const ImageInput: React.FC<ImageInputProps> = ({ name, label, id }) => {
+const ImageInput: React.FC<ImageInputProps> = ({ name, label, id, image }) => {
   const DEFAULT_IMAGE_URL = "/img/product-placeholder.png";
-  const [imageUrl, setImageUrl] = useState<string>(DEFAULT_IMAGE_URL);
-  const [file, setFile] = useState<File | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | undefined>(image);
+  const [hasInteracted, setHasInteracted] = useState(false);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const textColorPrimary = useColorModeValue("secondaryGray.900", "white");
 
-
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setHasInteracted(true);
     const selectedFile = event.target.files?.[0];
     if (selectedFile) {
       const newImageUrl = URL.createObjectURL(selectedFile);
       setImageUrl(newImageUrl);
-      setFile(selectedFile);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setHasInteracted(true);
+    setImageUrl(undefined);
+    const inputElement = document.getElementById(id) as HTMLInputElement;
+    if (inputElement) {
+      inputElement.value = "";
     }
   };
 
   return (
-    <FormControl textAlign="center">
+    <FormControl>
       <FormLabel
         display="flex"
         ms="10px"
@@ -42,30 +56,47 @@ const ImageInput: React.FC<ImageInputProps> = ({ name, label, id }) => {
         color={textColorPrimary}
         fontWeight="bold"
         _hover={{ cursor: "pointer" }}
-      >{label}</FormLabel>
+      >
+        {label}
+      </FormLabel>
       <Image
-        margin="0 auto"
         src={imageUrl}
         alt="Uploaded"
         boxSize="200px"
         objectFit="contain"
-        fallbackSrc={DEFAULT_IMAGE_URL} // Fallback to default image
+        fallbackSrc={DEFAULT_IMAGE_URL}
       />
       <Input
         type="file"
         accept="image/*"
         onChange={handleFileChange}
         mt={4}
-        name={name} // Bind the name attribute
-        hidden // Hide the input field
+        name={hasInteracted ? name : undefined}
+        hidden
+        ref={inputRef}
       />
-      <Button
-        mt={4}
-        colorScheme="blue"
-        onClick={() => document.getElementsByName(name)[0]?.click()} // Trigger input click
-      >
-        Aggiungi Immagine
-      </Button>
+      <Flex gap={1} alignItems="center">
+        <Button
+          mt={4}
+          colorScheme="brand"
+          onClick={() => inputRef?.current?.click()}
+          leftIcon={<MdOutlineFileUpload />}
+          variant="outline"
+        >
+          Carica
+        </Button>
+        {imageUrl && (
+          <IconButton
+            aria-label="remove"
+            size="lg"
+            mt={4}
+            colorScheme="red"
+            onClick={handleRemoveImage}
+            variant="ghost"
+            icon={<MdOutlineDelete />}
+          />
+        )}
+      </Flex>
     </FormControl>
   );
 };

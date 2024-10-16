@@ -13,7 +13,7 @@ export default async function updateUserAction(prevState, formData: FormData): F
   const updateUserSchema = z.object({
     firstName: z.string().min(1, "Inserisci il nome"),
     lastName: z.string().min(1, "Inserisci il cognome"),
-    image: z.instanceof(Blob).optional().refine((file) => file?.size ?? 0 <= MAX_FILE_SIZE, `L'immagine non puó superare i 5MB.`),
+    image: z.union([z.instanceof(Blob), z.undefined()]).refine((file) => (file?.size ?? 0) <= MAX_FILE_SIZE, `L'immagine non puó superare i 5MB.`),
     password: z
       .union([z.string().min(8, "La password deve essere lunga almeno 8 caratteri"), z.string().length(0)])
       .optional()
@@ -51,7 +51,7 @@ export default async function updateUserAction(prevState, formData: FormData): F
     lastName: formData.get("lastName"),
     password: formData.get("password"),
     repeatPassword: formData.get("repeatPassword"),
-    image: formData.get("image")
+    image: formData.get("image") ?? undefined
   });
 
   if (!validation.success) {
@@ -59,17 +59,18 @@ export default async function updateUserAction(prevState, formData: FormData): F
   }
 
   const { firstName, lastName, password, image } = validation.data;
+  console.log('imageee', image)
   const session = await auth();
   const user = await getUser(session.user.email)
   if (!user?.email) {
     redirect("/login");
   }
 
-  const updateData: { email: string; firstName: string; lastName: string; password?: string } = {
+  const updateData = {
     email: user.email,
     firstName,
     lastName,
-    ...(image? { profileImage: image } : {}),
+    profileImage: image,
     ...(password? { password } : {})
   };
  

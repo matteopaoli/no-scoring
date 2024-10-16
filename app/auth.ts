@@ -21,7 +21,10 @@ export const {
         let user = await getUser(credentials.email as string);
         if (!user) return null;
         let passwordsMatch = await compare(credentials.password as string, user.password!);
-        if (passwordsMatch && user.role === credentials.role) return user as any;
+        if (passwordsMatch && user.role === credentials.role) {
+          const { image,  ...rest } = user
+          return rest
+        }
       },
     }),
   ],

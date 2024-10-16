@@ -21,6 +21,7 @@ interface CalloutProps {
 const actionMessages: Record<string, string> = {
   createProduct: 'Il prodotto è stato creato con successo.',
   removeAccount: 'Il tuo account è stato rimosso correttamente',
+  updateStore: 'Il negozio è stato aggiornato',
   update: 'Il prodotto è stato aggiornato con successo.',
   process: 'Il prodotto è stato elaborato con successo.',
 };

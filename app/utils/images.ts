@@ -13,7 +13,7 @@ const unlink = promisify(fs.unlink);
 export async function imageToBase64(image: Blob) {
   const buffer = await image.arrayBuffer();
   const base64Image = Buffer.from(buffer).toString("base64");
-  return base64Image;
+  return `data:image/jpeg;base64,${base64Image}`;
 }
 
 export async function compressProfileImageToBase64(

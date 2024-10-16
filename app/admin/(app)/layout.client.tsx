@@ -11,6 +11,7 @@ import Sidebar from "@/app/components/sidebar/Sidebar";
 
 export default function AdminLayout({
   children,
+  user,
   ...rest
 }: Record<string, any> & { children: ReactNode }) {
   const [toggleSidebar, setToggleSidebar] = useState(false);
@@ -121,6 +122,7 @@ export default function AdminLayout({
                   // message={""}
                   fixed={false}
                   routes={routes}
+                  user={user}
                   {...rest}
                 />
               </Box>

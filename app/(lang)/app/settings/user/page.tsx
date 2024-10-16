@@ -1,4 +1,4 @@
-import { getUser } from "@/app/db";
+import { getStoreByUserId, getUser } from "@/app/db";
 import { redirect } from "next/navigation";
 import Client from './page.client';
 import { auth } from "@/app/auth";
@@ -9,6 +9,7 @@ export default async function EditUserPage() {
         redirect('/login'); // Redirect to login if not authenticated
     }
     const user = await getUser(session.user.email);
+    const store = await getStoreByUserId(user.id)
 
     if (!user) {
         redirect('/app/dashboard'); // Redirect if no user is found
@@ -16,7 +17,7 @@ export default async function EditUserPage() {
 
     return (
         <>
-            <Client user={user} />
+            <Client user={user} store={store} />
         </>
     );
 }

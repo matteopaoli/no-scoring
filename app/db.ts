@@ -16,7 +16,7 @@ import {
   generateQrCodeWithLogo,
   generateGenericProductImages,
   imageToBase64,
-  compressProfileImageToBase64
+  compressProfileImageToBase64,
 } from "./utils/images";
 import { createGenericProduct } from "./utils/stripe";
 
@@ -256,11 +256,9 @@ export async function getUsers() {
 }
 
 export async function updateProfile({
-  firstName,
-  lastName,
-  profileImage,
-  email,
   password,
+  profileImage,
+  ...rest
 }: {
   firstName: string;
   lastName: string;
@@ -269,21 +267,31 @@ export async function updateProfile({
   password?: string;
 }) {
   let profileImageData: string | null = null;
-  if (profileImage) {
-    profileImageData = await compressProfileImageToBase64(profileImage);
-  }
 
-  await db
+  if (!profileImage) {
+    await db
+    .update(users)
+    .set(rest)
+    .where(eq(users.email, rest.email));
+  }
+  
+  else {
+    if (profileImage && profileImage.size > 0) {
+      console.log('dioc')
+      console.log(profileImage)
+      profileImageData = await compressProfileImageToBase64(profileImage);
+    }
+    await db
     .update(users)
     .set({
-      firstName,
-      lastName,
-      image: profileImageData,
+      ...rest,
+      ...(profileImageData ? { image: profileImageData } : { image: null }),
     })
-    .where(eq(users.email, email));
+    .where(eq(users.email, rest.email));
+  }
 
   if (password) {
-    await updatePassword(password, email);
+    await updatePassword(password, rest.email);
   }
 }
 
@@ -322,6 +330,42 @@ export async function createStore({
   }
 
   return { newStore, success: true };
+}
+
+export async function updateStore(
+  storeId: string,
+  {
+    storeName,
+    storeLogo,
+  }: {
+    storeName: string;
+    storeLogo?: Blob;
+  }
+) {
+  let logoData: string | null = null;
+  let updatedStore = null;
+  if (!storeLogo) {
+    updatedStore = await db
+      .update(stores)
+      .set({ name: storeName })
+      .where(eq(stores.id, storeId))
+      .returning();
+  } else {
+    if (storeLogo && storeLogo.size > 0) {
+      logoData = await imageToBase64(storeLogo);
+    }
+
+    updatedStore = await db
+      .update(stores)
+      .set({
+        name: storeName,
+        ...(storeLogo && logoData ? { image: logoData } : { image: null }),
+      })
+      .where(eq(stores.id, storeId))
+      .returning();
+  }
+
+  return { updatedStore: updatedStore[0] || null, success: true };
 }
 
 export async function completeOnboarding(email: string) {
@@ -518,4 +562,17 @@ export async function acceptTOS(email: string) {
     .update(users)
     .set({ tosAccepted: true, tosAcceptedAt: new Date() })
     .where(eq(users.email, email));
+}
+
+export async function getStoreByUserId(userId: string) {
+  const result = await db
+    .select({
+      id: stores.id,
+      name: stores.name,
+      image: stores.image,
+    })
+    .from(stores)
+    .innerJoin(userStoreRoles, eq(userStoreRoles.storeId, stores.id))
+    .where(eq(userStoreRoles.userId, userId));
+  return result[0] || null;
 }
