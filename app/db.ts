@@ -15,6 +15,8 @@ import Stripe from "stripe";
 import {
   generateQrCodeWithLogo,
   generateGenericProductImages,
+  imageToBase64,
+  compressProfileImageToBase64
 } from "./utils/images";
 import { createGenericProduct } from "./utils/stripe";
 
@@ -266,34 +268,23 @@ export async function updateProfile({
   email: string;
   password?: string;
 }) {
-  // Converti l'immagine in un formato compatibile con il database se necessario
   let profileImageData: string | null = null;
   if (profileImage) {
-    // Se hai un modo per gestire le immagini (es. base64, path a file remoto, etc.)
-    profileImageData = await convertImageToBase64(profileImage); // Funzione di esempio
+    profileImageData = await compressProfileImageToBase64(profileImage);
   }
 
-  // Esegui l'aggiornamento del profilo nel database
   await db
     .update(users)
     .set({
       firstName,
       lastName,
-      image: profileImageData, // Inserisci l'immagine solo se presente
+      image: profileImageData,
     })
-    .where(eq(users.email, email)); // Assumi che l'email sia usata come chiave univoca
+    .where(eq(users.email, email));
 
   if (password) {
     await updatePassword(password, email);
   }
-}
-
-// Esempio di funzione per convertire l'immagine in base64 (opzionale)
-async function convertImageToBase64(image: Blob): Promise<string> {
-  // Converti il Blob in un Buffer leggibile in Node.js
-  const buffer = await image.arrayBuffer();
-  const base64Image = Buffer.from(buffer).toString("base64");
-  return base64Image;
 }
 
 export async function createStore({
@@ -307,26 +298,21 @@ export async function createStore({
   userId: number;
   role: string;
 }) {
-  // Convert logo to base64 if provided
   let logoData: string | null = null;
   if (storeLogo) {
-    logoData = await convertImageToBase64(storeLogo);
+    logoData = await imageToBase64(storeLogo);
   }
-
-  // Insert the new store into the database
   const newStore = await db
     .insert(stores)
     .values({
       name: storeName,
       image: logoData,
     })
-    .returning(); // Optionally return the inserted store details
+    .returning();
 
-  // Get the newly created store ID
-  const storeId = newStore[0]?.id; // Assuming the store ID is
+  const storeId = newStore[0]?.id;
   const { id: userId } = await getUser(email);
 
-  // Insert the user-store role association
   if (storeId) {
     await db.insert(userStoreRoles).values({
       userId,
@@ -335,7 +321,7 @@ export async function createStore({
     });
   }
 
-  return { newStore, success: true }; // Return the newly created store and success status
+  return { newStore, success: true };
 }
 
 export async function completeOnboarding(email: string) {
@@ -348,19 +334,15 @@ export async function completeOnboarding(email: string) {
 }
 
 export async function createBusinessType(bt: BusinessType) {
-  // Insert the new business type into the database
   const newBusinessType = await db
     .insert(businessType)
     .values({
       name: bt.name,
     })
     .returning();
-
-  // Get the newly created business type ID
   const businessTypeId = newBusinessType[0].id!;
 
   if (businessTypeId && bt.commissionRules.length > 0) {
-    // Insert each commission rule associated with the business type
     for (const rule of bt.commissionRules) {
       await db.insert(commissionRules).values({
         businessTypeId,
@@ -378,7 +360,6 @@ export async function createBusinessType(bt: BusinessType) {
 export async function getBusinessTypeById(
   businessTypeId: number
 ): Promise<BusinessType | null> {
-  // Query to fetch the business type along with its commission rules
   const result = await db
     .select({
       id: businessType.id,
@@ -396,19 +377,16 @@ export async function getBusinessTypeById(
     )
     .where(eq(businessType.id, businessTypeId));
 
-  // If no business type is found, return null
   if (result.length === 0) {
     return null;
   }
 
-  // Initialize the business type object with the first result
   const groupedBusinessType: BusinessType = {
     id: result[0].id,
     name: result[0].name,
     commissionRules: [],
   };
 
-  // Loop through the results to populate the commission rules
   result.forEach((row) => {
     const {
       commissionRuleId,
@@ -418,7 +396,6 @@ export async function getBusinessTypeById(
       commissionValue,
     } = row;
 
-    // Check if the commission rule ID is not null and add it to the commission rules array
     if (commissionRuleId !== null) {
       groupedBusinessType.commissionRules.push({
         id: commissionRuleId,
@@ -430,7 +407,7 @@ export async function getBusinessTypeById(
     }
   });
 
-  return groupedBusinessType; // Return the populated business type object
+  return groupedBusinessType;
 }
 
 export async function getExistingCommissionRules(
@@ -448,7 +425,6 @@ export async function getExistingCommissionRules(
     .from(commissionRules)
     .where(eq(commissionRules.businessTypeId, businessTypeId));
 
-  // Map the result into the CommissionRule array format
   const existingRules: CommissionRule[] = result.map((rule) => ({
     id: rule.id,
     businessTypeId: rule.businessTypeId,
@@ -470,7 +446,6 @@ export async function updateBusinessType(
   data: BusinessTypeUpdateData,
   cr: CommissionRule[] = []
 ) {
-  // Update the business type details
   const updatedBusinessType = await db
     .update(businessType)
     .set({
@@ -480,14 +455,11 @@ export async function updateBusinessType(
     .where(eq(businessType.id, businessTypeId))
     .returning();
 
-  // If there are commission rules, update them
   if (cr.length > 0) {
-    // First, delete existing commission rules associated with the business type
     await db
       .delete(commissionRules)
       .where(eq(commissionRules.businessTypeId, businessTypeId));
 
-    // Insert updated commission rules
     for (const rule of cr) {
       await db.insert(commissionRules).values({
         businessTypeId,

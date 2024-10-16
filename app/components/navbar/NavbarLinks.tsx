@@ -136,6 +136,7 @@ export default function HeaderLinks({
             size="sm"
             w="40px"
             h="40px"
+            src={user.image ?? undefined}
           />
         </MenuButton>
         <MenuList

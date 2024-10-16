@@ -1,23 +1,25 @@
 "use server";
 
 import { z } from "zod";
-import { getUser, updateProfile } from "@/app/db"; // Assumed update user method
+import { getUser, updateProfile } from "@/app/db";
 import { redirect } from "next/navigation";
 import { auth } from "@/app/auth";
 import { FormActionReturnType } from "@/app/types";
 import formatZodErrors from "@/app/utils/formatZodErrors";
+import { compressProfileImageToBase64 } from "@/app/utils/images";
 
 export default async function updateUserAction(prevState, formData: FormData): FormActionReturnType {
-  // Define Zod schema for form validation
+  const MAX_FILE_SIZE = 5000000;
   const updateUserSchema = z.object({
     firstName: z.string().min(1, "Inserisci il nome"),
     lastName: z.string().min(1, "Inserisci il cognome"),
+    image: z.instanceof(Blob).optional().refine((file) => file?.size ?? 0 <= MAX_FILE_SIZE, `L'immagine non puó superare i 5MB.`),
     password: z
-      .union([z.string().min(8, "La password deve essere lunga almeno 8 caratteri"), z.string().length(0)]) // Use union for optional passwords
+      .union([z.string().min(8, "La password deve essere lunga almeno 8 caratteri"), z.string().length(0)])
       .optional()
-      .transform(e => e === "" ? undefined : e) // Transform empty string to undefined
+      .transform(e => e === "" ? undefined : e)
       .refine(value => {
-        if (value === undefined) return true; // If no password is provided, skip validation
+        if (value === undefined) return true;
         return /(?=.*[a-z])/.test(value) && /(?=.*[A-Z])/.test(value) &&
                /(?=.*[0-9])/.test(value) && /(?=.*[!@#$%^&*(),.?":{}|<>])/.test(value);
       }, {
@@ -28,59 +30,53 @@ export default async function updateUserAction(prevState, formData: FormData): F
       .optional()
       .transform(e => e === "" ? undefined : e)
       .refine(value => {
-        if (value === undefined) return true; // If no password is provided, skip validation
+        if (value === undefined) return true;
         return /(?=.*[a-z])/.test(value) && /(?=.*[A-Z])/.test(value) &&
                /(?=.*[0-9])/.test(value) && /(?=.*[!@#$%^&*(),.?":{}|<>])/.test(value);
       }, {
         message: "La password deve contenere almeno una lettera minuscola, una maiuscola, un numero e un simbolo speciale"
       }),
   }).refine((data) => {
-    // Check if password is provided and matches repeatPassword if present
     if (data.password || data.repeatPassword) {
       return data.password === data.repeatPassword;
     }
-    return true; // If neither password field is present, return true
+    return true;
   }, {
     message: "Le password non corrispondono",
-    path: ["repeatPassword"], // Apply this error to repeatPassword field
+    path: ["repeatPassword"],
   });
 
-  // Validate the form data
   const validation = updateUserSchema.safeParse({
     firstName: formData.get("firstName"),
     lastName: formData.get("lastName"),
     password: formData.get("password"),
     repeatPassword: formData.get("repeatPassword"),
+    image: formData.get("image")
   });
 
   if (!validation.success) {
     return formatZodErrors(validation);
   }
 
-  const { firstName, lastName, password } = validation.data;
-
-  // Update the user (retrieved via the session)
+  const { firstName, lastName, password, image } = validation.data;
   const session = await auth();
   const user = await getUser(session.user.email)
   if (!user?.email) {
     redirect("/login");
   }
 
-  // Prepare update payload, only include password if provided
   const updateData: { email: string; firstName: string; lastName: string; password?: string } = {
     email: user.email,
-    firstName: firstName as string,
-    lastName: lastName as string,
+    firstName,
+    lastName,
+    ...(image? { profileImage: image } : {}),
+    ...(password? { password } : {})
   };
-
-  if (password) {
-    updateData.password = password as string; // Only add password if it exists
-  }
-
+ 
   await updateProfile(updateData);
   if (user.role === 'admin') {
     redirect('/admin?success=true"')
   }
 
-  redirect("/app?success=true"); // Redirect after successful update
+  redirect("/app?success=true");
 }

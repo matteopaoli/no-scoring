@@ -15,6 +15,7 @@ export default async function createProductAction(
   prevState,
   formData: FormData
 ): FormActionReturnType {
+  const MAX_FILE_SIZE = 5000000;
   const session = await auth();
   const user = await getUser(session?.user?.email);
   if (!user) {
@@ -35,7 +36,7 @@ export default async function createProductAction(
       },
       z.number().positive("Price must be a positive number")
     ),
-    image: z.instanceof(File).optional(), // Optional product image
+    image: z.instanceof(File).optional().refine((file) => file?.size ?? 0 <= MAX_FILE_SIZE, `L'immagine non puó superare i 5MB.`), // Optional product image
     includeCommission: z.string().nullable().optional(), // Checkbox for including commission
   });
 

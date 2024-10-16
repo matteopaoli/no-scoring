@@ -2,13 +2,36 @@ import QRCode from "qrcode";
 import sharp from "sharp";
 import { createCanvas, loadImage, registerFont } from "canvas";
 import { promisify } from "node:util";
-import fs from 'node:fs'
+import fs from "node:fs";
 import path from "node:path";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
 // Promisified file operations
 const writeFile = promisify(fs.writeFile);
 const unlink = promisify(fs.unlink);
+
+export async function imageToBase64(image: Blob) {
+  const buffer = await image.arrayBuffer();
+  const base64Image = Buffer.from(buffer).toString("base64");
+  return base64Image;
+}
+
+export async function compressProfileImageToBase64(
+  image: Blob
+): Promise<string> {
+  const arrayBuffer = await image.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+
+  const resizedBuffer = await sharp(buffer)
+    .resize(512, 512, {
+      fit: "cover",
+      position: "center",
+    })
+    .jpeg({ quality: 80 })
+    .toBuffer();
+
+  return `data:image/jpeg;base64,${resizedBuffer.toString("base64")}`;
+}
 
 export async function generateQrCodeWithLogo(
   paymentLinkUrl: string
@@ -61,84 +84,94 @@ export const generateTagImage = async (
   productName: string,
   productPrice: number
 ): Promise<string> => {
-    // Load template image
-    const template = await sharp('./tag-template.png').toBuffer();
+  // Load template image
+  const template = await sharp("./tag-template.png").toBuffer();
 
-    // Create a canvas with the size of the template image
-    const canvas = createCanvas(600, 1050);
-    const ctx = canvas.getContext("2d");
+  // Create a canvas with the size of the template image
+  const canvas = createCanvas(600, 1050);
+  const ctx = canvas.getContext("2d");
 
-    // Load the template image into the canvas
-    const img = await loadImage(template);
-    ctx.drawImage(img, 0, 0);
+  // Load the template image into the canvas
+  const img = await loadImage(template);
+  ctx.drawImage(img, 0, 0);
 
-    // Set font style for the product name (Poppins, Bold)
-    ctx.font = "bold 40px Poppins"; // Use Poppins font with bold style
-    ctx.fillStyle = "#EB841E"; // Set text color to #EB841E (orange)
-    ctx.textAlign = "center"; // Center align the text horizontally
-    ctx.textBaseline = "middle"; // Vertically center the text
+  // Set font style for the product name (Poppins, Bold)
+  ctx.font = "bold 40px Poppins"; // Use Poppins font with bold style
+  ctx.fillStyle = "#EB841E"; // Set text color to #EB841E (orange)
+  ctx.textAlign = "center"; // Center align the text horizontally
+  ctx.textBaseline = "middle"; // Vertically center the text
 
-    // Convert product name to uppercase and concatenate product price
-    const fullProductText = `${productName.toUpperCase()} €${productPrice}`;
+  // Convert product name to uppercase and concatenate product price
+  const fullProductText = `${productName.toUpperCase()} €${productPrice}`;
 
-    // Calculate the maximum width to prevent text overflow
-    const maxWidth = 500; // Set a maximum width for the text
-    const x = canvas.width / 2; // X-coordinate for centered text
-    const y = 400; // Y-coordinate for the text (adjusted to 400)
+  // Calculate the maximum width to prevent text overflow
+  const maxWidth = 500; // Set a maximum width for the text
+  const x = canvas.width / 2; // X-coordinate for centered text
+  const y = 400; // Y-coordinate for the text (adjusted to 400)
 
-    // Function to wrap text if it exceeds the maxWidth
-    const wrapText = (context: CanvasRenderingContext2D, text: string, x: number, y: number, maxWidth: number, lineHeight: number) => {
-        const words = text.split(' ');
-        let line = '';
-        let yPosition = y;
+  // Function to wrap text if it exceeds the maxWidth
+  const wrapText = (
+    context: CanvasRenderingContext2D,
+    text: string,
+    x: number,
+    y: number,
+    maxWidth: number,
+    lineHeight: number
+  ) => {
+    const words = text.split(" ");
+    let line = "";
+    let yPosition = y;
 
-        for (let i = 0; i < words.length; i++) {
-            const testLine = line + words[i] + ' ';
-            const metrics = context.measureText(testLine);
-            const testWidth = metrics.width;
+    for (let i = 0; i < words.length; i++) {
+      const testLine = line + words[i] + " ";
+      const metrics = context.measureText(testLine);
+      const testWidth = metrics.width;
 
-            if (testWidth > maxWidth && i > 0) {
-                context.fillText(line, x, yPosition);
-                line = words[i] + ' ';
-                yPosition += lineHeight;
-            } else {
-                line = testLine;
-            }
-        }
+      if (testWidth > maxWidth && i > 0) {
         context.fillText(line, x, yPosition);
-    };
+        line = words[i] + " ";
+        yPosition += lineHeight;
+      } else {
+        line = testLine;
+      }
+    }
+    context.fillText(line, x, yPosition);
+  };
 
-    // Add the full product text (name + price) to the image, wrapping it if needed
-    wrapText(ctx, fullProductText, x, y, maxWidth, 50);
+  // Add the full product text (name + price) to the image, wrapping it if needed
+  wrapText(ctx, fullProductText, x, y, maxWidth, 50);
 
-    const base64Data = base64Image.replace(/^data:image\/\w+;base64,/, "");
-    const imgBuffer = Buffer.from(base64Data, "base64");
+  const base64Data = base64Image.replace(/^data:image\/\w+;base64,/, "");
+  const imgBuffer = Buffer.from(base64Data, "base64");
 
-    // Create a unique file name for the temporary image
-    const uniqueFilename = `overlayImage-${uuidv4()}.png`;
-    const tempFilePath = `./tmp/${uniqueFilename}`;
-    await writeFile(tempFilePath, imgBuffer);
+  // Create a unique file name for the temporary image
+  const uniqueFilename = `overlayImage-${uuidv4()}.png`;
+  const tempFilePath = `./tmp/${uniqueFilename}`;
+  await writeFile(tempFilePath, imgBuffer);
 
-    // Load the overlay image (base64 image provided by the user)
-    const overlayImage = await loadImage(tempFilePath);
-    ctx.drawImage(overlayImage, 300, 750, 200, 200); // Adjust the image size and position (Y = 750)
+  // Load the overlay image (base64 image provided by the user)
+  const overlayImage = await loadImage(tempFilePath);
+  ctx.drawImage(overlayImage, 300, 750, 200, 200); // Adjust the image size and position (Y = 750)
 
-    // Remove the temporary file after use
-    await unlink(tempFilePath);
+  // Remove the temporary file after use
+  await unlink(tempFilePath);
 
-    // Get the final image buffer as PNG
-    const buffer = canvas.toBuffer("image/png");
+  // Get the final image buffer as PNG
+  const buffer = canvas.toBuffer("image/png");
 
-    // Convert buffer to base64 and return
-    return buffer.toString('base64');
+  // Convert buffer to base64 and return
+  return buffer.toString("base64");
 };
 
 export const generateGenericProductImages = async (
   base64QRCode: string
-): Promise<{ genericProductSmallImage: string; genericProductLargeImage: string }> => {
+): Promise<{
+  genericProductSmallImage: string;
+  genericProductLargeImage: string;
+}> => {
   // Define the templates
-  const smallTemplatePath = './generic-small-template.png';
-  const largeTemplatePath = './generic-large-template.png';
+  const smallTemplatePath = "./generic-small-template.png";
+  const largeTemplatePath = "./generic-large-template.png";
 
   // Define image resolutions
   const smallImageResolution = { width: 1417, height: 600 };
@@ -174,7 +207,13 @@ export const generateGenericProductImages = async (
     const qrCodeImage = await loadImage(tempFilePath);
 
     // Draw the QR code on the canvas at the specified position and size
-    ctx.drawImage(qrCodeImage, qrPosition.x, qrPosition.y, qrPosition.size, qrPosition.size);
+    ctx.drawImage(
+      qrCodeImage,
+      qrPosition.x,
+      qrPosition.y,
+      qrPosition.size,
+      qrPosition.size
+    );
 
     // Remove the temporary file after use
     await unlink(tempFilePath);
@@ -188,7 +227,7 @@ export const generateGenericProductImages = async (
       .toBuffer();
 
     // Convert compressed buffer to base64 and return with data URI prefix
-    return `data:image/jpeg;base64,${compressedBuffer.toString('base64')}`; // Use PNG prefix if saving as PNG
+    return `data:image/jpeg;base64,${compressedBuffer.toString("base64")}`; // Use PNG prefix if saving as PNG
   };
 
   // Generate the small image with QR code
