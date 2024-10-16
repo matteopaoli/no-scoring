@@ -5,8 +5,8 @@ import { updateProfile } from "@/app/db";
 
 // Definiamo lo schema di validazione con Zod
 const updateProfileSchema = z.object({
-  firstName: z.string().min(1, "Il nome è obbligatorio"),
-  lastName: z.string().min(1, "Il cognome è obbligatorio"),
+  firstName: z.string().trim().min(1, "Il nome è obbligatorio"),
+  lastName: z.string().trim().min(1, "Il cognome è obbligatorio"),
   profileImage: z.instanceof(Blob).optional(),
   email: z.string()
   .min(1, "Inserire un indirizzo email valido")
