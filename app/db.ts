@@ -174,7 +174,8 @@ export async function updateUser(
   stripeSecretKey: string,
   businessTypeId: number,
   businessName: string,
-  stripeUserId: string
+  stripeUserId: string,
+  stripeLegAccountId: string,
 ) {
   return await db
     .update(users)
@@ -183,6 +184,7 @@ export async function updateUser(
       businessTypeId,
       businessName,
       stripeUserId,
+      stripeLegAccountId
     })
     .where(eq(users.email, email));
 }

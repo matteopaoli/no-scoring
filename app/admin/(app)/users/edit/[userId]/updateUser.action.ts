@@ -1,6 +1,8 @@
 "use server";
 
 import { updateUser, getBusinessTypes, getUser } from "@/app/db";
+import { FormActionReturnType } from "@/app/types";
+import formatZodErrors from "@/app/utils/formatZodErrors";
 import { redirect } from "next/navigation";
 import { z, ZodType } from "zod";
 
@@ -22,7 +24,7 @@ export async function numericEnum<TValues extends readonly number[]>(
 export default async function updateUserAction(
   prevState: string | null,
   formData: FormData
-): Promise<string> {
+): FormActionReturnType {
   const businessTypeIds = (await getBusinessTypes()).map((b) => b.id);
 
   const updateUserSchema = z.object({
@@ -40,6 +42,9 @@ export default async function updateUserAction(
     businessTypeId: await numericEnum(businessTypeIds),
     stripeUserId: z.string().regex(/^acct_[a-zA-Z0-9]+$/, {
       message: "Il formato dell'ID utente di Stripe non è valido. Dovrebbe iniziare con 'acct_' seguito da caratteri alfanumerici.",
+    }),
+    stripeLegAccountId: z.string().regex(/^acct_[a-zA-Z0-9]+$/, {
+      message: "Il formato dell'ID LEG di Stripe non è valido. Dovrebbe iniziare con 'acct_' seguito da caratteri alfanumerici.",
     })
   });
 
@@ -49,25 +54,24 @@ export default async function updateUserAction(
     stripeApiKey: formData.get("stripeApiKey"),
     businessTypeId: Number(formData.get("businessType")),
     businessName: formData.get("businessName"),
-    stripeUserId: formData.get('stripeUserId')
+    stripeUserId: formData.get('stripeUserId'),
+    stripeLegAccountId: formData.get('stripeLegAccountId')
   });
 
   if (!validation.success) {
-    return JSON.stringify(validation.error);
+    return formatZodErrors(validation)
   }
 
-  const { email, stripeApiKey, businessTypeId, businessName, stripeUserId } = validation.data;
+  const { email, stripeApiKey, businessTypeId, businessName, stripeUserId, stripeLegAccountId } = validation.data;
 
   // Check if the user exists before updating
   const existingUser = await getUser(email);
   if (!existingUser) {
-    return JSON.stringify({
-      error: "Utente non trovato", // User not found
-    });
+    throw new Error('Errore in admin - modifica utente: Utente non trovato')
   }
 
   // Update the user
-  await updateUser(email, stripeApiKey, businessTypeId, businessName, stripeUserId);
+  await updateUser(email, stripeApiKey, businessTypeId, businessName, stripeUserId, stripeLegAccountId);
   
   redirect("/admin/users?success=true&action=update");
 }
