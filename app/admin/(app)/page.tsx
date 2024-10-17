@@ -1,7 +1,7 @@
 import { getAllMerchants, getSales, getUser } from "@/app/db";
 import { redirect } from "next/navigation";
 import Statistics from "./Statistics";
-import UserGrowthChart from "./UserGrowthChart";
+import UserGrowthChart from "./user-growth-chart/UserGrowthChartCard";
 import { GridItem, SimpleGrid } from "@chakra-ui/react";
 import { auth } from "@/app/auth";
 
