@@ -25,7 +25,7 @@ export const users = pgTable("user", {
   lastName: text("lastName"),
   email: text("email").unique(),
   password: text("password"),
-  emailVerified: timestamp("emailVerified", { mode: "date" }),
+  createdAt: timestamp("createdAt").defaultNow(),
   image: text("image"),
   stripeSecretKey: text('stripeSecretKey').notNull(),
   role: text('role').notNull(),
@@ -53,6 +53,19 @@ export const stores = pgTable("store", {
   name: text("name").notNull(),
   createdAt: timestamp("createdAt").defaultNow(),
   image: text('image'),
+})
+
+export const sales = pgTable("sale", {
+  id: text("id")
+  .primaryKey()
+  .$defaultFn(() => crypto.randomUUID()),
+  storeId: text("storeId").notNull().references(() => stores.id).notNull(),
+  amount: numeric("amount", { precision: 12, scale: 2 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow(),
+  stripePaymentIntentId: text("stripePaymentIntentId").notNull(),
+  legCommission: numeric("legCommission", { precision: 12, scale: 2 }).notNull(),
+  firstLevelPartnerCommission: numeric("firstLevelPartnerCommission", { precision: 12, scale: 2 }).notNull(),
+  secondLevelPartnerCommission: numeric("secondLevelPartnerCommission", { precision: 12, scale: 2 }).notNull(),
 })
 
 export const userStoreRoles = pgTable("userStoreRole", {

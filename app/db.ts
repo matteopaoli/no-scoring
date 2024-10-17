@@ -1,5 +1,5 @@
 import { drizzle } from "drizzle-orm/postgres-js";
-import { eq, getTableColumns } from "drizzle-orm";
+import { count, eq, getTableColumns } from "drizzle-orm";
 import postgres from "postgres";
 import { genSaltSync, hashSync } from "bcrypt-ts";
 import {
@@ -10,6 +10,7 @@ import {
   userStoreRoles,
   products,
   webhookSecrets,
+  sales,
 } from "schema";
 import Stripe from "stripe";
 import {
@@ -19,6 +20,7 @@ import {
   compressProfileImageToBase64,
 } from "./utils/images";
 import { createGenericProduct } from "./utils/stripe";
+import { sql } from 'drizzle-orm';
 
 let client = postgres(`${process.env.DATABASE_URL!}`);
 let db = drizzle(client);
@@ -269,25 +271,20 @@ export async function updateProfile({
   let profileImageData: string | null = null;
 
   if (!profileImage) {
-    await db
-    .update(users)
-    .set(rest)
-    .where(eq(users.email, rest.email));
-  }
-  
-  else {
+    await db.update(users).set(rest).where(eq(users.email, rest.email));
+  } else {
     if (profileImage && profileImage.size > 0) {
-      console.log('dioc')
-      console.log(profileImage)
+      console.log("dioc");
+      console.log(profileImage);
       profileImageData = await compressProfileImageToBase64(profileImage);
     }
     await db
-    .update(users)
-    .set({
-      ...rest,
-      ...(profileImageData ? { image: profileImageData } : { image: null }),
-    })
-    .where(eq(users.email, rest.email));
+      .update(users)
+      .set({
+        ...rest,
+        ...(profileImageData ? { image: profileImageData } : { image: null }),
+      })
+      .where(eq(users.email, rest.email));
   }
 
   if (password) {
@@ -575,4 +572,52 @@ export async function getStoreByUserId(userId: string) {
     .innerJoin(userStoreRoles, eq(userStoreRoles.storeId, stores.id))
     .where(eq(userStoreRoles.userId, userId));
   return result[0] || null;
+}
+
+export async function createSale({
+  stripePaymentIntentId,
+  amount,
+  storeId,
+  legCommission,
+  firstLevelPartnerCommission,
+  secondLevelPartnerCommission,
+}: {
+  stripePaymentIntentId: string;
+  amount: string;
+  storeId: string;
+  legCommission: string;
+  firstLevelPartnerCommission: string;
+  secondLevelPartnerCommission: string;
+}) {
+  return await db.insert(sales).values({
+    stripePaymentIntentId,
+    amount,
+    storeId,
+    legCommission,
+    firstLevelPartnerCommission,
+    secondLevelPartnerCommission
+  });
+}
+
+export async function getAllMerchants() {
+  return await db
+    .select({
+      firstName: users.firstName,
+      lastName: users.lastName,
+      productCount: count(products.id).as('productCount'),
+      createdAt: users.createdAt,
+    })
+    .from(users)
+    .leftJoin(products, eq(products.userId, users.id))
+    .where(eq(users.role, 'user'))
+    .groupBy(users.id);
+}
+
+export async function getSales(userId: string, userRole: string) {
+  if (userRole === 'admin') {
+    return await db.select().from(sales)
+  }
+  // if (userRole === 'partner') {
+
+  // }
 }

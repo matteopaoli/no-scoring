@@ -1,4 +1,5 @@
-import { getUserByStripeAccountId, getWebhookSecret } from "@/app/db";
+import { FIRST_LEVEL_PARTNER_COMMISSION_RATE, LEG_COMMISSION_RATE, SECOND_LEVEL_PARTNER_COMMISSION_RATE, VAT } from "@/app/constants";
+import { createSale, getStoreByUserId, getUserByStripeAccountId, getWebhookSecret } from "@/app/db";
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
@@ -35,12 +36,9 @@ export async function POST(request: NextRequest) {
     event = stripe.webhooks.constructEvent(rawBody, sig, webhook.secret);
 
     if (event.type === 'checkout.session.completed') {
-      const LEG_COMMISSION_RATE = .015
-      const VAT = 1.22
-
       const session = event.data.object as Stripe.Checkout.Session;
 
-      const amount = session.amount_total; // Amount is in cents
+      const amount = session.amount_total as number; // Amount is in cents
 
       const transferAmount = Math.round(amount * LEG_COMMISSION_RATE * VAT);
 
@@ -53,6 +51,17 @@ export async function POST(request: NextRequest) {
         description: `Transfer for session ${session.id}`,
         source_transaction: paymentIntent.latest_charge as string
       });
+
+      const store = await getStoreByUserId(merchant.id)
+
+      await createSale({
+        stripePaymentIntentId: paymentIntent.id,
+        amount: `${amount / 100}`,
+        storeId: store.id,
+        legCommission: `${transferAmount / 100}`,
+        firstLevelPartnerCommission: `${Math.round(amount * FIRST_LEVEL_PARTNER_COMMISSION_RATE * VAT) / 100}`,
+        secondLevelPartnerCommission: `${Math.round(amount * SECOND_LEVEL_PARTNER_COMMISSION_RATE * VAT) / 100}`,
+      })
     }
 
     return new NextResponse("Webhook received", { status: 200 });

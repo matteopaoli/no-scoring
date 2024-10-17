@@ -11,12 +11,12 @@ import {
 } from 'react-icons/md';
 
 const routes = [
-  // {
-  //   name: 'Dashboard',
-  //   layout: '/admin',
-  //   path: '/admin',
-  //   icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
-  // },
+  {
+    name: 'Dashboard',
+    layout: '/admin',
+    path: '/admin',
+    icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
+  },
   {
     name: 'Utenti',
     layout: '/admin',

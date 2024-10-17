@@ -1,0 +1,1 @@
+ALTER TABLE "sale" ADD COLUMN "legCommission" numeric(12, 2) NOT NULL;
