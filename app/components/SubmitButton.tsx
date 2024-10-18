@@ -3,7 +3,7 @@
 import { Button, Spinner } from "@chakra-ui/react";
 import { useFormStatus } from "react-dom";
 
-export default function SubmitButton({ children }: { children: string }) {
+export default function SubmitButton({ children, onClick}: { children: string, onClick?: () => any  }) {
   const { pending } = useFormStatus()
   return (
     <Button
@@ -16,6 +16,7 @@ export default function SubmitButton({ children }: { children: string }) {
       h="50"
       mt="24px"
       disabled={pending}
+      onClick={onClick}
     >
       {pending ? <Spinner size="sm" /> : children}
     </Button>

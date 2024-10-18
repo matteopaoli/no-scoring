@@ -1,5 +1,4 @@
 import { Box, Breadcrumb, BreadcrumbItem, BreadcrumbLink, Flex, Link, Text, useColorModeValue } from '@chakra-ui/react';
-import PropTypes from 'prop-types';
 import React, { useState, useEffect } from 'react';
 import AdminNavbarLinks from '@/app/components/navbar/NavbarLinksAdmin';
 import { User } from '@/app/db';
@@ -102,7 +101,7 @@ export default function AdminNavbar({ secondary, message, brandText, routes, onO
 				<Box mb={{ sm: '8px', md: '0px' }}>
 					<Breadcrumb>
 						<BreadcrumbItem color={secondaryText} fontSize='sm' mb='5px'>
-							<BreadcrumbLink href='#' color={secondaryText}>
+							<BreadcrumbLink href='/admin' color={secondaryText}>
 								Home
 							</BreadcrumbLink>
 						</BreadcrumbItem>

@@ -3,6 +3,7 @@ import { UserContextProvider } from "@/app/contexts/UserContext";
 import Client from "./layout.client";
 import { auth } from "@/app/auth";
 import { getUser } from "@/app/db";
+import Callout from "@/app/components/Callout";
 
 export default async function AdminLayout({
   children,
@@ -10,10 +11,11 @@ export default async function AdminLayout({
   children: ReactNode;
 }) {
   const session = await auth();
-  const user = await getUser(session?.user?.email)
+  const user = await getUser(session?.user?.email);
   return (
     <UserContextProvider value={session}>
       <Client user={user}>
+        <Callout autoDismiss={true} dismissDuration={30000} />
         <>{children}</>
       </Client>
     </UserContextProvider>

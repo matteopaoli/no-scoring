@@ -19,11 +19,17 @@ export default function AdminLayout({
 
   const getActiveRoute = (): string => {
     let activeRoute = "Default Brand Text";
+
     for (let i = 0; i < routes.length; i++) {
-      if (pathname.startsWith(routes[i].path)) {
+      // Compare only the base path without considering query parameters or trailing slashes
+      const cleanRoute = routes[i].path.replace(/\/$/, ""); // remove trailing slash
+      const cleanPathname = pathname.split("?")[0].replace(/\/$/, ""); // remove trailing slash and query parameters
+
+      if (cleanPathname === cleanRoute) {
         return routes[i].name;
       }
     }
+
     return activeRoute;
   };
 
@@ -132,7 +138,7 @@ export default function AdminLayout({
               px={{ base: "20px", md: "30px" }}
               pe="20px"
               minH="100vh"
-              pt={{ base: '240px', md: '130px' }}
+              pt={{ base: "240px", md: "130px" }}
             >
               {children}
             </Box>

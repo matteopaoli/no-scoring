@@ -9,6 +9,7 @@ import {
   MdOutlineShoppingCart,
   MdOutlineVerifiedUser,
 } from 'react-icons/md';
+import { FaHandshake } from 'react-icons/fa';
 
 const routes = [
   {
@@ -32,6 +33,12 @@ const routes = [
     secondary: true,
   },
   {
+    name: 'Partner',
+    layout: '/admin',
+    icon: <Icon as={FaHandshake} width="20px" height="20px" color="inherit" />,
+    path: '/admin/partners',
+  },
+  {
     name: 'Categorie clienti',
     layout: '/admin',
     icon: <Icon as={MdBarChart} width="20px" height="20px" color="inherit" />,
@@ -40,6 +47,10 @@ const routes = [
   {
     name: "Modifica Profilo",
     path: "/admin/settings/user",
+  },
+  {
+    name: "Crea Nuovo Partner",
+    path: "/admin/partners/new",
   },
   // {
   //   name: 'Profile',

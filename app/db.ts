@@ -20,7 +20,6 @@ import {
   compressProfileImageToBase64,
 } from "./utils/images";
 import { createGenericProduct } from "./utils/stripe";
-import { sql } from 'drizzle-orm';
 
 let client = postgres(`${process.env.DATABASE_URL!}`);
 let db = drizzle(client);
@@ -46,7 +45,6 @@ export interface User {
   lastName: string | null;
   email: string;
   password: string;
-  emailVerified: Date;
   image: string | null;
   stripeSecretKey: string;
   role: string;
@@ -58,6 +56,7 @@ export interface User {
   genericProductId: string;
   genericProductSmallImage: string;
   genericProductLargeImage: string;
+  provincia: string;
 }
 
 export async function getUser(email?: string | null) {
@@ -175,7 +174,7 @@ export async function updateUser(
   businessTypeId: number,
   businessName: string,
   stripeUserId: string,
-  stripeLegAccountId: string,
+  stripeLegAccountId: string
 ) {
   return await db
     .update(users)
@@ -184,7 +183,7 @@ export async function updateUser(
       businessTypeId,
       businessName,
       stripeUserId,
-      stripeLegAccountId
+      stripeLegAccountId,
     })
     .where(eq(users.email, email));
 }
@@ -597,7 +596,7 @@ export async function createSale({
     storeId,
     legCommission,
     firstLevelPartnerCommission,
-    secondLevelPartnerCommission
+    secondLevelPartnerCommission,
   });
 }
 
@@ -606,20 +605,53 @@ export async function getAllMerchants() {
     .select({
       firstName: users.firstName,
       lastName: users.lastName,
-      productCount: count(products.id).as('productCount'),
+      productCount: count(products.id).as("productCount"),
       createdAt: users.createdAt,
     })
     .from(users)
     .leftJoin(products, eq(products.userId, users.id))
-    .where(eq(users.role, 'user'))
+    .where(eq(users.role, "user"))
     .groupBy(users.id);
 }
 
 export async function getSales(userId: string, userRole: string) {
-  if (userRole === 'admin') {
-    return await db.select().from(sales)
+  if (userRole === "admin") {
+    return await db.select().from(sales);
   }
   // if (userRole === 'partner') {
 
   // }
+}
+
+export async function getPartners() {
+  const { password, role, businessTypeId, ...rest } = getTableColumns(users);
+  return await db
+    .select({ ...rest, businessType: businessType.name })
+    .from(users)
+    .where(eq(users.role, "partner"))
+    .leftJoin(businessType, eq(users.businessTypeId, businessType.id));
+}
+
+export async function createPartner({
+  firstName,
+  lastName,
+  email,
+  provincia,
+}: Record<string, string>) {
+  return await db.insert(users).values({
+    firstName,
+    lastName,
+    email,
+    provincia,
+    role: "partner",
+  });
+}
+
+export async function updatePartner({ firstName, lastName, provincia, id }: Record<string, string>) {
+  return await db.update(users).set({
+    firstName,
+    lastName,
+    provincia,
+    role: "partner",
+  }).where(eq(users.id, id))
 }
