@@ -29,7 +29,7 @@ import { Link } from "@chakra-ui/next-js";
 import { useFormState } from "react-dom";
 import { useDictionary } from "@/app/DictionaryProvider";
 
-const initialState: Record<string, any> = {}
+const initialState: { error?: string } | undefined = {}
 
 export default function SignIn() {
   const t = useDictionary();
@@ -92,7 +92,7 @@ export default function SignIn() {
           me='auto'
           mb={{ base: "20px", md: "auto" }}>
           <form action={action}>
-          <FormControl isInvalid={formState?.error}>
+          <FormControl isInvalid={Boolean(formState?.error)}>
             <FormLabel
               display='flex'
               ms='4px'

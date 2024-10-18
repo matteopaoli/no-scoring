@@ -5,15 +5,24 @@ import { signIn } from "../../auth";
 import { redirect } from "next/navigation";
 
 export default async function login(
-  prevState: Record<string, any>,
+  prevState:
+    | {
+        error?: string;
+      }
+    | undefined,
   formData: FormData
-) {
+): Promise<
+  | {
+      error?: string;
+    }
+  | undefined
+> {
   try {
     await signIn("credentials", {
       email: formData.get("email"),
       password: formData.get("password"),
       redirectTo: "/admin",
-      role: 'admin'
+      role: "admin",
     });
   } catch (error) {
     if (error instanceof AuthError) {

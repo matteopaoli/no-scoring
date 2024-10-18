@@ -18,7 +18,7 @@ interface ProfileImageInputProps {
   name: string; // Name attribute for FormData compatibility
   label: string;
   id: string;
-  fullName: string;
+  fullName?: string;
   image?: string;
 }
 

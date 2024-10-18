@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useContext } from "react";
-import { Center, Heading, Progress, Spinner, VStack } from "@chakra-ui/react";
+import { Center, Flex, Heading, Progress, Spinner, VStack } from "@chakra-ui/react";
 import { checkProfileCompletion } from "../checkProfileCompletion.action";
 import { UserContext } from "@/app/contexts/UserContext";
 import StepIntroduction from "./StepIntroduction";
@@ -27,7 +27,7 @@ const MultiStepForm: React.FC = () => {
     checkCompletion();
   }, [session]);
 
-  if (loading) return <Spinner />;
+  if (loading) return <Flex w="100%" h="100dvh" alignItems="center" justifyContent="center"><Spinner color="brand.500" size="xl" /></Flex>;
 
   return (
     <Center minHeight="100vh">
@@ -46,7 +46,7 @@ const MultiStepForm: React.FC = () => {
           {step === 4 && "Creazione Negozio"}
         </Heading>
 
-        <Progress value={step * 25} width="100%" />
+        <Progress value={step * 25} width="100%" colorScheme="brand" />
 
         {step === 1 && <StepIntroduction onNext={() => setStep(2)} />}
         {step === 2 && (

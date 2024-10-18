@@ -1,38 +1,45 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { Box, Button, FormControl, FormLabel, Input, FormErrorMessage } from '@chakra-ui/react';
-import { useFormState } from 'react-dom';
-import { createStoreAction } from '../createStore.action';
-import { UserContext } from '@/app/contexts/UserContext';
+import React, { useState, useEffect, useContext } from "react";
+import {
+  Box,
+  Button,
+  FormControl,
+  FormLabel,
+  Input,
+  FormErrorMessage,
+} from "@chakra-ui/react";
+import { useFormState } from "react-dom";
+import { createStoreAction } from "../createStore.action";
+import { UserContext } from "@/app/contexts/UserContext";
+import ProfileImageInput from "@/app/components/fields/ProfileImageInput";
+import InputField from "@/app/components/fields/InputField";
+import SubmitButton from "@/app/components/SubmitButton";
+import getFormErrors from "@/app/utils/getFormErrors";
 
 const StepStore: React.FC = () => {
-  const [storeFormState, createStore] = useFormState(createStoreAction, { success: false, issues: [] });
+  const [errors, action] = useFormState(createStoreAction, []);
   const [storeErrors, setStoreErrors] = useState<any[]>([]); // Use a more specific type if available
-  const session = useContext(UserContext)
+  const session = useContext(UserContext);
 
-  useEffect(() => {
-    if (storeFormState) {
-      setStoreErrors(storeFormState?.issues ?? []);
-    }
-  }, [storeFormState]);
-
-  const isFieldInvalid = (field: string) => storeErrors?.some((e) => e.path.includes(field)) ?? false;
+  const isFieldInvalid = (field: string) =>
+    storeErrors?.some((e) => e.path.includes(field)) ?? false;
 
   return (
-    <form action={createStore} method="post">
+    <form action={action} method="post">
       <Box width="full">
-        <FormControl mb={4} isInvalid={isFieldInvalid("storeName")}>
-          <FormLabel>Nome Negozio</FormLabel>
-          <Input name="storeName" placeholder="Inserisci il nome del negozio" />
-          {storeErrors.filter((e) => e.path.includes("storeName")).map((m) => (
-            <FormErrorMessage key={m.path}>{m.message}</FormErrorMessage>
-          ))}
-        </FormControl>
-        <FormControl mb={4}>
-          <FormLabel>Logo Negozio</FormLabel>
-          <Input type="file" name="storeLogo" />
-        </FormControl>
+        <InputField
+          label="Nome Negozio"
+          id="store-name"
+          name="storeName"
+          errors={getFormErrors(errors, "storeName")}
+          placeholder="Inserisci il nome del negozio"
+        />
+        <ProfileImageInput
+          name="storeLogo"
+          label="Immagine Profilo"
+          id="store-logo"
+        />
         <input type="hidden" value={session!.user!.email!} name="email" />
-        <Button type="submit">Crea Negozio</Button>
+        <SubmitButton>Crea Negozio</SubmitButton>
       </Box>
     </form>
   );

@@ -296,13 +296,11 @@ export async function updateProfile({
 export async function createStore({
   storeName,
   storeLogo,
-  email,
+  userId,
 }: {
   storeName: string;
-  storeLogo: Blob | null;
-  email: string;
-  userId: number;
-  role: string;
+  storeLogo: Blob | undefined;
+  userId: string;
 }) {
   let logoData: string | null = null;
   if (storeLogo) {
@@ -317,8 +315,6 @@ export async function createStore({
     .returning();
 
   const storeId = newStore[0]?.id;
-  const { id: userId } = await getUser(email);
-
   if (storeId) {
     await db.insert(userStoreRoles).values({
       userId,
