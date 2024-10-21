@@ -1,5 +1,5 @@
 import { drizzle } from "drizzle-orm/postgres-js";
-import { and, count, eq, getTableColumns } from "drizzle-orm";
+import { and, count, eq, getTableColumns, like, or } from "drizzle-orm";
 import postgres from "postgres";
 import { genSaltSync, hashSync } from "bcrypt-ts";
 import {
@@ -90,8 +90,8 @@ export async function getWebhookSecret(id: string) {
 export const getDefaultPassword = () => {
   const salt = genSaltSync(10);
   const hash = hashSync("PayTomorrow!2024", salt);
-  return hash
-}
+  return hash;
+};
 
 export async function createUser(
   email: string,
@@ -102,7 +102,7 @@ export async function createUser(
   stripeLegAccountId: string
 ) {
   const WEBHOOK_URL = `https://app.paytomorrow.it/api/stripe/webhook?merchantId=${stripeUserId}`;
-  const hash = getDefaultPassword()
+  const hash = getDefaultPassword();
 
   const stripe = new Stripe(stripeSecretKey);
 
@@ -639,14 +639,14 @@ export async function createPartner({
   email,
   provincia,
 }: Record<string, string>) {
-  const hash = getDefaultPassword()
+  const hash = getDefaultPassword();
   return await db.insert(users).values({
     firstName,
     lastName,
     email,
     provincia,
     role: "partner",
-    password: hash
+    password: hash,
   });
 }
 
@@ -655,9 +655,9 @@ export async function createSubPartner({
   lastName,
   email,
   provincia,
-  partnerId
+  partnerId,
 }: Record<string, string>) {
-  const hash = getDefaultPassword()
+  const hash = getDefaultPassword();
   return await db.insert(users).values({
     firstName,
     lastName,
@@ -665,24 +665,51 @@ export async function createSubPartner({
     provincia,
     role: "subpartner",
     password: hash,
-    partnerId
+    partnerId,
   });
 }
 
-export async function updatePartner({ firstName, lastName, provincia, id }: Record<string, string>) {
-  return await db.update(users).set({
-    firstName,
-    lastName,
-    provincia,
-    role: "partner",
-  }).where(eq(users.id, id))
+export async function updatePartner({
+  firstName,
+  lastName,
+  provincia,
+  id,
+}: Record<string, string>) {
+  return await db
+    .update(users)
+    .set({
+      firstName,
+      lastName,
+      provincia,
+      role: "partner",
+    })
+    .where(eq(users.id, id));
 }
 
 export async function getSubPartnersByUserId(userId: string) {
-  return await db.select({
-    firstName: users.firstName,
-    lastName: users.lastName,
-    provincia: users.provincia,
-    email: users.email
-  }).from(users).where(and(eq(users.partnerId, userId), eq(users.role, 'subpartner')))
+  return await db
+    .select({
+      firstName: users.firstName,
+      lastName: users.lastName,
+      provincia: users.provincia,
+      email: users.email,
+    })
+    .from(users)
+    .where(and(eq(users.partnerId, userId), eq(users.role, "subpartner")));
+}
+
+export async function searchPartner(query: string) {
+  return await db
+    .select({ id: users.id, firstName: users.firstName, lastName: users.lastName, email: users.email, role: users.role })
+    .from(users)
+    .where(
+      and(
+        or(
+          like(users.firstName, `%${query}%`),
+          like(users.lastName, `%${query}%`),
+          like(users.email, `%${query}%`)
+        ),
+        or(eq(users.role, 'partner'), eq(users.role, 'subpartner'))
+      )
+    );
 }

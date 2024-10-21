@@ -68,7 +68,7 @@ export default function HeaderLinks({
       borderRadius="30px"
       boxShadow={shadow}
     >
-      {/* <SearchBar
+      <SearchBar
         mb={() => {
           if (secondary) {
             return { base: '10px', md: 'unset' };
@@ -77,7 +77,8 @@ export default function HeaderLinks({
         }}
         me="10px"
         borderRadius="30px"
-      /> */}
+        apiPath="/api/admin/search"
+      />
       <SidebarResponsive routes={routes} />
       <Menu>
         <MenuList

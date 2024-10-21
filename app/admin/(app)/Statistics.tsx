@@ -14,7 +14,7 @@ import RevenueBadge from "./statistics-badges/RevenueBadge";
 
 export default async function Statistics({
   merchants,
-  sales,
+  revenue
 }: {
   merchants: {
     firstName: string | null;
@@ -22,16 +22,7 @@ export default async function Statistics({
     productCount: number;
     createdAt: Date | null;
   }[];
-  sales: {
-    id: string;
-    createdAt: Date | null;
-    storeId: string;
-    amount: string;
-    stripePaymentIntentId: string;
-    legCommission: string;
-    firstLevelPartnerCommission: string;
-    secondLevelPartnerCommission: string;
-  }[];
+  revenue: number,
 }) {
   const totalProducts = merchants.reduce((acc, v) => acc + v.productCount, 0);
   const totalUsers = merchants.length;
@@ -47,7 +38,7 @@ export default async function Statistics({
         <TotalUsersBadge value={totalUsers} />
         <TotalProductsBadge value={totalProducts} />
         <UsersInLastThirtyDaysBadge value={usersInLast30Days} />
-        <RevenueBadge value={1243.54} />
+        <RevenueBadge value={revenue} />
       </SimpleGrid>
     </Box>
   );
