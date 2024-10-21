@@ -70,7 +70,7 @@ export default function SignIn() {
         flexDirection='column'>
         <Box me='auto'>
           <Heading color={textColor} fontSize='36px' mb='10px'>
-            {t('signIn')} (Admin)
+            {t('signIn')} (Partner)
           </Heading>
           <Text
             mb='36px'

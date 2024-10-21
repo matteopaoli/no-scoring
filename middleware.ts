@@ -23,9 +23,17 @@ export default auth((req) => {
   const isAdminReservedPage = /^\/admin(?!\/login).*/.test(
     req.nextUrl.pathname
   );
+  const isPartnerReservedPage = /^\/partner(?!\/login).*/.test(
+    req.nextUrl.pathname
+  );
+
+  console.log('isAppReservedPage', isAppReservedPage)
+  console.log('isAdminReservedPage', isAdminReservedPage)
+  console.log('isPartnerReservedPage', isPartnerReservedPage)
+
 
   // Determine if it's a reserved page
-  const isReservedPage = isAppReservedPage || isAdminReservedPage;
+  const isReservedPage = isAppReservedPage || isAdminReservedPage || isPartnerReservedPage;
 
   if (!isReservedPage) {
     return NextResponse.next()
@@ -33,9 +41,11 @@ export default auth((req) => {
 
   // If the page is reserved and the user is not authenticated, redirect to login
   if (isReservedPage && !req.auth) {
-    req.nextUrl.pathname = isAppReservedPage ? "/login" : "/admin/login";
+    req.nextUrl.pathname = isAppReservedPage ? "/login" : isAdminReservedPage ? "/admin/login" : '/partner/login';
     return NextResponse.redirect(req.nextUrl);
   }
+
+  console.log(req.auth)
 
   // If the page is reserved and the user is authenticated, check user role
   if (isReservedPage && req.auth) {
@@ -49,8 +59,12 @@ export default auth((req) => {
       req.nextUrl.pathname = "/admin/login"; // Admin with wrong role trying to access admin page
       return NextResponse.redirect(req.nextUrl);
     }
+
+    if (isPartnerReservedPage && !(['partner', 'subpartner'].includes(req.auth?.user?.role))) {
+      req.nextUrl.pathname = "/partner/login"; // Admin with wrong role trying to access admin page
+      return NextResponse.redirect(req.nextUrl);
+    }
   }
-  
   // Allow the request to continue if it's not a reserved page or valid access
   return NextResponse.next();
 

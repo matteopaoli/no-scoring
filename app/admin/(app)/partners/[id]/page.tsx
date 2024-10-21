@@ -26,7 +26,7 @@ export default async function UsersPage({
         </Text>
         <EditButton userId={params.id} />
       </Flex>
-      <Statistics partner={partner} />
+      <Statistics partner={partner} subpartners={subpartners.length} />
       <SubPartnersTable tableData={subpartners} />
     </Box>
   );

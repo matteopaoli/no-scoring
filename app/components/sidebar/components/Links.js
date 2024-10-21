@@ -21,12 +21,10 @@ export function SidebarLinks(props) {
 
   const { routes } = props;
 
-  // verifies if routeName is the one active (in browser input)
-  const activeRoute = (routeName) => {
-    return pathname.endsWith(routeName);
+  const activeRoute = (routeMatch) => {
+    return routeMatch ? new RegExp(routeMatch).test(pathname) : false;
   };
 
-  // this function creates the links from the secondary accordions (for example auth -> sign-in -> default)
   const createLinks = (routes) => {
     return routes.map((route, index) => {
       if (route.category) {
@@ -54,20 +52,21 @@ export function SidebarLinks(props) {
         route.layout === "/auth" ||
         route.layout === "/rtl"
       ) {
+        const isActive = activeRoute(route.match)
         return (
           <Link key={index} href={route.path}>
             {route.icon ? (
               <Box>
                 <HStack
                   spacing={
-                    activeRoute(route.path.toLowerCase()) ? "22px" : "26px"
+                    isActive ? "22px" : "26px"
                   }
                   py='5px'
                   ps='10px'>
                   <Flex w='100%' alignItems='center' justifyContent='center'>
                     <Box
                       color={
-                        activeRoute(route.path.toLowerCase())
+                        isActive
                           ? activeIcon
                           : textColor
                       }
@@ -77,12 +76,12 @@ export function SidebarLinks(props) {
                     <Text
                       me='auto'
                       color={
-                        activeRoute(route.path.toLowerCase())
+                        isActive
                           ? activeColor
                           : textColor
                       }
                       fontWeight={
-                        activeRoute(route.path.toLowerCase())
+                        isActive
                           ? "bold"
                           : "normal"
                       }>
@@ -93,7 +92,7 @@ export function SidebarLinks(props) {
                     h='36px'
                     w='4px'
                     bg={
-                      activeRoute(route.path.toLowerCase())
+                      isActive
                         ? brandColor
                         : "transparent"
                     }
@@ -105,19 +104,19 @@ export function SidebarLinks(props) {
               <Box>
                 <HStack
                   spacing={
-                    activeRoute(route.path.toLowerCase()) ? "22px" : "26px"
+                    isActive ? "22px" : "26px"
                   }
                   py='5px'
                   ps='10px'>
                   <Text
                     me='auto'
                     color={
-                      activeRoute(route.path.toLowerCase())
+                      isActive
                         ? activeColor
                         : inactiveColor
                     }
                     fontWeight={
-                      activeRoute(route.path.toLowerCase()) ? "bold" : "normal"
+                      isActive ? "bold" : "normal"
                     }>
                     {route.name}
                   </Text>

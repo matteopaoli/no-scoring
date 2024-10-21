@@ -12,7 +12,7 @@ export default async function login(
       email: formData.get("email"),
       password: formData.get("password"),
       redirectTo: "/app",
-      role: 'user'
+      roles: ['user']
     });
   } catch (error) {
     if (error instanceof AuthError) {

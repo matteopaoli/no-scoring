@@ -87,6 +87,12 @@ export async function getWebhookSecret(id: string) {
   )?.[0];
 }
 
+export const getDefaultPassword = () => {
+  const salt = genSaltSync(10);
+  const hash = hashSync("PayTomorrow!2024", salt);
+  return hash
+}
+
 export async function createUser(
   email: string,
   stripeSecretKey: string,
@@ -96,8 +102,7 @@ export async function createUser(
   stripeLegAccountId: string
 ) {
   const WEBHOOK_URL = `https://app.paytomorrow.it/api/stripe/webhook?merchantId=${stripeUserId}`;
-  const salt = genSaltSync(10);
-  const hash = hashSync("PayTomorrow!2024", salt);
+  const hash = getDefaultPassword()
 
   const stripe = new Stripe(stripeSecretKey);
 
@@ -634,12 +639,33 @@ export async function createPartner({
   email,
   provincia,
 }: Record<string, string>) {
+  const hash = getDefaultPassword()
   return await db.insert(users).values({
     firstName,
     lastName,
     email,
     provincia,
     role: "partner",
+    password: hash
+  });
+}
+
+export async function createSubPartner({
+  firstName,
+  lastName,
+  email,
+  provincia,
+  partnerId
+}: Record<string, string>) {
+  const hash = getDefaultPassword()
+  return await db.insert(users).values({
+    firstName,
+    lastName,
+    email,
+    provincia,
+    role: "subpartner",
+    password: hash,
+    partnerId
   });
 }
 

@@ -21,8 +21,8 @@ export default async function login(
     await signIn("credentials", {
       email: formData.get("email"),
       password: formData.get("password"),
-      redirectTo: "/admin",
-      roles: ["admin"],
+      redirectTo: "/partner",
+      roles: ["partner", 'subpartner'],
     });
   } catch (error) {
     if (error instanceof AuthError) {

@@ -12,7 +12,6 @@ export default async function AdminLayout({
 }) {
   const session = await auth();
   const user = await getUser(session?.user?.email);
-  console.log(user)
   return (
     <UserContextProvider value={session}>
       <Client user={user}>
