@@ -1,5 +1,5 @@
 import { drizzle } from "drizzle-orm/postgres-js";
-import { count, eq, getTableColumns } from "drizzle-orm";
+import { and, count, eq, getTableColumns } from "drizzle-orm";
 import postgres from "postgres";
 import { genSaltSync, hashSync } from "bcrypt-ts";
 import {
@@ -650,4 +650,13 @@ export async function updatePartner({ firstName, lastName, provincia, id }: Reco
     provincia,
     role: "partner",
   }).where(eq(users.id, id))
+}
+
+export async function getSubPartnersByUserId(userId: string) {
+  return await db.select({
+    firstName: users.firstName,
+    lastName: users.lastName,
+    provincia: users.provincia,
+    email: users.email
+  }).from(users).where(and(eq(users.partnerId, userId), eq(users.role, 'subpartner')))
 }

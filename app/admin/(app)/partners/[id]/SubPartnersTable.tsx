@@ -27,23 +27,32 @@ import {
   flexRender,
   getCoreRowModel,
   getSortedRowModel,
+  Row,
   useReactTable,
 } from "@tanstack/react-table";
 import { MdOutlineEdit, MdDeleteOutline } from "react-icons/md";
 import Card from "@/app/components/card/Card";
-import Menu from "./PartnersTableMenu";
 import { useMemo, useState } from "react";
-import { User } from "@/app/db";
 import { Link } from "@chakra-ui/next-js";
 import { useRouter } from "next/navigation";
 
-type PartnersTableProps = {
-  tableData: Omit<User, "password" | "role" | "businessTypeId">[];
+type SubPartnersTableProps = {
+  tableData: {
+    firstName: string | null;
+    lastName: string | null;
+    provincia: string | null;
+    email: string | null;
+  }[];
 };
 
-const columnHelper = createColumnHelper();
+const columnHelper = createColumnHelper<{
+  firstName: string | null;
+  lastName: string | null;
+  provincia: string | null;
+  email: string | null;
+}>();
 
-export default function PartnersTable({ tableData }: PartnersTableProps) {
+export default function SubPartnersTable({ tableData }: SubPartnersTableProps) {
   const [sorting, setSorting] = useState([]);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -56,16 +65,6 @@ export default function PartnersTable({ tableData }: PartnersTableProps) {
     if (!selectedUserId) return;
     try {
       return true;
-      //   const response = await fetch(`/api/users/${selectedUserId}`, {
-      //     method: "DELETE",
-      //   });
-
-      //   if (response.ok) {
-      //     // Handle successful deletion (e.g., refetch data or update state)
-      //     console.log("User deleted successfully");
-      //   } else {
-      //     console.error("Failed to delete the user");
-      //   }
     } catch (error) {
       console.error("Error deleting user:", error);
     } finally {
@@ -77,19 +76,30 @@ export default function PartnersTable({ tableData }: PartnersTableProps) {
 
   const columns = useMemo(
     () => [
-      columnHelper.accessor("name", {
+      columnHelper.accessor((row) => `${row.firstName ?? ""} ${row.lastName ?? ""}`, {
         id: "name",
         header: () => (
           <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
-            Nome
+            Nome e Cognome
           </Text>
         ),
         cell: (info) => (
-          <Flex align="center">
-            <Text color={textColor} fontSize="sm" fontWeight="700">
-              {`${info.row.original.firstName} ${info.row.original.lastName}`}
-            </Text>
-          </Flex>
+          <Text color={textColor} fontSize="sm" fontWeight="700">
+            {info.getValue()}
+          </Text>
+        ),
+      }),
+      columnHelper.accessor("provincia", {
+        id: "provincia",
+        header: () => (
+          <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
+            Provincia
+          </Text>
+        ),
+        cell: (info) => (
+          <Text color={textColor} fontSize="sm" fontWeight="700">
+            {info.row.original.provincia || "-"}
+          </Text>
         ),
       }),
       columnHelper.accessor("email", {
@@ -100,15 +110,13 @@ export default function PartnersTable({ tableData }: PartnersTableProps) {
           </Text>
         ),
         cell: (info) => (
-          <Flex align="center">
-            <Text color={textColor} fontSize="sm" fontWeight="700">
-              {info.getValue()}
-            </Text>
-          </Flex>
+          <Text color={textColor} fontSize="sm" fontWeight="700">
+            {info.getValue()}
+          </Text>
         ),
       }),
     ],
-    [textColor, onOpen]
+    [textColor]
   );
 
   const [data] = useState(() => [...tableData]);
@@ -124,8 +132,8 @@ export default function PartnersTable({ tableData }: PartnersTableProps) {
     debugTable: true,
   });
 
-  const onRowClick = (row: Row<Stripe.Product>) => {
-    router.push(`/admin/partners/${row.original.id}`);
+  const onRowClick = (row: Row<{ firstName: string | null; lastName: string | null; provincia: string | null; email: string | null }>) => {
+    router.push(`/admin/partners/${row.original.email}`);
   };
 
   return (
@@ -134,6 +142,7 @@ export default function PartnersTable({ tableData }: PartnersTableProps) {
       w="100%"
       px="0px"
       overflowX={{ sm: "scroll", lg: "hidden" }}
+      mt="20px"
     >
       <Flex px="25px" mb="8px" justifyContent="space-between" align="center">
         <Text
@@ -142,9 +151,8 @@ export default function PartnersTable({ tableData }: PartnersTableProps) {
           fontWeight="700"
           lineHeight="100%"
         >
-          Lista Partner
+          Lista Sub-Partner
         </Text>
-        <Menu />
       </Flex>
       <Box>
         <Table variant="simple" color="gray.500" mb="24px" mt="12px">

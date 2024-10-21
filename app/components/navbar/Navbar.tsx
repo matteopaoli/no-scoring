@@ -105,7 +105,9 @@ export default function Navbar({ secondary, message, brandText, routes, onOpen, 
 								Home
 							</BreadcrumbLink>
 						</BreadcrumbItem>
-
+						{
+							
+						}
 						<BreadcrumbItem color={secondaryText} fontSize='sm' mb='5px'>
 							<BreadcrumbLink href='#' color={secondaryText}>
 								{brandText}

@@ -33,66 +33,6 @@ export default function AdminLayout({
     return activeRoute;
   };
 
-  // const getActiveNavbar = (routes) => {
-  //   let activeNavbar = false;
-  //   for (let i = 0; i < routes.length; i++) {
-  //     if (routes[i].collapse) {
-  //       let collapseActiveNavbar = getActiveNavbar(routes[i].items);
-  //       if (collapseActiveNavbar !== activeNavbar) {
-  //         return collapseActiveNavbar;
-  //       }
-  //     } else if (routes[i].category) {
-  //       let categoryActiveNavbar = getActiveNavbar(routes[i].items);
-  //       if (categoryActiveNavbar !== activeNavbar) {
-  //         return categoryActiveNavbar;
-  //       }
-  //     } else {
-  //       if (
-  //         window.location.href.indexOf(routes[i].layout + routes[i].path) !== -1
-  //       ) {
-  //         return routes[i].secondary;
-  //       }
-  //     }
-  //   }
-  //   return activeNavbar;
-  // };
-  // const getActiveNavbarText = (routes) => {
-  //   let activeNavbar = false;
-  //   for (let i = 0; i < routes.length; i++) {
-  //     if (routes[i].collapse) {
-  //       let collapseActiveNavbar = getActiveNavbarText(routes[i].items);
-  //       if (collapseActiveNavbar !== activeNavbar) {
-  //         return collapseActiveNavbar;
-  //       }
-  //     } else if (routes[i].category) {
-  //       let categoryActiveNavbar = getActiveNavbarText(routes[i].items);
-  //       if (categoryActiveNavbar !== activeNavbar) {
-  //         return categoryActiveNavbar;
-  //       }
-  //     } else {
-  //       if (
-  //         window.location.href.indexOf(routes[i].layout + routes[i].path) !== -1
-  //       ) {
-  //         return routes[i].messageNavbar;
-  //       }
-  //     }
-  //   }
-  //   return activeNavbar;
-  // };
-  // const getRoutes = (routes) => {
-  //   return routes.map((route, key) => {
-  //     if (route.layout === '/admin') {
-  //       return (
-  //         <Route path={`${route.path}`} element={route.component} key={key} />
-  //       );
-  //     }
-  //     if (route.collapse) {
-  //       return getRoutes(route.items);
-  //     } else {
-  //       return null;
-  //     }
-  //   });
-  // };
   const { onOpen } = useDisclosure();
   return (
     <Box>
@@ -128,7 +68,7 @@ export default function AdminLayout({
                   // message={""}
                   fixed={false}
                   routes={routes}
-                  user={user}
+                  user={user} 
                   {...rest}
                 />
               </Box>

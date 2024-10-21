@@ -39,7 +39,8 @@ export const users = pgTable("user", {
   genericProductLargeImage: text('genericProductLargeImage'),
   tosAccepted: boolean("tosAccepted").notNull().default(false),
   tosAcceptedAt: timestamp("tosAcceptedAt", { mode: "date" }),
-  provincia: text('provincia')
+  provincia: text('provincia'),
+  partnerId: text('partnerId').references(() => users.id)
 })
 
 export const webhookSecrets = pgTable("webhookSecret", {
