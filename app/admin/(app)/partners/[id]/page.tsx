@@ -17,7 +17,7 @@ export default async function UsersPage({
   }
 
   const subpartners = await getSubPartnersByUserId(partner.id);
-  const { firstLevelCommission, secondLevelCommission, totalCommission } = await getAllPartnerFees(partner.id)
+  const { totalCommission } = await getAllPartnerFees(partner.id)
 
   return (
     <Box px="20px">

@@ -1,24 +1,15 @@
 "use client";
 
 import {
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  Image,
-  Text,
-  TableContainer,
+  Box,
+  Card,
+  Flex,
   Heading,
+  Text,
   useColorModeValue,
 } from "@chakra-ui/react";
-import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
+import { ColumnDef } from "@tanstack/react-table";
+import GenericTable from "@/app/components/GenericTable"; // Adjust the import path if needed
 
 interface Store {
   storeId: string;
@@ -26,6 +17,7 @@ interface Store {
   storeImage: string | null;
   createdAt: Date | null;
   totalCommission: number;
+  totalVolume: number;
 }
 
 interface StoresTableProps {
@@ -33,78 +25,38 @@ interface StoresTableProps {
 }
 
 export default function StoresTable({ stores }: StoresTableProps) {
-  let mainText = useColorModeValue('navy.700', 'white');
+  const mainText = useColorModeValue("navy.700", "white");
+  const textColor = useColorModeValue("black", "white");
 
   const storeColumns: ColumnDef<Store>[] = [
     {
       accessorKey: "storeName",
-      header: () => <Text fontSize="md" fontWeight="bold">Name</Text>,
-      cell: (info) => (
-        <Text fontSize="md" color={mainText}>
-          {info.getValue()}
-        </Text>
-      ),
+      header: 'Nome',
+      cell: (info) => info.getValue(),
     },
     {
       accessorKey: "totalCommission",
-      header: () => <Text fontSize="md" fontWeight="bold">Commissione</Text>,
-      cell: (info) => (
-        <Text fontSize="md" color={mainText}>
-          € {Number(info.getValue()).toFixed(2)}
-        </Text>
-      ),
+      header: 'Commissione',
+      cell: (info) => `€ ${Number(info.getValue()).toFixed(2)}`
+    },
+    {
+      accessorKey: "totalVolume",
+      header: 'Volume',
+      cell: (info) => `€ ${Number(info.getValue()).toFixed(2)}`
     },
     {
       accessorKey: "createdAt",
-      header: () => <Text fontSize="md" fontWeight="bold">Data Creazione</Text>,
-      cell: (info) => (
-        <Text fontSize="md" color={mainText}>
-          {new Date(info.getValue() as string).toLocaleDateString('it-IT')}
-        </Text>
-      ),
+      header: 'Data Creazione',
+      cell: (info) => new Date(info.getValue() as string).toLocaleDateString("it-IT", { dateStyle: "long",})
     },
   ];
 
-  const table = useReactTable({
-    data: stores,
-    columns: storeColumns,
-    getCoreRowModel: getCoreRowModel(),
-  });
-
   return (
-    <>
-      <Heading as="h3" size="lg" color={mainText} py="20px" pl={{ md: '20px'}}>
-        Negozi
-      </Heading>
-      <TableContainer>
-        <Table variant="striped">
-          <Thead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <Tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <Th key={header.id}>
-                    {flexRender(
-                      header.column.columnDef.header,
-                      header.getContext()
-                    )}
-                  </Th>
-                ))}
-              </Tr>
-            ))}
-          </Thead>
-          <Tbody>
-            {table.getRowModel().rows.map((row) => (
-              <Tr key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <Td key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </Td>
-                ))}
-              </Tr>
-            ))}
-          </Tbody>
-        </Table>
-      </TableContainer>
-    </>
+    <GenericTable
+      data={stores}
+      columns={storeColumns}
+      title="Negozi"
+      itemsPerPage={10} // Customize the number of items per page if needed
+    />
   );
 }

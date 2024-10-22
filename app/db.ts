@@ -866,14 +866,16 @@ export async function getAllStoresWithLegCommission() {
       storeImage: stores.image,
       createdAt: stores.createdAt,
       totalCommission: sql`COALESCE(SUM(CAST(${sales.legCommission} AS numeric)), 0)`,
+      totalVolume: sql`COALESCE(SUM(CAST(${sales.amount} AS numeric)), 0)` // New sum for amount
     })
     .from(stores)
     .leftJoin(sales, eq(stores.id, sales.storeId))
     .groupBy(stores.id) as {
-    storeId: string;
-    storeName: string;
-    storeImage: string | null;
-    createdAt: Date | null;
-    totalCommission: number;
-  }[];
+      storeId: string;
+      storeName: string;
+      storeImage: string | null;
+      createdAt: Date | null;
+      totalCommission: number;
+      totalVolume: number; // Added totalAmount type
+    }[];
 }

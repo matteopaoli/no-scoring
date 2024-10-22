@@ -1,19 +1,8 @@
 "use client";
-/* eslint-disable */
-
 import {
   Box,
   Button,
   Flex,
-  Icon,
-  Table,
-  Tbody,
-  Td,
-  Text,
-  Th,
-  Thead,
-  Tr,
-  useColorModeValue,
   useDisclosure,
   Modal,
   ModalOverlay,
@@ -21,186 +10,75 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
+  Text,
+  useColorModeValue,
 } from "@chakra-ui/react";
-import {
-  createColumnHelper,
-  flexRender,
-  getCoreRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import { MdOutlineEdit, MdDeleteOutline } from "react-icons/md";
-import Card from "@/app/components/card/Card";
-import Menu from "./PartnersTableMenu";
-import { useMemo, useState } from "react";
+import { createColumnHelper } from "@tanstack/react-table";
+import GenericTable from "@/app/components/GenericTable"; // Import the GenericTable component
 import { User } from "@/app/db";
-import { Link } from "@chakra-ui/next-js";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 type PartnersTableProps = {
   tableData: Omit<User, "password" | "role" | "businessTypeId">[];
 };
 
-const columnHelper = createColumnHelper();
+const columnHelper = createColumnHelper<Omit<User, "password" | "role" | "businessTypeId">>();
 
 export default function PartnersTable({ tableData }: PartnersTableProps) {
-  const [sorting, setSorting] = useState([]);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const router = useRouter();
 
-  const textColor = useColorModeValue("secondaryGray.900", "white");
-  const borderColor = useColorModeValue("gray.200", "whiteAlpha.100");
+  const columns = useMemo(
+    () => [
+      columnHelper.accessor("firstName", {
+        id: "name",
+        header: () => "Nome",
+        cell: (info) => `${info.row.original.firstName} ${info.row.original.lastName}`,
+      }),
+      columnHelper.accessor("email", {
+        id: "email",
+        header: () => "E-mail",
+        cell: (info) => info.getValue(),
+      }),
+    ],
+    []
+  );
 
   const handleDelete = async () => {
     if (!selectedUserId) return;
     try {
-      return true;
-      //   const response = await fetch(`/api/users/${selectedUserId}`, {
-      //     method: "DELETE",
-      //   });
-
-      //   if (response.ok) {
-      //     // Handle successful deletion (e.g., refetch data or update state)
-      //     console.log("User deleted successfully");
-      //   } else {
-      //     console.error("Failed to delete the user");
-      //   }
+      // Uncomment and modify this fetch call according to your API
+      // const response = await fetch(`/api/users/${selectedUserId}`, {
+      //   method: "DELETE",
+      // });
+      // if (response.ok) {
+      //   // Handle successful deletion (e.g., refetch data or update state)
+      //   console.log("User deleted successfully");
+      // }
     } catch (error) {
       console.error("Error deleting user:", error);
     } finally {
       setSelectedUserId(null);
       onClose();
-      window.location.reload();
+      window.location.reload(); // Consider using state management or re-fetching instead
     }
   };
 
-  const columns = useMemo(
-    () => [
-      columnHelper.accessor("name", {
-        id: "name",
-        header: () => (
-          <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
-            Nome
-          </Text>
-        ),
-        cell: (info) => (
-          <Flex align="center">
-            <Text color={textColor} fontSize="sm" fontWeight="700">
-              {`${info.row.original.firstName} ${info.row.original.lastName}`}
-            </Text>
-          </Flex>
-        ),
-      }),
-      columnHelper.accessor("email", {
-        id: "email",
-        header: () => (
-          <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
-            E-mail
-          </Text>
-        ),
-        cell: (info) => (
-          <Flex align="center">
-            <Text color={textColor} fontSize="sm" fontWeight="700">
-              {info.getValue()}
-            </Text>
-          </Flex>
-        ),
-      }),
-    ],
-    [textColor, onOpen]
-  );
-
-  const [data] = useState(() => [...tableData]);
-  const table = useReactTable({
-    data,
-    columns,
-    state: {
-      sorting,
-    },
-    onSortingChange: setSorting,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    debugTable: true,
-  });
-
-  const onRowClick = (row: Row<Stripe.Product>) => {
-    router.push(`/admin/partners/${row.original.id}`);
+  const onRowClick = (row: any) => {
+    router.push(`/admin/partners/${row.id}`);
   };
 
   return (
-    <Card
-      flexDirection="column"
-      w="100%"
-      px="0px"
-      overflowX={{ sm: "scroll", lg: "hidden" }}
-    >
-      <Flex px="25px" mb="8px" justifyContent="space-between" align="center">
-        <Text
-          color={textColor}
-          fontSize="22px"
-          fontWeight="700"
-          lineHeight="100%"
-        >
-          Lista Partner
-        </Text>
-        <Menu />
-      </Flex>
-      <Box>
-        <Table variant="simple" color="gray.500" mb="24px" mt="12px">
-          <Thead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <Tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <Th
-                    key={header.id}
-                    colSpan={header.colSpan}
-                    pe="10px"
-                    borderColor={borderColor}
-                  >
-                    <Flex align="center">
-                      {flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                    </Flex>
-                  </Th>
-                ))}
-              </Tr>
-            ))}
-          </Thead>
-          <Tbody>
-            {table
-              .getRowModel()
-              .rows.slice(0, 11)
-              .map((row) => (
-                <Tr
-                  key={row.id}
-                  onClick={() => onRowClick(row)}
-                  style={{
-                    cursor: "pointer",
-                    transition: "background-color 0.2s",
-                  }}
-                  _hover={{ backgroundColor: "gray.100" }} // Add hover effect
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <Td
-                      key={cell.id}
-                      fontSize={{ sm: "14px" }}
-                      minW={{ sm: "150px", md: "200px" }}
-                      borderColor="transparent"
-                    >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </Td>
-                  ))}
-                </Tr>
-              ))}
-          </Tbody>
-        </Table>
-      </Box>
+    <Box>
+      <GenericTable
+        data={tableData}
+        columns={columns}
+        itemsPerPage={10}
+        title="Lista Partner"
+        onRowClick={onRowClick} // Pass the row click handler to GenericTable
+      />
 
       {/* Confirmation Modal */}
       <Modal isOpen={isOpen} onClose={onClose}>
@@ -218,6 +96,6 @@ export default function PartnersTable({ tableData }: PartnersTableProps) {
           </ModalFooter>
         </ModalContent>
       </Modal>
-    </Card>
+    </Box>
   );
 }

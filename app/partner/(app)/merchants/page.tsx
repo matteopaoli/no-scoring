@@ -16,9 +16,7 @@ export default async function MerchantsPage() {
     <>
       <Statistics data={{ firstLevelCommission, secondLevelCommission, totalCommission }}/>
       <SimpleGrid columns={{ base: 1, '2xl': 2 }}>
-      <Box>
         <StoresTable stores={stores} />
-      </Box>
       <Box>
         <InactiveMerchantsTable merchants={inactiveMerchants} />
       </Box>

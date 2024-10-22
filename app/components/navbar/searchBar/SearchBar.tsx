@@ -109,7 +109,7 @@ export function SearchBar({
       {/* Results List */}
       {loading && <Spinner size="sm" position="absolute" top="100%" left="50%" transform="translateX(-50%)" />}
       {results !== null && (
-        <List p="20px" position="relative" right="0" spacing={2} mt={2} bg="white" borderRadius="md" boxShadow="md" maxHeight="600px" overflowY="auto" zIndex="10" w={{ base: '100%', md: '600px' }}>
+        <List p="20px" position="absolute" right="0" spacing={2} mt={2} bg="white" borderRadius="md" boxShadow="md" maxHeight="600px" overflowY="auto" zIndex="10" w={{ base: '100%', md: '600px' }}>
           { results?.partners.length && (
             <>
               <Text fontWeight="bold">Partner</Text>
