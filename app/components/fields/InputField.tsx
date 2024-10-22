@@ -1,7 +1,6 @@
 // Chakra imports
 import {
   Flex,
-  FormLabel,
   Input,
   Text,
   useColorModeValue,
@@ -10,6 +9,7 @@ import {
 } from "@chakra-ui/react";
 // Custom components
 import React from "react";
+import FormLabel from "./FormLabel";
 
 interface DefaultProps {
   id: string;
@@ -44,22 +44,7 @@ const InputField: React.FC<DefaultProps> = (props) => {
 
   return (
     <FormControl isInvalid={errors.length > 0} mb={mb || "30px"}>
-      <FormLabel
-        display="flex"
-        ms="10px"
-        htmlFor={id}
-        fontSize="sm"
-        color={textColorPrimary}
-        fontWeight="bold"
-        _hover={{ cursor: "pointer" }}
-      >
-        {label}
-        {extra && (
-          <Text fontSize="sm" fontWeight="400" ms="2px">
-            {extra}
-          </Text>
-        )}
-      </FormLabel>
+      <FormLabel extra={extra} id={id}>{label}</FormLabel>
       <Input
         {...rest}
         type={type}

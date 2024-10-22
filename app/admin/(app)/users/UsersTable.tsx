@@ -68,7 +68,7 @@ export default function UsersTable({ tableData }: UsersTableProps) {
     } finally {
       setSelectedUserId(null);
       onClose();
-      window.location.reload()
+      window.location.reload();
     }
   };
 
@@ -117,6 +117,19 @@ export default function UsersTable({ tableData }: UsersTableProps) {
           </Text>
         ),
       }),
+      columnHelper.accessor("partnerName", {
+        id: "partnerName",
+        header: () => (
+          <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
+            Partner
+          </Text>
+        ),
+        cell: async (info) => (
+          <Text color={textColor} fontSize="sm" fontWeight="700">
+            {(info.getValue() as string).trim() ? info.getValue() : "—"}
+          </Text>
+        ),
+      }),
       columnHelper.accessor("id", {
         id: "id",
         header: () => (
@@ -127,7 +140,12 @@ export default function UsersTable({ tableData }: UsersTableProps) {
         cell: (info) => (
           <Flex gap="8px">
             <Link href={`/admin/users/edit/${info.getValue()}`}>
-              <Icon as={MdOutlineEdit} width="20px" height="20px" color="inherit" />
+              <Icon
+                as={MdOutlineEdit}
+                width="20px"
+                height="20px"
+                color="inherit"
+              />
             </Link>
             <Icon
               as={MdDeleteOutline}
@@ -161,9 +179,19 @@ export default function UsersTable({ tableData }: UsersTableProps) {
   });
 
   return (
-    <Card flexDirection="column" w="100%" px="0px" overflowX={{ sm: "scroll", lg: "hidden" }}>
+    <Card
+      flexDirection="column"
+      w="100%"
+      px="0px"
+      overflowX={{ sm: "scroll", lg: "hidden" }}
+    >
       <Flex px="25px" mb="8px" justifyContent="space-between" align="center">
-        <Text color={textColor} fontSize="22px" fontWeight="700" lineHeight="100%">
+        <Text
+          color={textColor}
+          fontSize="22px"
+          fontWeight="700"
+          lineHeight="100%"
+        >
           Lista Utenti
         </Text>
         <Menu />
@@ -174,9 +202,17 @@ export default function UsersTable({ tableData }: UsersTableProps) {
             {table.getHeaderGroups().map((headerGroup) => (
               <Tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <Th key={header.id} colSpan={header.colSpan} pe="10px" borderColor={borderColor}>
+                  <Th
+                    key={header.id}
+                    colSpan={header.colSpan}
+                    pe="10px"
+                    borderColor={borderColor}
+                  >
                     <Flex align="center">
-                      {flexRender(header.column.columnDef.header, header.getContext())}
+                      {flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
                     </Flex>
                   </Th>
                 ))}
@@ -184,15 +220,26 @@ export default function UsersTable({ tableData }: UsersTableProps) {
             ))}
           </Thead>
           <Tbody>
-            {table.getRowModel().rows.slice(0, 11).map((row) => (
-              <Tr key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <Td key={cell.id} fontSize={{ sm: "14px" }} minW={{ sm: "150px", md: "200px" }} borderColor="transparent">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </Td>
-                ))}
-              </Tr>
-            ))}
+            {table
+              .getRowModel()
+              .rows.slice(0, 11)
+              .map((row) => (
+                <Tr key={row.id}>
+                  {row.getVisibleCells().map((cell) => (
+                    <Td
+                      key={cell.id}
+                      fontSize={{ sm: "14px" }}
+                      minW={{ sm: "150px", md: "200px" }}
+                      borderColor="transparent"
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </Td>
+                  ))}
+                </Tr>
+              ))}
           </Tbody>
         </Table>
       </Box>
@@ -202,9 +249,7 @@ export default function UsersTable({ tableData }: UsersTableProps) {
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Conferma Eliminazione</ModalHeader>
-          <ModalBody>
-            Sei sicuro di voler eliminare questo utente?
-          </ModalBody>
+          <ModalBody>Sei sicuro di voler eliminare questo utente?</ModalBody>
           <ModalFooter>
             <Button onClick={onClose} mr={3}>
               Annulla

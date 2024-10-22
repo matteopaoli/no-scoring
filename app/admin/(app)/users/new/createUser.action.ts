@@ -1,6 +1,6 @@
 "use server";
 
-import { createUser, getBusinessTypes, getUser, getUserByStripeAccountId } from "@/app/db";
+import { createUser, getBusinessTypes, getPartnerById, getUser, getUserByStripeAccountId } from "@/app/db";
 import { FormActionReturnType } from "@/app/types";
 import formatZodErrors from "@/app/utils/formatZodErrors";
 import { redirect } from "next/navigation";
@@ -48,8 +48,11 @@ export default async function createUserAction(
     }),
     stripeLegAccountId: z.string().regex(/^acct_[a-zA-Z0-9]+$/, {
       message: "Il formato dell'ID LEG di Stripe non è valido. Dovrebbe iniziare con 'acct_' seguito da caratteri alfanumerici.",
-    })
+    }),
+    partner: z.string().refine(async (partnerId) => Boolean((await getPartnerById(partnerId))?.id), { message: "Il partner non esiste" })
   });
+
+  console.log(formData.get('partner'))
 
   // Validate form data against the schema
   const validation = await createUserSchema.safeParseAsync({
@@ -58,14 +61,15 @@ export default async function createUserAction(
     businessTypeId: Number(formData.get("businessTypeId")),
     businessName: formData.get("businessName"),
     stripeUserId: formData.get('stripeUserId'),
-    stripeLegAccountId: formData.get('stripeLegAccountId')
+    stripeLegAccountId: formData.get('stripeLegAccountId'),
+    partner: formData.get('partner')
   });
 
   if (!validation.success) {
     return formatZodErrors(validation)
   }
 
-  const { email, stripeApiKey, businessTypeId, businessName, stripeUserId, stripeLegAccountId } = validation.data;
+  const { email, stripeApiKey, businessTypeId, businessName, stripeUserId, stripeLegAccountId, partner } = validation.data;
 
   // Check for existing user with the same email or Stripe account ID
   const existingUserByEmail = await getUser(email);
@@ -83,6 +87,6 @@ export default async function createUserAction(
   }
 
   // If no existing user, proceed to create the new user
-  await createUser(email, stripeApiKey, businessTypeId, businessName, stripeUserId, stripeLegAccountId);
+  await createUser(email, stripeApiKey, businessTypeId, businessName, stripeUserId, stripeLegAccountId, partner);
   redirect("/admin/users?success=true&action=create");
 }

@@ -1,5 +1,5 @@
 import { drizzle } from "drizzle-orm/postgres-js";
-import { and, count, eq, getTableColumns, like, or } from "drizzle-orm";
+import { and, count, eq, getTableColumns, inArray, like, or, sql } from "drizzle-orm";
 import postgres from "postgres";
 import { genSaltSync, hashSync } from "bcrypt-ts";
 import {
@@ -20,6 +20,7 @@ import {
   compressProfileImageToBase64,
 } from "./utils/images";
 import { createGenericProduct } from "./utils/stripe";
+import { alias } from "drizzle-orm/pg-core";
 
 let client = postgres(`${process.env.DATABASE_URL!}`);
 let db = drizzle(client);
@@ -99,7 +100,8 @@ export async function createUser(
   businessTypeId: number,
   businessName: string,
   stripeUserId: string,
-  stripeLegAccountId: string
+  stripeLegAccountId: string,
+  partnerId: string
 ) {
   const WEBHOOK_URL = `https://app.paytomorrow.it/api/stripe/webhook?merchantId=${stripeUserId}`;
   const hash = getDefaultPassword();
@@ -144,6 +146,7 @@ export async function createUser(
           genericProductId: genericProduct.productId,
           genericProductSmallImage,
           genericProductLargeImage,
+          partnerId
         })
         .returning();
 
@@ -252,12 +255,18 @@ export async function getBusinessTypes(): Promise<BusinessType[]> {
 }
 
 export async function getUsers() {
-  const { password, role, businessTypeId, ...rest } = getTableColumns(users);
+  const { password, role, businessTypeId, partnerId, ...rest } = getTableColumns(users);
+  const partner = alias(users, "partner");
   return (await db
-    .select({ ...rest, businessType: businessType.name })
+    .select({
+      ...rest,
+      businessType: businessType.name,
+      partnerName: sql<string>`CONCAT(partner."firstName", ' ', partner."lastName")`.as('partnerName'),
+    })
     .from(users)
-    .where(eq(users.role, "user"))
-    .leftJoin(businessType, eq(users.businessTypeId, businessType.id))) as Omit<
+    .leftJoin(businessType, eq(users.businessTypeId, businessType.id))
+    .leftJoin(partner, eq(users.partnerId, sql`partner.id`))
+    .where(eq(users.role, "user"))) as Omit<
     User,
     "password" | "role" | "businessTypeId"
   >[];
@@ -700,7 +709,13 @@ export async function getSubPartnersByUserId(userId: string) {
 
 export async function searchPartner(query: string) {
   return await db
-    .select({ id: users.id, firstName: users.firstName, lastName: users.lastName, email: users.email, role: users.role })
+    .select({
+      id: users.id,
+      firstName: users.firstName,
+      lastName: users.lastName,
+      email: users.email,
+      role: users.role,
+    })
     .from(users)
     .where(
       and(
@@ -709,7 +724,25 @@ export async function searchPartner(query: string) {
           like(users.lastName, `%${query}%`),
           like(users.email, `%${query}%`)
         ),
-        or(eq(users.role, 'partner'), eq(users.role, 'subpartner'))
+        inArray(users.role, ['partner', 'subpartner'])
       )
     );
+}
+
+export async function getAllPartners() {
+  return await db
+    .select({
+      id: users.id,
+      firstName: users.firstName,
+      lastName: users.lastName,
+      email: users.email,
+      role: users.role,
+    })
+    .from(users)
+    .where(inArray(users.role, ['partner', 'subpartner']))
+}
+
+export async function getPartnerById(userId: string) {
+  const result = await db.select().from(users).where(and(eq(users.id, userId), inArray(users.role, ['partner', 'subpartner'])))
+  return result[0] || null;
 }

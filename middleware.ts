@@ -27,11 +27,6 @@ export default auth((req) => {
     req.nextUrl.pathname
   );
 
-  console.log('isAppReservedPage', isAppReservedPage)
-  console.log('isAdminReservedPage', isAdminReservedPage)
-  console.log('isPartnerReservedPage', isPartnerReservedPage)
-
-
   // Determine if it's a reserved page
   const isReservedPage = isAppReservedPage || isAdminReservedPage || isPartnerReservedPage;
 
@@ -44,8 +39,6 @@ export default auth((req) => {
     req.nextUrl.pathname = isAppReservedPage ? "/login" : isAdminReservedPage ? "/admin/login" : '/partner/login';
     return NextResponse.redirect(req.nextUrl);
   }
-
-  console.log(req.auth)
 
   // If the page is reserved and the user is authenticated, check user role
   if (isReservedPage && req.auth) {
