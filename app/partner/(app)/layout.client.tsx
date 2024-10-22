@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode, useContext, useState } from "react";
-import routes from "@/app/routes.partner";
+import { routes, subpartnerRoutes } from "@/app/routes.partner";
 import { usePathname } from "next/navigation";
 import { Box, Portal, useDisclosure } from "@chakra-ui/react";
 import { SidebarContext } from "@/app/contexts/SidebarContext";
@@ -33,6 +33,12 @@ export default function AdminLayout({
     return activeRoute;
   };
 
+  const getRoutes = () => {
+    if (user.role === 'partner') return routes
+    if (user.role === 'subpartner') return subpartnerRoutes
+    return null
+  }
+
   const { onOpen } = useDisclosure();
   return (
     <Box>
@@ -43,7 +49,7 @@ export default function AdminLayout({
             setToggleSidebar,
           }}
         >
-          <Sidebar routes={routes} display="none" {...rest} />
+          <Sidebar routes={getRoutes()} display="none" {...rest} />
           <Box
             float="right"
             minHeight="100vh"

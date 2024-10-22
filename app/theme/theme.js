@@ -11,7 +11,7 @@ import { linkStyles } from "./components/link";
 import { breakpoints } from "./foundations/breakpoints";
 import { globalStyles } from "./styles";
 export default extendTheme(
-  { breakpoints }, // Breakpoints
+  { breakpoints, fonts: { heading: "DM Sans, sans-serif" } }, // Breakpoints
   globalStyles,
   badgeStyles, // badge styles
   buttonStyles, // button styles
@@ -21,5 +21,5 @@ export default extendTheme(
   inputStyles, // input styles
   textareaStyles, // textarea styles
   switchStyles, // switch styles
-  CardComponent // card component
+  CardComponent // card componentm
 );

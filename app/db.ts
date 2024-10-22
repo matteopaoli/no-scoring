@@ -1,5 +1,14 @@
 import { drizzle } from "drizzle-orm/postgres-js";
-import { and, count, eq, getTableColumns, inArray, like, or, sql } from "drizzle-orm";
+import {
+  and,
+  count,
+  eq,
+  getTableColumns,
+  inArray,
+  like,
+  or,
+  sql,
+} from "drizzle-orm";
 import postgres from "postgres";
 import { genSaltSync, hashSync } from "bcrypt-ts";
 import {
@@ -58,6 +67,7 @@ export interface User {
   genericProductSmallImage: string;
   genericProductLargeImage: string;
   provincia: string;
+  partnerId?: string;
 }
 
 export async function getUser(email?: string | null) {
@@ -146,7 +156,7 @@ export async function createUser(
           genericProductId: genericProduct.productId,
           genericProductSmallImage,
           genericProductLargeImage,
-          partnerId
+          partnerId,
         })
         .returning();
 
@@ -255,13 +265,17 @@ export async function getBusinessTypes(): Promise<BusinessType[]> {
 }
 
 export async function getUsers() {
-  const { password, role, businessTypeId, partnerId, ...rest } = getTableColumns(users);
+  const { password, role, businessTypeId, partnerId, ...rest } =
+    getTableColumns(users);
   const partner = alias(users, "partner");
   return (await db
     .select({
       ...rest,
       businessType: businessType.name,
-      partnerName: sql<string>`CONCAT(partner."firstName", ' ', partner."lastName")`.as('partnerName'),
+      partnerName:
+        sql<string>`CONCAT(partner."firstName", ' ', partner."lastName")`.as(
+          "partnerName"
+        ),
     })
     .from(users)
     .leftJoin(businessType, eq(users.businessTypeId, businessType.id))
@@ -325,6 +339,7 @@ export async function createStore({
     .values({
       name: storeName,
       image: logoData,
+      partnerId: (await getUserById(userId))?.partnerId,
     })
     .returning();
 
@@ -698,6 +713,7 @@ export async function updatePartner({
 export async function getSubPartnersByUserId(userId: string) {
   return await db
     .select({
+      id: users.id,
       firstName: users.firstName,
       lastName: users.lastName,
       provincia: users.provincia,
@@ -724,7 +740,7 @@ export async function searchPartner(query: string) {
           like(users.lastName, `%${query}%`),
           like(users.email, `%${query}%`)
         ),
-        inArray(users.role, ['partner', 'subpartner'])
+        inArray(users.role, ["partner", "subpartner"])
       )
     );
 }
@@ -739,10 +755,98 @@ export async function getAllPartners() {
       role: users.role,
     })
     .from(users)
-    .where(inArray(users.role, ['partner', 'subpartner']))
+    .where(inArray(users.role, ["partner", "subpartner"]));
 }
 
 export async function getPartnerById(userId: string) {
-  const result = await db.select().from(users).where(and(eq(users.id, userId), inArray(users.role, ['partner', 'subpartner'])))
+  const result = await db
+    .select()
+    .from(users)
+    .where(
+      and(eq(users.id, userId), inArray(users.role, ["partner", "subpartner"]))
+    );
   return result[0] || null;
+}
+
+export async function getStoresByPartnerId(partnerId: string) {
+  const merchantIds = (
+    await db
+      .select({
+        id: users.id,
+      })
+      .from(users)
+      .where(and(eq(users.partnerId, partnerId), eq(users.role, "user")))
+  ).map((user) => user.id);
+
+  const inactiveMerchants = await db
+    .select({
+      id: users.id,
+      email: users.email,
+      createdAt: users.createdAt,
+    })
+    .from(users)
+    .where(
+      and(eq(users.partnerId, partnerId), eq(users.onboardingCompleted, false))
+    );
+
+  const merchantStores = (await db
+    .select({
+      storeId: stores.id,
+      storeName: stores.name,
+      storeImage: stores.image,
+      createdAt: stores.createdAt,
+      totalFirstLevelCommissions: sql`COALESCE(SUM(CAST(${sales.firstLevelPartnerCommission} AS numeric)), 0)`,
+    })
+    .from(stores)
+    .innerJoin(userStoreRoles, eq(stores.id, userStoreRoles.storeId))
+    .leftJoin(sales, eq(stores.id, sales.storeId))
+    .where(inArray(userStoreRoles.userId, merchantIds))
+    .groupBy(stores.id)) as {
+    storeId: string;
+    storeName: string;
+    storeImage: string | null;
+    createdAt: Date | null;
+    totalFirstLevelCommissions: number;
+  }[];
+
+  return { stores: merchantStores, inactiveMerchants };
+}
+
+export async function getCommissionsFromStore(
+  storeId: string,
+  partnerId: string
+) {}
+
+export async function getSecondLevelCommissions(
+  partnerId: string
+): Promise<number | null> {
+  const user = await getUserById(partnerId);
+  if (user.role !== "partner") {
+    return null;
+  }
+  const subpartners = (await getSubPartnersByUserId(partnerId)).map(
+    (subpartner) => subpartner.id
+  );
+  const secondLevelStoreIds = (
+    await db.select().from(stores).where(inArray(stores.partnerId, subpartners))
+  ).map((store) => store.id);
+  const totalSecondLevelPartnerCommission = (await db
+    .select({
+      totalCommission: sql`SUM(CAST(${sales.secondLevelPartnerCommission} AS numeric))`,
+    })
+    .from(sales)
+    .where(inArray(sales.storeId, secondLevelStoreIds))) as {
+    totalCommission: number;
+  }[];
+
+  const total = totalSecondLevelPartnerCommission[0]?.totalCommission || 0;
+  return total;
+}
+
+export async function getAllPartnerFees(partnerId: string) {
+  const { stores } = await getStoresByPartnerId(partnerId)
+  const secondLevelCommission = await getSecondLevelCommissions(partnerId)
+  const firstLevelCommission = stores.reduce((acc, store) => acc += Number(store.totalFirstLevelCommissions), 0)
+
+  return { firstLevelCommission, secondLevelCommission, totalCommission: firstLevelCommission + (secondLevelCommission ?? 0) }
 }

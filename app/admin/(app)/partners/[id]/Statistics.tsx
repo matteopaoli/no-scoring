@@ -10,7 +10,7 @@ import {
   MdOutlineGroup,
 } from "react-icons/md";
 
-export default function Statistics({ partner, subpartners }: { partner: User, subpartners: number }) {
+export default function Statistics({ partner, subpartners, totalFee }: { partner: User, subpartners: number, totalFee: number }) {
   return (
     <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
       <MiniStatistics
@@ -55,7 +55,7 @@ export default function Statistics({ partner, subpartners }: { partner: User, su
           />
         }
         name="Profits"
-        value="Profits!"
+        value={`€ ${totalFee.toFixed(2)}`}
       />
 
       <MiniStatistics

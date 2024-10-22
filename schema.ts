@@ -55,6 +55,7 @@ export const stores = pgTable("store", {
   name: text("name").notNull(),
   createdAt: timestamp("createdAt").defaultNow(),
   image: text('image'),
+  partnerId: text('partnerId').references(() => users.id)
 })
 
 export const sales = pgTable("sale", {

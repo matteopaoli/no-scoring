@@ -1,4 +1,4 @@
-import { getUserById } from "@/app/db";
+import { getAllPartnerFees, getUserById } from "@/app/db";
 import { Box, Flex, Icon, IconButton, SimpleGrid, Text } from "@chakra-ui/react";
 import SubPartnersTable from "./SubPartnersTable";
 import { getSubPartnersByUserId } from "@/app/db";
@@ -17,6 +17,7 @@ export default async function UsersPage({
   }
 
   const subpartners = await getSubPartnersByUserId(partner.id);
+  const { firstLevelCommission, secondLevelCommission, totalCommission } = await getAllPartnerFees(partner.id)
 
   return (
     <Box px="20px">
@@ -26,7 +27,7 @@ export default async function UsersPage({
         </Text>
         <EditButton userId={params.id} />
       </Flex>
-      <Statistics partner={partner} subpartners={subpartners.length} />
+      <Statistics partner={partner} subpartners={subpartners.length} totalFee={totalCommission} />
       <SubPartnersTable tableData={subpartners} />
     </Box>
   );
