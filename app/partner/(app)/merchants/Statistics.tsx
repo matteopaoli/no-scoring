@@ -14,13 +14,15 @@ export default function Statistics({
   data,
 }: {
   data: {
-    firstLevelCommission: number 
-    secondLevelCommission: number | null,
-    totalCommission: number
+    firstLevelCommission: number;
+    secondLevelCommission: number | null;
+    totalCommission: number;
+    salesVolume: number;
+    salesVolumeThirtyDays: number;
   };
 }) {
-  const secondLevelCommission = data.secondLevelCommission?.toFixed(2) ?? 0
-  const firstLevelCommission = data.firstLevelCommission.toFixed(2)
+  const secondLevelCommission = data.secondLevelCommission?.toFixed(2) ?? 0;
+  const firstLevelCommission = data.firstLevelCommission.toFixed(2);
   return (
     <Box mb="8" mx="10">
       <SimpleGrid columns={{ base: 1, sm: 2, md: 4 }} spacing="6">
@@ -67,24 +69,53 @@ export default function Statistics({
         <MiniStatistics
           startContent={
             <IconBox
-            w="56px"
-            h="56px"
-            bg="secondaryGray.300"
-            icon={
-              <Icon
-              w="32px"
-              h="32px"
-              as={MdOutlineAttachMoney}
-              color="green.500"
-              />
+              w="56px"
+              h="56px"
+              bg="secondaryGray.300"
+              icon={
+                <Icon
+                  w="32px"
+                  h="32px"
+                  as={MdOutlineAttachMoney}
+                  color="green.500"
+                />
               }
-              />
-              }
-              name="Commissioni totali"
-              value={`€ ${data.totalCommission}`}
-              />
+            />
+          }
+          name="Commissioni totali"
+          value={`€ ${data.totalCommission}`}
+        />
 
-          {/*
+        <MiniStatistics
+          startContent={
+            <IconBox
+              w="56px"
+              h="56px"
+              bg="secondaryGray.300"
+              icon={
+                <Icon w="32px" h="32px" as={MdTrendingUp} color="blue.500" />
+              }
+            />
+          }
+          name="Volume di vendita"
+          value={`€ ${data.salesVolume.toFixed(2)}`}
+        />
+
+        <MiniStatistics
+          startContent={
+            <IconBox
+              w="56px"
+              h="56px"
+              bg="secondaryGray.300"
+              icon={
+                <Icon w="32px" h="32px" as={MdTrendingUp} color="blue.500" />
+              }
+            />
+          }
+          name="Volume di vendita (ultimi 30 giorni)"
+          value={`€ ${data.salesVolumeThirtyDays.toFixed(2)}`}
+        />
+        {/*
         <MiniStatistics
           startContent={
             <IconBox

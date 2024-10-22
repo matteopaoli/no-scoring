@@ -124,7 +124,7 @@ export default function UsersTable({ tableData }: UsersTableProps) {
             Partner
           </Text>
         ),
-        cell: async (info) => (
+        cell: (info) => (
           <Text color={textColor} fontSize="sm" fontWeight="700">
             {(info.getValue() as string).trim() ? info.getValue() : "—"}
           </Text>

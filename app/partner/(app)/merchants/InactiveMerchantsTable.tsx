@@ -1,5 +1,6 @@
 "use client";
 
+import GenericTable from "@/app/components/GenericTable";
 import {
   Table,
   Thead,
@@ -9,7 +10,7 @@ import {
   Td,
   TableContainer,
   Heading,
-  useColorModeValue
+  useColorModeValue,
 } from "@chakra-ui/react";
 import {
   ColumnDef,
@@ -35,60 +36,22 @@ export function InactiveMerchantsTable({
     {
       accessorKey: "email",
       header: "Email",
-      cell: (info) => info.getValue() || "No Email",
+      cell: (info) => info.getValue(),
     },
     {
       accessorKey: "createdAt",
       header: "Data creazione",
       cell: (info) =>
-        info.getValue()
-          ? new Date(info.getValue() as Date).toLocaleDateString('it-IT')
-          : "N/A",
+        new Date(info.getValue() as Date).toLocaleDateString("it-IT"),
     },
   ];
 
-  const table = useReactTable({
-    data: merchants,
-    columns: merchantColumns,
-    getCoreRowModel: getCoreRowModel(),
-  });
-
-  let mainText = useColorModeValue('navy.700', 'white');
-
   return (
-    <>
-      <Heading as="h3" size="lg" color={mainText} py="20px" pl={{ md: '20px'}}>
-        Commercianti inattivi
-      </Heading>
-      <TableContainer>
-        <Table variant="striped">
-          <Thead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <Tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <Th key={header.id}>
-                    {flexRender(
-                      header.column.columnDef.header,
-                      header.getContext()
-                    )}
-                  </Th>
-                ))}
-              </Tr>
-            ))}
-          </Thead>
-          <Tbody>
-            {table.getRowModel().rows.map((row) => (
-              <Tr key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <Td key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </Td>
-                ))}
-              </Tr>
-            ))}
-          </Tbody>
-        </Table>
-      </TableContainer>
-    </>
+    <GenericTable
+      data={merchants}
+      columns={merchantColumns}
+      title="Commercianti inattivi"
+      itemsPerPage={10} // Customize the number of items per page if needed
+    />
   );
 }

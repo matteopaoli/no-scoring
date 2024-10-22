@@ -25,9 +25,6 @@ interface StoresTableProps {
 }
 
 export default function StoresTable({ stores }: StoresTableProps) {
-  const mainText = useColorModeValue("navy.700", "white");
-  const textColor = useColorModeValue("black", "white");
-
   const storeColumns: ColumnDef<Store>[] = [
     {
       accessorKey: "storeName",

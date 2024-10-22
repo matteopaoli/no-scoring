@@ -1,27 +1,45 @@
-import { auth } from "@/app/auth"
-import { getUser, getStoresByPartnerId, getAllPartnerFees } from "@/app/db"
-import StoresTable from "./StoresTable"
-import { InactiveMerchantsTable } from "./InactiveMerchantsTable"
-import Statistics from "./Statistics"
-import { Box, SimpleGrid } from "@chakra-ui/react"
-
-
+import { auth } from "@/app/auth";
+import {
+  getUser,
+  getStoresByPartnerId,
+  getAllPartnerFees,
+  getSales,
+} from "@/app/db";
+import StoresTable from "./StoresTable";
+import { InactiveMerchantsTable } from "./InactiveMerchantsTable";
+import Statistics from "./Statistics";
+import { Box, SimpleGrid } from "@chakra-ui/react";
 
 export default async function MerchantsPage() {
-  const session = await auth()
-  const user = await getUser(session?.user?.email)
-  const { inactiveMerchants } = await getStoresByPartnerId(user.id)
-  const { firstLevelCommission, secondLevelCommission, totalCommission } = await getAllPartnerFees(user.id)
+  const session = await auth();
+  const user = await getUser(session?.user?.email);
+  const { inactiveMerchants, stores } = await getStoresByPartnerId(user.id);
+  const { firstLevelCommission, secondLevelCommission, totalCommission } =
+    await getAllPartnerFees(user.id);
+  const sales = await getSales(user.id, user.role);
+  const reducer = (acc: number, sale: Record<string, any>) =>
+    (acc += Number(sale.amount));
+  const salesVolume = sales?.reduce(reducer, 0) || 0;
+
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  const salesVolumeThirtyDays =
+    sales
+      ?.filter((sale) => {
+        return sale.createdAt && sale.createdAt >= thirtyDaysAgo; // Filter for sales in the last 30 days
+      })
+      .reduce(reducer, 0) || 0;
+
   return (
     <>
-      <Statistics data={{ firstLevelCommission, secondLevelCommission, totalCommission }}/>
-      <SimpleGrid columns={{ base: 1, '2xl': 2 }}>
+      <Statistics
+        data={{ firstLevelCommission, secondLevelCommission, totalCommission, salesVolume, salesVolumeThirtyDays }}
+      />
+      <SimpleGrid>
         <StoresTable stores={stores} />
-      <Box>
-        <InactiveMerchantsTable merchants={inactiveMerchants} />
-      </Box>
-
+          {/* <InactiveMerchantsTable merchants={inactiveMerchants} /> */}
       </SimpleGrid>
-    </> 
-  )
+    </>
+  );
 }

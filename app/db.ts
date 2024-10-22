@@ -643,9 +643,21 @@ export async function getSales(userId: string, userRole: string) {
   if (userRole === "admin") {
     return await db.select().from(sales);
   }
-  // if (userRole === 'partner') {
+  if (userRole === "partner" || userRole === "subpartner") {
+    const storeIds = await db
+      .select({ id: stores.id })
+      .from(stores)
+      .where(eq(stores.partnerId, userId));
 
-  // }
+    const storeIdArray = storeIds.map((store) => store.id);
+
+    const salesData = await db
+      .select()
+      .from(sales)
+      .where(inArray(sales.storeId, storeIdArray));
+
+    return salesData;
+  }
 }
 
 export async function getPartners() {
@@ -786,7 +798,7 @@ export async function getStoresByPartnerId(partnerId: string) {
     })
     .from(users)
     .where(
-      and(eq(users.partnerId, partnerId), eq(users.onboardingCompleted, false))
+      and(eq(users.partnerId, partnerId), eq(users.onboardingCompleted, false), eq(users.role, 'user'))
     );
 
   const merchantStores = (await db
@@ -859,23 +871,23 @@ export async function getAllPartnerFees(partnerId: string) {
 }
 
 export async function getAllStoresWithLegCommission() {
-  return await db
+  return (await db
     .select({
       storeId: stores.id,
       storeName: stores.name,
       storeImage: stores.image,
       createdAt: stores.createdAt,
       totalCommission: sql`COALESCE(SUM(CAST(${sales.legCommission} AS numeric)), 0)`,
-      totalVolume: sql`COALESCE(SUM(CAST(${sales.amount} AS numeric)), 0)` // New sum for amount
+      totalVolume: sql`COALESCE(SUM(CAST(${sales.amount} AS numeric)), 0)`, // New sum for amount
     })
     .from(stores)
     .leftJoin(sales, eq(stores.id, sales.storeId))
-    .groupBy(stores.id) as {
-      storeId: string;
-      storeName: string;
-      storeImage: string | null;
-      createdAt: Date | null;
-      totalCommission: number;
-      totalVolume: number; // Added totalAmount type
-    }[];
+    .groupBy(stores.id)) as {
+    storeId: string;
+    storeName: string;
+    storeImage: string | null;
+    createdAt: Date | null;
+    totalCommission: number;
+    totalVolume: number; // Added totalAmount type
+  }[];
 }
