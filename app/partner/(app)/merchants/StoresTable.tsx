@@ -25,7 +25,7 @@ interface Store {
   storeName: string;
   storeImage: string | null;
   createdAt: Date | null;
-  totalFirstLevelCommissions: number;
+  totalCommission: number;
 }
 
 interface StoresTableProps {
@@ -46,7 +46,7 @@ export default function StoresTable({ stores }: StoresTableProps) {
       ),
     },
     {
-      accessorKey: "totalFirstLevelCommissions",
+      accessorKey: "totalCommission",
       header: () => <Text fontSize="md" fontWeight="bold">Commissione</Text>,
       cell: (info) => (
         <Text fontSize="md" color={mainText}>

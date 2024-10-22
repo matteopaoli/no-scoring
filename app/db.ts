@@ -795,7 +795,7 @@ export async function getStoresByPartnerId(partnerId: string) {
       storeName: stores.name,
       storeImage: stores.image,
       createdAt: stores.createdAt,
-      totalFirstLevelCommissions: sql`COALESCE(SUM(CAST(${sales.firstLevelPartnerCommission} AS numeric)), 0)`,
+      totalCommission: sql`COALESCE(SUM(CAST(${sales.firstLevelPartnerCommission} AS numeric)), 0)`,
     })
     .from(stores)
     .innerJoin(userStoreRoles, eq(stores.id, userStoreRoles.storeId))
@@ -806,7 +806,7 @@ export async function getStoresByPartnerId(partnerId: string) {
     storeName: string;
     storeImage: string | null;
     createdAt: Date | null;
-    totalFirstLevelCommissions: number;
+    totalCommission: number;
   }[];
 
   return { stores: merchantStores, inactiveMerchants };
@@ -844,9 +844,36 @@ export async function getSecondLevelCommissions(
 }
 
 export async function getAllPartnerFees(partnerId: string) {
-  const { stores } = await getStoresByPartnerId(partnerId)
-  const secondLevelCommission = await getSecondLevelCommissions(partnerId)
-  const firstLevelCommission = stores.reduce((acc, store) => acc += Number(store.totalFirstLevelCommissions), 0)
+  const { stores } = await getStoresByPartnerId(partnerId);
+  const secondLevelCommission = await getSecondLevelCommissions(partnerId);
+  const firstLevelCommission = stores.reduce(
+    (acc, store) => (acc += Number(store.totalFirstLevelCommissions)),
+    0
+  );
 
-  return { firstLevelCommission, secondLevelCommission, totalCommission: firstLevelCommission + (secondLevelCommission ?? 0) }
+  return {
+    firstLevelCommission,
+    secondLevelCommission,
+    totalCommission: firstLevelCommission + (secondLevelCommission ?? 0),
+  };
+}
+
+export async function getAllStoresWithLegCommission() {
+  return await db
+    .select({
+      storeId: stores.id,
+      storeName: stores.name,
+      storeImage: stores.image,
+      createdAt: stores.createdAt,
+      totalCommission: sql`COALESCE(SUM(CAST(${sales.legCommission} AS numeric)), 0)`,
+    })
+    .from(stores)
+    .leftJoin(sales, eq(stores.id, sales.storeId))
+    .groupBy(stores.id) as {
+    storeId: string;
+    storeName: string;
+    storeImage: string | null;
+    createdAt: Date | null;
+    totalCommission: number;
+  }[];
 }

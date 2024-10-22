@@ -8,6 +8,7 @@ import {
   MdLock,
   MdOutlineShoppingCart,
   MdOutlineVerifiedUser,
+  MdStore
 } from 'react-icons/md';
 import { FaHandshake } from 'react-icons/fa';
 
@@ -35,6 +36,14 @@ const routes = [
     sidebar: true,
     match: /^\/admin\/users(\/.*)?$/,
   },
+  {
+    name: 'Negozi',
+    layout: '/admin',
+    path: '/admin/stores',
+    icon: <Icon as={MdStore} width="20px" height="20px" color="inherit" />,
+    sidebar: true,
+    match: /^\/admin\/stores(\/.*)?$/,
+  },  
   {
     name: 'Partner',
     layout: '/admin',
