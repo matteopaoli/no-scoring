@@ -1,7 +1,7 @@
 "use server";
 
 import { auth } from "@/app/auth";
-import { createProduct, getUser } from "@/app/db";
+import { createProduct, getStoreByUserId, getUser } from "@/app/db";
 import Stripe from "stripe";
 import { z } from "zod";
 import { createPaymentLink } from "@/app/utils/stripe";
@@ -28,15 +28,17 @@ export default async function createProductAction(
   const createProductSchema = z.object({
     name: z.string().min(1, "Name is required"),
     description: z.string().optional(),
-    price: z.preprocess(
-      (val) => {
-        // Replace the comma with a dot before parsing
-        const priceString = (val as string).replace(",", ".");
-        return parseFloat(priceString);
-      },
-      z.number().positive("Price must be a positive number")
-    ),
-    image: z.union([z.instanceof(Blob), z.undefined()]).refine((file) => (file?.size ?? 0) <= MAX_FILE_SIZE, `L'immagine non puó superare i 5MB.`),
+    price: z.preprocess((val) => {
+      // Replace the comma with a dot before parsing
+      const priceString = (val as string).replace(",", ".");
+      return parseFloat(priceString);
+    }, z.number().positive("Price must be a positive number")),
+    image: z
+      .union([z.instanceof(Blob), z.undefined()])
+      .refine(
+        (file) => (file?.size ?? 0) <= MAX_FILE_SIZE,
+        `L'immagine non puó superare i 5MB.`
+      ),
     includeCommission: z.string().nullable().optional(), // Checkbox for including commission
   });
 
@@ -52,46 +54,62 @@ export default async function createProductAction(
     return formatZodErrors(validation);
   }
 
-  const { name, description, price, image, includeCommission } = validation.data;
+  const { name, description, price, image, includeCommission } =
+    validation.data;
 
   let imageUrl: string | null = null;
 
-  // Upload the image to S3 if provided
   if (image) {
     imageUrl = await uploadImageToS3(image);
-    if (!imageUrl) {
-      throw new Error("Failed to upload image to S3");
+  } else {
+    const { image: storeImage, name: storeName } = await getStoreByUserId(user.id);
+
+    if (storeImage) {
+      const base64Data = storeImage.replace(/^data:image\/\w+;base64,/, "");
+      const imageBuffer = Buffer.from(base64Data, "base64");
+
+      const file = {
+        arrayBuffer: async () => imageBuffer.buffer,
+        name: `${storeName}-logo.jpg`,
+        type: "image/jpeg",
+      };
+
+      imageUrl = await uploadImageToS3(file);
+      if (!imageUrl) {
+        throw new Error("Failed to upload image to S3");
+      }
     }
+
+    // Modify the description if the checkbox is checked
+    let finalDescription = description || "";
+    if (includeCommission) {
+      finalDescription +=
+        "\n\nIl prezzo è stato aumentato per includere le commissioni associate al pagamento in più rate.";
+    }
+
+    // Create the product in Stripe
+    const product = await stripe.products.create({
+      name,
+      description: finalDescription, // Use the updated description
+      images: imageUrl ? [imageUrl] : [],
+      default_price_data: {
+        currency: "eur",
+        unit_amount: Math.round(price * 100),
+      },
+    });
+
+    const paymentLink = await createPaymentLink(stripe, product.id);
+    const qrcode = await generateQrCodeWithLogo(paymentLink.url);
+    const tagImage = await generateTagImage(qrcode, name, price, imageUrl);
+
+    await createProduct({
+      id: product.id,
+      paymentLinkId: paymentLink.id,
+      qrcode,
+      tagImage,
+      userId: user.id,
+    });
+
+    redirect("/app/products?success=true&action=createProduct");
   }
-
-  // Modify the description if the checkbox is checked
-  let finalDescription = description || "";
-  if (includeCommission) {
-    finalDescription += "\n\nIl prezzo è stato aumentato per includere le commissioni associate al pagamento in più rate.";
-  }
-
-  // Create the product in Stripe
-  const product = await stripe.products.create({
-    name,
-    description: finalDescription, // Use the updated description
-    images: imageUrl ? [imageUrl] : [],
-    default_price_data: {
-      currency: "eur",
-      unit_amount: Math.round(price * 100),
-    },
-  });
-
-  const paymentLink = await createPaymentLink(stripe, product.id);
-  const qrcode = await generateQrCodeWithLogo(paymentLink.url);
-  const tagImage = await generateTagImage(qrcode, name, price);
-
-  await createProduct({
-    id: product.id,
-    paymentLinkId: paymentLink.id,
-    qrcode,
-    tagImage,
-    userId: user.id
-  });
-
-  redirect("/app/products?success=true&action=createProduct");
 }

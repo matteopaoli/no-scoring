@@ -1,17 +1,6 @@
 "use client";
 import {
-  Box,
-  Button,
-  Flex,
-  useDisclosure,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Text,
-  useColorModeValue,
+  Box
 } from "@chakra-ui/react";
 import { createColumnHelper } from "@tanstack/react-table";
 import GenericTable from "@/app/components/GenericTable"; // Import the GenericTable component

@@ -21,12 +21,16 @@ export default async function MerchantsPage() {
     { legRevenue: 0, salesVolume: 0 }
   ) || { legRevenue: 0, salesVolume: 0 };
 
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  const startOfMonth = new Date();
+  startOfMonth.setDate(1);
+  startOfMonth.setHours(0, 0, 0, 0);
 
-  const { legRevenue: totalCommissionThirtyDays, salesVolume: salesVolumeThirtyDays } = sales
+  const {
+    legRevenue: totalCommissionMonthToDate,
+    salesVolume: salesVolumeMonthToDate,
+  } = sales
     ?.filter((sale) => {
-      return sale.createdAt && sale.createdAt >= thirtyDaysAgo; // Filter for sales in the last 30 days
+      return sale.createdAt && sale.createdAt >= startOfMonth; // Filter for sales in the last 30 days
     })
     .reduce<Accumulator>(
       (obj, sale) => ({
@@ -39,7 +43,14 @@ export default async function MerchantsPage() {
   const stores = await getAllStoresWithLegCommission();
   return (
     <>
-      <Statistics data={{ totalCommission: legRevenue, volume: salesVolume, totalCommissionThirtyDays, salesVolumeThirtyDays }} />
+      <Statistics
+        data={{
+          totalCommission: legRevenue,
+          volume: salesVolume,
+          totalCommissionMonthToDate,
+          salesVolumeMonthToDate,
+        }}
+      />
       <StoresTable stores={stores} />
     </>
   );

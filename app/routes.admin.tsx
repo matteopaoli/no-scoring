@@ -37,6 +37,14 @@ const routes = [
     match: /^\/admin\/users(\/.*)?$/,
   },
   {
+    name: "Modifica Utente",
+    path: "/admin/users/edit/[id]",
+  },
+  {
+    name: "Dettagli Partner",
+    path: "/admin/partners/[id]",
+  },
+  {
     name: 'Negozi',
     layout: '/admin',
     path: '/admin/stores',

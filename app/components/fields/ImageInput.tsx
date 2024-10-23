@@ -31,7 +31,14 @@ const ImageInput: React.FC<ImageInputProps> = ({ name, label, id, image }) => {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setHasInteracted(true);
     const selectedFile = event.target.files?.[0];
+  
     if (selectedFile) {
+      const validImageTypes = ["image/jpeg", "image/png"];
+      if (!validImageTypes.includes(selectedFile.type)) {
+        alert("Only JPEG and PNG images are allowed.");
+        return;
+      }
+  
       const newImageUrl = URL.createObjectURL(selectedFile);
       setImageUrl(newImageUrl);
     }

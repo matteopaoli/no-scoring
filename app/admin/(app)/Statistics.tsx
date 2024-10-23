@@ -9,7 +9,7 @@ import {
 } from "react-icons/md";
 import TotalUsersBadge from "./statistics-badges/TotalUsersBadge";
 import TotalProductsBadge from "./statistics-badges/TotalProductsBadge";
-import UsersInLastThirtyDaysBadge from "./statistics-badges/UsersInLastThirtyDaysBadge";
+import UsersInCurrentMonthBadge from "./statistics-badges/UsersInCurrentMonthBadge";
 import RevenueBadge from "./statistics-badges/RevenueBadge";
 
 export default async function Statistics({
@@ -26,10 +26,11 @@ export default async function Statistics({
 }) {
   const totalProducts = merchants.reduce((acc, v) => acc + v.productCount, 0);
   const totalUsers = merchants.length;
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-  const usersInLast30Days = merchants.filter(
-    (user) => user.createdAt >= thirtyDaysAgo
+  const startOfMonth = new Date();
+  startOfMonth.setDate(1);
+  startOfMonth.setHours(0, 0, 0, 0);
+  const usersInMonthToDate = merchants.filter(
+    (user) => user.createdAt >= startOfMonth
   ).length;
 
   return (
@@ -37,7 +38,7 @@ export default async function Statistics({
       <SimpleGrid columns={{ base: 1, sm: 2, md: 4 }} spacing="6">
         <TotalUsersBadge value={totalUsers} />
         <TotalProductsBadge value={totalProducts} />
-        <UsersInLastThirtyDaysBadge value={usersInLast30Days} />
+        <UsersInCurrentMonthBadge value={usersInMonthToDate} />
         <RevenueBadge value={revenue} />
       </SimpleGrid>
     </Box>

@@ -4,9 +4,7 @@ import { Box, SimpleGrid, Icon } from "@chakra-ui/react";
 import MiniStatistics from "@/app/components/card/MiniStatistics";
 import IconBox from "@/app/components/icons/IconBox";
 import {
-  MdOutlineShoppingCart,
   MdTrendingUp,
-  MdOutlineReceipt,
   MdOutlineAttachMoney,
 } from "react-icons/md";
 
@@ -16,8 +14,8 @@ export default function Statistics({
   data: {
     totalCommission: number;
     volume: number;
-    totalCommissionThirtyDays: number;
-    salesVolumeThirtyDays: number;
+    totalCommissionMonthToDate: number;
+    salesVolumeMonthToDate: number;
   };
 }) {
   return (
@@ -74,8 +72,8 @@ export default function Statistics({
               }
             />
           }
-          name="Commissioni guadagnate (ultimi 30 giorni)"
-          value={`€ ${data.totalCommissionThirtyDays.toFixed(2)}`}
+          name="Commissioni guadagnate (mese corrente)"
+          value={`€ ${data.totalCommissionMonthToDate.toFixed(2)}`}
         />
 
         <MiniStatistics
@@ -89,23 +87,8 @@ export default function Statistics({
               }
             />
           }
-          name="Volume di vendita (ultimi 30 giorni)"
-          value={`€ ${data.salesVolumeThirtyDays.toFixed(2)}`}
-        />
-
-        <MiniStatistics
-          startContent={
-            <IconBox
-              w="56px"
-              h="56px"
-              bg="secondaryGray.300"
-              icon={
-                <Icon w="32px" h="32px" as={MdTrendingUp} color="blue.500" />
-              }
-            />
-          }
-          name="Volume di vendita (ultimi 30 giorni)"
-          value={`€ ${data.salesVolumeThirtyDays.toFixed(2)}`}
+          name="Volume di vendita (mese corrente)"
+          value={`€ ${data.salesVolumeMonthToDate.toFixed(2)}`}
         />
 
         {/*

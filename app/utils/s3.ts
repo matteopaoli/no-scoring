@@ -19,5 +19,5 @@ export async function uploadImageToS3(file: File): Promise<string> {
   await s3.send(command);
 
   // Return the public URL for the uploaded image
-  return `https://${params.Bucket}.s3.amazonaws.com/${imageKey}`;
+  return encodeURI(`https://${params.Bucket}.s3.amazonaws.com/${imageKey}`);
 }

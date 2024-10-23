@@ -5,7 +5,7 @@ import { Icon } from "@chakra-ui/react";
 import { MdOutlineNewReleases } from "react-icons/md";
 import MiniStatistics from "@/app/components/card/MiniStatistics";
 
-export default function UsersInLastThirtyDaysBadge({ value }: { value: number }) {
+export default function UsersInCurrentMonthBadge({ value }: { value: number }) {
   return (
     <MiniStatistics
       startContent={
@@ -23,7 +23,7 @@ export default function UsersInLastThirtyDaysBadge({ value }: { value: number })
           }
         />
       }
-      name="Nuovi utenti (Ultimi 30 giorni)"
+      name="Nuovi utenti (Mese corrente)"
       value={value}
     />
   );
