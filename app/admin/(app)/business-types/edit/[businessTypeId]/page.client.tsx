@@ -12,8 +12,7 @@ import {
   NumberInput,
   NumberInputField,
 } from "@chakra-ui/react";
-import { ReactNode, useEffect, useState } from "react";
-import { useFormState } from "react-dom";
+import { ReactNode, useActionState, useEffect, useState } from "react";
 import { updateBusinessTypeAction } from "../../updateBusinessType.action"; // Replace with your update business type action
 import { BusinessType, CommissionRule } from "@/app/db";
 
@@ -26,7 +25,7 @@ export default function UpdateBusinessTypePage({
   existingBusinessType,
   existingCommissionRules,
 }: UpdateBusinessTypePageProps) {
-  const [formState, action] = useFormState(updateBusinessTypeAction, null);
+  const [formState, action] = useActionState(updateBusinessTypeAction, null);
   const [errors, setErrors] = useState<Record<string, any>[]>([]);
   const [commissionRules, setCommissionRules] = useState<CommissionRule[]>(existingCommissionRules);
 

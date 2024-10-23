@@ -1,7 +1,7 @@
 "use client";
+import { useActionState } from "react";
 import { Box, Flex, useColorModeValue } from "@chakra-ui/react";
 import createSubPartnerAction from "./createSubPartner.action";
-import { useFormState } from "react-dom";
 import InputField from "@/app/components/fields/InputField";
 import getFormErrors from "@/app/utils/getFormErrors";
 import Select from "@/app/components/fields/Select";
@@ -9,7 +9,7 @@ import SubmitButton from "@/app/components/SubmitButton";
 import { provinces } from "@/app/constants";
 
 export default function CreateSubPartnerPage() {
-  const [errors, action] = useFormState(createSubPartnerAction, []);
+  const [errors, action] = useActionState(createSubPartnerAction, []);
 
   // Chakra color mode
   const textColor = useColorModeValue("navy.700", "white");

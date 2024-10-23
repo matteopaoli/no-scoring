@@ -1,6 +1,5 @@
 'use client'
-
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import updateUserAction from "./updateUser.action";
 import {
   Box,
@@ -24,7 +23,7 @@ interface User {
 }
 
 export default function UpdateUserForm({ user }: { user: User }) {
-  const [errors, action] = useFormState(updateUserAction, []);
+  const [errors, action] = useActionState(updateUserAction, []);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (

@@ -12,19 +12,17 @@ import {
 } from "@chakra-ui/react";
 
 import createProduct from "../createProduct.action";
-import { useFormState, useFormStatus } from "react-dom";
 import InputField from "@/app/components/fields/InputField"; // Import the InputField component
 import TextArea from "@/app/components/fields/TextArea"; // Import the TextArea component
 import ImageInput from "@/app/components/fields/ImageInput";
 import getFormErrors from "@/app/utils/getFormErrors";
 import PriceInput from "@/app/components/fields/PriceField";
-import { useState } from "react";
+import { useActionState, useState } from "react";
 import SubmitButton from "../../../../components/SubmitButton";
 import { LEG_COMMISSION_RATE, VAT } from "@/app/constants";
 
 export default function CreateOrEditProductPage() {
-  const [errors, action] = useFormState(createProduct, []);
-  const { pending } = useFormStatus()
+  const [errors, action] = useActionState(createProduct, []);
   const [includeCommission, setIncludeCommission] = useState(false);
   const [finalPrice, setFinalPrice] = useState(0);
 

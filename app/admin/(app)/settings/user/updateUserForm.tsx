@@ -1,6 +1,6 @@
 'use client'
+import { useActionState } from "react";
 
-import { useFormState } from "react-dom";
 import updateUserAction from "@/app/(lang)/app/settings/user/updateUser.action";
 import {
   Box,
@@ -22,7 +22,7 @@ interface User {
 }
 
 export default function UpdateUserForm({ user }: { user: User }) {
-  const [errors, action] = useFormState(updateUserAction, []);
+  const [errors, action] = useActionState(updateUserAction, []);
 
   return (
     <>
