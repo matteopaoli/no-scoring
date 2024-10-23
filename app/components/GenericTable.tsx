@@ -28,6 +28,7 @@ interface GenericTableProps<T> {
   itemsPerPage?: number;
   title: string;
   onRowClick?: (rowData: T) => void; // Row click handler
+  menu?: (props: any) => JSX.Element
 }
 
 export default function GenericTable<T>({
@@ -36,6 +37,7 @@ export default function GenericTable<T>({
   itemsPerPage = 10,
   title,
   onRowClick,
+  menu: Menu
 }: GenericTableProps<T>) {
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = Math.ceil(data.length / itemsPerPage);
@@ -53,7 +55,6 @@ export default function GenericTable<T>({
   const textColor = useColorModeValue("secondaryGray.900", "white");
   const headingColor = useColorModeValue("navy.700", "white");
 
-
   // Handle row click
   const handleRowClick = (rowData: T) => {
     if (onRowClick) {
@@ -62,17 +63,36 @@ export default function GenericTable<T>({
   };
 
   return (
-    <Card flexDirection="column" w="100%" px="0px" overflowX={{ sm: "scroll", lg: "hidden" }}>
-      <Heading as="h3" size="xl" fontWeight="bold" my={4} ms={{ base: '10px', md: '20px' }} color={headingColor}>
-        {title}
-      </Heading>
+    <Card
+      flexDirection="column"
+      w="100%"
+      px="0px"
+      overflowX={{ sm: "scroll", lg: "hidden" }}
+    >
+      <Flex px="25px" mb="8px" justifyContent="space-between" align="center">
+        <Heading
+          as="h3"
+          size="xl"
+          fontWeight="bold"
+          my={4}
+          ms={{ base: "10px", md: "20px" }}
+          color={headingColor}
+        >
+          {title}
+        </Heading>
+        {Menu? <Menu /> : null}
+      </Flex>
       <Table variant="simple" color="gray.500">
         <Thead>
           {table.getHeaderGroups().map((headerGroup) => (
             <Tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
                 <Th key={header.id} borderColor={borderColor}>
-                  <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400" fontWeight="bold">
+                  <Text
+                    fontSize={{ sm: "10px", lg: "12px" }}
+                    color="gray.400"
+                    fontWeight="bold"
+                  >
                     {flexRender(
                       header.column.columnDef.header,
                       header.getContext()
@@ -94,7 +114,10 @@ export default function GenericTable<T>({
                 <Td key={cell.id} borderColor="transparent">
                   <Flex align="center">
                     <Text fontSize="sm" fontWeight="bold" color={textColor}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
                     </Text>
                   </Flex>
                 </Td>

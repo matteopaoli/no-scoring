@@ -83,7 +83,7 @@ export default function Statistics({
             />
           }
           name="Commissioni totali"
-          value={`€ ${data.totalCommission}`}
+          value={`€ ${data.totalCommission.toFixed(2)}`}
         />
 
         <MiniStatistics

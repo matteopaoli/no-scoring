@@ -37,6 +37,7 @@ import { Link } from "@chakra-ui/next-js";
 import { useRouter } from "next/navigation";
 import Menu from './SubPartnersTableMenu';
 import GenericTable from "@/app/components/GenericTable";
+import SubPartnersTableMenu from "./SubPartnersTableMenu";
 
 type SubPartnersTableProps = {
   tableData: {
@@ -102,6 +103,7 @@ export default function SubPartnersTable({ tableData }: SubPartnersTableProps) {
       onRowClick={onRowClick}
       title="Agenti"
       itemsPerPage={10}
+      menu={SubPartnersTableMenu}
     />
   );
 }

@@ -661,13 +661,79 @@ export async function getSales(userId: string, userRole: string) {
 }
 
 export async function getPartners() {
-  const { password, role, businessTypeId, ...rest } = getTableColumns(users);
-  return await db
-    .select({ ...rest, businessType: businessType.name })
+  const partners = await db
+    .select({
+      id: users.id,
+      firstName: users.firstName,
+      lastName: users.lastName,
+      email: users.email,
+    })
     .from(users)
-    .where(eq(users.role, "partner"))
-    .leftJoin(businessType, eq(users.businessTypeId, businessType.id));
+    .where(eq(users.role, "partner"));
+
+  const partnersWithCommissions = await Promise.all(
+    partners.map(async (partner) => {
+      const firstLevelCommission = await getStoresByPartnerId(partner.id);
+      const secondLevelCommission = await getSecondLevelCommissions(partner.id);
+
+      const totalFirstLevelCommission = firstLevelCommission.stores.reduce(
+        (acc, store) => acc + (store.totalCommission || 0),
+        0
+      );
+
+      const totalCommission =
+        totalFirstLevelCommission + (secondLevelCommission || 0);
+
+      return {
+        ...partner,
+        totalCommission,
+      };
+    })
+  );
+
+  return partnersWithCommissions;
 }
+
+
+export async function getSubPartners() {
+  // Fetch all subpartners
+  const subpartners = await db
+    .select({
+      id: users.id,
+      firstName: users.firstName,
+      lastName: users.lastName,
+      email: users.email,
+      provincia: users.provincia,
+    })
+    .from(users)
+    .where(eq(users.role, "subpartner"));
+
+  // For each subpartner, fetch the first-level commissions
+  const subpartnersWithCommissions = await Promise.all(
+    subpartners.map(async (subpartner) => {
+      // Fetch first-level commissions for this subpartner
+      const merchantStores = (await db
+        .select({
+          totalCommission: sql`COALESCE(SUM(CAST(${sales.firstLevelPartnerCommission} AS numeric)), 0)`,
+        })
+        .from(stores)
+        .innerJoin(userStoreRoles, eq(stores.id, userStoreRoles.storeId))
+        .leftJoin(sales, eq(stores.id, sales.storeId))
+        .where(eq(stores.partnerId, subpartner.id))) as { totalCommission: number }[];
+
+      const firstLevelCommission = merchantStores[0]?.totalCommission || 0;
+
+      // Return the subpartner data with totalCommission added
+      return {
+        ...subpartner,
+        totalCommission: Number(firstLevelCommission),
+      };
+    })
+  );
+
+  return subpartnersWithCommissions;
+}
+
 
 export async function createPartner({
   firstName,
@@ -721,9 +787,9 @@ export async function updatePartner({
     })
     .where(eq(users.id, id));
 }
-
 export async function getSubPartnersByUserId(userId: string) {
-  return await db
+  // Fetch all subpartners for the given userId
+  const subpartners = await db
     .select({
       id: users.id,
       firstName: users.firstName,
@@ -733,7 +799,33 @@ export async function getSubPartnersByUserId(userId: string) {
     })
     .from(users)
     .where(and(eq(users.partnerId, userId), eq(users.role, "subpartner")));
+
+  // For each subpartner, fetch the first-level commissions
+  const subpartnersWithCommissions = await Promise.all(
+    subpartners.map(async (subpartner) => {
+      // Fetch first-level commissions for this subpartner
+      const merchantStores = (await db
+        .select({
+          totalCommission: sql`COALESCE(SUM(CAST(${sales.firstLevelPartnerCommission} AS numeric)), 0)`,
+        })
+        .from(stores)
+        .innerJoin(userStoreRoles, eq(stores.id, userStoreRoles.storeId))
+        .leftJoin(sales, eq(stores.id, sales.storeId))
+        .where(eq(stores.partnerId, subpartner.id))) as { totalCommission: number }[];
+
+      const firstLevelCommission = merchantStores[0]?.totalCommission || 0;
+
+      // Return the subpartner data with totalCommission added
+      return {
+        ...subpartner,
+        totalCommission: Number(firstLevelCommission),
+      };
+    })
+  );
+
+  return subpartnersWithCommissions;
 }
+
 
 export async function searchPartner(query: string) {
   return await db
@@ -798,7 +890,11 @@ export async function getStoresByPartnerId(partnerId: string) {
     })
     .from(users)
     .where(
-      and(eq(users.partnerId, partnerId), eq(users.onboardingCompleted, false), eq(users.role, 'user'))
+      and(
+        eq(users.partnerId, partnerId),
+        eq(users.onboardingCompleted, false),
+        eq(users.role, "user")
+      )
     );
 
   const merchantStores = (await db
@@ -823,11 +919,6 @@ export async function getStoresByPartnerId(partnerId: string) {
 
   return { stores: merchantStores, inactiveMerchants };
 }
-
-export async function getCommissionsFromStore(
-  storeId: string,
-  partnerId: string
-) {}
 
 export async function getSecondLevelCommissions(
   partnerId: string

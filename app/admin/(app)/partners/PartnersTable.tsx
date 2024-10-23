@@ -20,14 +20,12 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 type PartnersTableProps = {
-  tableData: Omit<User, "password" | "role" | "businessTypeId">[];
+  tableData;
 };
 
-const columnHelper = createColumnHelper<Omit<User, "password" | "role" | "businessTypeId">>();
+const columnHelper = createColumnHelper();
 
 export default function PartnersTable({ tableData }: PartnersTableProps) {
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-  const { isOpen, onOpen, onClose } = useDisclosure();
   const router = useRouter();
 
   const columns = useMemo(
@@ -35,36 +33,42 @@ export default function PartnersTable({ tableData }: PartnersTableProps) {
       columnHelper.accessor("firstName", {
         id: "name",
         header: () => "Nome",
-        cell: (info) => `${info.row.original.firstName} ${info.row.original.lastName}`,
+        cell: (info) =>
+          `${info.row.original.firstName} ${info.row.original.lastName}`,
       }),
       columnHelper.accessor("email", {
         id: "email",
         header: () => "E-mail",
         cell: (info) => info.getValue(),
       }),
+      columnHelper.accessor("totalCommission", {
+        id: "totalCommission",
+        header: () => "Commissioni Dovute",
+        cell: (info) => `€ ${(info.getValue() as number).toFixed(2)}`,
+      }),
     ],
     []
   );
 
-  const handleDelete = async () => {
-    if (!selectedUserId) return;
-    try {
-      // Uncomment and modify this fetch call according to your API
-      // const response = await fetch(`/api/users/${selectedUserId}`, {
-      //   method: "DELETE",
-      // });
-      // if (response.ok) {
-      //   // Handle successful deletion (e.g., refetch data or update state)
-      //   console.log("User deleted successfully");
-      // }
-    } catch (error) {
-      console.error("Error deleting user:", error);
-    } finally {
-      setSelectedUserId(null);
-      onClose();
-      window.location.reload(); // Consider using state management or re-fetching instead
-    }
-  };
+  // const handleDelete = async () => {
+  //   if (!selectedUserId) return;
+  //   try {
+  //     // Uncomment and modify this fetch call according to your API
+  //     // const response = await fetch(`/api/users/${selectedUserId}`, {
+  //     //   method: "DELETE",
+  //     // });
+  //     // if (response.ok) {
+  //     //   // Handle successful deletion (e.g., refetch data or update state)
+  //     //   console.log("User deleted successfully");
+  //     // }
+  //   } catch (error) {
+  //     console.error("Error deleting user:", error);
+  //   } finally {
+  //     setSelectedUserId(null);
+  //     onClose();
+  //     window.location.reload(); // Consider using state management or re-fetching instead
+  //   }
+  // };
 
   const onRowClick = (row: any) => {
     router.push(`/admin/partners/${row.id}`);
@@ -79,9 +83,8 @@ export default function PartnersTable({ tableData }: PartnersTableProps) {
         title="Lista Partner"
         onRowClick={onRowClick} // Pass the row click handler to GenericTable
       />
-
       {/* Confirmation Modal */}
-      <Modal isOpen={isOpen} onClose={onClose}>
+      {/* <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Conferma Eliminazione</ModalHeader>
@@ -95,7 +98,7 @@ export default function PartnersTable({ tableData }: PartnersTableProps) {
             </Button>
           </ModalFooter>
         </ModalContent>
-      </Modal>
+      </Modal> */}
     </Box>
   );
 }
