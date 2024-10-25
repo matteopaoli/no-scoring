@@ -264,27 +264,37 @@ export async function getBusinessTypes(): Promise<BusinessType[]> {
   return Object.values(groupedResult);
 }
 
-export async function getUsers() {
-  const { password, role, businessTypeId, partnerId, ...rest } =
-    getTableColumns(users);
+export async function getUsersWithStoresAndCommissions() {
+  const { password, role, businessTypeId, partnerId, ...rest } = getTableColumns(users);
   const partner = alias(users, "partner");
-  return (await db
+
+  return await db
     .select({
       ...rest,
       businessType: businessType.name,
-      partnerName:
-        sql<string>`CONCAT(partner."firstName", ' ', partner."lastName")`.as(
-          "partnerName"
-        ),
+      partnerName: sql<string>`CONCAT(partner."firstName", ' ', partner."lastName")`.as("partnerName"),
+      storeId: stores.id,
+      storeName: stores.name,
+      storeImage: stores.image,
+      storeCreatedAt: stores.createdAt,
+      totalCommission: sql`COALESCE(SUM(CAST(${sales.legCommission} AS numeric)), 0)`.as("totalCommission"),
+      totalVolume: sql`COALESCE(SUM(CAST(${sales.amount} AS numeric)), 0)`.as("totalVolume"),
     })
     .from(users)
     .leftJoin(businessType, eq(users.businessTypeId, businessType.id))
     .leftJoin(partner, eq(users.partnerId, sql`partner.id`))
-    .where(eq(users.role, "user"))) as Omit<
-    User,
-    "password" | "role" | "businessTypeId"
-  >[];
+    .leftJoin(userStoreRoles, eq(users.id, userStoreRoles.userId))
+    .leftJoin(stores, eq(userStoreRoles.storeId, stores.id))
+    .leftJoin(sales, eq(stores.id, sales.storeId))
+    .where(eq(users.role, "user"))
+    .groupBy(
+      users.id,
+      partner.id,
+      businessType.name,
+      stores.id
+    );
 }
+
 
 export async function updateProfile({
   password,
@@ -959,26 +969,4 @@ export async function getAllPartnerFees(partnerId: string) {
     secondLevelCommission,
     totalCommission: firstLevelCommission + (secondLevelCommission ?? 0),
   };
-}
-
-export async function getAllStoresWithLegCommission() {
-  return (await db
-    .select({
-      storeId: stores.id,
-      storeName: stores.name,
-      storeImage: stores.image,
-      createdAt: stores.createdAt,
-      totalCommission: sql`COALESCE(SUM(CAST(${sales.legCommission} AS numeric)), 0)`,
-      totalVolume: sql`COALESCE(SUM(CAST(${sales.amount} AS numeric)), 0)`, // New sum for amount
-    })
-    .from(stores)
-    .leftJoin(sales, eq(stores.id, sales.storeId))
-    .groupBy(stores.id)) as {
-    storeId: string;
-    storeName: string;
-    storeImage: string | null;
-    createdAt: Date | null;
-    totalCommission: number;
-    totalVolume: number; // Added totalAmount type
-  }[];
 }

@@ -27,7 +27,7 @@ const routes = [
     path: '/admin/users',
     icon: (
       <Icon
-        as={MdOutlineVerifiedUser}
+        as={MdStore}
         width="20px"
         height="20px"
         color="inherit"
@@ -44,14 +44,6 @@ const routes = [
     name: "Dettagli Partner",
     path: "/admin/partners/[id]",
   },
-  {
-    name: 'Negozi',
-    layout: '/admin',
-    path: '/admin/stores',
-    icon: <Icon as={MdStore} width="20px" height="20px" color="inherit" />,
-    sidebar: true,
-    match: /^\/admin\/stores(\/.*)?$/,
-  },  
   {
     name: 'Partner',
     layout: '/admin',

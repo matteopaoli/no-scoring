@@ -3,9 +3,10 @@ import Client from "./page.client";
 import { Box, Flex } from "@chakra-ui/react";
 import { redirect } from "next/navigation";
 
-export default async function EditBusinessTypePage({ params }: { params: { businessTypeId: string } }) {
+export default async function EditBusinessTypePage(props: { params: Promise<{ businessTypeId: string }> }) {
+  const params = await props.params;
   const businessType = await getBusinessTypeById(params.businessTypeId);
-  
+
   if (!businessType) {
     redirect('/admin/business-types?error=true&type=not-found');
   }

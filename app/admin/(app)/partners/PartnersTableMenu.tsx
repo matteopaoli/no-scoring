@@ -19,7 +19,7 @@ import {
   MdOutlinePerson,
 } from "react-icons/md";
 
-export default function Banner(props) {
+export default function PartnersTableMenu(props) {
   const { ...rest } = props;
 
   const textColor = useColorModeValue("secondaryGray.500", "white");

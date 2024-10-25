@@ -6,11 +6,12 @@ import Statistics from "./Statistics";
 import { MdOutlineEdit } from "react-icons/md";
 import EditButton from "./EditButton";
 
-export default async function UsersPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function UsersPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
   const partner = await getUserById(params.id);
   if (partner.role !== "partner") {
     throw new Error("not a partner");

@@ -7,6 +7,7 @@ import GenericTable from "@/app/components/GenericTable"; // Import the GenericT
 import { User } from "@/app/db";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import PartnersTableMenu from "./PartnersTableMenu";
 
 type PartnersTableProps = {
   tableData;
@@ -71,6 +72,7 @@ export default function PartnersTable({ tableData }: PartnersTableProps) {
         itemsPerPage={10}
         title="Lista Partner"
         onRowClick={onRowClick} // Pass the row click handler to GenericTable
+        menu={PartnersTableMenu}
       />
       {/* Confirmation Modal */}
       {/* <Modal isOpen={isOpen} onClose={onClose}>

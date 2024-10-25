@@ -3,10 +3,8 @@ import { z } from "zod";
 import { deleteUser, getUser } from "@/app/db";
 import { auth } from "@/app/auth";
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const session = await auth();
     if (!session?.user?.email) {

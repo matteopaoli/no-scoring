@@ -37,7 +37,7 @@ import { User } from "@/app/db";
 import { Link } from "@chakra-ui/next-js";
 
 type UsersTableProps = {
-  tableData: Omit<User, "password" | "role" | "businessTypeId">[];
+  tableData: unknown[];
 };
 
 const columnHelper = createColumnHelper();
@@ -58,7 +58,6 @@ export default function UsersTable({ tableData }: UsersTableProps) {
       });
 
       if (response.ok) {
-        // Handle successful deletion (e.g., refetch data or update state)
         console.log("User deleted successfully");
       } else {
         console.error("Failed to delete the user");
@@ -127,6 +126,45 @@ export default function UsersTable({ tableData }: UsersTableProps) {
         cell: (info) => (
           <Text color={textColor} fontSize="sm" fontWeight="700">
             {(info.getValue() as string).trim() ? info.getValue() : "—"}
+          </Text>
+        ),
+      }),
+      columnHelper.accessor("storeName", {
+        id: "storeName",
+        header: () => (
+          <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
+            Store Name
+          </Text>
+        ),
+        cell: (info) => (
+          <Text color={textColor} fontSize="sm" fontWeight="700">
+            {info.getValue()}
+          </Text>
+        ),
+      }),
+      columnHelper.accessor("totalCommission", {
+        id: "totalCommission",
+        header: () => (
+          <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
+            Total Commission
+          </Text>
+        ),
+        cell: (info) => (
+          <Text color={textColor} fontSize="sm" fontWeight="700">
+            {Number(info.getValue()).toFixed(2)} €
+          </Text>
+        ),
+      }),
+      columnHelper.accessor("totalVolume", {
+        id: "totalVolume",
+        header: () => (
+          <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
+            Total Volume
+          </Text>
+        ),
+        cell: (info) => (
+          <Text color={textColor} fontSize="sm" fontWeight="700">
+            {Number(info.getValue()).toFixed(2)} €
           </Text>
         ),
       }),
@@ -263,3 +301,4 @@ export default function UsersTable({ tableData }: UsersTableProps) {
     </Card>
   );
 }
+

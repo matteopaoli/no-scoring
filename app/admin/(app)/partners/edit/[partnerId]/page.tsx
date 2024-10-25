@@ -4,7 +4,8 @@ import Client from './page.client'
 import { getUserById, User } from "@/app/db";
 
 
-export default async function EditPartnerPage({ params }: { params: { partnerId: string } }) {
+export default async function EditPartnerPage(props: { params: Promise<{ partnerId: string }> }) {
+  const params = await props.params;
   const partner = await getUserById(params.partnerId)
 
   return (

@@ -55,7 +55,7 @@ export default function Statistics({ partner, subpartners, totalFee }: { partner
           />
         }
         name="Commissioni Dovute"
-        value={`€ ${totalFee.toFixed(2)}`}
+        value={`€ ${Number(totalFee).toFixed(2)}`}
       />
 
       <MiniStatistics
