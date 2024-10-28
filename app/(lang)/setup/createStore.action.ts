@@ -9,7 +9,7 @@ import formatZodErrors from "@/app/utils/formatZodErrors";
 
 const createStoreSchema = z.object({
   storeName: z.string().min(1, "Il nome del negozio è obbligatorio"),
-  storeLogo: z.instanceof(Blob).optional(),
+  storeLogo: z.instanceof(Blob).nullable()
 });
 
 export async function createStoreAction(prevState: Awaited<FormActionReturnType>, formData: FormData): FormActionReturnType {
