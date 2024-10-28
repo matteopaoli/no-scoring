@@ -1,9 +1,9 @@
-import { useActionState } from "react";
 import ImageInput from "@/app/components/fields/ImageInput";
 import InputField from "@/app/components/fields/InputField";
 import SubmitButton from "@/app/components/SubmitButton";
 import getFormErrors from "@/app/utils/getFormErrors";
 import { Box, Grid, GridItem, VStack } from "@chakra-ui/react";
+import { useFormState } from "react-dom";
 import { updateStoreAction } from "./updateStore.action";
 
 interface Store {
@@ -13,7 +13,7 @@ interface Store {
 }
 
 export default function UpdateStoreForm({ store }: { store: Store }) {
-  const [errors, action] = useActionState(updateStoreAction, []);
+  const [errors, action] = useFormState(updateStoreAction, []);
   return (
     <form action={action} style={{ width: "100%" }}>
       <Grid templateColumns="1fr" gap={6}>

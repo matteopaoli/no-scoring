@@ -1,8 +1,9 @@
 "use client";
 
 import { Button, Text, useColorModeValue, Box, FormControl, FormHelperText, SimpleGrid } from "@chakra-ui/react";
-import { ReactNode, useActionState, useState } from "react";
+import { ReactNode, useState } from "react";
 import createUserAction from "./createUser.action";
+import { useFormState } from "react-dom";
 import InputField from "@/app/components/fields/InputField"; // Import the InputField component
 import TextArea from "@/app/components/fields/TextArea"; // Import the TextArea component
 import getFormErrors from "@/app/utils/getFormErrors"; // Utility for fetching errors
@@ -26,7 +27,7 @@ export default function CreateUserPage({
   businessTypesOptions,
   partners
 }: CreateUserPageProps) {
-  const [errors, action] = useActionState(createUserAction, []);
+  const [errors, action] = useFormState(createUserAction, []);
   const [partnerId, setPartnerId] = useState(null)
 
   // Chakra color mode

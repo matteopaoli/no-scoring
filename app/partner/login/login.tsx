@@ -1,5 +1,5 @@
 'use client'
-import React, { useActionState } from "react";
+import React from "react";
 // Chakra imports
 import {
   Box,
@@ -26,13 +26,14 @@ import { MdOutlineRemoveRedEye } from "react-icons/md";
 import { RiEyeCloseLine } from "react-icons/ri";
 import login from './login.action';
 import { Link } from "@chakra-ui/next-js";
+import { useFormState } from "react-dom";
 import { useDictionary } from "@/app/DictionaryProvider";
 
 const initialState: { error?: string } | undefined = {}
 
 export default function SignIn() {
   const t = useDictionary();
-  const [formState, action] = useActionState(login, initialState)
+  const [formState, action] = useFormState(login, initialState)
 
   // Chakra color mode
   const textColor = useColorModeValue("navy.700", "white");

@@ -11,13 +11,14 @@ import {
   useColorModeValue,
   Box,
 } from "@chakra-ui/react";
-import { ReactNode, useActionState, useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
+import { useFormState } from "react-dom";
 import { createBusinessTypeAction } from "../createBusinessType.action";
 
 const initialState: string | null = null;
 
 export default function CreateUserPage() {
-  const [formState, action] = useActionState(createBusinessTypeAction, initialState);
+  const [formState, action] = useFormState(createBusinessTypeAction, initialState);
   const [errors, setErrors] = useState<Record<string, any>[]>([]);
   const [commissionRules, setCommissionRules] = useState([
     { minAmount: '', maxAmount: '', commissionType: '', commissionValue: '' },

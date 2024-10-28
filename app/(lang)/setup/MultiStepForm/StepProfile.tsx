@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useActionState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Button, FormControl, FormLabel, Input, FormErrorMessage } from '@chakra-ui/react';
+import { useFormState } from 'react-dom';
 import { updateProfileAction } from '../updateProfile.action';
 import { UserContext } from '@/app/contexts/UserContext';
 
@@ -9,7 +10,7 @@ interface StepProfileProps {
 }
 
 const StepProfile: React.FC<StepProfileProps> = ({ onNext, session }) => {
-  const [profileFormState, updateProfile] = useActionState(updateProfileAction, { success: false, issues: [] });
+  const [profileFormState, updateProfile] = useFormState(updateProfileAction, { success: false, issues: [] });
   const [profileErrors, setProfileErrors] = useState<any[]>([]); // Use a more specific type if available
 
   useEffect(() => {

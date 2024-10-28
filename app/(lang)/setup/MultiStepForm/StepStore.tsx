@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useActionState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   Box,
   Button,
@@ -7,6 +7,7 @@ import {
   Input,
   FormErrorMessage,
 } from "@chakra-ui/react";
+import { useFormState } from "react-dom";
 import { createStoreAction } from "../createStore.action";
 import { UserContext } from "@/app/contexts/UserContext";
 import ProfileImageInput from "@/app/components/fields/ProfileImageInput";
@@ -15,7 +16,7 @@ import SubmitButton from "@/app/components/SubmitButton";
 import getFormErrors from "@/app/utils/getFormErrors";
 
 const StepStore: React.FC = () => {
-  const [errors, action] = useActionState(createStoreAction, []);
+  const [errors, action] = useFormState(createStoreAction, []);
   const [storeErrors, setStoreErrors] = useState<any[]>([]); // Use a more specific type if available
   const session = useContext(UserContext);
 
