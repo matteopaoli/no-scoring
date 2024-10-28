@@ -24,7 +24,6 @@ export default async function createProductAction(
 
   const stripe = new Stripe(user.stripeSecretKey);
 
-  // Validation schema for product data
   const createProductSchema = z.object({
     name: z.string().min(1, "Name is required"),
     description: z.string().optional(),
@@ -81,35 +80,35 @@ export default async function createProductAction(
     }
 
     // Modify the description if the checkbox is checked
-    let finalDescription = description || "";
-    if (includeCommission) {
-      finalDescription +=
-        "\n\nIl prezzo è stato aumentato per includere le commissioni associate al pagamento in più rate.";
-    }
-
-    // Create the product in Stripe
-    const product = await stripe.products.create({
-      name,
-      description: finalDescription, // Use the updated description
-      images: imageUrl ? [imageUrl] : [],
-      default_price_data: {
-        currency: "eur",
-        unit_amount: Math.round(price * 100),
-      },
-    });
-
-    const paymentLink = await createPaymentLink(stripe, product.id);
-    const qrcode = await generateQrCodeWithLogo(paymentLink.url);
-    const tagImage = await generateTagImage(qrcode, name, price, imageUrl);
-
-    await createProduct({
-      id: product.id,
-      paymentLinkId: paymentLink.id,
-      qrcode,
-      tagImage,
-      userId: user.id,
-    });
-
-    redirect("/app/products?success=true&action=createProduct");
   }
+  let finalDescription = description || "";
+  if (includeCommission) {
+    finalDescription +=
+      "\n\nIl prezzo è stato aumentato per includere le commissioni associate al pagamento in più rate.";
+  }
+
+  // Create the product in Stripe
+  const product = await stripe.products.create({
+    name,
+    description: finalDescription, // Use the updated description
+    images: imageUrl ? [imageUrl] : [],
+    default_price_data: {
+      currency: "eur",
+      unit_amount: Math.round(price * 100),
+    },
+  });
+
+  const paymentLink = await createPaymentLink(stripe, product.id);
+  const qrcode = await generateQrCodeWithLogo(paymentLink.url);
+  const tagImage = await generateTagImage(qrcode, name, price, imageUrl);
+
+  await createProduct({
+    id: product.id,
+    paymentLinkId: paymentLink.id,
+    qrcode,
+    tagImage,
+    userId: user.id,
+  });
+
+  redirect("/app/products?success=true&action=createProduct");
 }

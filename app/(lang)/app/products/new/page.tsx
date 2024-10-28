@@ -20,7 +20,7 @@ import getFormErrors from "@/app/utils/getFormErrors";
 import PriceInput from "@/app/components/fields/PriceField";
 import { useState } from "react";
 import SubmitButton from "../../../../components/SubmitButton";
-import { LEG_COMMISSION_RATE, VAT } from "@/app/constants";
+import { STRIPE_COMMISSION_VAR, STRIPE_COMMISSION_FIXED, VAT } from "@/app/constants";
 
 export default function CreateOrEditProductPage() {
   const [errors, action] = useFormState(createProduct, []);
@@ -30,7 +30,7 @@ export default function CreateOrEditProductPage() {
 
   const handlePriceChange = (event) => {
     const price = parseFloat(event.target.value.replace(',', '.')) || 0;
-    const commission = price * LEG_COMMISSION_RATE * VAT;
+    const commission = (price * STRIPE_COMMISSION_VAR + STRIPE_COMMISSION_FIXED) * VAT;
     const calculatedPrice = price + commission; // Add commission and VAT to price
     setFinalPrice(calculatedPrice);
   };
