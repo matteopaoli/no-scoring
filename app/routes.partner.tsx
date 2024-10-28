@@ -29,9 +29,18 @@ const routes = [
     name: "Commercianti",
     layout: '/admin',
     path: "/partner/merchants",
+    match: /^\/partner\/merchants(\/.*)?$/,
     icon: (
       <Icon as={MdPointOfSale} width="20px" height="20px" color="inherit" />
     ),
+    sidebar: true
+  },
+  {
+    name: "Documenti",
+    layout: "/admin",
+    path: "/partner/documents",
+    match: /^\/partner\/documents(\/.*)?$/,
+    icon: <Icon as={IoDocuments} width="20px" height="20px" color="inherit" />,
     sidebar: true
   },
   {
