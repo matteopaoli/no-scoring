@@ -103,7 +103,7 @@ export default function Client({ storeImage }: ClientPageProps) {
               id="product-image"
               defaultImage={storeImage}
             />
-            <Text fontSize="xs" mt={2}>Puoi sostituire l'immagine di default con una personalizzata</Text>
+            <Text fontSize="xs" mt={2}>Puoi sostituire l&apos;immagine di default con una personalizzata</Text>
           </GridItem>
         </Grid>
         <SubmitButton>Salva Prodotto</SubmitButton>

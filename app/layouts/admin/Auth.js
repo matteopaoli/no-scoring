@@ -7,6 +7,7 @@ import Footer from "@/app/components/footer/FooterAuth";
 import { Link } from '@chakra-ui/next-js'
 // Assets
 import { FaChevronLeft } from "react-icons/fa";
+import { PayTomorrowLogo } from "@/app/components/icons/Icons";
 
 export default function AuthIllustration(props) {
   const { children } = props;
@@ -27,26 +28,7 @@ export default function AuthIllustration(props) {
         ps={{ xl: "70px" }}
         justifyContent='start'
         direction='column'>
-        <Link
-          href='/admin'
-          style={{
-            width: "fit-content",
-            marginTop: "40px",
-          }}>
-          {/* <Flex
-            align='center'
-            ps={{ base: "25px", lg: "0px" }}
-            pt={{ lg: "0px", xl: "0px" }}
-            w='fit-content'>
-            <Icon
-              as={FaChevronLeft}
-              me='12px'
-              h='13px'
-              w='8px'
-              color='secondaryGray.600'
-            />
-          </Flex> */}
-        </Link>
+        <PayTomorrowLogo h='26px' w='175px' my='32px' color="navy.700" />
         {children}
         <Footer />
       </Flex>
