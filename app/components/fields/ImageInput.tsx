@@ -18,10 +18,10 @@ interface ImageInputProps {
   label: string;
   id: string;
   image?: string;
+  defaultImage?: string
 }
 
-const ImageInput: React.FC<ImageInputProps> = ({ name, label, id, image }) => {
-  const DEFAULT_IMAGE_URL = "/img/product-placeholder.png";
+const ImageInput: React.FC<ImageInputProps> = ({ name, label, id, image, defaultImage = "/img/product-placeholder.png" }) => {
   const [imageUrl, setImageUrl] = useState<string | undefined>(image);
   const [hasInteracted, setHasInteracted] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -71,7 +71,7 @@ const ImageInput: React.FC<ImageInputProps> = ({ name, label, id, image }) => {
         alt="Uploaded"
         boxSize="200px"
         objectFit="contain"
-        fallbackSrc={DEFAULT_IMAGE_URL}
+        fallbackSrc={defaultImage}
       />
       <Input
         type="file"
