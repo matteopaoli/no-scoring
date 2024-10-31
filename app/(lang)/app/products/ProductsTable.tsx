@@ -2,7 +2,7 @@
 
 import { Box, Flex, Icon, Image, Portal, Table, Tbody, Td, Text, Th, Thead, Tr, useColorModeValue, useMediaQuery, Button } from "@chakra-ui/react";
 import { createColumnHelper, flexRender, getCoreRowModel, getSortedRowModel, Row, useReactTable, VisibilityState } from "@tanstack/react-table";
-import { MdOutlineEdit } from "react-icons/md";
+import { MdArrowForward } from "react-icons/md";
 // Custom components
 import Card from "@/app/components/card/Card";
 import Menu from "./ProductsTableMenu";
@@ -11,6 +11,8 @@ import { Link } from "@chakra-ui/next-js";
 import type Stripe from "stripe";
 import ProductSidebar from "./ProductSidebar";
 import CreateItemButton from "@/app/components/CreateItemButton";
+import styles from './Table.module.css'
+
 
 // Default image URL
 const DEFAULT_IMAGE_URL = "/img/product-placeholder.png"
@@ -95,6 +97,21 @@ export default function ProductsTable({ tableData }: ProductsTableProps) {
           </Text>
         ),
       }),
+      columnHelper.accessor("active", {
+        id: "description",
+        header: () => (
+          <Text justifyContent="space-between" align="center" fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
+          </Text>
+        ),
+        cell: (info) => (
+          <Flex alignItems="center" >
+            <Icon as={MdArrowForward} color="navy.700" width="24px" className={styles.icon} me="16px" />
+            <Text color={textColor} textDecoration="underline" fontSize="sm" fontWeight="700">
+              Dettagli prodotto
+            </Text>
+          </Flex>
+        ),
+      }),
     ],
     [textColor]
   );
@@ -164,7 +181,8 @@ export default function ProductsTable({ tableData }: ProductsTableProps) {
                   key={row.id}
                   onClick={() => onRowClick(row)}
                   style={{ cursor: "pointer", transition: "background-color 0.2s" }}
-                  _hover={{ backgroundColor: 'gray.100'}} // Add hover effect
+                  _hover={{ backgroundColor: 'gray.100' }} // Add hover effect
+                  className={styles.row}
                 >
                   {row.getVisibleCells().map((cell) => {
                     return (

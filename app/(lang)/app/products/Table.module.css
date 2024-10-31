@@ -1,0 +1,8 @@
+.icon {
+    transition: transform 0.2s ease;
+    display: inline-block;
+}
+
+.row:hover .icon {
+    transform: translateX(4px);
+}
