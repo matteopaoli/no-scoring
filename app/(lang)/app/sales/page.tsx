@@ -1,5 +1,3 @@
-import { getUser } from "@/app/db";
-import { auth } from "app/auth";
 import Stripe from "stripe";
 import SalesTable from "./SalesTable";
 import Statistics from "./Statistics";
@@ -11,10 +9,11 @@ export default async function SalesPage() {
   const { data: charges } = await stripe.charges.list({ limit: 1000 });
   const totalSales = charges.length;
   const totalAmount = charges.reduce((sum, charge) => sum + charge.amount, 0) / 100;
-  const thirtyDaysAgo = Math.floor(Date.now() / 1000) - 30 * 24 * 60 * 60;
-  const recentCharges = charges.filter((charge) => charge.created >= thirtyDaysAgo);
+  const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).getTime() / 1000;
+  const recentCharges = charges.filter((charge) => charge.created >= startOfMonth);
   const recentSales = recentCharges.length;
   const recentAmount = recentCharges.reduce((sum, charge) => sum + charge.amount, 0) / 100;
+  
 
   const chargesWithDetails = await Promise.all(
     charges.map(async (charge) => {

@@ -68,7 +68,7 @@ export default function Statistics({ data }: { data: Record<string, number> }) {
               }
             />
           }
-          name="Vendite (ultimi 30 giorni)"
+          name="Vendite (mese corrente)"
           value={data.recentSales}
         />
 
@@ -89,7 +89,7 @@ export default function Statistics({ data }: { data: Record<string, number> }) {
               }
             />
           }
-          name="Importo (ultimi 30 giorni)"
+          name="Importo (mese corrente)"
           value={`€${data.recentAmount.toFixed(2)}`}
         />
       </SimpleGrid>
