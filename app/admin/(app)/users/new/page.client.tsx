@@ -35,7 +35,6 @@ export default function CreateUserPage({
   const brandStars = useColorModeValue("brand.500", "brand.400");
 
   const handlePartnerChange = (p) => {
-    console.log(p)
     setPartnerId(p)
   }
 

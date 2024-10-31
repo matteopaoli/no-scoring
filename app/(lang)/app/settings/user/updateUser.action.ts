@@ -59,7 +59,6 @@ export default async function updateUserAction(prevState, formData: FormData): F
   }
 
   const { firstName, lastName, password, image } = validation.data;
-  console.log('imageee', image)
   const user = await getUserFromAuth();
   if (!user?.email) {
     redirect("/login");

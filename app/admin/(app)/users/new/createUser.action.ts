@@ -74,8 +74,6 @@ export default async function createUserAction(
       ),
   });
 
-  console.log(formData.get("partner"));
-
   // Validate form data against the schema
   const validation = await createUserSchema.safeParseAsync({
     email: formData.get("email"),

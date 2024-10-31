@@ -313,8 +313,6 @@ export async function updateProfile({
     await db.update(users).set(rest).where(eq(users.email, rest.email));
   } else {
     if (profileImage && profileImage.size > 0) {
-      console.log("dioc");
-      console.log(profileImage);
       profileImageData = await compressProfileImageToBase64(profileImage);
     }
     await db

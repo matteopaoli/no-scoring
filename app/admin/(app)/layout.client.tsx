@@ -26,9 +26,6 @@ export default function AdminLayout({
       const routeRegex = new RegExp(
         `^${cleanRoute.replace(/\[.+?\]/g, "[^/]+")}$`
       );
-      console.log(routeRegex)
-      console.log(cleanPathname)
-      console.log(routeRegex.test(cleanPathname))
       if (routeRegex.test(cleanPathname)) {
         return routes[i].name;
       }

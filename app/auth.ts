@@ -19,7 +19,6 @@ export const {
     Credentials({
     async authorize(credentials, req) {
         let user = await getUser(credentials.email as string);
-        console.log(user)
         if (!user) return null;
         let passwordsMatch = await compare(credentials.password as string, user.password!);
         if (passwordsMatch && (credentials.roles as string[]).includes(user.role)) {
