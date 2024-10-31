@@ -1,15 +1,14 @@
 "use server";
 
-import { auth } from "@/app/auth";
-import { getProduct, getUser } from "@/app/db";
+import { getProduct } from "@/app/db";
+import getUserFromAuth from "@/app/utils/getUserFromAuth";
 import { uploadImageToS3 } from "@/app/utils/s3";
 import { redirect } from "next/navigation";
 import Stripe from "stripe";
 import { z } from "zod";
 
 export default async function updateProductAction(prevState, formData: FormData): Promise<string> {
-  const session = await auth();
-  const user = await getUser(session?.user?.email);
+  const user = await getUserFromAuth();
   if (!user) {
     throw new Error("User not found");
   }

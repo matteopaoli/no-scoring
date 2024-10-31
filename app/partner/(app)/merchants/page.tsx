@@ -1,6 +1,4 @@
-import { auth } from "@/app/auth";
 import {
-  getUser,
   getStoresByPartnerId,
   getAllPartnerFees,
   getSales,
@@ -9,10 +7,10 @@ import StoresTable from "./StoresTable";
 import { InactiveMerchantsTable } from "./InactiveMerchantsTable";
 import Statistics from "./Statistics";
 import { Box, SimpleGrid } from "@chakra-ui/react";
+import getUserFromAuth from "@/app/utils/getUserFromAuth";
 
 export default async function MerchantsPage() {
-  const session = await auth();
-  const user = await getUser(session?.user?.email);
+  const user = await getUserFromAuth();
   const { inactiveMerchants, stores } = await getStoresByPartnerId(user.id);
   const { firstLevelCommission, secondLevelCommission, totalCommission } =
     await getAllPartnerFees(user.id);

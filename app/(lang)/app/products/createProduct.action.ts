@@ -1,7 +1,6 @@
 "use server";
 
-import { auth } from "@/app/auth";
-import { createProduct, getStoreByUserId, getUser } from "@/app/db";
+import { createProduct, getStoreByUserId } from "@/app/db";
 import Stripe from "stripe";
 import { z } from "zod";
 import { createPaymentLink } from "@/app/utils/stripe";
@@ -10,14 +9,14 @@ import { redirect } from "next/navigation";
 import { uploadImageToS3 } from "@/app/utils/s3";
 import formatZodErrors from "@/app/utils/formatZodErrors";
 import { FormActionReturnType } from "@/app/types";
+import getUserFromAuth from "@/app/utils/getUserFromAuth";
 
 export default async function createProductAction(
   prevState,
   formData: FormData
 ): FormActionReturnType {
   const MAX_FILE_SIZE = 5000000;
-  const session = await auth();
-  const user = await getUser(session?.user?.email);
+  const user = await getUserFromAuth();
   if (!user) {
     throw new Error("User not found");
   }

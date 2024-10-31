@@ -4,6 +4,7 @@ import { auth } from "@/app/auth";
 import { createSubPartner, getUser } from "@/app/db";
 import { FormActionReturnType } from "@/app/types";
 import formatZodErrors from "@/app/utils/formatZodErrors";
+import getUserFromAuth from "@/app/utils/getUserFromAuth";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
@@ -38,9 +39,7 @@ export default async function createPartnerAction(
   }
 
   const { firstName, lastName, email, provincia } = validation.data;
-  const session = await auth()
-  const partner = await getUser(session?.user?.email)
-  // Check for existing user with the same email
+  const partner = await getUserFromAuth();
   const existingUserByEmail = await getUser(email);
 
   if (existingUserByEmail) {

@@ -1,11 +1,9 @@
-import { auth } from "@/app/auth";
 import { Box, Text } from "@chakra-ui/react";
 import GenericProductCard from "./GenericProductCard";
-import { getUser } from "@/app/db";
+import getUserFromAuth from "@/app/utils/getUserFromAuth";
 
 export default async function ProtectedPage() {
-  const session = await auth();
-  const user = await getUser(session?.user?.email)
+  const user = await getUserFromAuth();
   return (
     <Box p={4}>
       <Text fontSize="32px" fontWeight="bold" mb={2}>

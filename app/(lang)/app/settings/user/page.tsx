@@ -1,14 +1,10 @@
-import { getStoreByUserId, getUser } from "@/app/db";
+import { getStoreByUserId } from "@/app/db";
 import { redirect } from "next/navigation";
 import Client from './page.client';
-import { auth } from "@/app/auth";
+import getUserFromAuth from "@/app/utils/getUserFromAuth";
 
 export default async function EditUserPage() {
-    const session = await auth();
-    if (!session?.user?.email) {
-        redirect('/login'); // Redirect to login if not authenticated
-    }
-    const user = await getUser(session.user.email);
+    const user = await getUserFromAuth();
     const store = await getStoreByUserId(user.id)
 
     if (!user) {

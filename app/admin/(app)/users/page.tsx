@@ -1,11 +1,10 @@
-import { getSales, getUser, getUsersWithStoresAndCommissions } from "@/app/db";
+import { getSales, getUsersWithStoresAndCommissions } from "@/app/db";
 import UsersTable from "./UsersTable";
-import { auth } from "@/app/auth";
 import Statistics from "./Statistics";
+import getUserFromAuth from "@/app/utils/getUserFromAuth";
 
 export default async function UsersPage() {
-  const session = await auth();
-  const user = await getUser(session?.user?.email);
+  const user = await getUserFromAuth();
 
   const [users, sales] = await Promise.all([
     getUsersWithStoresAndCommissions(),

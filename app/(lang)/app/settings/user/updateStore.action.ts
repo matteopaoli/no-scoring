@@ -12,6 +12,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/app/auth";
 import { FormActionReturnType } from "@/app/types";
 import formatZodErrors from "@/app/utils/formatZodErrors";
+import getUserFromAuth from "@/app/utils/getUserFromAuth";
 
 const MAX_FILE_SIZE = 5000000;
 
@@ -24,8 +25,7 @@ export async function updateStoreAction(
   prevState: unknown,
   formData: FormData
 ): FormActionReturnType {
-  const session = await auth();
-  const user = await getUser(session?.user?.email);
+  const user = await getUserFromAuth();
   const store = await getStoreByUserId(user.id);
   const storeData = {
     storeName: formData.get("storeName") as string,

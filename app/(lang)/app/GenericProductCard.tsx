@@ -1,13 +1,12 @@
-import { auth } from "@/app/auth";
 import CopyTextBox from "@/app/components/copyTextBox/CopyTextBox";
-import { getProduct, getUser } from "@/app/db";
+import { getProduct } from "@/app/db";
+import getUserFromAuth from "@/app/utils/getUserFromAuth";
 import { Box, Button, SimpleGrid, Text, VStack } from "@chakra-ui/react";
 import Image from "next/image";
 import Stripe from "stripe";
 
 const GenericProductCard = async () => {
-  const session = await auth();
-  const user = await getUser(session.user.email);
+  const user = await getUserFromAuth();
 
   if (!user.genericProductId) {
     return <Text fontSize="lg">Prodotto generico non disponibile</Text>; // Increased font size

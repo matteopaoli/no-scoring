@@ -1,12 +1,10 @@
-import { getUser } from '@/app/db';
-import { auth } from 'app/auth';
 import Stripe from 'stripe'
 import ProductsTable from './ProductsTable';
+import getUserFromAuth from '@/app/utils/getUserFromAuth';
 
 
 export default async function ProductsPage({ searchParams }) {
-    let session = await auth();
-    const user = await getUser(session?.user?.email!)
+    const user = await getUserFromAuth();
     
     const stripe = new Stripe(user.stripeSecretKey)
     const { data } = await stripe.products.list({ active: true, limit: 1000 })

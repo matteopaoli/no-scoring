@@ -1,12 +1,12 @@
 "use server";
 
 import { z } from "zod";
-import { getUser, updateProfile } from "@/app/db";
+import { updateProfile } from "@/app/db";
 import { redirect } from "next/navigation";
-import { auth } from "@/app/auth";
 import { FormActionReturnType } from "@/app/types";
 import formatZodErrors from "@/app/utils/formatZodErrors";
 import { compressProfileImageToBase64 } from "@/app/utils/images";
+import getUserFromAuth from "@/app/utils/getUserFromAuth";
 
 export default async function updateUserAction(prevState, formData: FormData): FormActionReturnType {
   const MAX_FILE_SIZE = 5000000;
@@ -60,8 +60,7 @@ export default async function updateUserAction(prevState, formData: FormData): F
 
   const { firstName, lastName, password, image } = validation.data;
   console.log('imageee', image)
-  const session = await auth();
-  const user = await getUser(session.user.email)
+  const user = await getUserFromAuth();
   if (!user?.email) {
     redirect("/login");
   }

@@ -1,7 +1,6 @@
 import Client from "./layout.client";
-import { auth } from "@/app/auth";
 import Callout from "@/app/components/Callout";
-import { getUser } from "@/app/db";
+import getUserFromAuth from "@/app/utils/getUserFromAuth";
 import { redirect } from "next/navigation";
 
 export default async function AppLayout({
@@ -9,8 +8,7 @@ export default async function AppLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth();
-  const user = await getUser(session!.user!.email!);
+  const user = await getUserFromAuth();
   if (!user.onboardingCompleted) {
     redirect("/setup");
   }
