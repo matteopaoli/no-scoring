@@ -20,7 +20,7 @@ import getFormErrors from "@/app/utils/getFormErrors";
 import PriceInput from "@/app/components/fields/PriceField";
 import { useState } from "react";
 import SubmitButton from "../../../../components/SubmitButton";
-import { STRIPE_COMMISSION_VAR, STRIPE_COMMISSION_FIXED, VAT } from "@/app/constants";
+import { STRIPE_COMMISSION_VAR, STRIPE_COMMISSION_FIXED, VAT, LEG_COMMISSION_RATE } from "@/app/constants";
 
 type ClientPageProps = {
     storeImage?: string
@@ -34,8 +34,8 @@ export default function Client({ storeImage }: ClientPageProps) {
 
   const handlePriceChange = (event) => {
     const price = parseFloat(event.target.value.replace(',', '.')) || 0;
-    const commission = (price * STRIPE_COMMISSION_VAR + STRIPE_COMMISSION_FIXED) * VAT;
-    const calculatedPrice = price + commission; // Add commission and VAT to price
+    const commission = (price * (STRIPE_COMMISSION_VAR + LEG_COMMISSION_RATE) + STRIPE_COMMISSION_FIXED) * VAT;
+    const calculatedPrice = price + commission; // Add commission to price
     setFinalPrice(calculatedPrice);
   };
 
