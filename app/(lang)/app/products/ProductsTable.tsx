@@ -10,6 +10,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "@chakra-ui/next-js";
 import type Stripe from "stripe";
 import ProductSidebar from "./ProductSidebar";
+import CreateItemButton from "@/app/components/CreateItemButton";
 
 // Default image URL
 const DEFAULT_IMAGE_URL = "/img/product-placeholder.png"
@@ -126,7 +127,7 @@ export default function ProductsTable({ tableData }: ProductsTableProps) {
         <Text color={textColor} fontSize="22px" fontWeight="700" lineHeight="100%">
           Lista Prodotti
         </Text>
-        <Menu />
+        <CreateItemButton href="/app/products/new">Crea nuovo prodotto</CreateItemButton>
       </Flex>
       <Box>
         <Table variant="simple" color="gray.500" mb="24px" mt="12px">
