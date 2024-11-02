@@ -54,7 +54,9 @@ export function SearchBar({
     try {
       const response = await fetch(`${apiPath}?query=${encodeURIComponent(query)}`);
       const data = await response.json();
-      setResults(data); // Set the fetched results to state
+      if (!data.error) {
+        setResults(data); // Set the fetched results to state
+      } 
     } catch (error) {
       console.error("Error fetching search results:", error);
     } finally {

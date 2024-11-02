@@ -196,10 +196,3 @@ export default function HeaderLinks({
     </Flex>
   );
 }
-
-HeaderLinks.propTypes = {
-  variant: PropTypes.string,
-  fixed: PropTypes.bool,
-  secondary: PropTypes.bool,
-  onOpen: PropTypes.func,
-};

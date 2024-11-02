@@ -28,6 +28,7 @@ import login from './login.action';
 import { Link } from "@chakra-ui/next-js";
 import { useFormState } from "react-dom";
 import { useDictionary } from "@/app/DictionaryProvider";
+import SubmitButton from "@/app/components/SubmitButton";
 
 const initialState: { error?: string } | undefined = {}
 
@@ -168,17 +169,7 @@ export default function SignIn() {
                 </Text>
               </Link>
             </Flex> */}
-            <Button
-              mt="24px"
-              type="submit"
-              fontSize='sm'
-              variant='brand'
-              fontWeight='500'
-              w='100%'
-              h='50'
-              mb='24px'>
-              {t('signIn')}
-            </Button>
+            <SubmitButton w="100%" loadingText="Accesso in corso">{t('signIn')}</SubmitButton>
           </FormControl>
           </form>
         </Flex>

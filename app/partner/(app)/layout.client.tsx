@@ -1,13 +1,13 @@
 "use client";
 
-import { ReactNode, useContext, useState } from "react";
+import { ReactNode, useState } from "react";
 import { routes, subpartnerRoutes } from "@/app/routes.partner";
 import { usePathname } from "next/navigation";
 import { Box, Portal, useDisclosure } from "@chakra-ui/react";
 import { SidebarContext } from "@/app/contexts/SidebarContext";
-import AdminNavbar from "@/app/components/navbar/NavbarAdmin";
 import Footer from "@/app/components/footer/FooterAdmin";
 import Sidebar from "@/app/components/sidebar/Sidebar";
+import PartnerNavbar from "@/app/components/navbar/NavbarPartner";
 
 export default function AdminLayout({
   children,
@@ -66,7 +66,7 @@ export default function AdminLayout({
           >
             <Portal>
               <Box>
-                <AdminNavbar
+                <PartnerNavbar
                   onOpen={onOpen}
                   logoText="Horizon UI Dashboard PRO"
                   brandText={getActiveRoute()}
