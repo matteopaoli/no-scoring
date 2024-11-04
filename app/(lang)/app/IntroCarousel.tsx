@@ -79,7 +79,7 @@ export default function Carousel() {
         <Box {...slideProps}>
           <Flex alignItems="center" h="100%">
             <Box>
-              <Heading>Cos'è un link di pagamento editabile?</Heading>
+              <Heading>Cos&apos;è un link di pagamento editabile?</Heading>
               <Text>
                 È un link che puoi inviare ai clienti per permettere loro di
                 pagare una cifra specifica. Ecco come funziona in modo semplice:
@@ -90,7 +90,7 @@ export default function Carousel() {
                   inserire l’importo da pagare.
                 </ListItem>
                 <ListItem>
-                  <b>Facilità d'uso</b>: puoi riutilizzare lo stesso link per
+                  <b>Facilità d&apos;uso</b>: puoi riutilizzare lo stesso link per
                   diversi clienti o per acquisti futuri.
                 </ListItem>
                 <ListItem>
@@ -125,7 +125,7 @@ export default function Carousel() {
               </UnorderedList>
               <Text>
                 <b>Inizia subito</b> a semplificare i tuoi pagamenti con
-                Paytomorrow e offri ai tuoi clienti un'esperienza di pagamento
+                Paytomorrow e offri ai tuoi clienti un&apos;esperienza di pagamento
                 semplice e veloce!
               </Text>
             </Box>
@@ -142,7 +142,7 @@ export default function Carousel() {
                 Il QR Code è la versione digitale del tuo link di pagamento
                 editabile: ha le stesse identiche funzioni e flessibilità! Basta
                 mostrarlo al cliente e farglielo inquadrare con lo smartphone.
-                Il cliente potrà inserire l'importo, sommare eventuali prodotti,
+                Il cliente potrà inserire l&apos;importo, sommare eventuali prodotti,
                 e pagare in pochi secondi!
                 <b>🚀 Come funziona?</b>
                 <OrderedList>
