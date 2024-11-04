@@ -34,8 +34,8 @@ export default async function Statistics({
   ).length;
 
   return (
-    <Box mb="8" mx="10">
-      <SimpleGrid columns={{ base: 1, sm: 2, md: 4 }} spacing="6">
+    <Box mb="8" mx={{ sm: 0, md: 10 }}>
+      <SimpleGrid columns={{ base: 1, md: 4 }} spacing="6">
         <TotalUsersBadge value={totalUsers} />
         <TotalProductsBadge value={totalProducts} />
         <UsersInCurrentMonthBadge value={usersInMonthToDate} />
