@@ -127,6 +127,7 @@ export default function AppClientLayout({
                   message={""}
                   fixed={false}
                   user={user}
+                  routes={routes}
                   {...rest}
                 />
               </Box>
