@@ -10,6 +10,7 @@ import {
   useColorMode,
   useColorModeValue,
 } from "@chakra-ui/react";
+import { VERSION } from "@/app/constants";
 
 export default function Footer() {
   const textColor = useColorModeValue("gray.400", "white");
@@ -41,6 +42,9 @@ export default function Footer() {
           Pay Tomorrow. Tutti i diritti riservati
         </Text>
       </Text>
+      <Text textColor={textColor} as='span' fontWeight='500' ms='4px'>
+          v{VERSION}
+        </Text>
       {/* <List display='flex'>
         <ListItem
           me={{
