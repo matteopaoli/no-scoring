@@ -28,7 +28,9 @@ export default function AuthIllustration(props) {
         ps={{ xl: "70px" }}
         justifyContent='start'
         direction='column'>
-        <PayTomorrowLogo h='26px' w='175px' my='32px' color="navy.700" />
+        <Box ms={{ sm: '20px', md: 0,  }}>
+          <PayTomorrowLogo h='26px' w='175px' my='32px' color="navy.700" />
+        </Box>
         {children}
         <Footer />
       </Flex>
