@@ -18,7 +18,7 @@ export default function Statistics({
     secondLevelCommission: number | null;
     totalCommission: number;
     salesVolume: number;
-    salesVolumeThirtyDays: number;
+    salesVolumeStartofMonth: number;
   };
 }) {
   const secondLevelCommission = data.secondLevelCommission?.toFixed(2) ?? 0;
@@ -83,7 +83,7 @@ export default function Statistics({
             />
           }
           name="Commissioni totali"
-          value={`€ ${data.totalCommission.toFixed(2)}`}
+          value={`€ ${Number(data.totalCommission).toFixed(2)}`}
         />
 
         <MiniStatistics
@@ -98,7 +98,7 @@ export default function Statistics({
             />
           }
           name="Volume di vendita"
-          value={`€ ${data.salesVolume.toFixed(2)}`}
+          value={`€ ${Number(data.salesVolume).toFixed(2)}`}
         />
 
         <MiniStatistics
@@ -113,7 +113,7 @@ export default function Statistics({
             />
           }
           name="Volume di vendita (ultimi 30 giorni)"
-          value={`€ ${data.salesVolumeThirtyDays.toFixed(2)}`}
+          value={`€ ${Number(data.salesVolumeStartofMonth).toFixed(2)}`}
         />
         {/*
         <MiniStatistics

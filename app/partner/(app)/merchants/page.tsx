@@ -19,20 +19,20 @@ export default async function MerchantsPage() {
     (acc += Number(sale.amount));
   const salesVolume = sales?.reduce(reducer, 0) || 0;
 
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  const startOfMonth = new Date();
+  startOfMonth.setDate(1);
 
-  const salesVolumeThirtyDays =
+  const salesVolumeStartofMonth =
     sales
       ?.filter((sale) => {
-        return sale.createdAt && sale.createdAt >= thirtyDaysAgo; // Filter for sales in the last 30 days
+        return sale.createdAt && sale.createdAt >= startOfMonth; // Filter for sales in the last 30 days
       })
       .reduce(reducer, 0) || 0;
 
   return (
     <>
       <Statistics
-        data={{ firstLevelCommission, secondLevelCommission, totalCommission, salesVolume, salesVolumeThirtyDays }}
+        data={{ firstLevelCommission, secondLevelCommission, totalCommission, salesVolume, salesVolumeStartofMonth }}
       />
       <SimpleGrid>
         <StoresTable stores={stores} />
