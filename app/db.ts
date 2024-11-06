@@ -1,3 +1,5 @@
+import 'server-only'
+
 import { drizzle } from "drizzle-orm/postgres-js";
 import {
   and,
@@ -20,6 +22,7 @@ import {
   products,
   webhookSecrets,
   sales,
+  leads,
 } from "schema";
 import Stripe from "stripe";
 import {
@@ -30,6 +33,7 @@ import {
 } from "./utils/images";
 import { createGenericProduct } from "./utils/stripe";
 import { alias } from "drizzle-orm/pg-core";
+import { sendNewLeadEmailToAdmin, sendNewLeadEmailToLead } from "./utils/emails";
 
 let client = postgres(`${process.env.DATABASE_URL!}`);
 let db = drizzle(client);
@@ -68,6 +72,16 @@ export interface User {
   genericProductLargeImage: string;
   provincia: string;
   partnerId?: string;
+}
+
+export interface Lead {
+  firstName: string;
+  lastName: string;
+  email: string;
+  businessName: string;
+  phoneNumber: string;
+  referredByUserId: string;
+  sector: string;
 }
 
 export async function getUser(email?: string | null) {
@@ -967,4 +981,18 @@ export async function getAllPartnerFees(partnerId: string) {
     secondLevelCommission,
     totalCommission: firstLevelCommission + (secondLevelCommission ?? 0),
   };
+}
+
+export async function createLead(lead: Lead) {
+  await db.insert(leads).values(lead)
+  sendNewLeadEmailToAdmin()
+  sendNewLeadEmailToLead()
+}
+
+export async function getLeadByEmail(email: string) {
+  return (await db.select().from(leads).where(eq(leads.email, email)))?.[0]
+}
+
+export async function getLeadsByReferrerId(userId: string) {
+  return await db.select().from(leads).where(eq(leads.referredByUserId, userId))
 }

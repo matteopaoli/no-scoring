@@ -2,16 +2,19 @@ import {
   getStoresByPartnerId,
   getAllPartnerFees,
   getSales,
+  getLeadsByReferrerId,
 } from "@/app/db";
 import StoresTable from "./StoresTable";
 import { InactiveMerchantsTable } from "./InactiveMerchantsTable";
 import Statistics from "./Statistics";
-import { Box, SimpleGrid } from "@chakra-ui/react";
+import { Box, GridItem, SimpleGrid } from "@chakra-ui/react";
 import getUserFromAuth from "@/app/utils/getUserFromAuth";
+import { LeadsTable } from "./LeadsTable";
 
 export default async function MerchantsPage() {
   const user = await getUserFromAuth();
   const { inactiveMerchants, stores } = await getStoresByPartnerId(user.id);
+  const leads = await getLeadsByReferrerId(user.id);
   const { firstLevelCommission, secondLevelCommission, totalCommission } =
     await getAllPartnerFees(user.id);
   const sales = await getSales(user.id, user.role);
@@ -32,12 +35,17 @@ export default async function MerchantsPage() {
   return (
     <>
       <Statistics
-        data={{ firstLevelCommission, secondLevelCommission, totalCommission, salesVolume, salesVolumeStartofMonth }}
+        data={{
+          firstLevelCommission,
+          secondLevelCommission,
+          totalCommission,
+          salesVolume,
+          salesVolumeStartofMonth,
+        }}
       />
-      <SimpleGrid>
-        <StoresTable stores={stores} />
-          {/* <InactiveMerchantsTable merchants={inactiveMerchants} /> */}
-      </SimpleGrid>
+      <StoresTable stores={stores} />
+      <LeadsTable leads={leads} />
+      {/* <InactiveMerchantsTable merchants={inactiveMerchants} /> */}
     </>
   );
 }

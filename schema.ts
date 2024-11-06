@@ -7,16 +7,17 @@ import {
   integer,
   serial,
   numeric,
-} from "drizzle-orm/pg-core"
-import postgres from "postgres"
-import { drizzle } from "drizzle-orm/postgres-js"
-import type { AdapterAccountType } from "next-auth/adapters"
-import 'dotenv/config'
- 
-const pool = postgres(process.env.DATABASE_URL!, { max: 1 })
- 
-export const db = drizzle(pool)
- 
+  varchar,
+} from "drizzle-orm/pg-core";
+import postgres from "postgres";
+import { drizzle } from "drizzle-orm/postgres-js";
+import type { AdapterAccountType } from "next-auth/adapters";
+import "dotenv/config";
+
+const pool = postgres(process.env.DATABASE_URL!, { max: 1 });
+
+export const db = drizzle(pool);
+
 export const users = pgTable("user", {
   id: text("id")
     .primaryKey()
@@ -27,81 +28,102 @@ export const users = pgTable("user", {
   password: text("password"),
   createdAt: timestamp("createdAt").defaultNow(),
   image: text("image"),
-  stripeSecretKey: text('stripeSecretKey'),
-  role: text('role').notNull(),
+  stripeSecretKey: text("stripeSecretKey"),
+  role: text("role").notNull(),
   businessTypeId: integer("businessTypeId").references(() => businessType.id),
   businessName: text("businessName"),
   onboardingCompleted: boolean("onboardingCompleted").default(false),
-  stripeUserId: text('stripeUserId'),
-  stripeLegAccountId: text('stripeLegAccountId'),
-  genericProductId: text('genericProductId'),
-  genericProductSmallImage: text('genericProductSmallImage'),
-  genericProductLargeImage: text('genericProductLargeImage'),
+  stripeUserId: text("stripeUserId"),
+  stripeLegAccountId: text("stripeLegAccountId"),
+  genericProductId: text("genericProductId"),
+  genericProductSmallImage: text("genericProductSmallImage"),
+  genericProductLargeImage: text("genericProductLargeImage"),
   tosAccepted: boolean("tosAccepted").notNull().default(false),
   tosAcceptedAt: timestamp("tosAcceptedAt", { mode: "date" }),
-  provincia: text('provincia'),
-  partnerId: text('partnerId').references(() => users.id)
-})
+  provincia: text("provincia"),
+  partnerId: text("partnerId").references(() => users.id),
+});
 
 export const webhookSecrets = pgTable("webhookSecret", {
-  accountId: text('accountId'),
-  secret: text('secret'),
-})
+  accountId: text("accountId"),
+  secret: text("secret"),
+});
 
 export const stores = pgTable("store", {
   id: text("id")
-  .primaryKey()
-  .$defaultFn(() => crypto.randomUUID()),
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
   name: text("name").notNull(),
   createdAt: timestamp("createdAt").defaultNow(),
-  image: text('image'),
-  partnerId: text('partnerId').references(() => users.id)
-})
+  image: text("image"),
+  partnerId: text("partnerId").references(() => users.id),
+});
 
 export const sales = pgTable("sale", {
   id: text("id")
-  .primaryKey()
-  .$defaultFn(() => crypto.randomUUID()),
-  storeId: text("storeId").notNull().references(() => stores.id).notNull(),
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  storeId: text("storeId")
+    .notNull()
+    .references(() => stores.id)
+    .notNull(),
   amount: numeric("amount", { precision: 12, scale: 2 }).notNull(),
   createdAt: timestamp("createdAt").defaultNow(),
   stripePaymentIntentId: text("stripePaymentIntentId").notNull(),
-  legCommission: numeric("legCommission", { precision: 12, scale: 2 }).notNull(),
-  firstLevelPartnerCommission: numeric("firstLevelPartnerCommission", { precision: 12, scale: 2 }).notNull(),
-  secondLevelPartnerCommission: numeric("secondLevelPartnerCommission", { precision: 12, scale: 2 }).notNull(),
-})
+  legCommission: numeric("legCommission", {
+    precision: 12,
+    scale: 2,
+  }).notNull(),
+  firstLevelPartnerCommission: numeric("firstLevelPartnerCommission", {
+    precision: 12,
+    scale: 2,
+  }).notNull(),
+  secondLevelPartnerCommission: numeric("secondLevelPartnerCommission", {
+    precision: 12,
+    scale: 2,
+  }).notNull(),
+});
 
 export const userStoreRoles = pgTable("userStoreRole", {
-  userId: text("userId").notNull().references(() => users.id),
-  storeId: text("storeId").notNull().references(() => stores.id),
-  role: text('role').notNull(),
-  createdAt: timestamp("createdAt").defaultNow()
-})
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id),
+  storeId: text("storeId")
+    .notNull()
+    .references(() => stores.id),
+  role: text("role").notNull(),
+  createdAt: timestamp("createdAt").defaultNow(),
+});
 
-export const businessType = pgTable('businessType', {
-  id: serial('id').primaryKey(), // Auto-incrementing ID
-  name: text('name').notNull(), // Name of the business type
+export const businessType = pgTable("businessType", {
+  id: serial("id").primaryKey(), // Auto-incrementing ID
+  name: text("name").notNull(), // Name of the business type
 });
 
 export const products = pgTable("product", {
-  id: text('id').notNull(),
-  qrcode: text('qrcode'),
-  tagImage: text('tagImage'),
-  paymentLinkId: text('paymentLinkId'),
-  userId: text('userId') // Foreign key to the users table
+  id: text("id").notNull(),
+  qrcode: text("qrcode"),
+  tagImage: text("tagImage"),
+  paymentLinkId: text("paymentLinkId"),
+  userId: text("userId") // Foreign key to the users table
     .notNull()
-    .references(() => users.id) // References the id field in the users table
+    .references(() => users.id), // References the id field in the users table
 });
 // New table to store commission rules
-export const commissionRules = pgTable('commissionRules', {
-  id: serial('id').primaryKey(), // Auto-incrementing ID for the rule
-  businessTypeId: integer('businessTypeId').references(() => businessType.id).notNull(), // Foreign key to businessType
-  minAmount: numeric('minAmount', { precision: 10, scale: 2 }).notNull(), // Minimum amount for the commission range
-  maxAmount: numeric('maxAmount', { precision: 10, scale: 2 }), // Maximum amount for the commission range
-  commissionType: text('commissionType').notNull(), // 'flat' or 'percentage'
-  commissionValue: numeric('commissionValue', { precision: 10, scale: 2 }).notNull(), // Value of the commission (flat amount or percentage)
+export const commissionRules = pgTable("commissionRules", {
+  id: serial("id").primaryKey(), // Auto-incrementing ID for the rule
+  businessTypeId: integer("businessTypeId")
+    .references(() => businessType.id)
+    .notNull(), // Foreign key to businessType
+  minAmount: numeric("minAmount", { precision: 10, scale: 2 }).notNull(), // Minimum amount for the commission range
+  maxAmount: numeric("maxAmount", { precision: 10, scale: 2 }), // Maximum amount for the commission range
+  commissionType: text("commissionType").notNull(), // 'flat' or 'percentage'
+  commissionValue: numeric("commissionValue", {
+    precision: 10,
+    scale: 2,
+  }).notNull(), // Value of the commission (flat amount or percentage)
 });
- 
+
 export const accounts = pgTable(
   "account",
   {
@@ -124,16 +146,16 @@ export const accounts = pgTable(
       columns: [account.provider, account.providerAccountId],
     }),
   })
-)
- 
+);
+
 export const sessions = pgTable("session", {
   sessionToken: text("sessionToken").primaryKey(),
   userId: text("userId")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   expires: timestamp("expires", { mode: "date" }).notNull(),
-})
- 
+});
+
 export const verificationTokens = pgTable(
   "verificationToken",
   {
@@ -146,8 +168,8 @@ export const verificationTokens = pgTable(
       columns: [verificationToken.identifier, verificationToken.token],
     }),
   })
-)
- 
+);
+
 export const authenticators = pgTable(
   "authenticator",
   {
@@ -167,4 +189,19 @@ export const authenticators = pgTable(
       columns: [authenticator.userId, authenticator.credentialID],
     }),
   })
-)
+);
+
+export const leads = pgTable("leads", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  email: varchar("email", { length: 100 }).notNull(),
+  referredByUserId: text("referredByUserId").notNull().references(() => users.id),
+  firstName: varchar("firstName", { length: 50 }).notNull(),
+  lastName: varchar("lastName", { length: 50 }).notNull(),
+  businessName: varchar("businessName", { length: 100 }).notNull(),
+  phoneNumber: varchar("phoneNumber", { length: 15 }).notNull(),
+  sector: varchar("sector", { length: 100 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  modifiedAt: timestamp("modifiedAt").defaultNow().notNull(),
+});

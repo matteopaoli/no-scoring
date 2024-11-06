@@ -225,6 +225,20 @@
       "when": 1729602051134,
       "tag": "0031_public_naoko",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1730887250608,
+      "tag": "0032_powerful_ultimo",
+      "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1730887303830,
+      "tag": "0033_chemical_magdalene",
+      "breakpoints": true
     }
   ]
 }

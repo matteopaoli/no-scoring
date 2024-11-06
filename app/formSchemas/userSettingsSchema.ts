@@ -2,14 +2,6 @@ import { z } from "zod";
 
 const MAX_FILE_SIZE = 5000000;
 
-type UserSettingsFormData = {
-    firstName: FormDataEntryValue | null
-    lastName: FormDataEntryValue | null
-    image?: FormDataEntryValue | null
-    password: FormDataEntryValue | null
-    repeatPassword: FormDataEntryValue | null
-}
-
 const userSettingsSchema = z.object({
     firstName: z.string().trim().min(1, "Inserisci il nome"),
     lastName: z.string().trim().min(1, "Inserisci il cognome"),
