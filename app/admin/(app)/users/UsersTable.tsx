@@ -234,7 +234,7 @@ export default function UsersTable({ tableData }: UsersTableProps) {
         </Text>
         <Menu />
       </Flex>
-      <Box>
+      <Box overflowX="scroll">
         <Table variant="simple" color="gray.500" mb="24px" mt="12px">
           <Thead>
             {table.getHeaderGroups().map((headerGroup) => (
