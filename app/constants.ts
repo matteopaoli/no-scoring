@@ -22,4 +22,4 @@ export const provinces = [
     "Treviso", "Trieste", "Udine", "Varese", "Venezia", "Verbano-Cusio-Ossola",
     "Vercelli", "Verona", "Vibo Valentia", "Vicenza", "Viterbo", "Estero"
   ];
-export const VERSION="1.1.0"
+export const VERSION="1.1.1"
