@@ -53,7 +53,7 @@ export default async function UsersPage() {
           salesVolumeMonthToDate,
         }}
       />
-      <UsersTable tableData={users} />;
+      <UsersTable tableData={users} />
     </>
   );
 }
