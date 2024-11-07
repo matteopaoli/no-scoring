@@ -204,4 +204,5 @@ export const leads = pgTable("leads", {
   sector: varchar("sector", { length: 100 }).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   modifiedAt: timestamp("modifiedAt").defaultNow().notNull(),
+  status: varchar('status', { length: 50 }).default('pending').notNull()
 });

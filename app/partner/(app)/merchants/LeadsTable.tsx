@@ -22,10 +22,12 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import { MdCancel, MdCheckCircle, MdHourglassEmpty } from "react-icons/md";
 
 interface Lead {
   id: string;
   email: string | null;
+  businessName: string | null;
   firstName: string;
   lastName: string;
   createdAt: Date | null;
@@ -55,8 +57,38 @@ export function LeadsTable({ leads }: LeadsTableProps) {
       cell: (info) =>
         new Date(info.getValue() as Date).toLocaleDateString("it-IT"),
     },
+    {
+      accessorKey: "status",
+      header: "Stato",
+      cell: (info) => {
+        const status = info.getValue() as string;
+  
+        const statusMap: Record<string, { label: string; icon: JSX.Element }> = {
+          pending: {
+            label: "In attesa",
+            icon: <MdHourglassEmpty style={{ color: "#FFB547", fontSize: "1.5em" }} />,  // Softer yellow
+          },
+          accepted: {
+            label: "Accettato",
+            icon: <MdCheckCircle style={{ color: "green", fontSize: "1.5em" }} />,
+          },
+          rejected: {
+            label: "Rifiutato",
+            icon: <MdCancel style={{ color: "red", fontSize: "1.5em" }} />,
+          },
+        };
+  
+        const { label, icon } = statusMap[status] || {};
+  
+        return (
+          <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            {icon}
+            {label}
+          </span>
+        );
+      },
+    },
   ];
-
   return (
     <>
       <Flex justifyContent="end">

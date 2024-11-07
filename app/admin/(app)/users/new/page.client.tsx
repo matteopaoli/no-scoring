@@ -1,6 +1,14 @@
 "use client";
 
-import { Button, Text, useColorModeValue, Box, FormControl, FormHelperText, SimpleGrid } from "@chakra-ui/react";
+import {
+  Button,
+  Text,
+  useColorModeValue,
+  Box,
+  FormControl,
+  FormHelperText,
+  SimpleGrid,
+} from "@chakra-ui/react";
 import { ReactNode, useState } from "react";
 import createUserAction from "./createUser.action";
 import { useFormState } from "react-dom";
@@ -9,8 +17,14 @@ import TextArea from "@/app/components/fields/TextArea"; // Import the TextArea 
 import getFormErrors from "@/app/utils/getFormErrors"; // Utility for fetching errors
 import Select from "@/app/components/fields/Select";
 import SubmitButton from "@/app/components/SubmitButton";
-import { AutoComplete, AutoCompleteInput, AutoCompleteItem, AutoCompleteList } from "@choc-ui/chakra-autocomplete";
+import {
+  AutoComplete,
+  AutoCompleteInput,
+  AutoCompleteItem,
+  AutoCompleteList,
+} from "@choc-ui/chakra-autocomplete";
 import FormLabel from "@/app/components/fields/FormLabel";
+import { Lead } from "@/app/db";
 
 type CreateUserPageProps = {
   businessTypesOptions: ReactNode[];
@@ -20,37 +34,35 @@ type CreateUserPageProps = {
     lastName: string | null;
     email: string | null;
     role: string;
-  }[]
+  }[];
+  initialData: Lead | null;
 };
 
 export default function CreateUserPage({
   businessTypesOptions,
-  partners
+  partners,
+  initialData,
 }: CreateUserPageProps) {
   const [errors, action] = useFormState(createUserAction, []);
-  const [partnerId, setPartnerId] = useState(null)
-
-  // Chakra color mode
-  const textColor = useColorModeValue("navy.700", "white");
-  const brandStars = useColorModeValue("brand.500", "brand.400");
+  const [partnerId, setPartnerId] = useState(initialData?.referredByUserId ?? null);
 
   const handlePartnerChange = (p) => {
-    setPartnerId(p)
-  }
+    setPartnerId(p);
+  };
 
   const myCustomFilter = (query: string, _: string, optionLabel: string) => {
     const lowerCaseQuery = query.toLowerCase();
     const lowerCaseOptionLabel = optionLabel.toLowerCase();
-    
-    return lowerCaseOptionLabel.indexOf(lowerCaseQuery) !== -1 
-  }
+
+    return lowerCaseOptionLabel.indexOf(lowerCaseQuery) !== -1;
+  };
 
   const handleSubmit = (formData: FormData) => {
     if (partnerId) {
-      formData.append('partner', partnerId)
+      formData.append("partner", partnerId);
     }
-    action(formData)
-  }
+    action(formData);
+  };
 
   return (
     <Box width="100%">
@@ -63,6 +75,7 @@ export default function CreateUserPage({
             placeholder="mail@email.com"
             isRequired={true}
             errors={getFormErrors(errors, "email")}
+            value={initialData?.email}
           />
 
           <InputField
@@ -72,6 +85,7 @@ export default function CreateUserPage({
             placeholder="Pinco Pallino s.r.l."
             isRequired={true}
             errors={getFormErrors(errors, "businessName")}
+            value={initialData?.businessName}
           />
 
           <Select
@@ -87,8 +101,20 @@ export default function CreateUserPage({
 
           <FormControl mb="30px">
             <FormLabel id="partner">Partner</FormLabel>
-            <AutoComplete openOnFocus filter={myCustomFilter} onChange={handlePartnerChange}>
-              <AutoCompleteInput variant="main" placeholder="Ricerca Partner..." _placeholder={{ fontWeight: "400", color: "secondaryGray.600" }} />
+            <AutoComplete
+              openOnFocus
+              filter={myCustomFilter}
+              onChange={handlePartnerChange}
+              defaultValue={(() => {
+                const partner = partners.find((x) => x.id === initialData?.referredByUserId);
+                return partner ? `${partner.firstName} ${partner.lastName}` : '';
+              })()}
+            >
+              <AutoCompleteInput
+                variant="main"
+                placeholder="Ricerca Partner..."
+                _placeholder={{ fontWeight: "400", color: "secondaryGray.600" }}
+              />
               <AutoCompleteList>
                 {partners.map((partner, i) => (
                   <AutoCompleteItem
@@ -131,7 +157,6 @@ export default function CreateUserPage({
             isRequired={true}
             errors={getFormErrors(errors, "stripeLegAccountId")}
           />
-
         </SimpleGrid>
         <SubmitButton>Aggiungi Utente</SubmitButton>
       </form>

@@ -239,6 +239,13 @@
       "when": 1730887303830,
       "tag": "0033_chemical_magdalene",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1730964179894,
+      "tag": "0034_small_lester",
+      "breakpoints": true
     }
   ]
 }

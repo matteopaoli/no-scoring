@@ -29,7 +29,7 @@ interface GenericTableProps<T> {
   itemsPerPage?: number;
   title: string;
   onRowClick?: (rowData: T) => void; // Row click handler
-  menu?: (props: any) => JSX.Element
+  menu?: (props: any) => JSX.Element;
 }
 
 export default function GenericTable<T>({
@@ -38,7 +38,7 @@ export default function GenericTable<T>({
   itemsPerPage = 10,
   title,
   onRowClick,
-  menu: Menu
+  menu: Menu,
 }: GenericTableProps<T>) {
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = Math.ceil(data.length / itemsPerPage);
@@ -46,7 +46,7 @@ export default function GenericTable<T>({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel()
+    getFilteredRowModel: getFilteredRowModel(),
   });
 
   const paginatedRows = table
@@ -82,7 +82,7 @@ export default function GenericTable<T>({
         >
           {title}
         </Heading>
-        {Menu? <Menu /> : null}
+        {Menu ? <Menu /> : null}
       </Flex>
       <Table variant="simple" color="gray.500">
         <Thead>
@@ -115,12 +115,16 @@ export default function GenericTable<T>({
               {row.getVisibleCells().map((cell) => (
                 <Td key={cell.id} borderColor="transparent">
                   <Flex align="center">
-                    <Text fontSize="sm" fontWeight="bold" color={textColor}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </Text>
+                    {cell.column.columnDef.accessorKey === "actions" ? (
+                      flexRender(cell.column.columnDef.cell, cell.getContext())
+                    ) : (
+                      <Text fontSize="sm" fontWeight="bold" color={textColor}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </Text>
+                    )}
                   </Flex>
                 </Td>
               ))}

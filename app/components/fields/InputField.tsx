@@ -21,7 +21,8 @@ interface DefaultProps {
   isInvalid?: boolean;
   errorMessage?: string;
   [key: string]: any; // This allows passing additional props
-  errors: string[]
+  errors: string[];
+  isRequired?: boolean;
 }
 
 const InputField: React.FC<DefaultProps> = (props) => {
@@ -36,6 +37,7 @@ const InputField: React.FC<DefaultProps> = (props) => {
     errorMessage,
     errors,
     onChange,
+    isRequired = false,
     ...rest
   } = props;
 
@@ -43,7 +45,7 @@ const InputField: React.FC<DefaultProps> = (props) => {
   const textColorPrimary = useColorModeValue("secondaryGray.900", "white");
 
   return (
-    <FormControl isInvalid={errors.length > 0} mb={mb || "30px"}>
+    <FormControl isInvalid={errors.length > 0} mb={mb || "30px"} isRequired={isRequired}>
       <FormLabel extra={extra} id={id}>{label}</FormLabel>
       <Input
         {...rest}

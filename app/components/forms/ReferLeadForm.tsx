@@ -72,6 +72,7 @@ export default function ReferLeadForm({
                 placeholder="Inserisci il nome"
                 type="text"
                 errors={getFormErrors(errors, "firstName")}
+                isRequired
               />
               <InputField
                 id="lastName"
@@ -80,6 +81,7 @@ export default function ReferLeadForm({
                 placeholder="Inserisci il cognome"
                 type="text"
                 errors={getFormErrors(errors, "lastName")}
+                isRequired
               />
               <InputField
                 id="businessName"
@@ -88,6 +90,7 @@ export default function ReferLeadForm({
                 placeholder="Inserisci il nome dell'attività"
                 type="text"
                 errors={getFormErrors(errors, "businessName")}
+                isRequired
               />
               <InputField
                 id="sector"
@@ -96,6 +99,7 @@ export default function ReferLeadForm({
                 placeholder="Inserisci il settore"
                 type="text"
                 errors={getFormErrors(errors, "sector")}
+                isRequired
               />
               <InputField
                 id="email"
@@ -104,6 +108,7 @@ export default function ReferLeadForm({
                 placeholder="Inserisci l'indirizzo email"
                 type="email"
                 errors={getFormErrors(errors, "email")}
+                isRequired
               />
               <InputField
                 id="phoneNumber"
@@ -112,6 +117,7 @@ export default function ReferLeadForm({
                 placeholder="Inserisci il numero di telefono"
                 type="tel"
                 errors={getFormErrors(errors, "phoneNumber")}
+                isRequired
               />
             </Grid>
           </ModalBody>

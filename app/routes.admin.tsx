@@ -8,7 +8,8 @@ import {
   MdLock,
   MdOutlineShoppingCart,
   MdOutlineVerifiedUser,
-  MdStore
+  MdStore,
+  MdPeople
 } from 'react-icons/md';
 import { FaHandshake } from 'react-icons/fa';
 
@@ -59,6 +60,14 @@ const routes = [
     path: '/admin/business-types',
     sidebar: true,
     match: /^\/admin\/business-types(\/.*)?$/,
+  },
+  {
+    name: 'Leads',
+    layout: '/admin',
+    path: '/admin/leads',
+    icon: <Icon as={MdPeople} width="20px" height="20px" color="inherit" />,
+    sidebar: true,
+    match: /^\/admin\/leads(\/.*)?$/,
   },
   {
     name: "Modifica Profilo",
