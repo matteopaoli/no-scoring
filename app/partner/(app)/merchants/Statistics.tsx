@@ -112,7 +112,7 @@ export default function Statistics({
               }
             />
           }
-          name="Volume di vendita (ultimi 30 giorni)"
+          name="Volume di vendita (mese corrente)"
           value={`€ ${Number(data.salesVolumeStartofMonth).toFixed(2)}`}
         />
         {/*
