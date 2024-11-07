@@ -45,15 +45,15 @@ export default function ReferLeadForm({
       <ModalContent maxW="600px">
         <ModalHeader>
           <Box as="span" textAlign="left">
-            <b>Segnala un nuovo prospetto</b>
+            <b>Segnala un nuovo contatto</b>
           </Box>
         </ModalHeader>
         <ModalCloseButton />
         <form action={onSubmit} style={{ width: "100%" }}>
           <ModalBody pb={4}>
             <Text mb={8}>
-              Inserisci qui tutte le informazioni necessarie sul tuo prospetto..
-              Una volta inviato, il prospetto riceverà una notifica via email e
+              Inserisci qui tutte le informazioni necessarie sul tuo contatto..
+              Una volta inviato, il contatto riceverà una notifica via email e
               il team di PayTomorrow procederà con la revisione e il supporto
               necessari.
             </Text>
@@ -117,7 +117,7 @@ export default function ReferLeadForm({
           </ModalBody>
 
           <ModalFooter>
-            <SubmitButton>Invia prospetto</SubmitButton>
+            <SubmitButton>Invia contatto</SubmitButton>
           </ModalFooter>
         </form>
       </ModalContent>

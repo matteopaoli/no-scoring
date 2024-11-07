@@ -983,10 +983,10 @@ export async function getAllPartnerFees(partnerId: string) {
   };
 }
 
-export async function createLead(lead: Lead) {
+export async function createLead(lead: Lead, referrerName: string) {
   await db.insert(leads).values(lead)
-  sendNewLeadEmailToAdmin()
-  sendNewLeadEmailToLead()
+  sendNewLeadEmailToAdmin(lead, referrerName)
+  sendNewLeadEmailToLead(lead)
 }
 
 export async function getLeadByEmail(email: string) {
@@ -995,4 +995,8 @@ export async function getLeadByEmail(email: string) {
 
 export async function getLeadsByReferrerId(userId: string) {
   return await db.select().from(leads).where(eq(leads.referredByUserId, userId))
+}
+
+export async function getAdmins() {
+  return await db.select().from(users).where(eq(users.role, 'admin'))
 }

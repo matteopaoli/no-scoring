@@ -31,8 +31,7 @@ export default async function referLeadAction(
     sector
   };
 
-  await createLead(lead);
-
+  await createLead(lead, `${user.firstName} ${user.lastName}`);
 
   return []
 }

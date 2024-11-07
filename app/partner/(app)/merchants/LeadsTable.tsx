@@ -67,14 +67,14 @@ export function LeadsTable({ leads }: LeadsTableProps) {
           colorScheme="brand"
           variant="outline"
         >
-          Segnala un nuovo prospetto
+          Segnala un nuovo contatto
         </Button>
       </Flex>
       <ReferLeadForm isOpen={isOpen} onClose={onClose} />
       <GenericTable
         data={leads}
         columns={leadColumns}
-        title="Prospetti inviati"
+        title="Contatti inviati"
         itemsPerPage={10} // Customize the number of items per page if needed
       />
     </>
