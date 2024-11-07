@@ -112,7 +112,7 @@ export default function CreateUserPage({
               openOnFocus
               filter={myCustomFilter}
               onChange={handlePartnerChange}
-              defaultValue={initialData?.referredByRole !== 'user' && initialData.referredByName}
+              defaultValue={initialData && initialData.referredByRole !== 'user' && initialData.referredByName}
             >
               <AutoCompleteInput
                 variant="main"
