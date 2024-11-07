@@ -21,6 +21,8 @@ interface Lead {
   firstName: string;
   lastName: string;
   createdAt: Date | null;
+  referredByName: string;
+  referredByRole: string;
 }
 
 interface LeadsTableProps {
@@ -61,6 +63,12 @@ export function LeadsTable({ leads }: LeadsTableProps) {
       header: "Data creazione",
       cell: (info) =>
         new Date(info.getValue() as Date).toLocaleDateString("it-IT"),
+    },
+    {
+      accessorKey: "referredByName",
+      header: "Riferito da",
+      cell: (info) =>
+        `${info.row.original.referredByName} (${info.row.original.referredByRole})`,
     },
     {
       accessorKey: "actions",

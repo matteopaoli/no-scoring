@@ -1009,9 +1009,13 @@ export async function getPendingLeads() {
       lastName: leads.lastName,
       businessName: leads.businessName,
       email: leads.email,
-      createdAt: leads.createdAt
+      createdAt: leads.createdAt,
+      referredByUserId: leads.referredByUserId,
+      referredByName: sql`CONCAT(${users.firstName}, ' ', ${users.lastName})`,
+      referredByRole: users.role,
     })
     .from(leads)
+    .innerJoin(users, eq(leads.referredByUserId, users.id))
     .where(eq(leads.status, "pending"));
 }
 
@@ -1027,13 +1031,35 @@ export async function getAdmins() {
 }
 
 export async function acceptLead(leadId: string) {
-  return await db.update(leads).set({ status: 'accepted' }).where(eq(leads.id, leadId))
+  return await db
+    .update(leads)
+    .set({ status: "accepted" })
+    .where(eq(leads.id, leadId));
 }
 
 export async function rejectLead(leadId: string) {
-  return await db.update(leads).set({ status: 'rejected' }).where(eq(leads.id, leadId))
+  return await db
+    .update(leads)
+    .set({ status: "rejected" })
+    .where(eq(leads.id, leadId));
 }
 
 export async function getLeadById(leadId: string) {
-  return (await db.select().from(leads).where(eq(leads.id, leadId)))?.[0];
+  return (
+    await db
+      .select({
+        id: leads.id,
+        firstName: leads.firstName,
+        lastName: leads.lastName,
+        businessName: leads.businessName,
+        email: leads.email,
+        createdAt: leads.createdAt,
+        referredByUserId: leads.referredByUserId,
+        referredByName: sql`CONCAT(${users.firstName}, ' ', ${users.lastName})`,
+        referredByRole: users.role,
+      })
+      .from(leads)
+      .innerJoin(users, eq(leads.referredByUserId, users.id))
+      .where(eq(leads.id, leadId))
+  )?.[0];
 }

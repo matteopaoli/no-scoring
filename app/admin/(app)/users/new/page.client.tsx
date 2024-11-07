@@ -35,7 +35,10 @@ type CreateUserPageProps = {
     email: string | null;
     role: string;
   }[];
-  initialData: Lead | null;
+  initialData: Lead & {
+    referredByName: string;
+    referredByRole: string;
+  };
 };
 
 export default function CreateUserPage({
@@ -44,7 +47,11 @@ export default function CreateUserPage({
   initialData,
 }: CreateUserPageProps) {
   const [errors, action] = useFormState(createUserAction, []);
-  const [partnerId, setPartnerId] = useState(initialData?.referredByUserId ?? null);
+  const [partnerId, setPartnerId] = useState(
+    initialData?.referredByRole !== "user" && initialData?.referredByUserId
+      ? initialData.referredByUserId
+      : null
+  );
 
   const handlePartnerChange = (p) => {
     setPartnerId(p);
@@ -105,10 +112,7 @@ export default function CreateUserPage({
               openOnFocus
               filter={myCustomFilter}
               onChange={handlePartnerChange}
-              defaultValue={(() => {
-                const partner = partners.find((x) => x.id === initialData?.referredByUserId);
-                return partner ? `${partner.firstName} ${partner.lastName}` : '';
-              })()}
+              defaultValue={initialData.referredByRole !== 'user' && initialData.referredByName}
             >
               <AutoCompleteInput
                 variant="main"
