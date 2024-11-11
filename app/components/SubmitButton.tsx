@@ -8,6 +8,7 @@ export default function SubmitButton({
   onClick,
   w,
   loadingText,
+  ...rest
 }: {
   children: string;
   onClick?: () => any;
@@ -29,6 +30,7 @@ export default function SubmitButton({
       onClick={onClick}
       isLoading={pending}
       loadingText={loadingText}
+      {...rest}
     >
       {pending ? <Spinner size="sm" /> : children}
     </Button>

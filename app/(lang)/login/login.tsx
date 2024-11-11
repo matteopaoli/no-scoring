@@ -131,6 +131,7 @@ export default function SignIn() {
                 fontWeight="500"
                 size="lg"
                 name="email"
+                data-testid="mt-email-field"
               />
               <FormLabel
                 ms="4px"
@@ -150,6 +151,7 @@ export default function SignIn() {
                   size="lg"
                   type={show ? "text" : "password"}
                   name="password"
+                  data-testid="mt-password-field"
                 />
                 <InputRightElement display="flex" alignItems="center" mt="4px">
                   <Icon
@@ -165,7 +167,7 @@ export default function SignIn() {
                   {t("wrongCredentialsMessage")}
                 </FormErrorMessage>
               ) : null}
-              <SubmitButton w="100%" loadingText="Accesso in corso">
+              <SubmitButton w="100%" loadingText="Accesso in corso" data-testid="mt-login-button">
                 {t("signIn")}
               </SubmitButton>
             </FormControl>

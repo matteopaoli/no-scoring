@@ -47,6 +47,7 @@ const CopyTextBox: React.FC<CopyTextBoxProps> = ({ children }) => {
           onClick={onCopy}
           backgroundColor={bgButton}
           _hover={{ bg: bgButtonHover }} // Change background on button hover
+          data-testid="copy-payment-link-button"
         >
           Copy
         </Button>

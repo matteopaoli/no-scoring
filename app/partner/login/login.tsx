@@ -118,6 +118,7 @@ export default function SignIn() {
                 fontWeight="500"
                 size="lg"
                 name="email"
+                data-testid="pr-email-field"
               />
               <FormLabel
                 ms="4px"
@@ -137,6 +138,7 @@ export default function SignIn() {
                   size="lg"
                   type={show ? "text" : "password"}
                   name="password"
+                  data-testid="pr-password-field"
                 />
                 <InputRightElement display="flex" alignItems="center" mt="4px">
                   <Icon
@@ -178,7 +180,7 @@ export default function SignIn() {
                 </Text>
               </Link>
             </Flex> */}
-              <SubmitButton w="100%" loadingText="Accesso in corso">
+              <SubmitButton w="100%" loadingText="Accesso in corso" data-testid="pr-login-button">
                 {t("signIn")}
               </SubmitButton>
             </FormControl>
