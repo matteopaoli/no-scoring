@@ -1,5 +1,6 @@
 import Stripe from "stripe";
 import { getProduct } from "../db";
+import { LEG_COMMISSION_RATE, VAT } from "../constants";
 
 // Function to retrieve all payment links, handling pagination
 async function getAllPaymentLinks(
@@ -30,6 +31,7 @@ async function getAllPaymentLinks(
 export async function createPaymentLink(stripe: Stripe, productId: string) {
   try {
     const price = (await stripe.prices.list({ product: productId })).data[0];
+    const transferAmount = Math.round(price.unit_amount! * LEG_COMMISSION_RATE * VAT);
     const paymentLink = await stripe.paymentLinks.create({
       line_items: [
         {
@@ -37,6 +39,7 @@ export async function createPaymentLink(stripe: Stripe, productId: string) {
           quantity: 1,
         },
       ],
+      application_fee_amount: transferAmount
     });
     return paymentLink;
   } catch (error) {

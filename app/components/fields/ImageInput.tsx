@@ -26,6 +26,8 @@ const ImageInput: React.FC<ImageInputProps> = ({ name, label, id, image, default
   const [hasInteracted, setHasInteracted] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
+  console.log(defaultImage)
+
   const textColorPrimary = useColorModeValue("secondaryGray.900", "white");
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {

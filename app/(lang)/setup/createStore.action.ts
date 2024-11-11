@@ -6,28 +6,44 @@ import { redirect } from "next/navigation";
 import { FormActionReturnType } from "@/app/types";
 import formatZodErrors from "@/app/utils/formatZodErrors";
 import getUserFromAuth from "@/app/utils/getUserFromAuth";
+import { generateGenericProductImages, generateQrCodeWithLogo } from "@/app/utils/images";
+import Stripe from "stripe";
+import { createGenericProduct } from "@/app/utils/stripe";
 
 const createStoreSchema = z.object({
   storeName: z.string().min(1, "Il nome del negozio è obbligatorio"),
-  storeLogo: z.instanceof(Blob).nullable()
+  storeLogo: z.instanceof(Blob).nullable(),
 });
 
-export async function createStoreAction(prevState: Awaited<FormActionReturnType>, formData: FormData): FormActionReturnType {
+export async function createStoreAction(
+  prevState: Awaited<FormActionReturnType>,
+  formData: FormData
+): FormActionReturnType {
   const user = await getUserFromAuth();
+  const stripe = new Stripe(process.env.STRIPE_API_KEY!, { stripeAccount: user.stripeUserId});
   const storeData = {
-    storeName: formData.get('storeName') as string,
-    storeLogo: formData.get('storeLogo') as Blob | null,
+    storeName: formData.get("storeName") as string,
+    storeLogo: formData.get("storeLogo") as Blob | null,
   };
 
   const validation = createStoreSchema.safeParse(storeData);
   if (!validation.success) {
-    return formatZodErrors(validation)
+    return formatZodErrors(validation);
   }
 
   const { storeName, storeLogo } = validation.data;
 
   await createStore({ storeName, storeLogo, userId: user.id });
-  await completeOnboarding(user.email)
 
-  redirect('/app')
+  const genericProduct = await createGenericProduct(stripe);
+
+  const genericProductQrCode = await generateQrCodeWithLogo(
+    genericProduct.paymentLink.url
+  );
+  const { genericProductSmallImage, genericProductLargeImage } =
+    await generateGenericProductImages(genericProductQrCode);
+
+  await completeOnboarding(user.email);
+
+  redirect("/app");
 }

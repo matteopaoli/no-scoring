@@ -61,37 +61,6 @@ export default function UpdateUserPage({
         >
           {businessTypesOptions}
         </Select>
-
-        <TextArea
-          id="stripe-api-key"
-          label="Stripe API Token"
-          name="stripeApiKey"
-          placeholder="Stripe API Token"
-          isRequired={true}
-          defaultValue={existingUser.stripeSecretKey}
-          errors={getFormErrors(errors, "stripeApiKey")}
-        />
-
-        <TextArea
-          id="stripe-user-id"
-          label="ID Stripe Utente"
-          name="stripeUserId"
-          placeholder="ID Stripe Utente"
-          isRequired={true}
-          defaultValue={existingUser.stripeUserId}
-          errors={getFormErrors(errors, "stripeUserId")}
-        />
-
-        <TextArea
-          id="stripe-leg-account-id"
-          label="ID Stripe LEG"
-          name="stripeLegAccountId"
-          placeholder="ID Stripe LEG"
-          isRequired={true}
-          defaultValue={existingUser.stripeLegAccountId}
-          errors={getFormErrors(errors, "stripeLegAccountId")}
-        />
-
         <SubmitButton>Aggiorna utente</SubmitButton>
       </form>
     </Box>

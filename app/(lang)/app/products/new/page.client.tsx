@@ -101,7 +101,7 @@ export default function Client({ storeImage }: ClientPageProps) {
               name="image"
               label="Immagine Prodotto"
               id="product-image"
-              defaultImage={storeImage}
+              defaultImage={storeImage ?? undefined}
             />
             <Text fontSize="xs" mt={2}>Puoi sostituire l&apos;immagine di default con una personalizzata</Text>
           </GridItem>

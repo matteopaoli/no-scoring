@@ -134,33 +134,6 @@ export default function CreateUserPage({
             </AutoComplete>
             {/* <input type="hidden" value={partnerId} name="partner" /> */}
           </FormControl>
-
-          <TextArea
-            id="stripe-api-key"
-            label="Stripe API Token"
-            name="stripeApiKey"
-            placeholder="Stripe API Token"
-            isRequired={true}
-            errors={getFormErrors(errors, "stripeApiKey")}
-          />
-
-          <TextArea
-            id="stripe-user-id"
-            label="ID Stripe Utente"
-            name="stripeUserId"
-            placeholder="ID Stripe Utente"
-            isRequired={true}
-            errors={getFormErrors(errors, "stripeUserId")}
-          />
-
-          <TextArea
-            id="stripe-leg-account-id"
-            label="ID Stripe LEG"
-            name="stripeLegAccountId"
-            placeholder="ID Stripe LEG"
-            isRequired={true}
-            errors={getFormErrors(errors, "stripeLegAccountId")}
-          />
         </SimpleGrid>
         <SubmitButton>Aggiungi Utente</SubmitButton>
       </form>

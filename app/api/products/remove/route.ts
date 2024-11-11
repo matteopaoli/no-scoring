@@ -14,7 +14,7 @@ export async function DELETE(request: NextRequest) {
   }
 
   const user = await getUser(session.user.email);
-  const stripe = new Stripe(user.stripeSecretKey);
+  const stripe = new Stripe(process.env.STRIPE_API_KEY!, { stripeAccount: user.stripeUserId });
 
   try {
     // Update the product to archive it

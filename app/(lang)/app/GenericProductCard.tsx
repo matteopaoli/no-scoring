@@ -13,7 +13,7 @@ const GenericProductCard = async () => {
   }
 
   const product = await getProduct(user.genericProductId);
-  const stripe = new Stripe(user.stripeSecretKey);
+  const stripe = new Stripe(process.env.STRIPE_API_KEY!, { stripeAccount: user.stripeUserId });
   const paymentLinkUrl = (
     await stripe.paymentLinks.retrieve(product.paymentLinkId!)
   ).url;

@@ -13,7 +13,7 @@ export default async function updateProductAction(prevState, formData: FormData)
     throw new Error("User not found");
   }
 
-  const stripe = new Stripe(user.stripeSecretKey);
+  const stripe = new Stripe(process.env.STRIPE_API_KEY!, { stripeAccount: user.stripeUserId });
 
   // Validation schema for product update data
   const updateProductSchema = z.object({

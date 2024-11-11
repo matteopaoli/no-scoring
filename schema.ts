@@ -8,6 +8,7 @@ import {
   serial,
   numeric,
   varchar,
+  PgColumn,
 } from "drizzle-orm/pg-core";
 import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
@@ -28,20 +29,20 @@ export const users = pgTable("user", {
   password: text("password"),
   createdAt: timestamp("createdAt").defaultNow(),
   image: text("image"),
-  stripeSecretKey: text("stripeSecretKey"),
   role: text("role").notNull(),
   businessTypeId: integer("businessTypeId").references(() => businessType.id),
   businessName: text("businessName"),
   onboardingCompleted: boolean("onboardingCompleted").default(false),
   stripeUserId: text("stripeUserId"),
-  stripeLegAccountId: text("stripeLegAccountId"),
   genericProductId: text("genericProductId"),
   genericProductSmallImage: text("genericProductSmallImage"),
   genericProductLargeImage: text("genericProductLargeImage"),
   tosAccepted: boolean("tosAccepted").notNull().default(false),
   tosAcceptedAt: timestamp("tosAcceptedAt", { mode: "date" }),
   provincia: text("provincia"),
-  partnerId: text("partnerId").references(() => users.id),
+  partnerId: text("partnerId").references((): PgColumn => users.id),
+  onboardingLink: text("onboardingLink"),
+  status: text("status").notNull(),
 });
 
 export const webhookSecrets = pgTable("webhookSecret", {

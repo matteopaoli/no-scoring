@@ -33,36 +33,21 @@ export default async function updateUserAction(
       .min(1, "Inserire un indirizzo email valido")
       .email("Inserire un indirizzo email valido"), // Email format validation
     businessName: z.string().min(1, "Inserire un nome valido"),
-    stripeApiKey: z
-      .string()
-      .regex(
-        /^sk_live_[0-9a-zA-Z]{24,}/,
-        "Inserire una Chiave Segreta valida (sk_live_************************)"
-      ), // Stripe API key validation
     businessTypeId: await numericEnum(businessTypeIds),
-    stripeUserId: z.string().regex(/^acct_[a-zA-Z0-9]+$/, {
-      message: "Il formato dell'ID utente di Stripe non è valido. Dovrebbe iniziare con 'acct_' seguito da caratteri alfanumerici.",
-    }),
-    stripeLegAccountId: z.string().regex(/^acct_[a-zA-Z0-9]+$/, {
-      message: "Il formato dell'ID LEG di Stripe non è valido. Dovrebbe iniziare con 'acct_' seguito da caratteri alfanumerici.",
-    })
   });
 
   // Parse and validate the form data
   const validation = await updateUserSchema.safeParseAsync({
     email: formData.get("email"),
-    stripeApiKey: formData.get("stripeApiKey"),
     businessTypeId: Number(formData.get("businessType")),
     businessName: formData.get("businessName"),
-    stripeUserId: formData.get('stripeUserId'),
-    stripeLegAccountId: formData.get('stripeLegAccountId')
   });
 
   if (!validation.success) {
     return formatZodErrors(validation)
   }
 
-  const { email, stripeApiKey, businessTypeId, businessName, stripeUserId, stripeLegAccountId } = validation.data;
+  const { email, businessTypeId, businessName} = validation.data;
 
   // Check if the user exists before updating
   const existingUser = await getUser(email);
@@ -71,7 +56,7 @@ export default async function updateUserAction(
   }
 
   // Update the user
-  await updateUser(email, stripeApiKey, businessTypeId, businessName, stripeUserId, stripeLegAccountId);
+  await updateUser(email, businessTypeId, businessName);
   
   redirect("/admin/users?success=true&action=update");
 }

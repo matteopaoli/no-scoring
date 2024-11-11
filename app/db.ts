@@ -1,5 +1,3 @@
-import "server-only";
-
 import { drizzle } from "drizzle-orm/postgres-js";
 import {
   and,
@@ -39,7 +37,7 @@ import {
 } from "./utils/emails";
 
 let client = postgres(`${process.env.DATABASE_URL!}`);
-let db = drizzle(client);
+export let db = drizzle(client);
 
 interface CommissionRule {
   id: number;
@@ -63,18 +61,18 @@ export interface User {
   email: string;
   password: string;
   image: string | null;
-  stripeSecretKey: string;
   role: string;
   businessTypeId: number;
   businessName: string;
   onboardingCompleted: boolean;
   stripeUserId: string;
-  stripeLegAccountId: string;
   genericProductId: string;
   genericProductSmallImage: string;
   genericProductLargeImage: string;
   provincia: string;
   partnerId?: string;
+  onboardingLink: string
+  status: string
 }
 
 export interface Lead {
@@ -121,104 +119,17 @@ export const getDefaultPassword = () => {
   return hash;
 };
 
-export async function createUser(
-  email: string,
-  stripeSecretKey: string,
-  businessTypeId: number,
-  businessName: string,
-  stripeUserId: string,
-  stripeLegAccountId: string,
-  partnerId: string
-) {
-  const WEBHOOK_URL = `https://app.paytomorrow.it/api/stripe/webhook?merchantId=${stripeUserId}`;
-  const hash = getDefaultPassword();
-
-  const stripe = new Stripe(stripeSecretKey);
-
-  const genericProduct = await createGenericProduct(stripe);
-
-  const existingWebhook = (await stripe.webhookEndpoints.list()).data.find(
-    (w) => w.url === WEBHOOK_URL
-  );
-
-  if (existingWebhook) {
-    await stripe.webhookEndpoints.del(existingWebhook.id);
-  }
-
-  // Create a new webhook
-  const webhook = await stripe.webhookEndpoints.create({
-    enabled_events: ["checkout.session.completed"],
-    url: `https://app.paytomorrow.it/api/stripe/webhook?merchantId=${stripeUserId}`,
-  });
-
-  const genericProductQrCode = await generateQrCodeWithLogo(
-    genericProduct.paymentLink.url
-  );
-  const { genericProductSmallImage, genericProductLargeImage } =
-    await generateGenericProductImages(genericProductQrCode);
-  await db
-    .transaction(async (tx) => {
-      // Insert user and get the returned user
-      const user = await tx
-        .insert(users)
-        .values({
-          email,
-          stripeSecretKey,
-          role: "user",
-          businessTypeId,
-          password: hash,
-          businessName,
-          stripeUserId,
-          stripeLegAccountId,
-          genericProductId: genericProduct.productId,
-          genericProductSmallImage,
-          genericProductLargeImage,
-          partnerId,
-        })
-        .returning();
-
-      // Insert product with the userId from the user created
-      await tx.insert(products).values({
-        id: genericProduct.productId,
-        paymentLinkId: genericProduct.paymentLink.id,
-        qrcode: genericProductQrCode,
-        tagImage: "",
-        userId: user[0].id, // Assuming user[0] contains the new user
-      });
-
-      // Delete previous webhook secret
-      await tx
-        .delete(webhookSecrets)
-        .where(eq(webhookSecrets.accountId, stripeUserId));
-
-      // Insert new webhook secret
-      await tx.insert(webhookSecrets).values({
-        accountId: stripeUserId,
-        secret: webhook.secret,
-      });
-    })
-    .catch((error) => {
-      console.error("Transaction failed:", error);
-      throw error; // Optionally rethrow the error for further handling
-    });
-}
 
 export async function updateUser(
   email: string,
-  stripeSecretKey: string,
   businessTypeId: number,
   businessName: string,
-  stripeUserId: string,
-  stripeLegAccountId: string
 ) {
   return await db
     .update(users)
     .set({
-      stripeSecretKey,
       businessTypeId,
       businessName,
-      stripeUserId,
-      stripeLegAccountId,
     })
     .where(eq(users.email, email));
 }
@@ -1013,7 +924,7 @@ export async function getPendingLeads() {
       referredByUserId: leads.referredByUserId,
       referredByName: sql`CONCAT(${users.firstName}, ' ', ${users.lastName})`,
       referredByRole: users.role,
-      phoneNumber: leads.phoneNumber
+      phoneNumber: leads.phoneNumber,
     })
     .from(leads)
     .innerJoin(users, eq(leads.referredByUserId, users.id))

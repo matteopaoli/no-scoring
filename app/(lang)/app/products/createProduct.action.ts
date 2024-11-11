@@ -21,7 +21,7 @@ export default async function createProductAction(
     throw new Error("User not found");
   }
 
-  const stripe = new Stripe(user.stripeSecretKey);
+  const stripe = new Stripe(process.env.STRIPE_API_KEY!, { stripeAccount: user.stripeUserId });
 
   const createProductSchema = z.object({
     name: z.string().min(1, "Name is required"),
