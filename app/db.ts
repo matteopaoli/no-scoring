@@ -1013,6 +1013,7 @@ export async function getPendingLeads() {
       referredByUserId: leads.referredByUserId,
       referredByName: sql`CONCAT(${users.firstName}, ' ', ${users.lastName})`,
       referredByRole: users.role,
+      phoneNumber: leads.phoneNumber
     })
     .from(leads)
     .innerJoin(users, eq(leads.referredByUserId, users.id))

@@ -23,6 +23,7 @@ interface Lead {
   createdAt: Date | null;
   referredByName: string;
   referredByRole: string;
+  phoneNumber: string;
 }
 
 interface LeadsTableProps {
@@ -56,6 +57,11 @@ export function LeadsTable({ leads }: LeadsTableProps) {
     {
       accessorKey: "email",
       header: "Email",
+      cell: (info) => info.getValue(),
+    },
+    {
+      accessorKey: "phoneNumber",
+      header: "Numero di telefono",
       cell: (info) => info.getValue(),
     },
     {
