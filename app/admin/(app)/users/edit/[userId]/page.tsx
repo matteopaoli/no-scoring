@@ -1,11 +1,13 @@
-import { getBusinessTypes, getUser, getUserById } from "@/app/db";
+import { getBusinessTypes } from "@/app/db";
 import Client from "./page.client";
 import { Box, Flex } from "@chakra-ui/react";
 import { redirect } from "next/navigation";
+import { UserService } from "@/app/services/userService";
+
 export default async function CreateUserPage(props: { params: Promise<{ userId: string }> }) {
   const params = await props.params;
   const businessTypes = await getBusinessTypes();
-  const user = await getUserById(params.userId)
+  const user = await UserService.getUserById(params.userId)
 
   if (!user) {
     redirect('/admin/users?error=true&type=not-found')

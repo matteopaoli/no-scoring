@@ -5,7 +5,6 @@ import {
   completeOnboarding,
   createStore,
   getStoreByUserId,
-  getUser,
   updateStore,
 } from "@/app/db";
 import { redirect } from "next/navigation";

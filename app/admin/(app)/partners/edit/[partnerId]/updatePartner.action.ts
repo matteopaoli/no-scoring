@@ -1,6 +1,7 @@
 "use server";
 
-import { updatePartner, getUser } from "@/app/db";
+import { updatePartner } from "@/app/db";
+import { UserService } from "@/app/services/userService";
 import { FormActionReturnType } from "@/app/types";
 import formatZodErrors from "@/app/utils/formatZodErrors";
 import { redirect } from "next/navigation";
@@ -37,7 +38,7 @@ export default async function updateUserAction(
   const { email, firstName, lastName, provincia } = validation.data;
 
   // Check if the user exists before updating
-  const existingUser = await getUser(email);
+  const existingUser = await UserService.getUserByEmail(email);
   if (!existingUser) {
     throw new Error("Errore in admin - modifica utente: Utente non trovato");
   }

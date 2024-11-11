@@ -1,8 +1,8 @@
 'use server'
 
-import { getUser } from "@/app/db";
+import { UserService } from "@/app/services/userService";
 
 export async function checkProfileCompletion(email: string) {
-  const user = await getUser(email);
+  const user = await UserService.getUserByEmail(email);
   return user.firstName && user.lastName;
 }

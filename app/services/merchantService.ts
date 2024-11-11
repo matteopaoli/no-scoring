@@ -1,6 +1,7 @@
 import { users } from "schema";
-import { db, getDefaultPassword, User } from "../db";
+import { db, User } from "../db";
 import { eq } from "drizzle-orm";
+import { UserService } from "./userService";
 
 export class MerchantService {
   static async createMerchant({
@@ -28,7 +29,7 @@ export class MerchantService {
   }
 
   static async initMerchant(userId: string) {
-    const hash = getDefaultPassword();
+    const hash = UserService.getDefaultPassword();
 
     return await db
       .update(users)
@@ -37,5 +38,19 @@ export class MerchantService {
         password: hash,
       })
       .where(eq(users.id, userId));
+  }
+
+  static async updateMerchantBusinessInfo(
+    email: string,
+    businessTypeId: number,
+    businessName: string,
+  ) {
+    return await db
+      .update(users)
+      .set({
+        businessTypeId,
+        businessName,
+      })
+      .where(eq(users.email, email));
   }
 }

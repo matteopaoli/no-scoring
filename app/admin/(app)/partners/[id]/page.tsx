@@ -1,10 +1,11 @@
-import { getAllPartnerFees, getUserById } from "@/app/db";
+import { getAllPartnerFees } from "@/app/db";
 import { Box, Flex, Icon, IconButton, SimpleGrid, Text } from "@chakra-ui/react";
 import SubPartnersTable from "./SubPartnersTable";
 import { getSubPartnersByUserId } from "@/app/db";
 import Statistics from "./Statistics";
 import { MdOutlineEdit } from "react-icons/md";
 import EditButton from "./EditButton";
+import { UserService } from "@/app/services/userService";
 
 export default async function UsersPage(
   props: {
@@ -12,7 +13,7 @@ export default async function UsersPage(
   }
 ) {
   const params = await props.params;
-  const partner = await getUserById(params.id);
+  const partner = await UserService.getUserById(params.id);
   if (partner.role !== "partner") {
     throw new Error("not a partner");
   }

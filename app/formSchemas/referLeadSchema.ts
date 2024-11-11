@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { getLeadByEmail, getUser } from "../db";
+import { getLeadByEmail } from "../db";
+import { UserService } from "../services/userService";
 
 const referLeadSchema = z.object({
   firstName: z
@@ -30,7 +31,7 @@ const referLeadSchema = z.object({
     .refine(async (email) => !(await getLeadByEmail(email)), {
       message: "Questo profilo è già stato segnalato",
     })
-    .refine(async (email) => !(await getUser(email)), {
+    .refine(async (email) => !(await UserService.getUserByEmail(email)), {
       message: "Email non valida",
     }),
 

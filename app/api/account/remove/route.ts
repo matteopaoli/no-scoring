@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { deleteUser, getUser } from "@/app/db";
+import { deleteUser } from "@/app/db";
 import { auth } from "@/app/auth";
+import { UserService } from "@/app/services/userService";
 
 export async function POST(
   request: Request,
@@ -13,7 +14,7 @@ export async function POST(
         { status: 403 }
       );
     }
-    const user = await getUser(session.user.email)
+    const user = await UserService.getUserByEmail(session.user.email)
 
     await deleteUser(user.id)
 

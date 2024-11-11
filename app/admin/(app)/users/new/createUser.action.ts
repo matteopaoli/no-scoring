@@ -3,10 +3,9 @@
 import {
   getBusinessTypes,
   getPartnerById,
-  getUser,
-  getUserByStripeAccountId,
 } from "@/app/db";
 import { MerchantService } from "@/app/services/merchantService";
+import { UserService } from "@/app/services/userService";
 import { FormActionReturnType } from "@/app/types";
 import formatZodErrors from "@/app/utils/formatZodErrors";
 import { redirect } from "next/navigation";
@@ -40,7 +39,7 @@ export default async function createUserAction(
       .min(1, "Inserire un indirizzo email valido")
       .email("Inserire un indirizzo email valido") // Add email format validation
       .trim()
-      .refine(async (email) => !(await getUser(email)), {
+      .refine(async (email) => !(await UserService.getUserByEmail(email)), {
         message: "L'utente esiste già",
       }),
     businessName: z.string().min(1, "Inserire un nome valido"),
@@ -76,7 +75,7 @@ export default async function createUserAction(
     partner,
   } = validation.data;
 
-  const existingUserByEmail = await getUser(email);
+  const existingUserByEmail = await UserService.getUserByEmail(email);
 
   if (existingUserByEmail) {
     return [{ field: "email", message: "L'utente esiste già" }];

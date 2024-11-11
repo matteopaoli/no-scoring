@@ -1,7 +1,5 @@
-import { getUser } from "@/app/db";
 import { redirect } from "next/navigation";
 import Client from './page.client'
-import { auth } from "@/app/auth";
 import getUserFromAuth from "@/app/utils/getUserFromAuth";
 
 export default async function EditUserPage() {

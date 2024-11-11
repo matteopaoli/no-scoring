@@ -35,6 +35,7 @@ import {
   sendNewLeadEmailToAdmin,
   sendNewLeadEmailToLead,
 } from "./utils/emails";
+import { UserService } from "./services/userService";
 
 let client = postgres(`${process.env.DATABASE_URL!}`);
 export let db = drizzle(client);
@@ -83,60 +84,6 @@ export interface Lead {
   phoneNumber: string;
   referredByUserId: string;
   sector: string;
-}
-
-export async function getUser(email?: string | null) {
-  return (
-    await db
-      .select()
-      .from(users)
-      .where(eq(users.email, email ?? ""))
-  )?.[0] as User;
-}
-
-export async function getUserById(id: string) {
-  return (await db.select().from(users).where(eq(users.id, id)))?.[0] as User;
-}
-
-export async function getUserByStripeAccountId(id: string) {
-  return (
-    await db.select().from(users).where(eq(users.stripeUserId, id))
-  )?.[0] as User;
-}
-
-export async function getWebhookSecret(id: string) {
-  return (
-    await db
-      .select()
-      .from(webhookSecrets)
-      .where(eq(webhookSecrets.accountId, id))
-  )?.[0];
-}
-
-export const getDefaultPassword = () => {
-  const salt = genSaltSync(10);
-  const hash = hashSync("PayTomorrow!2024", salt);
-  return hash;
-};
-
-
-export async function updateUser(
-  email: string,
-  businessTypeId: number,
-  businessName: string,
-) {
-  return await db
-    .update(users)
-    .set({
-      businessTypeId,
-      businessName,
-    })
-    .where(eq(users.email, email));
-}
-
-export async function setPassword(password: string) {
-  // let salt = genSaltSync(10);
-  // let hash = hashSync(password, salt);
 }
 
 export async function getBusinessTypes(): Promise<BusinessType[]> {
@@ -278,7 +225,7 @@ export async function createStore({
     .values({
       name: storeName,
       image: logoData,
-      partnerId: (await getUserById(userId))?.partnerId,
+      partnerId: (await UserService.getUserById(userId))?.partnerId,
     })
     .returning();
 
@@ -512,7 +459,7 @@ async function updatePassword(password: string, userEmail: string) {
 export async function deleteUser(id: string) {
   await db.delete(userStoreRoles).where(eq(userStoreRoles.userId, id));
   await db.delete(products).where(eq(products.userId, id));
-  const user = await getUserById(id);
+  const user = await UserService.getUserById(id);
   await db
     .delete(webhookSecrets)
     .where(eq(webhookSecrets.accountId, user.stripeUserId));
@@ -681,7 +628,7 @@ export async function createPartner({
   email,
   provincia,
 }: Record<string, string>) {
-  const hash = getDefaultPassword();
+  const hash = UserService.getDefaultPassword();
   return await db.insert(users).values({
     firstName,
     lastName,
@@ -699,7 +646,7 @@ export async function createSubPartner({
   provincia,
   partnerId,
 }: Record<string, string>) {
-  const hash = getDefaultPassword();
+  const hash = UserService.getDefaultPassword();
   return await db.insert(users).values({
     firstName,
     lastName,
@@ -864,7 +811,7 @@ export async function getStoresByPartnerId(partnerId: string) {
 export async function getSecondLevelCommissions(
   partnerId: string
 ): Promise<number | null> {
-  const user = await getUserById(partnerId);
+  const user = await UserService.getUserById(partnerId);
   if (user.role !== "partner") {
     return null;
   }

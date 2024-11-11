@@ -1,6 +1,8 @@
 "use server";
 
-import { updateUser, getBusinessTypes, getUser } from "@/app/db";
+import { updateUser, getBusinessTypes } from "@/app/db";
+import { MerchantService } from "@/app/services/merchantService";
+import { UserService } from "@/app/services/userService";
 import { FormActionReturnType } from "@/app/types";
 import formatZodErrors from "@/app/utils/formatZodErrors";
 import { redirect } from "next/navigation";
@@ -50,13 +52,13 @@ export default async function updateUserAction(
   const { email, businessTypeId, businessName} = validation.data;
 
   // Check if the user exists before updating
-  const existingUser = await getUser(email);
+  const existingUser = await UserService.getUserByEmail(email);
   if (!existingUser) {
     throw new Error('Errore in admin - modifica utente: Utente non trovato')
   }
 
   // Update the user
-  await updateUser(email, businessTypeId, businessName);
+  await MerchantService.updateMerchantBusinessInfo(email, businessTypeId, businessName);
   
   redirect("/admin/users?success=true&action=update");
 }
