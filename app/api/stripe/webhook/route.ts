@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
       return new NextResponse("Invalid webhook signature", { status: 400 });
     }
 
-    event = stripe.webhooks.constructEvent(rawBody, sig, 'whsec_caee39313a417c86dde41cbce7f535b85b99e85415d8e53655da677dce121fcb') as
+    event = stripe.webhooks.constructEvent(rawBody, sig, process.env.STRIPE_WEBHOOK_SIGNATURE!) as
       | Stripe.CheckoutSessionAsyncPaymentSucceededEvent
       | Stripe.CheckoutSessionCompletedEvent
       | Stripe.AccountUpdatedEvent;
