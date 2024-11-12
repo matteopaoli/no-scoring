@@ -69,13 +69,15 @@ export default function SignIn() {
         w="100%"
         mx={{ base: "auto", lg: "0px" }}
         me="auto"
-        h="100%"
         alignItems="start"
         justifyContent="center"
         mb={{ base: "30px", md: "60px" }}
-        px={{ base: "25px", md: "0px" }}
+        px={{ base: "25px", md: "0" }}
+        p={{ md: '50px' }}
+        borderRadius={12}
         mt={{ base: "40px", md: "14vh" }}
         flexDirection="column"
+        bgColor="white"
       >
         {onboardingComplete && ( // Conditionally render the alert
           <Alert status="success" mb="20px">

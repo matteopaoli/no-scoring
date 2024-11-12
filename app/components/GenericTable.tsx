@@ -73,11 +73,10 @@ export default function GenericTable<T>({
     >
       <Flex px="25px" mb="8px" justifyContent="space-between" align="center">
         <Heading
-          as="h3"
-          size="xl"
+          as="h4"
+          size="md"
           fontWeight="bold"
           my={4}
-          ms={{ base: "10px", md: "20px" }}
           color={headingColor}
         >
           {title}

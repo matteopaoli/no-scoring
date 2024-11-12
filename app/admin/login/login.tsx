@@ -62,12 +62,14 @@ export default function SignIn() {
         w="100%"
         mx={{ base: "auto" }}
         me="auto"
-        h="100%"
         alignItems="start"
         justifyContent="center"
         mb={{ base: "30px", md: "60px" }}
-        px={{ base: "25px", md: "0px" }}
         mt={{ base: "40px", md: "14vh" }}
+        px={{ base: "25px", md: "0px" }}
+        p={{ md: "50px" }}
+        borderRadius={12}
+        bgColor="white"
         flexDirection="column"
       >
         <Box me="auto">
