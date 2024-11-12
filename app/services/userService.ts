@@ -22,4 +22,13 @@ export class UserService {
     const hash = hashSync("PayTomorrow!2024", salt);
     return hash;
   };
+
+  static isPartner(user: { role?: string | null }) {
+    const partnerRoles = ['partner', 'subpartner']
+    return user?.role ? partnerRoles.includes(user.role) : false
+  }
+
+  static isAdmin(user: { role?: string | null }) {
+    return user?.role ? user.role === 'admin' : false
+  }
 }

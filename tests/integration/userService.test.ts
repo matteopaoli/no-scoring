@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
-import { db, getUserById } from "../../app/db"; // Adjust the import path as needed
+import { db, User } from "../../app/db"; // Adjust the import path as needed
 import { users } from "../../schema";
 import { eq } from "drizzle-orm";
 import { UserService } from "../../app/services/userService";
@@ -51,7 +51,7 @@ describe("getUserByEmail", () => {
   });
 
   it("should return undefined if the email is null", async () => {
-    const foundUser = await UserService.getUserByEmail(null);
+    const foundUser = await UserService.getUserByEmail(null as unknown as string);
     expect(foundUser).toBeUndefined();
   });
 
@@ -103,5 +103,63 @@ describe("getDefaultPassword", () => {
     const hash = UserService.getDefaultPassword();
     const isMatch = compareSync("PayTomorrow!2024", hash);
     expect(isMatch).toBe(true);
+  });
+});
+
+describe("isPartner", () => {
+  it("should return true for a user with the role 'partner'", () => {
+    const user = { role: "partner" } as User;
+    const result = UserService.isPartner(user);
+    expect(result).toBe(true);
+  });
+
+  it("should return true for a user with the role 'subpartner'", () => {
+    const user = { role: "subpartner" } as User;
+    const result = UserService.isPartner(user);
+    expect(result).toBe(true);
+  });
+
+  it("should return false for a user with a non-partner role", () => {
+    const user = { role: "admin" } as User;
+    const result = UserService.isPartner(user);
+    expect(result).toBe(false);
+  });
+
+  it("should return false if the user role is undefined", () => {
+    const user = { role: undefined as unknown } as User;
+    const result = UserService.isPartner(user);
+    expect(result).toBe(false);
+  });
+
+  it("should return false if the user role is null", () => {
+    const user = { role: null as unknown } as User;
+    const result = UserService.isPartner(user);
+    expect(result).toBe(false);
+  });
+});
+
+describe("isAdmin", () => {
+  it("should return true for a user with the role 'admin'", () => {
+    const user = { role: "admin" } as User;
+    const result = UserService.isAdmin(user);
+    expect(result).toBe(true);
+  });
+
+  it("should return false for a user with a non-partner role", () => {
+    const user = { role: "subpartner" } as User;
+    const result = UserService.isAdmin(user);
+    expect(result).toBe(false);
+  });
+
+  it("should return false if the user role is undefined", () => {
+    const user = { role: undefined as unknown } as User;
+    const result = UserService.isAdmin(user);
+    expect(result).toBe(false);
+  });
+
+  it("should return false if the user role is null", () => {
+    const user = { role: null as unknown } as User;
+    const result = UserService.isAdmin(user);
+    expect(result).toBe(false);
   });
 });

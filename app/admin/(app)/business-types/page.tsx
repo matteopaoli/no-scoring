@@ -1,8 +1,8 @@
-import { getBusinessTypes } from "@/app/db";
 import BusinessTypesTable from "./BusinessTypesTable";
+import { BusinessTypeService } from "@/app/services/businessTypeService";
 
 export default async function UsersPage() {
-  const businessTypes = await getBusinessTypes();
+  const businessTypes = await BusinessTypeService.getAll();
 
   return <BusinessTypesTable tableData={businessTypes} />;
 }

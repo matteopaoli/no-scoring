@@ -1,6 +1,6 @@
 "use client";
 
-import ReferLeadForm from "@/app/components/forms/ReferLeadForm";
+import ReferLeadForm from "@/app/components/forms/PartnerCreateMerchantForm";
 import GenericTable from "@/app/components/GenericTable";
 import {
   Table,
@@ -38,7 +38,7 @@ interface LeadsTableProps {
 }
 
 export function LeadsTable({ leads }: LeadsTableProps) {
-  const { isOpen, onClose, onOpen } = useDisclosure();
+
   const leadColumns: ColumnDef<Lead>[] = [
     {
       accessorKey: "Name",
@@ -91,23 +91,12 @@ export function LeadsTable({ leads }: LeadsTableProps) {
   ];
   return (
     <>
-      <Flex justifyContent="end">
-        <Button
-          onClick={onOpen}
-          my={10}
-          maxWidth={300}
-          colorScheme="brand"
-          variant="outline"
-        >
-          Segnala un nuovo contatto
-        </Button>
-      </Flex>
-      <ReferLeadForm isOpen={isOpen} onClose={onClose} />
       <GenericTable
         data={leads}
         columns={leadColumns}
         title="Contatti inviati"
         itemsPerPage={10} // Customize the number of items per page if needed
+        hideColumnsResponsive={['email', 'createdAt']}
       />
     </>
   );

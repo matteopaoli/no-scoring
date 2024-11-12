@@ -1,12 +1,12 @@
-import { getBusinessTypes } from "@/app/db";
 import Client from "./page.client";
 import { Box, Flex } from "@chakra-ui/react";
 import { redirect } from "next/navigation";
 import { UserService } from "@/app/services/userService";
+import { BusinessTypeService } from "@/app/services/businessTypeService";
 
 export default async function CreateUserPage(props: { params: Promise<{ userId: string }> }) {
   const params = await props.params;
-  const businessTypes = await getBusinessTypes();
+  const businessTypes = await BusinessTypeService.getAll();
   const user = await UserService.getUserById(params.userId)
 
   if (!user) {

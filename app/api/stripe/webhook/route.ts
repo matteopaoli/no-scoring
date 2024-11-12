@@ -26,7 +26,8 @@ export async function POST(request: NextRequest) {
 
     event = stripe.webhooks.constructEvent(rawBody, sig, 'whsec_caee39313a417c86dde41cbce7f535b85b99e85415d8e53655da677dce121fcb') as
       | Stripe.CheckoutSessionAsyncPaymentSucceededEvent
-      | Stripe.CheckoutSessionCompletedEvent;
+      | Stripe.CheckoutSessionCompletedEvent
+      | Stripe.AccountUpdatedEvent;
 
     if (
       event.type === "checkout.session.completed" ||
@@ -39,9 +40,6 @@ export async function POST(request: NextRequest) {
       const paymentIntent = await stripe.paymentIntents.retrieve(
         event.data.object.payment_intent as string
       );
-
-
-      console.log(JSON.stringify(session, null, 2));
 
       const store = await getStoreByUserId(merchant.id);
 
@@ -57,6 +55,10 @@ export async function POST(request: NextRequest) {
           Math.round(amount * SECOND_LEVEL_PARTNER_COMMISSION_RATE * VAT) / 100
         }`,
       });
+    }
+    else if (event.type === 'account.updated') {
+      const account = event.data.object
+      console.log(account)
     }
 
     return new NextResponse("Webhook received", { status: 200 });

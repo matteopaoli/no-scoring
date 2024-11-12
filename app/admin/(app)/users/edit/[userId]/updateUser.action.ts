@@ -1,6 +1,6 @@
 "use server";
 
-import { updateUser, getBusinessTypes } from "@/app/db";
+import { BusinessTypeService } from "@/app/services/businessTypeService";
 import { MerchantService } from "@/app/services/merchantService";
 import { UserService } from "@/app/services/userService";
 import { FormActionReturnType } from "@/app/types";
@@ -27,7 +27,7 @@ export default async function updateUserAction(
   prevState: string | null,
   formData: FormData
 ): FormActionReturnType {
-  const businessTypeIds = (await getBusinessTypes()).map((b) => b.id);
+  const businessTypeIds = (await BusinessTypeService.getAll()).map((b) => b.id);
 
   const updateUserSchema = z.object({
     email: z

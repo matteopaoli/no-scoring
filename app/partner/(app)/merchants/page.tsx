@@ -5,15 +5,21 @@ import {
   getLeadsByReferrerId,
 } from "@/app/db";
 import StoresTable from "./StoresTable";
-import { InactiveMerchantsTable } from "./InactiveMerchantsTable";
+import MerchantsTable from "./MerchantsTable";
 import Statistics from "./Statistics";
-import { Box, GridItem, SimpleGrid } from "@chakra-ui/react";
+import { Box, Flex, GridItem, SimpleGrid } from "@chakra-ui/react";
 import getUserFromAuth from "@/app/utils/getUserFromAuth";
 import { LeadsTable } from "./LeadsTable";
+import CreateMerchant from "./CreateMerchant";
+import { BusinessTypeService } from "@/app/services/businessTypeService";
+import { MerchantService } from "@/app/services/merchantService";
 
 export default async function MerchantsPage() {
   const user = await getUserFromAuth();
   const { inactiveMerchants, stores } = await getStoresByPartnerId(user.id);
+  const merchants = await MerchantService.getMerchantsByPartnerId(user.id)
+  const businessTypesOptions = await BusinessTypeService.getAllAsComponent()
+
   const leads = await getLeadsByReferrerId(user.id);
   const { firstLevelCommission, secondLevelCommission, totalCommission } =
     await getAllPartnerFees(user.id);
@@ -43,9 +49,22 @@ export default async function MerchantsPage() {
           salesVolumeStartofMonth,
         }}
       />
-      <StoresTable stores={stores} />
-      <LeadsTable leads={leads} />
-      {/* <InactiveMerchantsTable merchants={inactiveMerchants} /> */}
+      <Flex justifyContent="end">
+        <CreateMerchant businessTypesOptions={businessTypesOptions} />
+      </Flex>
+      <SimpleGrid
+        mb="20px"
+        columns={{ sm: 1, md: 2 }}
+        spacing={{ base: "20px", xl: "20px" }}
+      >
+        <GridItem>
+          <StoresTable stores={stores} />
+        </GridItem>
+        <GridItem>
+          <MerchantsTable merchants={merchants} />
+        </GridItem>
+      </SimpleGrid>
+
     </>
   );
 }

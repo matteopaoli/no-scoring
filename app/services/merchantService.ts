@@ -10,12 +10,14 @@ export class MerchantService {
     businessName,
     onboardingLink,
     stripeUserId,
+    partnerId,
   }: {
     email: string;
     businessTypeId: number;
     businessName: string;
     onboardingLink: string;
     stripeUserId: string;
+    partnerId?: string
   }) {
     await db.insert(users).values({
       email,
@@ -23,8 +25,9 @@ export class MerchantService {
       businessTypeId,
       businessName,
       onboardingLink,
-      status: "awaiting",
+      status: "pending",
       stripeUserId,
+      partnerId
     });
   }
 
@@ -52,5 +55,15 @@ export class MerchantService {
         businessName,
       })
       .where(eq(users.email, email));
+  }
+
+  static async getMerchantsByPartnerId(partnerId: string) {
+    return await db.select({
+      id: users.id,
+      email: users.email,
+      createdAt: users.createdAt,
+      onboardingLink: users.onboardingLink,
+      status: users.status
+    }).from(users).where(eq(users.partnerId, partnerId))
   }
 }

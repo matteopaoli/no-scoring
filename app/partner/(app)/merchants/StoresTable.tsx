@@ -15,7 +15,7 @@ import {
 } from "@chakra-ui/react";
 import { ColumnDef } from "@tanstack/react-table";
 import GenericTable from "@/app/components/GenericTable"; // Adjust the import path if needed
-import ReferLeadForm from "@/app/components/forms/ReferLeadForm";
+import ReferLeadForm from "@/app/components/forms/PartnerCreateMerchantForm";
 
 interface Store {
   storeId: string;
@@ -64,6 +64,7 @@ export default function StoresTable({ stores }: StoresTableProps) {
         columns={storeColumns}
         title="Negozi"
         itemsPerPage={10} // Customize the number of items per page if needed
+        hideColumnsResponsive={['createdAt']}
       />
     </>
   );

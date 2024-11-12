@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
-import { db, updateUser } from "../../app/db"; // Adjust the import path as needed
+import { db } from "../../app/db"; // Adjust the import path as needed
 import { users } from "../../schema";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { MerchantService } from "../../app/services/merchantService";
 
 // Define the user data as a fixture
@@ -35,7 +35,7 @@ describe("createMerchant", () => {
     expect(insertedUser?.businessTypeId).toBe(userData.businessTypeId);
     expect(insertedUser?.businessName).toBe(userData.businessName);
     expect(insertedUser?.onboardingLink).toBe(userData.onboardingLink);
-    expect(insertedUser?.status).toBe("awaiting");
+    expect(insertedUser?.status).toBe("pending");
     expect(insertedUser?.stripeUserId).toBe(userData.stripeUserId);
   });
 });
@@ -47,7 +47,7 @@ describe("initMerchant", () => {
       .insert(users)
       .values({
         ...userData,
-        status: "awaiting",
+        status: "pending",
         role: "user",
       })
       .returning();
@@ -129,5 +129,68 @@ describe("updateUser", () => {
     expect(updatedUser.stripeUserId).toBe("stripe_123");
     expect(updatedUser.onboardingLink).toBe("https://example.com/onboard");
     expect(updatedUser.status).toBe("active");
+  });
+});
+
+// New test for `getMerchantsByPartnerId`
+describe("getMerchantsByPartnerId", () => {
+
+  const partnerData = {
+    email: "testpartner10@example.com",
+    createdAt: new Date(),
+    onboardingLink: "https://example.com/onboard2",
+    status: "awaiting",
+    role: 'partner'
+  };
+
+  const merchant1 = {
+    email: "testmerchant11@example.com",
+    createdAt: new Date(),
+    onboardingLink: "https://example.com/onboard1",
+    status: "active",
+    role: 'user'
+  };
+
+  const merchant2 = {
+    email: "testmerchant12@example.com",
+    createdAt: new Date(),
+    onboardingLink: "https://example.com/onboard2",
+    status: "awaiting",
+    role: 'user'
+  };
+
+  let partnerId = ''
+
+
+  beforeAll(async () => {
+    const partner = (await db.insert(users).values(partnerData).returning())[0]
+    partnerId = partner.id
+    await db.insert(users).values([{...merchant1, partnerId: partner.id }, {...merchant2, partnerId: partner.id}]);
+  });
+
+  afterAll(async () => {
+    await db.delete(users).where(eq(users.partnerId, partnerId));
+    await db.delete(users).where(eq(users.id, partnerId))
+  });
+
+  it("should return merchants associated with the given partnerId", async () => {
+    const result = await MerchantService.getMerchantsByPartnerId(partnerId);
+
+    expect(result).toHaveLength(2);
+
+    const [returnedMerchant1, returnedMerchant2] = result;
+
+    expect(returnedMerchant1.email).toBe(merchant1.email);
+    expect(returnedMerchant1.status).toBe(merchant1.status);
+    expect(returnedMerchant1.onboardingLink).toBe(merchant1.onboardingLink);
+
+    expect(returnedMerchant2.email).toBe(merchant2.email);
+    expect(returnedMerchant2.status).toBe(merchant2.status);
+    expect(returnedMerchant2.onboardingLink).toBe(merchant2.onboardingLink);
+  });
+
+  it("should return an empty array if no merchants are associated with the given partnerId", async () => {
+    const result = await MerchantService.getMerchantsByPartnerId("non-existent-partner-id");
+    expect(result).toEqual([]);
   });
 });

@@ -33,9 +33,9 @@ export default async function createUserAction(
   prevState: Awaited<FormActionReturnType>,
   formData: FormData
 ): FormActionReturnType {
-  const creator = await getUserFromAuth()
+  const user = await getUserFromAuth()
 
-  if (!UserService.isPartner(creator) && !UserService.isAdmin(creator)) {
+  if (!UserService.isPartner(user)) {
     throw new Error('unauthorized')
   }
 
@@ -68,7 +68,7 @@ export default async function createUserAction(
     email: formData.get("email"),
     businessTypeId: Number(formData.get("businessTypeId")),
     businessName: formData.get("businessName"),
-    partner: formData.get("partner"),
+    partner: user.id
   });
 
   if (!validation.success) {
@@ -126,6 +126,8 @@ export default async function createUserAction(
     partnerId,
   });
 
-  accountCreatedMerchantEmail({ email, onboardingLink: accountLink.url, partnerName: `${creator.firstName} ${creator.lastName}` })
-  redirect(`/admin/users?success=true&action=create`);
+  accountCreatedMerchantEmail({ email, onboardingLink: accountLink.url, partnerName: `${user.firstName} ${user.lastName}` })
+  newMerchantAdminEmail({ merchantEmail: email, partnerName: `${user.firstName} ${user.lastName}` })
+  
+  redirect(`/partner/merchants?success=true&action=create`);
 }
