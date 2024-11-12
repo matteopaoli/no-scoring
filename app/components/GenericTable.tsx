@@ -13,22 +13,26 @@ import {
   useColorModeValue,
   Card,
   Heading,
+  useMediaQuery,
 } from "@chakra-ui/react";
+import { useSize } from '@chakra-ui/react-use-size'
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   useReactTable,
+  VisibilityState,
 } from "@tanstack/react-table";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface GenericTableProps<T> {
   data: T[];
   columns: ColumnDef<T>[];
   itemsPerPage?: number;
   title: string;
-  onRowClick?: (rowData: T) => void; // Row click handler
+  onRowClick?: (rowData: T) => void; // Row click handler,
+  hideColumnsResponsive?: string[]
   menu?: (props: any) => JSX.Element;
 }
 
@@ -38,16 +42,35 @@ export default function GenericTable<T>({
   itemsPerPage = 10,
   title,
   onRowClick,
+  hideColumnsResponsive,
   menu: Menu,
 }: GenericTableProps<T>) {
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = Math.ceil(data.length / itemsPerPage);
+  const boxRef = useRef(null)
+  const dimensions = useSize(boxRef)
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const table = useReactTable({
+    state: {
+      columnVisibility
+    },
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    onColumnVisibilityChange: setColumnVisibility,
   });
+
+  useEffect(() => {
+    if (hideColumnsResponsive) {
+      if (dimensions?.width && dimensions.width > 500) {
+        setColumnVisibility(Object.fromEntries(hideColumnsResponsive.map((c: string)=> [c, true])));
+      }
+      else setColumnVisibility(Object.fromEntries(hideColumnsResponsive.map((c: string)=> [c, false])));
+    }
+    else {
+    }
+  }, [dimensions?.width ]);
 
   const paginatedRows = table
     .getRowModel()
@@ -70,6 +93,7 @@ export default function GenericTable<T>({
       w="100%"
       px="0px"
       overflowX={{ sm: "scroll", lg: "hidden" }}
+      ref={boxRef}
     >
       <Flex px="25px" mb="8px" justifyContent="space-between" align="center">
         <Heading
