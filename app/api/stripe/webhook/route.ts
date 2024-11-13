@@ -38,7 +38,9 @@ export async function POST(request: NextRequest) {
       const session = event.data.object;
       const amount = session.amount_total as number;
       const transferAmount = Math.round(amount * LEG_FEE_RATE * VAT);
-
+      const merchant = await MerchantService.getMerchantByStripeUserId(
+        event.account as string
+      );
       const paymentIntent = await stripe.paymentIntents.retrieve(
         event.data.object.payment_intent as string
       );
@@ -62,10 +64,11 @@ export async function POST(request: NextRequest) {
       let merchant;
       if (
         stripeAccount.requirements?.currently_due?.length === 0 &&
-        (merchant = await MerchantService.getMerchantByStripeUserId(stripeAccount.id))
-          ?.status === "pending"
+        (merchant = await MerchantService.getMerchantByStripeUserId(
+          stripeAccount.id
+        ))?.status === "pending"
       ) {
-        await MerchantService.initMerchant(merchant.id)
+        await MerchantService.initMerchant(merchant.id);
       }
     }
     return new NextResponse("Webhook received", { status: 200 });
