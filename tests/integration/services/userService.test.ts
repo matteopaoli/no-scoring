@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
-import { db, User } from "../../app/db"; // Adjust the import path as needed
-import { users } from "../../schema";
+import { db, User } from "../../../app/db"; // Adjust the import path as needed
+import { users } from "../../../schema";
 import { eq } from "drizzle-orm";
-import { UserService } from "../../app/services/userService";
+import { UserService } from "../../../app/services/userService";
 import { compareSync } from 'bcrypt-ts'
 
 // Define the user data as a fixture

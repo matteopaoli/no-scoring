@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
-import { db } from "../../app/db"; // Adjust the import path as needed
-import { users } from "../../schema";
+import { db } from "../../../app/db"; // Adjust the import path as needed
+import { users } from "../../../schema";
 import { eq, inArray } from "drizzle-orm";
-import { MerchantService } from "../../app/services/merchantService";
+import { MerchantService } from "../../../app/services/merchantService";
 
 // Define the user data as a fixture
 const userData = {
@@ -81,7 +81,11 @@ describe("updateUser", () => {
     const newBusinessTypeId = 2;
     const newBusinessName = "Updated Business";
 
-    await MerchantService.updateMerchantBusinessInfo(userData.email, newBusinessTypeId, newBusinessName);
+    await MerchantService.updateMerchantBusinessInfo(
+      userData.email,
+      newBusinessTypeId,
+      newBusinessName
+    );
 
     const updatedUser = (
       await db.select().from(users).where(eq(users.email, userData.email))
@@ -119,7 +123,11 @@ describe("updateUser", () => {
     const newBusinessTypeId = 4;
     const newBusinessName = "Another Updated Business";
 
-    await MerchantService.updateMerchantBusinessInfo(userData.email, newBusinessTypeId, newBusinessName);
+    await MerchantService.updateMerchantBusinessInfo(
+      userData.email,
+      newBusinessTypeId,
+      newBusinessName
+    );
 
     const updatedUser = (
       await db.select().from(users).where(eq(users.email, userData.email))
@@ -134,13 +142,12 @@ describe("updateUser", () => {
 
 // New test for `getMerchantsByPartnerId`
 describe("getMerchantsByPartnerId", () => {
-
   const partnerData = {
     email: "testpartner10@example.com",
     createdAt: new Date(),
     onboardingLink: "https://example.com/onboard2",
     status: "awaiting",
-    role: 'partner'
+    role: "partner",
   };
 
   const merchant1 = {
@@ -148,7 +155,7 @@ describe("getMerchantsByPartnerId", () => {
     createdAt: new Date(),
     onboardingLink: "https://example.com/onboard1",
     status: "active",
-    role: 'user'
+    role: "user",
   };
 
   const merchant2 = {
@@ -156,21 +163,23 @@ describe("getMerchantsByPartnerId", () => {
     createdAt: new Date(),
     onboardingLink: "https://example.com/onboard2",
     status: "awaiting",
-    role: 'user'
+    role: "user",
   };
 
-  let partnerId = ''
-
+  let partnerId = "";
 
   beforeAll(async () => {
-    const partner = (await db.insert(users).values(partnerData).returning())[0]
-    partnerId = partner.id
-    await db.insert(users).values([{...merchant1, partnerId: partner.id }, {...merchant2, partnerId: partner.id}]);
+    const partner = (await db.insert(users).values(partnerData).returning())[0];
+    partnerId = partner.id;
+    await db.insert(users).values([
+      { ...merchant1, partnerId: partner.id },
+      { ...merchant2, partnerId: partner.id },
+    ]);
   });
 
   afterAll(async () => {
     await db.delete(users).where(eq(users.partnerId, partnerId));
-    await db.delete(users).where(eq(users.id, partnerId))
+    await db.delete(users).where(eq(users.id, partnerId));
   });
 
   it("should return merchants associated with the given partnerId", async () => {
@@ -190,7 +199,45 @@ describe("getMerchantsByPartnerId", () => {
   });
 
   it("should return an empty array if no merchants are associated with the given partnerId", async () => {
-    const result = await MerchantService.getMerchantsByPartnerId("non-existent-partner-id");
+    const result = await MerchantService.getMerchantsByPartnerId(
+      "non-existent-partner-id"
+    );
     expect(result).toEqual([]);
+  });
+});
+
+describe("getMerchantsByStripeUserId", () => {
+  const user = {
+    email: "test19@example.com",
+    businessTypeId: 3,
+    businessName: "Test Business",
+    onboardingLink: "https://example.com/onboard",
+    stripeUserId: "stripe_123",
+    role: "user",
+  };
+  beforeAll(async () => {
+    await db.insert(users).values(user);
+  });
+
+  afterAll(async () => {
+    await db.delete(users).where(eq(users.stripeUserId, user.stripeUserId));
+  });
+
+  it("should return merchants associated with the given stripeUserId", async () => {
+    const result = await MerchantService.getMerchantByStripeUserId(
+      user.stripeUserId
+    );
+
+    expect(result).toBeDefined();
+    expect(result.email).toBe(user.email);
+    expect(result.onboardingLink).toBe(user.onboardingLink);
+    expect(result.status).toBe("active");
+  });
+
+  it("should return an empty array if no merchants are associated with the given stripeUserId", async () => {
+    const result = await MerchantService.getMerchantByStripeUserId(
+      "non-existent-stripe-user-id"
+    );
+    expect(result).toBeUndefined();
   });
 });

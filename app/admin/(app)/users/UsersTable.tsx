@@ -21,6 +21,7 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
+  Tooltip,
 } from "@chakra-ui/react";
 import {
   createColumnHelper,
@@ -29,12 +30,18 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { MdOutlineEdit, MdDeleteOutline } from "react-icons/md";
+import {
+  MdOutlineEdit,
+  MdDeleteOutline,
+  MdHourglassEmpty,
+  MdCheckCircle,
+} from "react-icons/md";
 import Card from "@/app/components/card/Card";
 import Menu from "./UsersTableMenu";
 import { useMemo, useState } from "react";
 import { User } from "@/app/db";
 import { Link } from "@chakra-ui/next-js";
+import CopyButton from "@/app/components/CopyButton";
 
 type UsersTableProps = {
   tableData: unknown[];
@@ -87,6 +94,55 @@ export default function UsersTable({ tableData }: UsersTableProps) {
             </Text>
           </Flex>
         ),
+      }),
+      columnHelper.accessor("status", {
+        id: "status",
+        header: () => (
+          <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
+            Stato
+          </Text>
+        ),
+        cell: (info) => {
+          const status = info.getValue() as string;
+          const statusMap: Record<
+            string,
+            { label: string; icon: JSX.Element }
+          > = {
+            pending: {
+              label: "In attesa",
+              icon: (
+                <MdHourglassEmpty
+                  style={{ color: "#FFB547", fontSize: "1.5em" }}
+                />
+              ),
+            },
+            active: {
+              label: "Attivo",
+              icon: (
+                <MdCheckCircle style={{ color: "green", fontSize: "1.5em" }} />
+              ),
+            },
+          };
+
+          const { label, icon } = statusMap[status] || {};
+
+          return (
+            <Box>
+              <Text color={textColor} fontSize="sm" fontWeight="700">
+                <span
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                  }}
+                >
+                  {icon}
+                  {label}
+                </span>
+              </Text>
+            </Box>
+          );
+        },
       }),
       columnHelper.accessor("businessName", {
         id: "businessName",
@@ -176,26 +232,42 @@ export default function UsersTable({ tableData }: UsersTableProps) {
           </Text>
         ),
         cell: (info) => (
-          <Flex gap="8px">
-            <Link href={`/admin/users/edit/${info.getValue()}`}>
-              <Icon
-                as={MdOutlineEdit}
-                width="20px"
-                height="20px"
-                color="inherit"
-              />
-            </Link>
-            <Icon
-              as={MdDeleteOutline}
-              width="20px"
-              height="20px"
-              color="red.500"
-              cursor="pointer"
-              onClick={() => {
-                setSelectedUserId(info.getValue());
-                onOpen();
-              }}
-            />
+          <Flex gap="8px" alignItems="center">
+            <Tooltip label="Modifica utente" hasArrow placement="auto">
+              <Link href={`/admin/users/edit/${info.getValue()}`}>
+                <Icon
+                  as={MdOutlineEdit}
+                  width="20px"
+                  height="20px"
+                  color="inherit"
+                  cursor="pointer"
+                />
+              </Link>
+            </Tooltip>
+          
+            <Tooltip label="Elimina Utente" hasArrow placement="auto">
+              <span>
+                <Icon
+                  as={MdDeleteOutline}
+                  width="20px"
+                  height="20px"
+                  color="red.500"
+                  cursor="pointer"
+                  onClick={() => {
+                    setSelectedUserId(info.getValue());
+                    onOpen();
+                  }}
+                />
+              </span>
+            </Tooltip>
+          
+            {info.row.original.status === "pending" && (
+                <Tooltip label="Copia link onboarding" hasArrow placement="auto">
+                  <span>
+                  <CopyButton text={info.row.original.onboardingLink} />
+                  </span>
+                </Tooltip>
+            )}
           </Flex>
         ),
       }),
@@ -301,4 +373,3 @@ export default function UsersTable({ tableData }: UsersTableProps) {
     </Card>
   );
 }
-

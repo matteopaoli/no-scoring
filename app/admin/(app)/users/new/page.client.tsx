@@ -8,6 +8,7 @@ import {
   FormControl,
   FormHelperText,
   SimpleGrid,
+  Flex,
 } from "@chakra-ui/react";
 import { ReactNode, useState } from "react";
 import createUserAction from "./createUser.action";
@@ -72,7 +73,7 @@ export default function CreateUserPage({
   };
 
   return (
-    <Box width="100%">
+    <Box width="100%" background="white" p={10} borderRadius="lg">
       <form action={handleSubmit} style={{ width: "100%" }}>
         <SimpleGrid columns={{ base: 1, md: 2 }} columnGap="50px">
           <InputField
@@ -135,7 +136,15 @@ export default function CreateUserPage({
             {/* <input type="hidden" value={partnerId} name="partner" /> */}
           </FormControl>
         </SimpleGrid>
+        <Flex
+          justifyContent={{
+            base: "center",
+            md: "flex-end",
+          }}
+          width="100%"
+        >
         <SubmitButton>Aggiungi Utente</SubmitButton>
+          </Flex>
       </form>
     </Box>
   );

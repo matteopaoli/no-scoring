@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { BusinessTypeService } from "../../app/services/businessTypeService";
+import { BusinessTypeService } from "../../../app/services/businessTypeService";
 
 describe("getAll", () => {
   it("fetches all business types with their respective commission rules", async () => {

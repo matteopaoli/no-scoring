@@ -4,10 +4,8 @@ import {
   SECOND_LEVEL_PARTNER_FEE_RATE,
   VAT,
 } from "@/app/constants";
-import {
-  createSale,
-  getStoreByUserId,
-} from "@/app/db";
+import { createSale, getStoreByUserId } from "@/app/db";
+import { MerchantService } from "@/app/services/merchantService";
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
@@ -24,7 +22,11 @@ export async function POST(request: NextRequest) {
       return new NextResponse("Invalid webhook signature", { status: 400 });
     }
 
-    event = stripe.webhooks.constructEvent(rawBody, sig, process.env.STRIPE_WEBHOOK_SIGNATURE!) as
+    event = stripe.webhooks.constructEvent(
+      rawBody,
+      sig,
+      process.env.STRIPE_WEBHOOK_SIGNATURE!
+    ) as
       | Stripe.CheckoutSessionAsyncPaymentSucceededEvent
       | Stripe.CheckoutSessionCompletedEvent
       | Stripe.AccountUpdatedEvent;
@@ -55,12 +57,17 @@ export async function POST(request: NextRequest) {
           Math.round(amount * SECOND_LEVEL_PARTNER_FEE_RATE * VAT) / 100
         }`,
       });
+    } else if (event.type === "account.updated") {
+      const stripeAccount = event.data.object;
+      let merchant;
+      if (
+        stripeAccount.requirements?.currently_due?.length === 0 &&
+        (merchant = await MerchantService.getMerchantByStripeUserId(stripeAccount.id))
+          ?.status === "pending"
+      ) {
+        await MerchantService.initMerchant(merchant.id)
+      }
     }
-    else if (event.type === 'account.updated') {
-      const account = event.data.object
-      console.log(account)
-    }
-
     return new NextResponse("Webhook received", { status: 200 });
   } catch (err) {
     console.error("⚠️  Webhook Error:", err);

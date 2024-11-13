@@ -17,8 +17,9 @@ export class MerchantService {
     businessName: string;
     onboardingLink: string;
     stripeUserId: string;
-    partnerId?: string
+    partnerId?: string;
   }) {
+    const hash = UserService.getDefaultPassword();
     await db.insert(users).values({
       email,
       role: "user",
@@ -27,26 +28,22 @@ export class MerchantService {
       onboardingLink,
       status: "pending",
       stripeUserId,
-      partnerId
+      partnerId,
+      password: hash,
     });
   }
 
   static async initMerchant(userId: string) {
-    const hash = UserService.getDefaultPassword();
-
     return await db
       .update(users)
-      .set({
-        status: "active",
-        password: hash,
-      })
+      .set({ status: "active" })
       .where(eq(users.id, userId));
   }
 
   static async updateMerchantBusinessInfo(
     email: string,
     businessTypeId: number,
-    businessName: string,
+    businessName: string
   ) {
     return await db
       .update(users)
@@ -58,12 +55,30 @@ export class MerchantService {
   }
 
   static async getMerchantsByPartnerId(partnerId: string) {
-    return await db.select({
-      id: users.id,
-      email: users.email,
-      createdAt: users.createdAt,
-      onboardingLink: users.onboardingLink,
-      status: users.status
-    }).from(users).where(eq(users.partnerId, partnerId))
+    return await db
+      .select({
+        id: users.id,
+        email: users.email,
+        createdAt: users.createdAt,
+        onboardingLink: users.onboardingLink,
+        status: users.status,
+      })
+      .from(users)
+      .where(eq(users.partnerId, partnerId));
+  }
+
+  static async getMerchantByStripeUserId(stripeUserId: string) {
+    return (
+      await db
+        .select({
+          id: users.id,
+          email: users.email,
+          createdAt: users.createdAt,
+          onboardingLink: users.onboardingLink,
+          status: users.status,
+        })
+        .from(users)
+        .where(eq(users.stripeUserId, stripeUserId))
+    )?.[0];
   }
 }

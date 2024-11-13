@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 test("create/delete product", async ({ page }) => {
     await page.goto("http://localhost:3000/login");
     await page.getByTestId("mt-email-field").click();
-    await page.getByTestId("mt-email-field").fill("merchant@gmail.com");
+    await page.getByTestId("mt-email-field").fill("merchant7@gmail.com");
     await page.getByTestId("mt-email-field").press("Tab");
     await page.getByTestId("mt-password-field").fill("PayTomorrow!2024");
     await page.getByTestId("mt-login-button").click();
