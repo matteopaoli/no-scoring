@@ -1,7 +1,7 @@
 import {
-  FIRST_LEVEL_PARTNER_COMMISSION_RATE,
-  LEG_COMMISSION_RATE,
-  SECOND_LEVEL_PARTNER_COMMISSION_RATE,
+  FIRST_LEVEL_PARTNER_FEE_RATE,
+  LEG_FEE_RATE,
+  SECOND_LEVEL_PARTNER_FEE_RATE,
   VAT,
 } from "@/app/constants";
 import {
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     ) {
       const session = event.data.object;
       const amount = session.amount_total as number;
-      const transferAmount = Math.round(amount * LEG_COMMISSION_RATE * VAT);
+      const transferAmount = Math.round(amount * LEG_FEE_RATE * VAT);
 
       const paymentIntent = await stripe.paymentIntents.retrieve(
         event.data.object.payment_intent as string
@@ -49,10 +49,10 @@ export async function POST(request: NextRequest) {
         storeId: store.id,
         legCommission: `${transferAmount / 100}`,
         firstLevelPartnerCommission: `${
-          Math.round(amount * FIRST_LEVEL_PARTNER_COMMISSION_RATE * VAT) / 100
+          Math.round(amount * FIRST_LEVEL_PARTNER_FEE_RATE * VAT) / 100
         }`,
         secondLevelPartnerCommission: `${
-          Math.round(amount * SECOND_LEVEL_PARTNER_COMMISSION_RATE * VAT) / 100
+          Math.round(amount * SECOND_LEVEL_PARTNER_FEE_RATE * VAT) / 100
         }`,
       });
     }
