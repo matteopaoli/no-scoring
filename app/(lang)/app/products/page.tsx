@@ -8,10 +8,9 @@ export default async function ProductsPage({ searchParams }) {
     
     const stripe = new Stripe(process.env.STRIPE_API_KEY!, { stripeAccount: user.stripeUserId });
     const { data } = await stripe.products.list({ active: true, limit: 1000 })
-    const products = data.filter(x => x.id !== user.genericProductId)
     return (
         <>
-            <ProductsTable tableData={products} />
+            <ProductsTable tableData={data} />
         </>
     )
 }

@@ -1,7 +1,6 @@
 import {
   generateQrCodeWithLogo,
   generateTagImage,
-  generateGenericProductImages,
 } from './app/utils/images';
 import fs from 'node:fs/promises';
 
@@ -41,37 +40,6 @@ const runTest = async () => {
 
     // Save the tag image Base64 string to a text file
     await fs.writeFile('./output/tagImage.txt', tagImageBase64);
-
-    // Test generating generic product images with the QR code and user logo
-    const { genericProductSmallImage, genericProductLargeImage } =
-      await generateGenericProductImages(qrCodeBase64);
-    console.log('Generated Generic Product Images with User Logo');
-
-    // Save the generic small product image to a file
-    await fs.writeFile(
-      './output/genericProductSmallImage.jpg',
-      genericProductSmallImage.replace(/^data:image\/jpeg;base64,/, ''),
-      'base64'
-    );
-
-    // Save the generic small product Base64 string to a text file
-    await fs.writeFile(
-      './output/genericProductSmallImage.txt',
-      genericProductSmallImage
-    );
-
-    // Save the generic large product image to a file
-    await fs.writeFile(
-      './output/genericProductLargeImage.jpg',
-      genericProductLargeImage.replace(/^data:image\/jpeg;base64,/, ''),
-      'base64'
-    );
-
-    // Save the generic large product Base64 string to a text file
-    await fs.writeFile(
-      './output/genericProductLargeImage.txt',
-      genericProductLargeImage
-    );
   } catch (error) {
     console.error('Error during testing:', error);
   }

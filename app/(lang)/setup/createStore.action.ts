@@ -6,9 +6,7 @@ import { redirect } from "next/navigation";
 import { FormActionReturnType } from "@/app/types";
 import formatZodErrors from "@/app/utils/formatZodErrors";
 import getUserFromAuth from "@/app/utils/getUserFromAuth";
-import { generateGenericProductImages, generateQrCodeWithLogo } from "@/app/utils/images";
 import Stripe from "stripe";
-import { createGenericProduct } from "@/app/utils/stripe";
 
 const createStoreSchema = z.object({
   storeName: z.string().min(1, "Il nome del negozio è obbligatorio"),
@@ -34,15 +32,6 @@ export async function createStoreAction(
   const { storeName, storeLogo } = validation.data;
 
   await createStore({ storeName, storeLogo, userId: user.id });
-
-  const genericProduct = await createGenericProduct(stripe);
-
-  const genericProductQrCode = await generateQrCodeWithLogo(
-    genericProduct.paymentLink.url
-  );
-  const { genericProductSmallImage, genericProductLargeImage } =
-    await generateGenericProductImages(genericProductQrCode);
-
   await completeOnboarding(user.email);
 
   redirect("/app");

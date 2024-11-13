@@ -24,12 +24,9 @@ import {
 } from "schema";
 import Stripe from "stripe";
 import {
-  generateQrCodeWithLogo,
-  generateGenericProductImages,
   imageToBase64,
   compressProfileImageToBase64,
 } from "./utils/images";
-import { createGenericProduct } from "./utils/stripe";
 import { alias } from "drizzle-orm/pg-core";
 import {
   sendNewLeadEmailToAdmin,
@@ -67,9 +64,6 @@ export interface User {
   businessName: string;
   onboardingCompleted: boolean;
   stripeUserId: string;
-  genericProductId: string;
-  genericProductSmallImage: string;
-  genericProductLargeImage: string;
   provincia: string;
   partnerId?: string;
   onboardingLink: string

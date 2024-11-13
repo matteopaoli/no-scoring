@@ -260,6 +260,13 @@
       "when": 1731333822633,
       "tag": "0036_public_celestials",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1731519002345,
+      "tag": "0037_conscious_lionheart",
+      "breakpoints": true
     }
   ]
 }
