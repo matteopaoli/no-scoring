@@ -20,6 +20,7 @@ export const {
     async authorize(credentials, req) {
         let user = await UserService.getUserByEmail(credentials.email as string);
         if (!user) return null;
+        if (user.status === 'pending') return null;
         let passwordsMatch = await compare(credentials.password as string, user.password!);
         if (passwordsMatch && (credentials.roles as string[]).includes(user.role)) {
           const { image,  ...rest } = user
