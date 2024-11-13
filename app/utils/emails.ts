@@ -89,7 +89,7 @@ export async function accountCreatedMerchantEmail({
   onboardingLink: string;
 }) {
   return await sendEmail({
-    recipients: ['matteo_paoli@outlook.com'],
+    recipients: [email],
     templateName: "accountCreatedMerchant",
     data: {
       partnerName,
@@ -103,7 +103,7 @@ export async function newMerchantAdminEmail({ partnerName, merchantEmail }: { pa
 
   if (recipients) {
     return await sendEmail({
-      recipients: ['matteo_paoli@outlook.com'],
+      recipients,
       templateName: 'newMerchantAdmin',
       data: {
         partnerName,
