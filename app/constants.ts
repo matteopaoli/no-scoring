@@ -23,4 +23,4 @@ export const provinces = [
     "Treviso", "Trieste", "Udine", "Varese", "Venezia", "Verbano-Cusio-Ossola",
     "Vercelli", "Verona", "Vibo Valentia", "Vicenza", "Viterbo", "Estero"
   ];
-export const VERSION="2.0.0-alpha"
+export const VERSION="2.0.0-alpha2"
