@@ -39,7 +39,8 @@ export async function createPaymentLink(stripe: Stripe, productId: string) {
           quantity: 1,
         },
       ],
-      application_fee_amount: transferAmount
+      application_fee_amount: transferAmount,
+      payment_method_types: ['card', 'klarna'],
     });
     return paymentLink;
   } catch (error) {
