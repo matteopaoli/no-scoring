@@ -4,7 +4,7 @@ export const STRIPE_FEE_FIXED = 0.4
 export const VAT = 1.22
 export const FIRST_LEVEL_PARTNER_FEE_RATE = 0.005
 export const SECOND_LEVEL_PARTNER_FEE_RATE = 0.0025
-export const FEES_DISCLAIMER = 'Il prezzo è stato aumentato per includere le commissioni associate al pagamento in più rate."'
+export const FEES_DISCLAIMER = 'Il prezzo è stato aumentato per includere le commissioni associate al pagamento in più rate.'
 export const provinces = [
     "Agrigento", "Alessandria", "Ancona", "Aosta", "Arezzo", "Ascoli Piceno",
     "Asti", "Avellino", "Bari", "Barletta-Andria-Trani", "Belluno", "Benevento",
