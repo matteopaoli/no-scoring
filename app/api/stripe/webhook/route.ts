@@ -42,7 +42,10 @@ export async function POST(request: NextRequest) {
         event.account as string
       );
       const paymentIntent = await stripe.paymentIntents.retrieve(
-        event.data.object.payment_intent as string
+        event.data.object.payment_intent as string,
+        {
+          stripeAccount: event.account,
+        }
       );
 
       const store = await getStoreByUserId(merchant.id);
