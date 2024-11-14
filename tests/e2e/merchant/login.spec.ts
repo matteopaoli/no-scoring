@@ -15,7 +15,7 @@ test.describe("Login Page End-to-End Tests", () => {
     await expect(page.getByTestId("mt-password-field")).toBeVisible();
     await expect(page.getByTestId("mt-login-button")).toBeVisible();
     await page.getByTestId("mt-email-field").click();
-    await page.getByTestId("mt-email-field").fill("merchant7@gmail.com");
+    await page.getByTestId("mt-email-field").fill("pincopallo@gmail.com");
     await page.getByTestId("mt-email-field").press("Tab");
     await page.getByTestId("mt-password-field").fill("PayTomorrow!2024");
     await page.getByTestId("mt-login-button").click();
@@ -39,14 +39,14 @@ test.describe("Login Page End-to-End Tests", () => {
   });
 
   test("should show error for invalid credentials", async ({ page }) => {
-    await page.getByTestId("mt-email-field").fill("merchant7@gmail.com");
+    await page.getByTestId("mt-email-field").fill("pincopallo@gmail.com");
     await page.getByTestId("mt-password-field").fill("wrong_password!2024");
     await page.getByTestId("mt-login-button").click();
     await expect(page.getByText("E-mail o password errata")).toBeVisible();
   });
 
   test("should successfully login with valid credentials", async ({ page }) => {
-    await page.getByTestId("mt-email-field").fill("merchant7@gmail.com");
+    await page.getByTestId("mt-email-field").fill("pincopallo@gmail.com");
     await page.getByTestId("mt-password-field").fill("PayTomorrow!2024");
     await page.getByTestId("mt-login-button").click();
     await page.waitForURL("http://localhost:3000/app");
@@ -95,7 +95,7 @@ test.describe("Login Page End-to-End Tests", () => {
     page,
   }) => {
     await page.goto("http://localhost:3000/");
-    await page.getByTestId("mt-email-field").fill("merchant7@gmail.com");
+    await page.getByTestId("mt-email-field").fill("pincopallo@gmail.com");
     await page.getByTestId("mt-password-field").fill("PayTomorrow!2024");
     await page.getByTestId("mt-login-button").click();
     await page.waitForURL("http://localhost:3000/app");

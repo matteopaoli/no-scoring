@@ -2,6 +2,9 @@
 
 import { z } from "zod";
 import { updateProfile } from "@/app/db";
+import { FormActionReturnType } from "@/app/types";
+import formatZodErrors from "@/app/utils/formatZodErrors";
+import getUserFromAuth from "@/app/utils/getUserFromAuth";
 
 // Definiamo lo schema di validazione con Zod
 const updateProfileSchema = z.object({
@@ -13,22 +16,23 @@ const updateProfileSchema = z.object({
   .email("Inserire un indirizzo email valido")
 });
 
-export async function updateProfileAction(prevState: unknown, formData: FormData) {
+export async function updateProfileAction(prevState: Awaited<FormActionReturnType>, formData: FormData): FormActionReturnType {
+  const user = await getUserFromAuth();
   const profileData = {
     firstName: formData.get('firstName') as string,
     lastName: formData.get('lastName') as string,
     profileImage: formData.get('profileImage') as Blob | null,
-    email: formData.get('email') as string
+    email: user.email
   };
 
   const validation = updateProfileSchema.safeParse(profileData);
   if (!validation.success) {
-    return JSON.stringify(validation.error.format());
+    return formatZodErrors(validation);
   }
 
   const { firstName, lastName, profileImage, email } = validation.data;
 
   await updateProfile({ firstName, lastName, profileImage, email });
 
-  return { success: true };
+  return [];
 }
