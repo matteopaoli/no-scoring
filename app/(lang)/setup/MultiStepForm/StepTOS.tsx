@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -10,52 +10,49 @@ import {
   FormErrorMessage,
   Text,
 } from "@chakra-ui/react";
-import { UserContext } from "@/app/contexts/UserContext";
 import { Link } from "@chakra-ui/next-js";
+import SubmitButton from "@/app/components/SubmitButton";
+import { acceptTosAction } from "@/app/api/acceptTos/acceptTos.action";
+import { useFormState, useFormStatus } from "react-dom";
+import { FormActionReturnTypeWithStatus } from "@/app/types";
 
 interface StepTOSProps {
   onAccept: () => void;
 }
 
 const StepTOS: React.FC<StepTOSProps> = ({ onAccept }) => {
-  const session = useContext(UserContext);
-  const [TOSAccepted, setTOSAccepted] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null); // State to handle errors if any
+  const [formState, action] = useFormState(acceptTosAction, [] as unknown as Awaited<FormActionReturnTypeWithStatus>);
 
-  const handleAcceptChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setTOSAccepted(event.target.checked);
-    if (error) {
-      setError(null); // Clear error when checkbox is checked
+  useEffect(() => {
+    if (formState.status === "success") {
+      onAccept();
     }
-  };
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    if (!TOSAccepted) {
-      setError("Devi accettare i termini di servizio per continuare.");
-      return;
-    }
-    onAccept();
-  };
+  }, [formState])
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form action={action}>
       <Box width="full">
         <Text fontSize="lg" mb={4}>
-          Leggi attentamente i <Link color="brand.600" textDecoration="underline" href="https://paytomorrow.it/doc" target="_blank" rel="nofollow">termini e le condizioni di utilizzo</Link>. Accettando
-          le Condizioni di Servizio, dichiari di aver compreso e accettato i
-          termini.
+          Leggi attentamente i{" "}
+          <Link
+            color="brand.600"
+            textDecoration="underline"
+            href="https://paytomorrow.it/doc"
+            target="_blank"
+            rel="nofollow"
+          >
+            termini e le condizioni di utilizzo
+          </Link>
+          . Accettando le Condizioni di Servizio, dichiari di aver compreso e
+          accettato i termini.
         </Text>
-        <FormControl mb={4} isInvalid={!!error}>
-          <Checkbox isChecked={TOSAccepted} onChange={handleAcceptChange}>
-            Accetto le Condizioni di Servizio
+        <FormControl mb={4} isInvalid={formState.status === 'error'}>
+          <Checkbox name="accept">
+            <b>Accetto le Condizioni di Servizio</b>
           </Checkbox>
-          {error && <FormErrorMessage>{error}</FormErrorMessage>}
+          {formState.errors && <FormErrorMessage>{formState.errors[0].message}</FormErrorMessage>}
         </FormControl>
-        <Button type="submit" colorScheme="brand" mt={4}>
-          Continua
-        </Button>
+        <SubmitButton>Continua</SubmitButton>
       </Box>
     </form>
   );

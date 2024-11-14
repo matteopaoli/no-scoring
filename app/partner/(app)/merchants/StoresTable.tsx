@@ -62,7 +62,7 @@ export default function StoresTable({ stores }: StoresTableProps) {
       <GenericTable
         data={stores}
         columns={storeColumns}
-        title="Negozi"
+        title="Negozi Attivi"
         itemsPerPage={10} // Customize the number of items per page if needed
         hideColumnsResponsive={['createdAt']}
       />

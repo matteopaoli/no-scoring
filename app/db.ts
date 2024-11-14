@@ -23,10 +23,7 @@ import {
   leads,
 } from "schema";
 import Stripe from "stripe";
-import {
-  imageToBase64,
-  compressProfileImageToBase64,
-} from "./utils/images";
+import { imageToBase64, compressProfileImageToBase64 } from "./utils/images";
 import { alias } from "drizzle-orm/pg-core";
 import {
   sendNewLeadEmailToAdmin,
@@ -66,8 +63,10 @@ export interface User {
   stripeUserId: string;
   provincia: string;
   partnerId?: string;
-  onboardingLink: string
-  status: string
+  onboardingLink: string;
+  status: string;
+  tosAccepted: boolean;
+  tosAcceptedAt: Date | null;
 }
 
 export interface Lead {
@@ -407,11 +406,11 @@ export async function deleteUser(id: string) {
   return await db.delete(users).where(eq(users.id, id));
 }
 
-export async function acceptTOS(email: string) {
+export async function acceptTOS(userId: string) {
   return await db
     .update(users)
     .set({ tosAccepted: true, tosAcceptedAt: new Date() })
-    .where(eq(users.email, email));
+    .where(eq(users.id, userId));
 }
 
 export async function getStoreByUserId(userId: string) {

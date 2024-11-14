@@ -6,12 +6,12 @@ import formatZodErrors from "@/app/utils/formatZodErrors";
 import getUserFromAuth from "@/app/utils/getUserFromAuth";
 import validateNewPayment from "@/app/formSchemas/newPaymentSchema";
 import Stripe from "stripe";
-import { getAmountWithCommissions } from "../utils/fees";
+import { getAmountWithFees } from "../utils/fees";
 import { FEES_DISCLAIMER } from "../constants";
 import { createPaymentLink } from "../utils/stripe";
 import { generateQrCodeWithLogo } from "../utils/images";
 
-export default async function updateUserAction(
+export default async function createNewPaymentAction(
   prevState,
   formData: FormData
 ): FormActionReturnType {
@@ -31,7 +31,7 @@ export default async function updateUserAction(
   });
 
   if (includeCommission) {
-    amount = getAmountWithCommissions(amount);
+    amount = getAmountWithFees(amount);
   }
 
   const product = await stripe.products.create({

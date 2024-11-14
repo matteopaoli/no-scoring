@@ -18,7 +18,6 @@ export async function createStoreAction(
   formData: FormData
 ): FormActionReturnType {
   const user = await getUserFromAuth();
-  const stripe = new Stripe(process.env.STRIPE_API_KEY!, { stripeAccount: user.stripeUserId});
   const storeData = {
     storeName: formData.get("storeName") as string,
     storeLogo: formData.get("storeLogo") as Blob | null,

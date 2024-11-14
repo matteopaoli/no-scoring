@@ -36,7 +36,6 @@ const InputField: React.FC<DefaultProps> = (props) => {
     isInvalid = false,
     errorMessage,
     errors,
-    onChange,
     isRequired = false,
     ...rest
   } = props;

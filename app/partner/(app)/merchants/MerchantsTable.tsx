@@ -38,7 +38,7 @@ export default function MerchantsTable({ merchants }: MerchantsTableProps) {
         const statusMap: Record<string, { label: string; icon: JSX.Element }> =
           {
             pending: {
-              label: "In attesa",
+              label: "In Attesa",
               icon: (
                 <MdHourglassEmpty
                   style={{ color: "#FFB547", fontSize: "1.5em" }}
@@ -46,7 +46,7 @@ export default function MerchantsTable({ merchants }: MerchantsTableProps) {
               ), // Softer yellow
             },
             active: {
-              label: "Accettato",
+              label: "Attivo",
               icon: (
                 <MdCheckCircle style={{ color: "green", fontSize: "1.5em" }} />
               ),

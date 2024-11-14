@@ -22,7 +22,7 @@ const newPaymentSchema = z.object({
   includeCommission: z
     .string()
     .optional()
-    .transform((value) => value === "true"),
+    .transform((value) => value === "on"),
 });
 
 const validateNewPayment = (formData: FormData) =>
