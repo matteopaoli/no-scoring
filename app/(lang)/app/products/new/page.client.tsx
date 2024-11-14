@@ -2,13 +2,10 @@
 
 import {
   Box,
-  Button,
-  Grid,
   GridItem,
-  useColorModeValue,
   Checkbox,
   Text,
-  Spinner,
+  SimpleGrid,
 } from "@chakra-ui/react";
 
 import createProduct from "../createProduct.action";
@@ -45,9 +42,9 @@ export default function Client({ storeImage }: ClientPageProps) {
   };
 
   return (
-    <Box width={{ base: "100%" }} pl={{ md: "24px" }}>
-      <form action={handleSubmit} style={{ width: "100%" }}>
-        <Grid templateColumns={{ base: "1fr", md: "1fr 1fr", lg: '1fr 1fr 1fr' }} gap={6}>
+    <Box px={{ base: "24px" }} py={{ base: '24px', lg: "50px" }} mt={{ base: '50px', md: 0 }} background="white" borderRadius="lg" maxW="1200px">
+      <form action={handleSubmit}>
+        <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
           <GridItem>
             <InputField
               id="product-name"
@@ -103,7 +100,7 @@ export default function Client({ storeImage }: ClientPageProps) {
             />
             <Text fontSize="xs" mt={2}>Puoi sostituire l&apos;immagine di default con una personalizzata</Text>
           </GridItem>
-        </Grid>
+        </SimpleGrid>
         <SubmitButton>Salva Prodotto</SubmitButton>
       </form>
     </Box>
