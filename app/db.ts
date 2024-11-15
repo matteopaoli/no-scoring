@@ -18,7 +18,6 @@ import {
   stores,
   userStoreRoles,
   products,
-  webhookSecrets,
   sales,
   leads,
 } from "schema";
@@ -398,12 +397,23 @@ async function updatePassword(password: string, userEmail: string) {
 
 export async function deleteUser(id: string) {
   await db.delete(userStoreRoles).where(eq(userStoreRoles.userId, id));
+
+  const userStores = await db
+  .select()
+  .from(userStoreRoles)
+  .where(and(eq(userStoreRoles.userId, id), eq(userStoreRoles.role, "admin")))
+
+  const storeIds = userStores.map((storeRole) => storeRole.storeId);
+
+  if (storeIds.length > 0) {
+    await db
+      .delete(userStoreRoles)
+      .where(inArray(userStoreRoles.storeId, storeIds));
+    await db.delete(stores).where(inArray(stores.id, storeIds));
+  }
+
   await db.delete(products).where(eq(products.userId, id));
-  const user = await UserService.getUserById(id);
-  await db
-    .delete(webhookSecrets)
-    .where(eq(webhookSecrets.accountId, user.stripeUserId));
-  return await db.delete(users).where(eq(users.id, id));
+  await db.delete(users).where(eq(users.id, id));
 }
 
 export async function acceptTOS(userId: string) {

@@ -42,11 +42,6 @@ export const users = pgTable("user", {
   status: text("status").notNull(),
 });
 
-export const webhookSecrets = pgTable("webhookSecret", {
-  accountId: text("accountId"),
-  secret: text("secret"),
-});
-
 export const stores = pgTable("store", {
   id: text("id")
     .primaryKey()
@@ -105,7 +100,7 @@ export const products = pgTable("product", {
   paymentLinkId: text("paymentLinkId"),
   userId: text("userId") // Foreign key to the users table
     .notNull()
-    .references(() => users.id), // References the id field in the users table
+    .references(() => users.id, { onDelete: 'cascade' }), // References the id field in the users table
 });
 // New table to store commission rules
 export const commissionRules = pgTable("commissionRules", {
