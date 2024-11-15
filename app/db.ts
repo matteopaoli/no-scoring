@@ -110,7 +110,7 @@ export async function getUsersWithStoresAndCommissions() {
     .leftJoin(userStoreRoles, eq(users.id, userStoreRoles.userId))
     .leftJoin(stores, eq(userStoreRoles.storeId, stores.id))
     .leftJoin(sales, eq(stores.id, sales.storeId))
-    .where(eq(users.role, "user"))
+    .where(and(eq(users.role, "user"), eq(users.status, "active")))
     .groupBy(users.id, partner.id, businessType.name, stores.id);
 }
 
