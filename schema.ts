@@ -40,6 +40,8 @@ export const users = pgTable("user", {
   partnerId: text("partnerId").references((): PgColumn => users.id),
   onboardingLink: text("onboardingLink"),
   status: text("status").notNull(),
+  phoneNumber: varchar("phoneNumber", { length: 15 }),
+  refName: text("refName"),
 });
 
 export const stores = pgTable("store", {
@@ -98,11 +100,12 @@ export const products = pgTable("product", {
   qrcode: text("qrcode"),
   tagImage: text("tagImage"),
   paymentLinkId: text("paymentLinkId"),
-  userId: text("userId") // Foreign key to the users table
+  userId: text("userId") 
     .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }), // References the id field in the users table
+    .references(() => users.id, { onDelete: 'cascade' }),
 });
-// New table to store commission rules
+
+
 export const commissionRules = pgTable("commissionRules", {
   id: serial("id").primaryKey(), // Auto-incrementing ID for the rule
   businessTypeId: integer("businessTypeId")
@@ -183,19 +186,3 @@ export const authenticators = pgTable(
     }),
   })
 );
-
-export const leads = pgTable("leads", {
-  id: text("id")
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
-  email: varchar("email", { length: 100 }).notNull(),
-  referredByUserId: text("referredByUserId").notNull().references(() => users.id),
-  firstName: varchar("firstName", { length: 50 }).notNull(),
-  lastName: varchar("lastName", { length: 50 }).notNull(),
-  businessName: varchar("businessName", { length: 100 }).notNull(),
-  phoneNumber: varchar("phoneNumber", { length: 15 }).notNull(),
-  sector: varchar("sector", { length: 100 }).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  modifiedAt: timestamp("modifiedAt").defaultNow().notNull(),
-  status: varchar('status', { length: 50 }).default('pending').notNull()
-});

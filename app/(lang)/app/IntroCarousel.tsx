@@ -49,6 +49,7 @@ export default function Carousel() {
       lineHeight={2}
       pb="30px"
       mb="30px"
+      background="white"
     >
       <link
         rel="stylesheet"

@@ -61,14 +61,18 @@ export default async function createUserAction(
         },
         { message: "Il partner non esiste" }
       ),
+    phoneNumber: z.string().regex(/^(\+39\s?)?\d{6,10}$/, "Inserire un numero di telefono valido (es. +39 123 456 7890)"),
+    refName: z.string().min(1, "Inserire un nome valido"),
   });
 
   // Validate form data against the schema
   const validation = await createUserSchema.safeParseAsync({
     email: formData.get("email"),
+    phoneNumber: formData.get("phoneNumber"),
     businessTypeId: Number(formData.get("businessTypeId")),
     businessName: formData.get("businessName"),
     partner: formData.get("partner"),
+    refName: formData.get("refName"),
   });
 
   if (!validation.success) {
@@ -80,6 +84,8 @@ export default async function createUserAction(
     businessTypeId,
     businessName,
     partner: partnerId,
+    phoneNumber,
+    refName
   } = validation.data;
 
   const existingUserByEmail = await UserService.getUserByEmail(email);
@@ -123,7 +129,9 @@ export default async function createUserAction(
     businessName,
     onboardingLink: accountLink.url,
     stripeUserId: merchantAccount.id,
-    partnerId,
+    partnerId: partnerId ?? undefined,
+    phoneNumber,
+    refName,
   });
 
   accountCreatedMerchantEmail({ email, onboardingLink: accountLink.url, partnerName: `${creator.firstName} ${creator.lastName}` })

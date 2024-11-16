@@ -48,6 +48,8 @@ export default function ProductsTable({ tableData }: ProductsTableProps) {
     }
   }, [isMdViewport]);
 
+  console.log(tableData)
+
   const textColor = useColorModeValue("secondaryGray.900", "white");
   const borderColor = useColorModeValue("gray.200", "whiteAlpha.100");
 
@@ -84,23 +86,11 @@ export default function ProductsTable({ tableData }: ProductsTableProps) {
           </Flex>
         ),
       }),
-      columnHelper.accessor("description", {
-        id: "description",
-        header: () => (
-          <Text justifyContent="space-between" align="center" fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
-            Descrizione
-          </Text>
-        ),
-        cell: (info) => (
-          <Text color={textColor} fontSize="sm" fontWeight="700">
-            {info.getValue() || "No description"}
-          </Text>
-        ),
-      }),
       columnHelper.accessor("active", {
-        id: "description",
+        id: "details",
         header: () => (
           <Text justifyContent="space-between" align="center" fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
+            Dettagli
           </Text>
         ),
         cell: (info) => (

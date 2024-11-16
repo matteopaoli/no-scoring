@@ -36,8 +36,8 @@ export default function UpdateUserPage({
           placeholder="mail@email.com"
           isRequired={true}
           value={existingUser.email}
-          readOnly={true} // Email cannot be changed
           errors={getFormErrors(errors, "email")}
+          readOnly
         />
 
         <InputField

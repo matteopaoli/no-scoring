@@ -16,7 +16,7 @@ export default function CreateMerchant({ businessTypesOptions }: { businessTypes
         colorScheme="brand"
         leftIcon={<MdAdd />}
       >
-        Aggiungi un nuovo utente
+        Crea un nuovo profilo lead
       </Button>
       <PartnerCreateMerchantForm isOpen={isOpen} onClose={onClose} businessTypesOptions={businessTypesOptions} />
     </Flex>

@@ -1,14 +1,5 @@
 import { drizzle } from "drizzle-orm/postgres-js";
-import {
-  and,
-  count,
-  eq,
-  getTableColumns,
-  inArray,
-  like,
-  or,
-  sql,
-} from "drizzle-orm";
+import { and, count, eq, getTableColumns, inArray, or, sql } from "drizzle-orm";
 import postgres from "postgres";
 import { genSaltSync, hashSync } from "bcrypt-ts";
 import {
@@ -19,15 +10,9 @@ import {
   userStoreRoles,
   products,
   sales,
-  leads,
 } from "schema";
-import Stripe from "stripe";
 import { imageToBase64, compressProfileImageToBase64 } from "./utils/images";
 import { alias } from "drizzle-orm/pg-core";
-import {
-  sendNewLeadEmailToAdmin,
-  sendNewLeadEmailToLead,
-} from "./utils/emails";
 import { UserService } from "./services/userService";
 
 let client = postgres(`${process.env.DATABASE_URL!}`);
@@ -399,9 +384,11 @@ export async function deleteUser(id: string) {
   await db.delete(userStoreRoles).where(eq(userStoreRoles.userId, id));
 
   const userStores = await db
-  .select()
-  .from(userStoreRoles)
-  .where(and(eq(userStoreRoles.userId, id), eq(userStoreRoles.role, "admin")))
+    .select()
+    .from(userStoreRoles)
+    .where(
+      and(eq(userStoreRoles.userId, id), eq(userStoreRoles.role, "admin"))
+    );
 
   const storeIds = userStores.map((storeRole) => storeRole.storeId);
 
@@ -468,6 +455,11 @@ export async function getAllMerchants() {
       lastName: users.lastName,
       productCount: count(products.id).as("productCount"),
       createdAt: users.createdAt,
+      id: users.id,
+      status: users.status,
+      onboardingLink: users.onboardingLink,
+      email: users.email,
+      phoneNumber: users.phoneNumber,
     })
     .from(users)
     .leftJoin(products, eq(products.userId, users.id))
@@ -505,14 +497,14 @@ export async function getPartners() {
       email: users.email,
     })
     .from(users)
-    .where(eq(users.role, "partner"));
+    .where(or(eq(users.role, "partner"), eq(users.role, "subpartner")));
 
   const partnersWithCommissions = await Promise.all(
     partners.map(async (partner) => {
-      const firstLevelCommission = await getStoresByPartnerId(partner.id);
+      const stores = await getStoresByPartnerId(partner.id);
       const secondLevelCommission = await getSecondLevelCommissions(partner.id);
 
-      const totalFirstLevelCommission = firstLevelCommission.stores.reduce(
+      const totalFirstLevelCommission = stores.reduce(
         (acc, store) => acc + (store.totalCommission || 0),
         0
       );
@@ -544,7 +536,6 @@ export async function getSubPartners() {
     .from(users)
     .where(eq(users.role, "subpartner"));
 
-  // For each subpartner, fetch the first-level commissions
   const subpartnersWithCommissions = await Promise.all(
     subpartners.map(async (subpartner) => {
       // Fetch first-level commissions for this subpartner
@@ -666,6 +657,12 @@ export async function getSubPartnersByUserId(userId: string) {
 }
 
 export async function searchPartner(query: string) {
+  const trimmedQuery = query.trim().toLowerCase();
+
+  if (!trimmedQuery) {
+    return [];
+  }
+
   return await db
     .select({
       id: users.id,
@@ -678,9 +675,9 @@ export async function searchPartner(query: string) {
     .where(
       and(
         or(
-          like(users.firstName, `%${query}%`),
-          like(users.lastName, `%${query}%`),
-          like(users.email, `%${query}%`)
+          sql`LOWER(${users.firstName}) LIKE ${trimmedQuery + "%"}`,
+          sql`LOWER(${users.lastName}) LIKE ${trimmedQuery + "%"}`,
+          sql`LOWER(${users.email}) LIKE ${trimmedQuery + "%"}`
         ),
         inArray(users.role, ["partner", "subpartner"])
       )
@@ -710,6 +707,62 @@ export async function getPartnerById(userId: string) {
   return result[0] || null;
 }
 
+export async function getAllStores() {
+  const merchantIds = (
+    await db
+      .select({
+        id: users.id,
+      })
+      .from(users)
+      .where(eq(users.role, "user"))
+  ).map((user) => user.id);
+
+  const merchantStores = (await db
+    .select({
+      storeId: stores.id,
+      storeName: stores.name,
+      storeImage: stores.image,
+      createdAt: stores.createdAt,
+      totalCommission: sql`COALESCE(SUM(CAST(${sales.legCommission} AS numeric)), 0)`,
+      totalVolume: sql`COALESCE(SUM(CAST(${sales.amount} AS numeric)), 0)`,
+    })
+    .from(stores)
+    .innerJoin(userStoreRoles, eq(stores.id, userStoreRoles.storeId))
+    .leftJoin(sales, eq(stores.id, sales.storeId))
+    .where(inArray(userStoreRoles.userId, merchantIds))
+    .groupBy(stores.id)) as {
+    storeId: string;
+    storeName: string;
+    storeImage: string | null;
+    createdAt: Date | null;
+    totalCommission: number;
+    totalVolume: number;
+  }[];
+
+  return merchantStores;
+}
+
+export async function getAllPendingUsers() {
+  const partner = alias(users, 'partner')
+  return await db
+    .select({
+      id: users.id,
+      email: users.email,
+      createdAt: users.createdAt,
+      referredByName: sql`CONCAT(${partner.firstName}, ' ', ${partner.lastName})`,
+      referredByRole: partner.role,
+      phoneNumber: users.phoneNumber,
+      onboardingLink: users.onboardingLink,
+      name: sql<string>`CASE 
+            WHEN ${users.firstName} IS NOT NULL AND ${users.lastName} IS NOT NULL 
+            THEN ${users.firstName} || ' ' || ${users.lastName} 
+            ELSE ${users.refName} 
+          END`,
+    })
+    .from(users)
+    .leftJoin(partner, eq(users.partnerId, partner.id))
+    .where(and(eq(users.status, "pending"), eq(users.role, "user")));
+}
 export async function getStoresByPartnerId(partnerId: string) {
   const merchantIds = (
     await db
@@ -720,22 +773,7 @@ export async function getStoresByPartnerId(partnerId: string) {
       .where(and(eq(users.partnerId, partnerId), eq(users.role, "user")))
   ).map((user) => user.id);
 
-  const inactiveMerchants = await db
-    .select({
-      id: users.id,
-      email: users.email,
-      createdAt: users.createdAt,
-    })
-    .from(users)
-    .where(
-      and(
-        eq(users.partnerId, partnerId),
-        eq(users.onboardingCompleted, false),
-        eq(users.role, "user")
-      )
-    );
-
-  const merchantStores = (await db
+  const storesByPartner = (await db
     .select({
       storeId: stores.id,
       storeName: stores.name,
@@ -755,7 +793,7 @@ export async function getStoresByPartnerId(partnerId: string) {
     totalCommission: number;
   }[];
 
-  return { stores: merchantStores, inactiveMerchants };
+  return storesByPartner
 }
 
 export async function getSecondLevelCommissions(
@@ -785,10 +823,10 @@ export async function getSecondLevelCommissions(
 }
 
 export async function getAllPartnerFees(partnerId: string) {
-  const { stores } = await getStoresByPartnerId(partnerId);
+  const stores = await getStoresByPartnerId(partnerId);
   const secondLevelCommission = await getSecondLevelCommissions(partnerId);
   const firstLevelCommission = stores.reduce(
-    (acc, store) => (acc += Number(store.totalFirstLevelCommissions)),
+    (acc, store) => (acc += Number(store.totalCommission)),
     0
   );
 
@@ -799,76 +837,13 @@ export async function getAllPartnerFees(partnerId: string) {
   };
 }
 
-export async function createLead(lead: Lead, referrerName: string) {
-  await db.insert(leads).values(lead);
-  sendNewLeadEmailToAdmin(lead, referrerName);
-  sendNewLeadEmailToLead(lead);
-}
-
-export async function getLeadByEmail(email: string) {
-  return (await db.select().from(leads).where(eq(leads.email, email)))?.[0];
-}
-
-export async function getPendingLeads() {
-  return await db
-    .select({
-      id: leads.id,
-      firstName: leads.firstName,
-      lastName: leads.lastName,
-      businessName: leads.businessName,
-      email: leads.email,
-      createdAt: leads.createdAt,
-      referredByUserId: leads.referredByUserId,
-      referredByName: sql`CONCAT(${users.firstName}, ' ', ${users.lastName})`,
-      referredByRole: users.role,
-      phoneNumber: leads.phoneNumber,
-    })
-    .from(leads)
-    .innerJoin(users, eq(leads.referredByUserId, users.id))
-    .where(eq(leads.status, "pending"));
-}
-
-export async function getLeadsByReferrerId(userId: string) {
-  return await db
-    .select()
-    .from(leads)
-    .where(eq(leads.referredByUserId, userId));
-}
-
 export async function getAdmins() {
   return await db.select().from(users).where(eq(users.role, "admin"));
 }
 
-export async function acceptLead(leadId: string) {
+export async function rejectUser(userId: string) {
   return await db
-    .update(leads)
-    .set({ status: "accepted" })
-    .where(eq(leads.id, leadId));
-}
-
-export async function rejectLead(leadId: string) {
-  return await db
-    .update(leads)
+    .update(users)
     .set({ status: "rejected" })
-    .where(eq(leads.id, leadId));
-}
-
-export async function getLeadById(leadId: string) {
-  return (
-    await db
-      .select({
-        id: leads.id,
-        firstName: leads.firstName,
-        lastName: leads.lastName,
-        businessName: leads.businessName,
-        email: leads.email,
-        createdAt: leads.createdAt,
-        referredByUserId: leads.referredByUserId,
-        referredByName: sql`CONCAT(${users.firstName}, ' ', ${users.lastName})`,
-        referredByRole: users.role,
-      })
-      .from(leads)
-      .innerJoin(users, eq(leads.referredByUserId, users.id))
-      .where(eq(leads.id, leadId))
-  )?.[0];
+    .where(eq(users.id, userId));
 }

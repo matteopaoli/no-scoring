@@ -13,15 +13,14 @@ import {
 import { Link } from "@chakra-ui/next-js";
 import SubmitButton from "@/app/components/SubmitButton";
 import { acceptTosAction } from "@/app/api/acceptTos/acceptTos.action";
-import { useFormState, useFormStatus } from "react-dom";
-import { FormActionReturnTypeWithStatus } from "@/app/types";
+import { useFormState } from "react-dom";
 
 interface StepTOSProps {
   onAccept: () => void;
 }
 
 const StepTOS: React.FC<StepTOSProps> = ({ onAccept }) => {
-  const [formState, action] = useFormState(acceptTosAction, [] as unknown as Awaited<FormActionReturnTypeWithStatus>);
+  const [formState, action] = useFormState(acceptTosAction, {});
 
   useEffect(() => {
     if (formState.status === "success") {

@@ -15,7 +15,6 @@ import {
 } from "@chakra-ui/react";
 import { ColumnDef } from "@tanstack/react-table";
 import GenericTable from "@/app/components/GenericTable"; // Adjust the import path if needed
-import ReferLeadForm from "@/app/components/forms/PartnerCreateMerchantForm";
 
 interface Store {
   storeId: string;
@@ -45,7 +44,7 @@ export default function StoresTable({ stores }: StoresTableProps) {
     {
       accessorKey: "totalVolume",
       header: "Volume",
-      cell: (info) => `€ ${Number(info.getValue()).toFixed(2)}`,
+      cell: (info) => `€ ${Number(info.getValue() ?? 0).toFixed(2)}`,
     },
     {
       accessorKey: "createdAt",

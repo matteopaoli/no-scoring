@@ -1,12 +1,13 @@
-import { getPendingLeads } from "@/app/db";
-import { LeadsTable } from "./LeadsTable";
+import { getAllPendingUsers  } from "@/app/db";
+import PendingMerchantsTable from "./PendingMerchantsTable";
 
 export default async function UsersPage() {
-  const leads = await getPendingLeads()
+  const merchants = await getAllPendingUsers();
+  console.log(merchants)
 
   return (
     <>
-      <LeadsTable leads={leads} />
+      <PendingMerchantsTable merchants={merchants} />
     </>
   );
 }

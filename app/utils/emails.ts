@@ -40,12 +40,14 @@ async function sendEmail({
   });
 
   try {
-    const command = new SendRawEmailCommand({
-      RawMessage: {
-        Data: Buffer.from(renderedEmail),
-      },
-    });
-    await sesClient.send(command);
+    if (process.env.ENABLE_EMAILS === "true") {
+      const command = new SendRawEmailCommand({
+        RawMessage: {
+          Data: Buffer.from(renderedEmail),
+        },
+      });
+      await sesClient.send(command);
+    }
   } catch (error) {
     console.error("Error sending email:", error);
   }

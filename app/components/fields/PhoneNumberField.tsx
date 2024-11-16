@@ -1,82 +1,66 @@
 // Chakra imports
 import {
   Flex,
-  FormLabel,
-  Select,
+  Input,
   Text,
   useColorModeValue,
   FormControl,
   FormErrorMessage,
 } from "@chakra-ui/react";
 // Custom components
-import React, { ReactNode } from "react";
+import React from "react";
+import FormLabel from "./FormLabel";
 
-interface SelectProps {
+interface DefaultProps {
   id: string;
   label: string;
   extra?: string;
   placeholder: string;
+  type?: string;
   mb?: string;
   isInvalid?: boolean;
   errorMessage?: string;
   [key: string]: any; // This allows passing additional props
   errors: string[];
-  children: ReactNode[];
-  name: string;
   isRequired?: boolean;
 }
 
-const SelectComponent: React.FC<SelectProps> = (props) => {
+const PhoneNumberField: React.FC<DefaultProps> = (props) => {
   const {
     id,
     label,
     extra,
     placeholder,
+    type = "tel",
     mb,
     isInvalid = false,
     errorMessage,
     errors,
-    children,
-    name,
     isRequired = false,
     ...rest
   } = props;
 
   // Chakra Color Mode
-  const textColorPrimary = useColorModeValue("secondaryGray", "white");
+  const textColorPrimary = useColorModeValue("secondaryGray.900", "white");
 
   return (
     <FormControl isInvalid={errors.length > 0} mb={mb || "30px"} isRequired={isRequired}>
-      <FormLabel
-        display="flex"
-        ms="10px"
-        htmlFor={id}
-        fontSize="sm"
-        color={textColorPrimary}
-        fontWeight="bold"
-        _hover={{ cursor: "pointer" }}
-      >
-        {label}
-        {extra && (
-          <Text fontSize="sm" fontWeight="400" ms="2px">
-            {extra}
-          </Text>
-        )}
-      </FormLabel>
-      <Select
+      <FormLabel extra={extra} id={id}>{label}</FormLabel>
+      <Input
         {...rest}
-        name={name}
+        type={type}
         id={id}
-        placeholder={placeholder}
+        fontWeight="500"
         variant="main"
+        placeholder={placeholder}
+        _placeholder={{ fontWeight: "400", color: "secondaryGray.600" }}
         h="44px"
         maxH="44px"
-      >
-      {children}
-      </Select>
+        pattern="^(\+39\s?)?\d{6,10}$"
+      />
       {errors.length > 0 && errors.map(e => <FormErrorMessage key={e}>{e}</FormErrorMessage>)}
     </FormControl>
   );
 };
 
-export default SelectComponent;
+export default PhoneNumberField;

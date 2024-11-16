@@ -6,7 +6,7 @@ import {
 import { BusinessTypeService } from "@/app/services/businessTypeService";
 import { MerchantService } from "@/app/services/merchantService";
 import { UserService } from "@/app/services/userService";
-import { FormActionReturnType } from "@/app/types";
+import { FormActionReturnType, FormActionReturnTypeWithStatus } from "@/app/types";
 import { accountCreatedMerchantEmail, newMerchantAdminEmail } from "@/app/utils/emails";
 import formatZodErrors from "@/app/utils/formatZodErrors";
 import getUserFromAuth from "@/app/utils/getUserFromAuth";
@@ -30,9 +30,9 @@ export async function numericEnum<TValues extends readonly number[]>(
 }
 
 export default async function createUserAction(
-  prevState: Awaited<FormActionReturnType>,
+  prevState: Awaited<FormActionReturnTypeWithStatus>,
   formData: FormData
-): FormActionReturnType {
+): FormActionReturnTypeWithStatus {
   const user = await getUserFromAuth()
 
   if (!UserService.isPartner(user)) {
@@ -61,6 +61,8 @@ export default async function createUserAction(
         },
         { message: "Il partner non esiste" }
       ),
+    refName: z.string().min(1, "Inserire un nome valido"),
+    phoneNumber: z.string().min(1, "Inserire un numero di telefono valido"),
   });
 
   // Validate form data against the schema
@@ -68,11 +70,13 @@ export default async function createUserAction(
     email: formData.get("email"),
     businessTypeId: Number(formData.get("businessTypeId")),
     businessName: formData.get("businessName"),
-    partner: user.id
+    partner: user.id,
+    refName: formData.get("refName"),
+    phoneNumber: formData.get("phoneNumber"),
   });
 
   if (!validation.success) {
-    return formatZodErrors(validation);
+    return { status: "error", errors: formatZodErrors(validation) };
   }
 
   const {
@@ -80,13 +84,9 @@ export default async function createUserAction(
     businessTypeId,
     businessName,
     partner: partnerId,
+    refName,
+    phoneNumber,
   } = validation.data;
-
-  const existingUserByEmail = await UserService.getUserByEmail(email);
-
-  if (existingUserByEmail) {
-    return [{ field: "email", message: "L'utente esiste già" }];
-  }
 
   const stripe = new Stripe(process.env.STRIPE_API_KEY!);
 
@@ -123,11 +123,13 @@ export default async function createUserAction(
     businessName,
     onboardingLink: accountLink.url,
     stripeUserId: merchantAccount.id,
-    partnerId,
+    partnerId: partnerId ?? undefined,
+    refName,
+    phoneNumber,
   });
 
   accountCreatedMerchantEmail({ email, onboardingLink: accountLink.url, partnerName: `${user.firstName} ${user.lastName}` })
   newMerchantAdminEmail({ merchantEmail: email, partnerName: `${user.firstName} ${user.lastName}` })
-  
-  redirect(`/partner/merchants?success=true&action=create`);
+
+  return { status: "success" };
 }

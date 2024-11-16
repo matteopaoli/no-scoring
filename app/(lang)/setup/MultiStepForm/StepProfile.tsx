@@ -15,22 +15,16 @@ interface StepProfileProps {
 }
 
 const StepProfile: React.FC<StepProfileProps> = ({ onNext }) => {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [profileFormState, action] = useFormState(
-    updateProfileAction,
-    [] as unknown as Awaited<FormActionReturnTypeWithStatus>
-  );
-
+  const [profileFormState, action] = useFormState(updateProfileAction, {});
 
   useEffect(() => {
     if (profileFormState.status === "success") {
       onNext();
     }
-  }, [profileFormState])
+  }, [profileFormState]);
 
   return (
-    <form action={action} style={{ width: '100%' }}>
+    <form action={action} style={{ width: "100%" }}>
       <SimpleGrid columns={{ base: 1, md: 2 }} w="100%">
         <GridItem>
           <InputField
@@ -39,11 +33,8 @@ const StepProfile: React.FC<StepProfileProps> = ({ onNext }) => {
             name="firstName"
             placeholder="Inserisci il tuo nome"
             isRequired
-            errors={profileFormState.errors ? getFormErrors(profileFormState.errors, "firstName") : []}
+            errors={getFormErrors(profileFormState.errors, "firstName")}
             data-testid="mt-setup-profile-firstname"
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setFirstName(e.target.value)
-            }
           />
           <InputField
             id="lastName"
@@ -51,17 +42,12 @@ const StepProfile: React.FC<StepProfileProps> = ({ onNext }) => {
             name="lastName"
             placeholder="Inserisci il tuo cognome"
             isRequired
-            errors={profileFormState.errors ? getFormErrors(profileFormState.errors, "lastName") : []}
+            errors={getFormErrors(profileFormState.errors, "lastName")}
             data-testid="mt-setup-profile-lastname"
-            onChange={(e) => setLastName(e.target.value)}
           />
         </GridItem>
         <GridItem mx="auto">
-          <ProfileImageInput
-            id="image"
-            name="image"
-            label="Immagine Profilo"
-          />
+          <ProfileImageInput id="image" name="image" label="Immagine Profilo" />
         </GridItem>
       </SimpleGrid>
       <Box textAlign="center">

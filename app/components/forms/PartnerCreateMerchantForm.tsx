@@ -20,7 +20,9 @@ import InputField from "@/app/components/fields/InputField";
 import getFormErrors from "@/app/utils/getFormErrors";
 import SubmitButton from "@/app/components/SubmitButton";
 import partnerCreateMerchantAction from "./partnerCreateMerchant.action";
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
+import PhoneNumberField from "../fields/PhoneNumberField";
+import { useRouter } from "next/navigation";
 
 export default function ReferLeadForm({
   isOpen,
@@ -31,12 +33,15 @@ export default function ReferLeadForm({
   onClose: () => void;
   businessTypesOptions: ReactNode[];
 }) {
-  const [errors, action] = useFormState(partnerCreateMerchantAction, []);
+  const [formState, action] = useFormState(partnerCreateMerchantAction, {});
+  const router = useRouter();
 
-  const handleSubmit = async (formData: FormData) => {
-    await action(formData);
-    onClose();
-  };
+  useEffect(() => {
+    if (formState.status === "success") {
+      onClose();
+      router.push("/partner/merchants?success=true&action=createMerchant");
+    }
+  }, [formState]);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
@@ -44,11 +49,11 @@ export default function ReferLeadForm({
       <ModalContent maxW="600px" p={10}>
         <ModalHeader p={0} mb="20px">
           <Box as="span" textAlign="left">
-            <b>Crea un nuovo profilo commerciante</b>
+            <b>Crea un nuovo profilo lead</b>
           </Box>
         </ModalHeader>
         <ModalCloseButton />
-        <form action={handleSubmit} style={{ width: "100%" }}>
+        <form action={action} style={{ width: "100%" }}>
           <SimpleGrid columns={{ base: 1 }} columnGap="50px">
             <InputField
               id="user-email"
@@ -56,7 +61,25 @@ export default function ReferLeadForm({
               name="email"
               placeholder="mail@email.com"
               isRequired={true}
-              errors={getFormErrors(errors, "email")}
+              errors={getFormErrors(formState.errors, "email")}
+            />
+
+            <InputField
+              id="ref-name"
+              label="Nome referente"
+              name="refName"
+              placeholder="Nome referente"
+              isRequired={true}
+              errors={getFormErrors(formState.errors, "refName")}
+            />
+
+            <PhoneNumberField
+              id="phone-number"
+              label="Telefono"
+              name="phoneNumber"
+              placeholder="+39 123 456 7890"
+              isRequired={true}
+              errors={getFormErrors(formState.errors, "phoneNumber")}
             />
 
             <InputField
@@ -65,7 +88,7 @@ export default function ReferLeadForm({
               name="businessName"
               placeholder="Pinco Pallino s.r.l."
               isRequired={true}
-              errors={getFormErrors(errors, "businessName")}
+              errors={getFormErrors(formState.errors, "businessName")}
             />
             <Select
               id="business-type"
@@ -73,7 +96,7 @@ export default function ReferLeadForm({
               name="businessTypeId"
               placeholder="Seleziona uno"
               isRequired={true}
-              errors={getFormErrors(errors, "businessTypeId")}
+              errors={getFormErrors(formState.errors, "businessTypeId")}
             >
               {businessTypesOptions}
             </Select>

@@ -15,7 +15,7 @@ import {
   Heading,
   useMediaQuery,
 } from "@chakra-ui/react";
-import { useSize } from '@chakra-ui/react-use-size'
+import { useSize } from "@chakra-ui/react-use-size";
 import {
   ColumnDef,
   flexRender,
@@ -32,7 +32,7 @@ interface GenericTableProps<T> {
   itemsPerPage?: number;
   title: string;
   onRowClick?: (rowData: T) => void; // Row click handler,
-  hideColumnsResponsive?: string[]
+  hideColumnsResponsive?: string[];
   menu?: (props: any) => JSX.Element;
 }
 
@@ -47,12 +47,12 @@ export default function GenericTable<T>({
 }: GenericTableProps<T>) {
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = Math.ceil(data.length / itemsPerPage);
-  const boxRef = useRef(null)
-  const dimensions = useSize(boxRef)
+  const boxRef = useRef(null);
+  const dimensions = useSize(boxRef);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const table = useReactTable({
     state: {
-      columnVisibility
+      columnVisibility,
     },
     data,
     columns,
@@ -64,13 +64,20 @@ export default function GenericTable<T>({
   useEffect(() => {
     if (hideColumnsResponsive) {
       if (dimensions?.width && dimensions.width > 500) {
-        setColumnVisibility(Object.fromEntries(hideColumnsResponsive.map((c: string)=> [c, true])));
-      }
-      else setColumnVisibility(Object.fromEntries(hideColumnsResponsive.map((c: string)=> [c, false])));
+        setColumnVisibility(
+          Object.fromEntries(
+            hideColumnsResponsive.map((c: string) => [c, true])
+          )
+        );
+      } else
+        setColumnVisibility(
+          Object.fromEntries(
+            hideColumnsResponsive.map((c: string) => [c, false])
+          )
+        );
+    } else {
     }
-    else {
-    }
-  }, [dimensions?.width ]);
+  }, [dimensions?.width]);
 
   const paginatedRows = table
     .getRowModel()
@@ -129,53 +136,69 @@ export default function GenericTable<T>({
           ))}
         </Thead>
         <Tbody>
-          {paginatedRows.map((row) => (
-            <Tr
-              key={row.id}
-              onClick={() => handleRowClick(row.original)} // Handle row click
-              _hover={{ bg: "gray.100", cursor: "pointer" }} // Hover effect
-            >
-              {row.getVisibleCells().map((cell) => (
-                <Td key={cell.id} borderColor="transparent">
-                  <Flex align="center">
-                    {cell.column.columnDef.accessorKey === "actions" ? (
-                      flexRender(cell.column.columnDef.cell, cell.getContext())
-                    ) : (
-                      <Text fontSize="sm" fontWeight="bold" color={textColor}>
-                        {flexRender(
+          {paginatedRows.length ? (
+            paginatedRows.map((row) => (
+              <Tr
+                key={row.id}
+                onClick={() => handleRowClick(row.original)} // Handle row click
+                _hover={{ bg: "gray.100", cursor: "pointer" }} // Hover effect
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <Td key={cell.id} borderColor="transparent">
+                    <Flex align="center">
+                      {cell.column.columnDef.accessorKey === "actions" ? (
+                        flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
-                        )}
-                      </Text>
-                    )}
-                  </Flex>
-                </Td>
-              ))}
+                        )
+                      ) : (
+                        <Text fontSize="sm" fontWeight="bold" color={textColor}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </Text>
+                      )}
+                    </Flex>
+                  </Td>
+                ))}
+              </Tr>
+            ))
+          ) : (
+            <Tr>
+              <Td colSpan={columns.length} textAlign="center" py={4}>
+                <Text fontSize="md" color={textColor}>
+                  Questa tabella è vuota
+                </Text>
+              </Td>
             </Tr>
-          ))}
+          )}
         </Tbody>
       </Table>
 
-      {/* Pagination Controls */}
-      <Flex justify="space-between" align="center" my={4}>
-        <Button
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          isDisabled={currentPage === 1}
-        >
-          Precedente
-        </Button>
-        <Text>
-          Pagina {currentPage} di {totalPages}
-        </Text>
-        <Button
-          onClick={() =>
-            setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-          }
-          isDisabled={currentPage === totalPages}
-        >
-          Successivo
-        </Button>
-      </Flex>
+      {
+        paginatedRows.length ? (
+          <Flex justify="space-between" align="center" my={4}>
+            <Button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              isDisabled={currentPage === 1}
+            >
+              Precedente
+            </Button>
+            <Text>
+              Pagina {currentPage} di {totalPages}
+            </Text>
+            <Button
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              isDisabled={currentPage === totalPages}
+            >
+              Successivo
+            </Button>
+          </Flex>
+        ) : null
+      }
     </Card>
   );
 }

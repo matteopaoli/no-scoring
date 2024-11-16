@@ -1,6 +1,6 @@
 import { users } from "schema";
 import { db, User } from "../db";
-import { eq } from "drizzle-orm";
+import { desc, eq, sql } from "drizzle-orm";
 import { UserService } from "./userService";
 
 export class MerchantService {
@@ -11,6 +11,8 @@ export class MerchantService {
     onboardingLink,
     stripeUserId,
     partnerId,
+    phoneNumber,
+    refName,
   }: {
     email: string;
     businessTypeId: number;
@@ -18,6 +20,8 @@ export class MerchantService {
     onboardingLink: string;
     stripeUserId: string;
     partnerId?: string;
+    phoneNumber: string;
+    refName: string;
   }) {
     const hash = UserService.getDefaultPassword();
     await db.insert(users).values({
@@ -29,6 +33,8 @@ export class MerchantService {
       status: "pending",
       stripeUserId,
       partnerId,
+      phoneNumber,
+      refName,
       password: hash,
     });
   }
@@ -62,9 +68,19 @@ export class MerchantService {
         createdAt: users.createdAt,
         onboardingLink: users.onboardingLink,
         status: users.status,
+        name: sql<
+        string
+      >`CASE 
+            WHEN ${users.firstName} IS NOT NULL AND ${users.lastName} IS NOT NULL 
+            THEN ${users.firstName} || ' ' || ${users.lastName} 
+            ELSE ${users.refName} 
+          END`,
+        phoneNumber: users.phoneNumber,
+
       })
       .from(users)
-      .where(eq(users.partnerId, partnerId));
+      .where(eq(users.partnerId, partnerId))
+      .orderBy(desc(users.createdAt));
   }
 
   static async getMerchantByStripeUserId(stripeUserId: string) {
