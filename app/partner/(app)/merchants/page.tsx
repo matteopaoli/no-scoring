@@ -37,7 +37,7 @@ export default async function MerchantsPage() {
         data={{
           firstLevelCommission,
           secondLevelCommission: user.role === "partner" ? secondLevelCommission : null,
-          totalCommission,
+          totalCommission: user.role === "partner" ? totalCommission : null,
           salesVolume,
           salesVolumeStartofMonth,
         }}
