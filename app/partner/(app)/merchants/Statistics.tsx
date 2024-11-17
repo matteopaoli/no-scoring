@@ -15,13 +15,13 @@ export default function Statistics({
 }: {
   data: {
     firstLevelCommission: number;
-    secondLevelCommission: number | null;
+    secondLevelCommission: string | null;
     totalCommission: number;
     salesVolume: number;
     salesVolumeStartofMonth: number;
   };
 }) {
-  const secondLevelCommission = data.secondLevelCommission?.toFixed(2);
+  
   const firstLevelCommission = data.firstLevelCommission.toFixed(2);
   return (
     <Box mb="8" mx="10">
@@ -44,7 +44,7 @@ export default function Statistics({
               />
             }
             name="Totale commissioni indirette"
-            value={`€ ${secondLevelCommission}`}
+            value={`€ ${ data.secondLevelCommission}`}
           />
         ) : null}
         <MiniStatistics

@@ -796,20 +796,20 @@ export async function getStoresByPartnerId(partnerId: string) {
   return storesByPartner
 }
 
-export async function getSecondLevelCommissions(partnerId: string): Promise<number> {
+export async function getSecondLevelCommissions(partnerId: string): Promise<string | null> {
   const user = await UserService.getUserById(partnerId);
-  if (user.role !== "partner") return 0;
+  if (user.role !== "partner") return null;
 
   const subpartnerIds = (await getSubPartnersByUserId(partnerId)).map((s) => s.id);
-  if (!subpartnerIds.length) return 0;
+  if (!subpartnerIds.length) return '0.00';
 
   const storeIds = (
     await db.select().from(stores).where(inArray(stores.partnerId, subpartnerIds))
   ).map((s) => s.id);
-  if (!storeIds.length) return 0;
+  if (!storeIds.length) return '0.00';
 
-  const [{ totalCommission = 0 }] = await db
-    .select({ totalCommission: sql<number>`COALESCE(SUM(${sales.secondLevelPartnerCommission})), 0)`, })
+  const [{ totalCommission }] = await db
+    .select({ totalCommission: sql<string>`COALESCE(SUM(${sales.secondLevelPartnerCommission}), 0.00)`})
     .from(sales)
     .where(inArray(sales.storeId, storeIds))
 
@@ -829,7 +829,7 @@ export async function getAllPartnerFees(partnerId: string) {
   return {
     firstLevelCommission,
     secondLevelCommission,
-    totalCommission: firstLevelCommission + (secondLevelCommission ?? 0),
+    totalCommission: firstLevelCommission + parseFloat(secondLevelCommission ?? '0'),
   };
 }
 

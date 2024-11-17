@@ -36,7 +36,7 @@ export default async function MerchantsPage() {
       <Statistics
         data={{
           firstLevelCommission,
-          secondLevelCommission,
+          secondLevelCommission: user.role === "partner" ? secondLevelCommission : null,
           totalCommission,
           salesVolume,
           salesVolumeStartofMonth,
