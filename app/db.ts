@@ -796,31 +796,27 @@ export async function getStoresByPartnerId(partnerId: string) {
   return storesByPartner
 }
 
-export async function getSecondLevelCommissions(
-  partnerId: string
-): Promise<number | null> {
+export async function getSecondLevelCommissions(partnerId: string): Promise<number> {
   const user = await UserService.getUserById(partnerId);
-  if (user.role !== "partner") {
-    return null;
-  }
-  const subpartners = (await getSubPartnersByUserId(partnerId)).map(
-    (subpartner) => subpartner.id
-  );
-  const secondLevelStoreIds = (
-    await db.select().from(stores).where(inArray(stores.partnerId, subpartners))
-  ).map((store) => store.id);
-  const totalSecondLevelPartnerCommission = (await db
-    .select({
-      totalCommission: sql`SUM(CAST(${sales.secondLevelPartnerCommission} AS numeric))`,
-    })
-    .from(sales)
-    .where(inArray(sales.storeId, secondLevelStoreIds))) as {
-    totalCommission: number;
-  }[];
+  if (user.role !== "partner") return 0;
 
-  const total = totalSecondLevelPartnerCommission[0]?.totalCommission || 0;
-  return total;
+  const subpartnerIds = (await getSubPartnersByUserId(partnerId)).map((s) => s.id);
+  if (!subpartnerIds.length) return 0;
+
+  const storeIds = (
+    await db.select().from(stores).where(inArray(stores.partnerId, subpartnerIds))
+  ).map((s) => s.id);
+  if (!storeIds.length) return 0;
+
+  const [{ totalCommission = 0 }] = await db
+    .select({ totalCommission: sql<number>`COALESCE(SUM(${sales.secondLevelPartnerCommission})), 0)`, })
+    .from(sales)
+    .where(inArray(sales.storeId, storeIds))
+
+  return totalCommission;
 }
+
+
 
 export async function getAllPartnerFees(partnerId: string) {
   const stores = await getStoresByPartnerId(partnerId);

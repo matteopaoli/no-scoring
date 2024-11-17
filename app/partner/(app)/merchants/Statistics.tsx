@@ -21,7 +21,7 @@ export default function Statistics({
     salesVolumeStartofMonth: number;
   };
 }) {
-  const secondLevelCommission = data.secondLevelCommission?.toFixed(2) ?? 0;
+  const secondLevelCommission = data.secondLevelCommission?.toFixed(2);
   const firstLevelCommission = data.firstLevelCommission.toFixed(2);
   return (
     <Box mb="8" mx="10">
