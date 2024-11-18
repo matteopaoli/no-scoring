@@ -6,6 +6,7 @@ import {
 } from "@/app/constants";
 import { createSale, getStoreByUserId } from "@/app/db";
 import { MerchantService } from "@/app/services/merchantService";
+import { merchantWelcomeEmail } from "@/app/utils/emails";
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
@@ -71,7 +72,8 @@ export async function POST(request: NextRequest) {
           stripeAccount.id
         ))?.status === "pending"
       ) {
-        await MerchantService.initMerchant(merchant.id);
+        MerchantService.initMerchant(merchant.id);
+        merchantWelcomeEmail({ email: merchant.email! });
       }
     }
     return new NextResponse("Webhook received", { status: 200 });

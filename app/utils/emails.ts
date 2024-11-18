@@ -111,3 +111,11 @@ export async function newMerchantAdminEmail({ partnerName, merchantEmail }: { pa
     })
   }
 }
+
+export async function merchantWelcomeEmail({ email }: { email: string }) {
+  return await sendEmail({
+    recipients: [email],
+    templateName: "merchantWelcome",
+    data: {},
+  });
+}
