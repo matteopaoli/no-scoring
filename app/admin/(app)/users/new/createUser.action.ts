@@ -7,7 +7,7 @@ import { BusinessTypeService } from "@/app/services/businessTypeService";
 import { MerchantService } from "@/app/services/merchantService";
 import { UserService } from "@/app/services/userService";
 import { FormActionReturnType } from "@/app/types";
-import { accountCreatedMerchantEmail, newMerchantAdminEmail } from "@/app/utils/emails";
+import { accountCreatedMerchantEmail } from "@/app/utils/emails";
 import formatZodErrors from "@/app/utils/formatZodErrors";
 import getUserFromAuth from "@/app/utils/getUserFromAuth";
 import { redirect } from "next/navigation";
@@ -134,6 +134,6 @@ export default async function createUserAction(
     refName,
   });
 
-  accountCreatedMerchantEmail({ email, onboardingLink: accountLink.url, partnerName: `${creator.firstName} ${creator.lastName}` })
+  accountCreatedMerchantEmail({ email, onboardingLink: accountLink.url });
   redirect(`/admin/users?success=true&action=create`);
 }

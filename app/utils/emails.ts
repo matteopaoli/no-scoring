@@ -83,18 +83,15 @@ export async function sendNewLeadEmailToLead(lead: Lead) {
 
 export async function accountCreatedMerchantEmail({
   email,
-  partnerName,
   onboardingLink,
 }: {
   email: string;
-  partnerName: string;
   onboardingLink: string;
 }) {
   return await sendEmail({
     recipients: [email],
     templateName: "accountCreatedMerchant",
     data: {
-      partnerName,
       onboardingLink,
     },
   });

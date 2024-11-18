@@ -128,7 +128,7 @@ export default async function createUserAction(
     phoneNumber,
   });
 
-  accountCreatedMerchantEmail({ email, onboardingLink: accountLink.url, partnerName: `${user.firstName} ${user.lastName}` })
+  accountCreatedMerchantEmail({ email, onboardingLink: accountLink.url })
   newMerchantAdminEmail({ merchantEmail: email, partnerName: `${user.firstName} ${user.lastName}` })
 
   return { status: "success" };
