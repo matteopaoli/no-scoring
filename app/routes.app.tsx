@@ -1,7 +1,7 @@
 import React from "react";
 
 import { Icon } from "@chakra-ui/react";
-import { MdHome, MdPointOfSale } from "react-icons/md";
+import { MdHome, MdPointOfSale, MdShoppingCart } from "react-icons/md";
 import { IoMdCube } from "react-icons/io";
 import { IoDocuments } from "react-icons/io5";
 
@@ -46,6 +46,12 @@ const routes = [
     match: /^\/app\/documents(\/.*)?$/,
     icon: <Icon as={IoDocuments} width="20px" height="20px" color="inherit" />,
   },
+  {
+    name: "Acquista",
+    layout: "/admin",
+    path: "https://secureprivacy.thrivecart.com/paytomorrow-abbonamento",
+    icon: <Icon as={MdShoppingCart} width="20px" height="20px" color="inherit" />,
+  }
 ];
 
 export default routes;
