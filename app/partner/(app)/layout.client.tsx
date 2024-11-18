@@ -8,6 +8,7 @@ import { SidebarContext } from "@/app/contexts/SidebarContext";
 import Footer from "@/app/components/footer/FooterAdmin";
 import Sidebar from "@/app/components/sidebar/Sidebar";
 import PartnerNavbar from "@/app/components/navbar/NavbarPartner";
+import HelpButton from "@/app/(lang)/app/HelpButton";
 
 export default function AdminLayout({
   children,
@@ -34,10 +35,10 @@ export default function AdminLayout({
   };
 
   const getRoutes = () => {
-    if (user.role === 'partner') return routes
-    if (user.role === 'subpartner') return subpartnerRoutes
-    return null
-  }
+    if (user.role === "partner") return routes;
+    if (user.role === "subpartner") return subpartnerRoutes;
+    return null;
+  };
 
   const { onOpen } = useDisclosure();
   return (
@@ -74,7 +75,7 @@ export default function AdminLayout({
                   // message={""}
                   fixed={false}
                   routes={routes}
-                  user={user} 
+                  user={user}
                   {...rest}
                 />
               </Box>
@@ -93,6 +94,7 @@ export default function AdminLayout({
             </Box>
           </Box>
         </SidebarContext.Provider>
+        <HelpButton />
       </Box>
     </Box>
   );
