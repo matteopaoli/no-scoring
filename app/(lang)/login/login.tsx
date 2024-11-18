@@ -75,7 +75,7 @@ export default function SignIn() {
             Benvenuto su PayTomorrow!
           </Text>
           <Text fontSize={{ base: "sm", md: "md" }} mb={4}>
-            Se è la tua prima volta qui, abbiamo inviato una mail all'indirizzo
+            Se è la tua prima volta qui, abbiamo inviato una mail all&apos;indirizzo
             fornito con le istruzioni per il tuo primo accesso.
           </Text>
           <Text fontSize={{ base: "sm", md: "md" }} mb={4}>
