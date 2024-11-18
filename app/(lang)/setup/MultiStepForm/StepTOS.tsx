@@ -36,7 +36,7 @@ const StepTOS: React.FC<StepTOSProps> = ({ onAccept }) => {
           <Link
             color="brand.600"
             textDecoration="underline"
-            href="https://paytomorrow.it/doc"
+            href="https://drive.google.com/file/d/15BHXZWrz6ZyOXqmD_dvVo6ARWKOdiEYA/view?usp=drive_link"
             target="_blank"
             rel="nofollow"
           >
