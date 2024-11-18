@@ -5,7 +5,7 @@ import getUserFromAuth from "@/app/utils/getUserFromAuth";
 
 export default async function SalesPage() {
   const user = await getUserFromAuth();
-  const stripe = new Stripe(user.stripeSecretKey);
+  const stripe = new Stripe(process.env.STRIPE_API_KEY!, { stripeAccount: user.stripeUserId });
   const { data: charges } = await stripe.charges.list({ limit: 1000 });
   const totalSales = charges.length;
   const totalAmount = charges.reduce((sum, charge) => sum + charge.amount, 0) / 100;

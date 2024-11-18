@@ -62,12 +62,14 @@ export default function SignIn() {
         w="100%"
         mx={{ base: "auto" }}
         me="auto"
-        h="100%"
         alignItems="start"
         justifyContent="center"
         mb={{ base: "30px", md: "60px" }}
-        px={{ base: "25px", md: "0px" }}
         mt={{ base: "40px", md: "14vh" }}
+        px={{ base: "25px", md: "0px" }}
+        p={{ md: "50px" }}
+        borderRadius={12}
+        bgColor="white"
         flexDirection="column"
       >
         <Box me="auto">
@@ -118,6 +120,7 @@ export default function SignIn() {
                 fontWeight="500"
                 size="lg"
                 name="email"
+                data-testid="pr-email-field"
               />
               <FormLabel
                 ms="4px"
@@ -137,6 +140,7 @@ export default function SignIn() {
                   size="lg"
                   type={show ? "text" : "password"}
                   name="password"
+                  data-testid="pr-password-field"
                 />
                 <InputRightElement display="flex" alignItems="center" mt="4px">
                   <Icon
@@ -178,7 +182,7 @@ export default function SignIn() {
                 </Text>
               </Link>
             </Flex> */}
-              <SubmitButton w="100%" loadingText="Accesso in corso">
+              <SubmitButton w="100%" loadingText="Accesso in corso" data-testid="pr-login-button">
                 {t("signIn")}
               </SubmitButton>
             </FormControl>

@@ -1,10 +1,10 @@
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { compare } from 'bcrypt-ts';
-import { getUser } from 'app/db';
 import { authConfig } from 'app/auth.config';
 import { db } from '../schema'
 import { DrizzleAdapter } from '@auth/drizzle-adapter';
+import { UserService } from './services/userService';
 
 export const {
   handlers: { GET, POST },
@@ -18,8 +18,9 @@ export const {
   providers: [
     Credentials({
     async authorize(credentials, req) {
-        let user = await getUser(credentials.email as string);
+        let user = await UserService.getUserByEmail(credentials.email as string);
         if (!user) return null;
+        if (user.status === 'pending') return null;
         let passwordsMatch = await compare(credentials.password as string, user.password!);
         if (passwordsMatch && (credentials.roles as string[]).includes(user.role)) {
           const { image,  ...rest } = user

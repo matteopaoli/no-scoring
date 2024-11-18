@@ -15,7 +15,6 @@ import {
 } from "@chakra-ui/react";
 import { ColumnDef } from "@tanstack/react-table";
 import GenericTable from "@/app/components/GenericTable"; // Adjust the import path if needed
-import ReferLeadForm from "@/app/components/forms/ReferLeadForm";
 
 interface Store {
   storeId: string;
@@ -45,7 +44,7 @@ export default function StoresTable({ stores }: StoresTableProps) {
     {
       accessorKey: "totalVolume",
       header: "Volume",
-      cell: (info) => `€ ${Number(info.getValue()).toFixed(2)}`,
+      cell: (info) => `€ ${Number(info.getValue() ?? 0).toFixed(2)}`,
     },
     {
       accessorKey: "createdAt",
@@ -62,8 +61,9 @@ export default function StoresTable({ stores }: StoresTableProps) {
       <GenericTable
         data={stores}
         columns={storeColumns}
-        title="Negozi"
+        title="Negozi Attivi"
         itemsPerPage={10} // Customize the number of items per page if needed
+        hideColumnsResponsive={['createdAt']}
       />
     </>
   );

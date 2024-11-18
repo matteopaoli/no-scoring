@@ -1,16 +1,5 @@
-import "server-only";
-
 import { drizzle } from "drizzle-orm/postgres-js";
-import {
-  and,
-  count,
-  eq,
-  getTableColumns,
-  inArray,
-  like,
-  or,
-  sql,
-} from "drizzle-orm";
+import { and, count, eq, getTableColumns, inArray, or, sql } from "drizzle-orm";
 import postgres from "postgres";
 import { genSaltSync, hashSync } from "bcrypt-ts";
 import {
@@ -20,26 +9,14 @@ import {
   stores,
   userStoreRoles,
   products,
-  webhookSecrets,
   sales,
-  leads,
 } from "schema";
-import Stripe from "stripe";
-import {
-  generateQrCodeWithLogo,
-  generateGenericProductImages,
-  imageToBase64,
-  compressProfileImageToBase64,
-} from "./utils/images";
-import { createGenericProduct } from "./utils/stripe";
+import { imageToBase64, compressProfileImageToBase64 } from "./utils/images";
 import { alias } from "drizzle-orm/pg-core";
-import {
-  sendNewLeadEmailToAdmin,
-  sendNewLeadEmailToLead,
-} from "./utils/emails";
+import { UserService } from "./services/userService";
 
 let client = postgres(`${process.env.DATABASE_URL!}`);
-let db = drizzle(client);
+export let db = drizzle(client);
 
 interface CommissionRule {
   id: number;
@@ -50,7 +27,7 @@ interface CommissionRule {
   businessTypeId?: number;
 }
 
-interface BusinessType {
+export interface BusinessType {
   id: number;
   name: string;
   commissionRules: CommissionRule[];
@@ -63,18 +40,17 @@ export interface User {
   email: string;
   password: string;
   image: string | null;
-  stripeSecretKey: string;
   role: string;
   businessTypeId: number;
   businessName: string;
   onboardingCompleted: boolean;
   stripeUserId: string;
-  stripeLegAccountId: string;
-  genericProductId: string;
-  genericProductSmallImage: string;
-  genericProductLargeImage: string;
   provincia: string;
   partnerId?: string;
+  onboardingLink: string;
+  status: string;
+  tosAccepted: boolean;
+  tosAcceptedAt: Date | null;
 }
 
 export interface Lead {
@@ -85,200 +61,6 @@ export interface Lead {
   phoneNumber: string;
   referredByUserId: string;
   sector: string;
-}
-
-export async function getUser(email?: string | null) {
-  return (
-    await db
-      .select()
-      .from(users)
-      .where(eq(users.email, email ?? ""))
-  )?.[0] as User;
-}
-
-export async function getUserById(id: string) {
-  return (await db.select().from(users).where(eq(users.id, id)))?.[0] as User;
-}
-
-export async function getUserByStripeAccountId(id: string) {
-  return (
-    await db.select().from(users).where(eq(users.stripeUserId, id))
-  )?.[0] as User;
-}
-
-export async function getWebhookSecret(id: string) {
-  return (
-    await db
-      .select()
-      .from(webhookSecrets)
-      .where(eq(webhookSecrets.accountId, id))
-  )?.[0];
-}
-
-export const getDefaultPassword = () => {
-  const salt = genSaltSync(10);
-  const hash = hashSync("PayTomorrow!2024", salt);
-  return hash;
-};
-
-export async function createUser(
-  email: string,
-  stripeSecretKey: string,
-  businessTypeId: number,
-  businessName: string,
-  stripeUserId: string,
-  stripeLegAccountId: string,
-  partnerId: string
-) {
-  const WEBHOOK_URL = `https://app.paytomorrow.it/api/stripe/webhook?merchantId=${stripeUserId}`;
-  const hash = getDefaultPassword();
-
-  const stripe = new Stripe(stripeSecretKey);
-
-  const genericProduct = await createGenericProduct(stripe);
-
-  const existingWebhook = (await stripe.webhookEndpoints.list()).data.find(
-    (w) => w.url === WEBHOOK_URL
-  );
-
-  if (existingWebhook) {
-    await stripe.webhookEndpoints.del(existingWebhook.id);
-  }
-
-  // Create a new webhook
-  const webhook = await stripe.webhookEndpoints.create({
-    enabled_events: ["checkout.session.completed"],
-    url: `https://app.paytomorrow.it/api/stripe/webhook?merchantId=${stripeUserId}`,
-  });
-
-  const genericProductQrCode = await generateQrCodeWithLogo(
-    genericProduct.paymentLink.url
-  );
-  const { genericProductSmallImage, genericProductLargeImage } =
-    await generateGenericProductImages(genericProductQrCode);
-  await db
-    .transaction(async (tx) => {
-      // Insert user and get the returned user
-      const user = await tx
-        .insert(users)
-        .values({
-          email,
-          stripeSecretKey,
-          role: "user",
-          businessTypeId,
-          password: hash,
-          businessName,
-          stripeUserId,
-          stripeLegAccountId,
-          genericProductId: genericProduct.productId,
-          genericProductSmallImage,
-          genericProductLargeImage,
-          partnerId,
-        })
-        .returning();
-
-      // Insert product with the userId from the user created
-      await tx.insert(products).values({
-        id: genericProduct.productId,
-        paymentLinkId: genericProduct.paymentLink.id,
-        qrcode: genericProductQrCode,
-        tagImage: "",
-        userId: user[0].id, // Assuming user[0] contains the new user
-      });
-
-      // Delete previous webhook secret
-      await tx
-        .delete(webhookSecrets)
-        .where(eq(webhookSecrets.accountId, stripeUserId));
-
-      // Insert new webhook secret
-      await tx.insert(webhookSecrets).values({
-        accountId: stripeUserId,
-        secret: webhook.secret,
-      });
-    })
-    .catch((error) => {
-      console.error("Transaction failed:", error);
-      throw error; // Optionally rethrow the error for further handling
-    });
-}
-
-export async function updateUser(
-  email: string,
-  stripeSecretKey: string,
-  businessTypeId: number,
-  businessName: string,
-  stripeUserId: string,
-  stripeLegAccountId: string
-) {
-  return await db
-    .update(users)
-    .set({
-      stripeSecretKey,
-      businessTypeId,
-      businessName,
-      stripeUserId,
-      stripeLegAccountId,
-    })
-    .where(eq(users.email, email));
-}
-
-export async function setPassword(password: string) {
-  // let salt = genSaltSync(10);
-  // let hash = hashSync(password, salt);
-}
-
-export async function getBusinessTypes(): Promise<BusinessType[]> {
-  const result = await db
-    .select({
-      id: businessType.id,
-      name: businessType.name,
-      commissionRuleId: commissionRules.id,
-      minAmount: commissionRules.minAmount,
-      maxAmount: commissionRules.maxAmount,
-      commissionType: commissionRules.commissionType,
-      commissionValue: commissionRules.commissionValue,
-    })
-    .from(businessType)
-    .leftJoin(
-      commissionRules,
-      eq(commissionRules.businessTypeId, businessType.id)
-    );
-
-  // Group commission rules by businessType
-  const groupedResult: Record<number, BusinessType> = {};
-
-  result.forEach((row) => {
-    const {
-      id,
-      name,
-      commissionRuleId,
-      minAmount,
-      maxAmount,
-      commissionType,
-      commissionValue,
-    } = row;
-
-    if (!groupedResult[id]) {
-      groupedResult[id] = {
-        id,
-        name,
-        commissionRules: [],
-      };
-    }
-
-    if (commissionRuleId !== null) {
-      groupedResult[id].commissionRules.push({
-        id: commissionRuleId,
-        minAmount: Number(minAmount),
-        maxAmount: maxAmount !== null ? Number(maxAmount) : null,
-        commissionType: commissionType!,
-        commissionValue: Number(commissionValue),
-      });
-    }
-  });
-
-  return Object.values(groupedResult);
 }
 
 export async function getUsersWithStoresAndCommissions() {
@@ -312,7 +94,7 @@ export async function getUsersWithStoresAndCommissions() {
     .leftJoin(userStoreRoles, eq(users.id, userStoreRoles.userId))
     .leftJoin(stores, eq(userStoreRoles.storeId, stores.id))
     .leftJoin(sales, eq(stores.id, sales.storeId))
-    .where(eq(users.role, "user"))
+    .where(and(eq(users.role, "user"), eq(users.status, "active")))
     .groupBy(users.id, partner.id, businessType.name, stores.id);
 }
 
@@ -367,7 +149,7 @@ export async function createStore({
     .values({
       name: storeName,
       image: logoData,
-      partnerId: (await getUserById(userId))?.partnerId,
+      partnerId: (await UserService.getUserById(userId))?.partnerId,
     })
     .returning();
 
@@ -600,19 +382,32 @@ async function updatePassword(password: string, userEmail: string) {
 
 export async function deleteUser(id: string) {
   await db.delete(userStoreRoles).where(eq(userStoreRoles.userId, id));
+
+  const userStores = await db
+    .select()
+    .from(userStoreRoles)
+    .where(
+      and(eq(userStoreRoles.userId, id), eq(userStoreRoles.role, "admin"))
+    );
+
+  const storeIds = userStores.map((storeRole) => storeRole.storeId);
+
+  if (storeIds.length > 0) {
+    await db
+      .delete(userStoreRoles)
+      .where(inArray(userStoreRoles.storeId, storeIds));
+    await db.delete(stores).where(inArray(stores.id, storeIds));
+  }
+
   await db.delete(products).where(eq(products.userId, id));
-  const user = await getUserById(id);
-  await db
-    .delete(webhookSecrets)
-    .where(eq(webhookSecrets.accountId, user.stripeUserId));
-  return await db.delete(users).where(eq(users.id, id));
+  await db.delete(users).where(eq(users.id, id));
 }
 
-export async function acceptTOS(email: string) {
+export async function acceptTOS(userId: string) {
   return await db
     .update(users)
     .set({ tosAccepted: true, tosAcceptedAt: new Date() })
-    .where(eq(users.email, email));
+    .where(eq(users.id, userId));
 }
 
 export async function getStoreByUserId(userId: string) {
@@ -660,6 +455,11 @@ export async function getAllMerchants() {
       lastName: users.lastName,
       productCount: count(products.id).as("productCount"),
       createdAt: users.createdAt,
+      id: users.id,
+      status: users.status,
+      onboardingLink: users.onboardingLink,
+      email: users.email,
+      phoneNumber: users.phoneNumber,
     })
     .from(users)
     .leftJoin(products, eq(products.userId, users.id))
@@ -697,14 +497,14 @@ export async function getPartners() {
       email: users.email,
     })
     .from(users)
-    .where(eq(users.role, "partner"));
+    .where(or(eq(users.role, "partner"), eq(users.role, "subpartner")));
 
   const partnersWithCommissions = await Promise.all(
     partners.map(async (partner) => {
-      const firstLevelCommission = await getStoresByPartnerId(partner.id);
+      const stores = await getStoresByPartnerId(partner.id);
       const secondLevelCommission = await getSecondLevelCommissions(partner.id);
 
-      const totalFirstLevelCommission = firstLevelCommission.stores.reduce(
+      const totalFirstLevelCommission = stores.reduce(
         (acc, store) => acc + (store.totalCommission || 0),
         0
       );
@@ -736,7 +536,6 @@ export async function getSubPartners() {
     .from(users)
     .where(eq(users.role, "subpartner"));
 
-  // For each subpartner, fetch the first-level commissions
   const subpartnersWithCommissions = await Promise.all(
     subpartners.map(async (subpartner) => {
       // Fetch first-level commissions for this subpartner
@@ -770,7 +569,7 @@ export async function createPartner({
   email,
   provincia,
 }: Record<string, string>) {
-  const hash = getDefaultPassword();
+  const hash = UserService.getDefaultPassword();
   return await db.insert(users).values({
     firstName,
     lastName,
@@ -788,7 +587,7 @@ export async function createSubPartner({
   provincia,
   partnerId,
 }: Record<string, string>) {
-  const hash = getDefaultPassword();
+  const hash = UserService.getDefaultPassword();
   return await db.insert(users).values({
     firstName,
     lastName,
@@ -858,6 +657,12 @@ export async function getSubPartnersByUserId(userId: string) {
 }
 
 export async function searchPartner(query: string) {
+  const trimmedQuery = query.trim().toLowerCase();
+
+  if (!trimmedQuery) {
+    return [];
+  }
+
   return await db
     .select({
       id: users.id,
@@ -870,9 +675,9 @@ export async function searchPartner(query: string) {
     .where(
       and(
         or(
-          like(users.firstName, `%${query}%`),
-          like(users.lastName, `%${query}%`),
-          like(users.email, `%${query}%`)
+          sql`LOWER(${users.firstName}) LIKE ${trimmedQuery + "%"}`,
+          sql`LOWER(${users.lastName}) LIKE ${trimmedQuery + "%"}`,
+          sql`LOWER(${users.email}) LIKE ${trimmedQuery + "%"}`
         ),
         inArray(users.role, ["partner", "subpartner"])
       )
@@ -902,6 +707,62 @@ export async function getPartnerById(userId: string) {
   return result[0] || null;
 }
 
+export async function getAllStores() {
+  const merchantIds = (
+    await db
+      .select({
+        id: users.id,
+      })
+      .from(users)
+      .where(eq(users.role, "user"))
+  ).map((user) => user.id);
+
+  const merchantStores = (await db
+    .select({
+      storeId: stores.id,
+      storeName: stores.name,
+      storeImage: stores.image,
+      createdAt: stores.createdAt,
+      totalCommission: sql`COALESCE(SUM(CAST(${sales.legCommission} AS numeric)), 0)`,
+      totalVolume: sql`COALESCE(SUM(CAST(${sales.amount} AS numeric)), 0)`,
+    })
+    .from(stores)
+    .innerJoin(userStoreRoles, eq(stores.id, userStoreRoles.storeId))
+    .leftJoin(sales, eq(stores.id, sales.storeId))
+    .where(inArray(userStoreRoles.userId, merchantIds))
+    .groupBy(stores.id)) as {
+    storeId: string;
+    storeName: string;
+    storeImage: string | null;
+    createdAt: Date | null;
+    totalCommission: number;
+    totalVolume: number;
+  }[];
+
+  return merchantStores;
+}
+
+export async function getAllPendingUsers() {
+  const partner = alias(users, 'partner')
+  return await db
+    .select({
+      id: users.id,
+      email: users.email,
+      createdAt: users.createdAt,
+      referredByName: sql`CONCAT(${partner.firstName}, ' ', ${partner.lastName})`,
+      referredByRole: partner.role,
+      phoneNumber: users.phoneNumber,
+      onboardingLink: users.onboardingLink,
+      name: sql<string>`CASE 
+            WHEN ${users.firstName} IS NOT NULL AND ${users.lastName} IS NOT NULL 
+            THEN ${users.firstName} || ' ' || ${users.lastName} 
+            ELSE ${users.refName} 
+          END`,
+    })
+    .from(users)
+    .leftJoin(partner, eq(users.partnerId, partner.id))
+    .where(and(eq(users.status, "pending"), eq(users.role, "user")));
+}
 export async function getStoresByPartnerId(partnerId: string) {
   const merchantIds = (
     await db
@@ -912,22 +773,7 @@ export async function getStoresByPartnerId(partnerId: string) {
       .where(and(eq(users.partnerId, partnerId), eq(users.role, "user")))
   ).map((user) => user.id);
 
-  const inactiveMerchants = await db
-    .select({
-      id: users.id,
-      email: users.email,
-      createdAt: users.createdAt,
-    })
-    .from(users)
-    .where(
-      and(
-        eq(users.partnerId, partnerId),
-        eq(users.onboardingCompleted, false),
-        eq(users.role, "user")
-      )
-    );
-
-  const merchantStores = (await db
+  const storesByPartner = (await db
     .select({
       storeId: stores.id,
       storeName: stores.name,
@@ -947,120 +793,53 @@ export async function getStoresByPartnerId(partnerId: string) {
     totalCommission: number;
   }[];
 
-  return { stores: merchantStores, inactiveMerchants };
+  return storesByPartner
 }
 
-export async function getSecondLevelCommissions(
-  partnerId: string
-): Promise<number | null> {
-  const user = await getUserById(partnerId);
-  if (user.role !== "partner") {
-    return null;
-  }
-  const subpartners = (await getSubPartnersByUserId(partnerId)).map(
-    (subpartner) => subpartner.id
-  );
-  const secondLevelStoreIds = (
-    await db.select().from(stores).where(inArray(stores.partnerId, subpartners))
-  ).map((store) => store.id);
-  const totalSecondLevelPartnerCommission = (await db
-    .select({
-      totalCommission: sql`SUM(CAST(${sales.secondLevelPartnerCommission} AS numeric))`,
-    })
+export async function getSecondLevelCommissions(partnerId: string): Promise<string | null> {
+  const user = await UserService.getUserById(partnerId);
+  if (user.role !== "partner") return null;
+
+  const subpartnerIds = (await getSubPartnersByUserId(partnerId)).map((s) => s.id);
+  if (!subpartnerIds.length) return '0.00';
+
+  const storeIds = (
+    await db.select().from(stores).where(inArray(stores.partnerId, subpartnerIds))
+  ).map((s) => s.id);
+  if (!storeIds.length) return '0.00';
+
+  const [{ totalCommission }] = await db
+    .select({ totalCommission: sql<string>`COALESCE(SUM(${sales.secondLevelPartnerCommission}), 0.00)`})
     .from(sales)
-    .where(inArray(sales.storeId, secondLevelStoreIds))) as {
-    totalCommission: number;
-  }[];
+    .where(inArray(sales.storeId, storeIds))
 
-  const total = totalSecondLevelPartnerCommission[0]?.totalCommission || 0;
-  return total;
+  return totalCommission;
 }
+
+
 
 export async function getAllPartnerFees(partnerId: string) {
-  const { stores } = await getStoresByPartnerId(partnerId);
+  const stores = await getStoresByPartnerId(partnerId);
   const secondLevelCommission = await getSecondLevelCommissions(partnerId);
   const firstLevelCommission = stores.reduce(
-    (acc, store) => (acc += Number(store.totalFirstLevelCommissions)),
+    (acc, store) => (acc += Number(store.totalCommission)),
     0
   );
 
   return {
     firstLevelCommission,
     secondLevelCommission,
-    totalCommission: firstLevelCommission + (secondLevelCommission ?? 0),
+    totalCommission: firstLevelCommission + parseFloat(secondLevelCommission ?? '0'),
   };
-}
-
-export async function createLead(lead: Lead, referrerName: string) {
-  await db.insert(leads).values(lead);
-  sendNewLeadEmailToAdmin(lead, referrerName);
-  sendNewLeadEmailToLead(lead);
-}
-
-export async function getLeadByEmail(email: string) {
-  return (await db.select().from(leads).where(eq(leads.email, email)))?.[0];
-}
-
-export async function getPendingLeads() {
-  return await db
-    .select({
-      id: leads.id,
-      firstName: leads.firstName,
-      lastName: leads.lastName,
-      businessName: leads.businessName,
-      email: leads.email,
-      createdAt: leads.createdAt,
-      referredByUserId: leads.referredByUserId,
-      referredByName: sql`CONCAT(${users.firstName}, ' ', ${users.lastName})`,
-      referredByRole: users.role,
-      phoneNumber: leads.phoneNumber
-    })
-    .from(leads)
-    .innerJoin(users, eq(leads.referredByUserId, users.id))
-    .where(eq(leads.status, "pending"));
-}
-
-export async function getLeadsByReferrerId(userId: string) {
-  return await db
-    .select()
-    .from(leads)
-    .where(eq(leads.referredByUserId, userId));
 }
 
 export async function getAdmins() {
   return await db.select().from(users).where(eq(users.role, "admin"));
 }
 
-export async function acceptLead(leadId: string) {
+export async function rejectUser(userId: string) {
   return await db
-    .update(leads)
-    .set({ status: "accepted" })
-    .where(eq(leads.id, leadId));
-}
-
-export async function rejectLead(leadId: string) {
-  return await db
-    .update(leads)
+    .update(users)
     .set({ status: "rejected" })
-    .where(eq(leads.id, leadId));
-}
-
-export async function getLeadById(leadId: string) {
-  return (
-    await db
-      .select({
-        id: leads.id,
-        firstName: leads.firstName,
-        lastName: leads.lastName,
-        businessName: leads.businessName,
-        email: leads.email,
-        createdAt: leads.createdAt,
-        referredByUserId: leads.referredByUserId,
-        referredByName: sql`CONCAT(${users.firstName}, ' ', ${users.lastName})`,
-        referredByRole: users.role,
-      })
-      .from(leads)
-      .innerJoin(users, eq(leads.referredByUserId, users.id))
-      .where(eq(leads.id, leadId))
-  )?.[0];
+    .where(eq(users.id, userId));
 }

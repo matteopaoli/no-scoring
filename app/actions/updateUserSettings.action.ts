@@ -6,6 +6,7 @@ import { FormActionReturnType } from "@/app/types";
 import formatZodErrors from "@/app/utils/formatZodErrors";
 import getUserFromAuth from "@/app/utils/getUserFromAuth";
 import validateUserSettings from "@/app/formSchemas/userSettingsSchema";
+import { UserService } from "../services/userService";
 
 export default async function updateUserAction(prevState, formData: FormData): FormActionReturnType {
   const validation = validateUserSettings(formData);
@@ -33,7 +34,7 @@ export default async function updateUserAction(prevState, formData: FormData): F
     redirect('/admin?success=true"')
   }
 
-  if (['partner', 'subpartner'].includes(user.role)) {
+  if (UserService.isPartner(user)) {
     redirect('/partner?success=true')
   }
 

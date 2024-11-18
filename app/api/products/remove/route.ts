@@ -1,5 +1,5 @@
 import { auth } from "@/app/auth";
-import { getUser } from "@/app/db";
+import { UserService } from "@/app/services/userService";
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
@@ -13,8 +13,8 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
   }
 
-  const user = await getUser(session.user.email);
-  const stripe = new Stripe(user.stripeSecretKey);
+  const user = await UserService.getUserByEmail(session.user.email);
+  const stripe = new Stripe(process.env.STRIPE_API_KEY!, { stripeAccount: user.stripeUserId });
 
   try {
     // Update the product to archive it

@@ -15,6 +15,7 @@ import {
 } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
 import SearchResult from "./SearchResult";
+import { users } from "schema";
 
 // Define the props type
 interface SearchBarProps extends InputGroupProps {
@@ -24,6 +25,14 @@ interface SearchBarProps extends InputGroupProps {
   placeholder?: string;
   borderRadius?: string;
   debounceDelay?: number; // Optional prop for debounce delay
+}
+
+interface SearchResult {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  email: string | null;
+  role: string;
 }
 
 export function SearchBar({
@@ -40,7 +49,7 @@ export function SearchBar({
   const inputText = useColorModeValue("gray.700", "gray.100");
 
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [results, setResults] = useState<Record<string, any[]> | null>(null); // State to hold search results
+  const [results, setResults] = useState<SearchResult | null>(null);
   const [loading, setLoading] = useState<boolean>(false); // Loading state
 
   // Function to handle search logic
@@ -52,11 +61,13 @@ export function SearchBar({
 
     setLoading(true);
     try {
-      const response = await fetch(`${apiPath}?query=${encodeURIComponent(query)}`);
+      const response = await fetch(
+        `${apiPath}?query=${encodeURIComponent(query)}`
+      );
       const data = await response.json();
       if (!data.error) {
         setResults(data); // Set the fetched results to state
-      } 
+      }
     } catch (error) {
       console.error("Error fetching search results:", error);
     } finally {
@@ -109,21 +120,50 @@ export function SearchBar({
       </InputGroup>
 
       {/* Results List */}
-      {loading && <Spinner size="sm" position="absolute" top="100%" left="50%" transform="translateX(-50%)" />}
+      {loading && (
+        <Spinner
+          size="sm"
+          position="absolute"
+          top="100%"
+          left="50%"
+          transform="translateX(-50%)"
+        />
+      )}
       {results !== null && (
-        <List p="20px" position="absolute" right="0" spacing={2} mt={2} bg="white" borderRadius="md" boxShadow="md" maxHeight="600px" overflowY="auto" zIndex="10" w={{ base: '100%', md: '600px' }}>
-          { results?.partners.length && (
+        <List
+          p="20px"
+          position="absolute"
+          right="0"
+          spacing={2}
+          mt={2}
+          bg="white"
+          borderRadius="md"
+          boxShadow="md"
+          maxHeight="600px"
+          overflowY="auto"
+          zIndex="10"
+          w={{ base: "100%", md: "600px" }}
+        >
+          {results?.partners.length && (
             <>
               <Text fontWeight="bold">Partner</Text>
               <Divider />
               {results.partners.map((result, index) => (
-              <ListItem key={index} p={1} borderBottom="1px" borderColor="gray.200" _hover={{ bg: "gray.100", cursor: "pointer" }}>
-                <SearchResult result={result} />
-              </ListItem>
-            ))}
+                <ListItem
+                  key={index}
+                  p={1}
+                  borderBottom="1px"
+                  borderColor="gray.200"
+                  _hover={{ bg: "gray.100", cursor: "pointer" }}
+                >
+                  <SearchResult result={result} />
+                </ListItem>
+              ))}
             </>
           )}
-          {!Object.values(results).some(x => x.length > 0) && <Text>Nessun risultato</Text>}
+          {!Object.values(results).some((x) => x.length > 0) && (
+            <Text>Nessun risultato</Text>
+          )}
         </List>
       )}
     </Box>

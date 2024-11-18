@@ -1,0 +1,37 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: preprod-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db:/docker-entrypoint-initdb.d 
+    restart: unless-stopped
+
+  # web:
+  #   container_name: web
+  #   build:
+  #     context: .
+  #     dockerfile: ./Dockerfile
+  #   ports:
+  #     - "3000:3000"
+  
+  # workspace:
+  #   container_name: workspace
+  #   build:
+  #     context: .
+  #     dockerfile: './workspace/Dockerfile'
+  #   stdin_open: true  # Keep stdin open to interact with the container
+  #   tty: true         # Allocate a pseudo-TTY to allow interaction with the shell
+  #   user: "${UID}:${GID}"  # Run as the current user
+  #   restart: always   # This is where you define the restart 
+  #   volumes:
+  #     - ./:/workspace
+
+volumes:
+  postgres_data:

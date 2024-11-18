@@ -1,7 +1,14 @@
 "use client";
 
 import React, { useState, useEffect, useContext } from "react";
-import { Center, Flex, Heading, Progress, Spinner, VStack } from "@chakra-ui/react";
+import {
+  Center,
+  Flex,
+  Heading,
+  Progress,
+  Spinner,
+  VStack,
+} from "@chakra-ui/react";
 import { checkProfileCompletion } from "../checkProfileCompletion.action";
 import { UserContext } from "@/app/contexts/UserContext";
 import StepIntroduction from "./StepIntroduction";
@@ -16,37 +23,38 @@ const MultiStepForm: React.FC = () => {
 
   useEffect(() => {
     const checkCompletion = async () => {
-      const profileCompleted = await checkProfileCompletion(
-        session!.user!.email!
-      );
-      if (profileCompleted) {
-        setStep(4); // If profile is complete, skip to final step
-      }
+      const step = await checkProfileCompletion(session!.user!.email!);
+      setStep(step);
       setLoading(false);
     };
     checkCompletion();
   }, [session]);
 
-  if (loading) return <Flex w="100%" h="100dvh" alignItems="center" justifyContent="center"><Spinner color="brand.500" size="xl" /></Flex>;
+  if (loading)
+    return (
+      <Flex w="100%" h="100dvh" alignItems="center" justifyContent="center">
+        <Spinner color="brand.500" size="xl" />
+      </Flex>
+    );
 
   return (
     <Center minHeight="100vh">
       <VStack
         spacing={8}
         width="full"
-        maxW="md"
+        maxW="xl"
         p={8}
         boxShadow="lg"
         borderRadius="md"
+        background="white"
       >
-        <Heading as="h2" size="lg">
+        <Progress value={step * 25} width="100%" colorScheme="brand" />
+        <Heading as="h2" size="lg" textAlign="center">
           {step === 1 && "Benvenuto in PayTomorrow"}
           {step === 2 && "Accettazione TOS"}
           {step === 3 && "Dettagli Profilo"}
           {step === 4 && "Creazione Negozio"}
         </Heading>
-
-        <Progress value={step * 25} width="100%" colorScheme="brand" />
 
         {step === 1 && <StepIntroduction onNext={() => setStep(2)} />}
         {step === 2 && (

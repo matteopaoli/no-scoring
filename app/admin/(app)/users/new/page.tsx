@@ -1,21 +1,12 @@
-import { getAllPartners, getBusinessTypes, getLeadById } from "@/app/db";
+import { getAllPartners, getLeadById } from "@/app/db";
 import Client from "./page.client";
 import { Box, Flex } from "@chakra-ui/react";
-export default async function CreateUserPage({ searchParams }: { searchParams: { fromLead?: string } }) {
-  const businessTypes = await getBusinessTypes();
+import { BusinessTypeService } from "@/app/services/businessTypeService";
+
+export default async function CreateUserPage() {
+
   const partners = await getAllPartners();
-  const businessTypesOptions = businessTypes.map((b) => (
-    <option value={b.id} key={b.id}>
-      {b.name}
-    </option>
-  ));
-
-  let lead = null
-  
-  if (searchParams.fromLead) {
-    lead = await getLeadById(searchParams.fromLead)
-  }
-
+  const businessTypesOptions = await BusinessTypeService.getAllAsComponent()
   return (
     <Flex
       ml={{ md: "20px" }}
@@ -27,7 +18,7 @@ export default async function CreateUserPage({ searchParams }: { searchParams: {
       px={{ base: "25px", md: "0px" }}
       flexDirection="column"
     >
-      <Client businessTypesOptions={businessTypesOptions} partners={partners} initialData={lead} />
+      <Client businessTypesOptions={businessTypesOptions} partners={partners} />
     </Flex>
   );
 }

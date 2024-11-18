@@ -1,20 +1,11 @@
 "use client";
 
-import {
-  Button,
-  Text,
-  useColorModeValue,
-  Box,
-  FormControl,
-  FormHelperText,
-  SimpleGrid,
-} from "@chakra-ui/react";
+import { Box, FormControl, SimpleGrid, Flex } from "@chakra-ui/react";
 import { ReactNode, useState } from "react";
 import createUserAction from "./createUser.action";
 import { useFormState } from "react-dom";
-import InputField from "@/app/components/fields/InputField"; // Import the InputField component
-import TextArea from "@/app/components/fields/TextArea"; // Import the TextArea component
-import getFormErrors from "@/app/utils/getFormErrors"; // Utility for fetching errors
+import InputField from "@/app/components/fields/InputField";
+import getFormErrors from "@/app/utils/getFormErrors";
 import Select from "@/app/components/fields/Select";
 import SubmitButton from "@/app/components/SubmitButton";
 import {
@@ -24,7 +15,7 @@ import {
   AutoCompleteList,
 } from "@choc-ui/chakra-autocomplete";
 import FormLabel from "@/app/components/fields/FormLabel";
-import { Lead } from "@/app/db";
+import PhoneNumberField from "@/app/components/fields/PhoneNumberField";
 
 type CreateUserPageProps = {
   businessTypesOptions: ReactNode[];
@@ -35,23 +26,14 @@ type CreateUserPageProps = {
     email: string | null;
     role: string;
   }[];
-  initialData: Lead & {
-    referredByName: string;
-    referredByRole: string;
-  };
 };
 
 export default function CreateUserPage({
   businessTypesOptions,
   partners,
-  initialData,
 }: CreateUserPageProps) {
   const [errors, action] = useFormState(createUserAction, []);
-  const [partnerId, setPartnerId] = useState(
-    initialData?.referredByRole !== "user" && initialData?.referredByUserId
-      ? initialData.referredByUserId
-      : null
-  );
+  const [partnerId, setPartnerId] = useState(null);
 
   const handlePartnerChange = (p) => {
     setPartnerId(p);
@@ -72,7 +54,7 @@ export default function CreateUserPage({
   };
 
   return (
-    <Box width="100%">
+    <Box width="100%" background="white" p={10} borderRadius="lg">
       <form action={handleSubmit} style={{ width: "100%" }}>
         <SimpleGrid columns={{ base: 1, md: 2 }} columnGap="50px">
           <InputField
@@ -82,17 +64,31 @@ export default function CreateUserPage({
             placeholder="mail@email.com"
             isRequired={true}
             errors={getFormErrors(errors, "email")}
-            value={initialData?.email}
+          />
+
+          <PhoneNumberField
+            id="phoneNumber"
+            label="Telefono"
+            name="phoneNumber"
+            placeholder="+39 123 456 7890"
+            errors={getFormErrors(errors, "phoneNumber")}
+          />
+
+          <InputField
+            id="refName"
+            label="Nome Referente"
+            name="refName"
+            placeholder="Nome Referente"
+            errors={getFormErrors(errors, "refName")}
           />
 
           <InputField
             id="business-name"
             label="Nome azienda"
             name="businessName"
-            placeholder="Pinco Pallino s.r.l."
+            placeholder="Nome azienda"
             isRequired={true}
             errors={getFormErrors(errors, "businessName")}
-            value={initialData?.businessName}
           />
 
           <Select
@@ -112,7 +108,6 @@ export default function CreateUserPage({
               openOnFocus
               filter={myCustomFilter}
               onChange={handlePartnerChange}
-              defaultValue={initialData && initialData.referredByRole !== 'user' && initialData.referredByName}
             >
               <AutoCompleteInput
                 variant="main"
@@ -132,37 +127,17 @@ export default function CreateUserPage({
                 ))}
               </AutoCompleteList>
             </AutoComplete>
-            {/* <input type="hidden" value={partnerId} name="partner" /> */}
           </FormControl>
-
-          <TextArea
-            id="stripe-api-key"
-            label="Stripe API Token"
-            name="stripeApiKey"
-            placeholder="Stripe API Token"
-            isRequired={true}
-            errors={getFormErrors(errors, "stripeApiKey")}
-          />
-
-          <TextArea
-            id="stripe-user-id"
-            label="ID Stripe Utente"
-            name="stripeUserId"
-            placeholder="ID Stripe Utente"
-            isRequired={true}
-            errors={getFormErrors(errors, "stripeUserId")}
-          />
-
-          <TextArea
-            id="stripe-leg-account-id"
-            label="ID Stripe LEG"
-            name="stripeLegAccountId"
-            placeholder="ID Stripe LEG"
-            isRequired={true}
-            errors={getFormErrors(errors, "stripeLegAccountId")}
-          />
         </SimpleGrid>
-        <SubmitButton>Aggiungi Utente</SubmitButton>
+        <Flex
+          justifyContent={{
+            base: "center",
+            md: "flex-end",
+          }}
+          width="100%"
+        >
+          <SubmitButton>Aggiungi Utente</SubmitButton>
+        </Flex>
       </form>
     </Box>
   );

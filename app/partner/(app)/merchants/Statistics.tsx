@@ -15,13 +15,13 @@ export default function Statistics({
 }: {
   data: {
     firstLevelCommission: number;
-    secondLevelCommission: number | null;
-    totalCommission: number;
+    secondLevelCommission: string | null;
+    totalCommission: number | null;
     salesVolume: number;
     salesVolumeStartofMonth: number;
   };
 }) {
-  const secondLevelCommission = data.secondLevelCommission?.toFixed(2) ?? 0;
+
   const firstLevelCommission = data.firstLevelCommission.toFixed(2);
   return (
     <Box mb="8" mx="10">
@@ -44,7 +44,7 @@ export default function Statistics({
               />
             }
             name="Totale commissioni indirette"
-            value={`€ ${secondLevelCommission}`}
+            value={`€ ${ data.secondLevelCommission}`}
           />
         ) : null}
         <MiniStatistics
@@ -66,26 +66,29 @@ export default function Statistics({
           name="Totale commissioni dirette"
           value={`€ ${firstLevelCommission}`}
         />
-        <MiniStatistics
-          startContent={
-            <IconBox
-              w="56px"
-              h="56px"
-              bg="secondaryGray.300"
-              icon={
-                <Icon
-                  w="32px"
-                  h="32px"
-                  as={MdOutlineAttachMoney}
-                  color="green.500"
+        {
+          data.totalCommission != null ? (
+            <MiniStatistics
+              startContent={
+                <IconBox
+                  w="56px"
+                  h="56px"
+                  bg="secondaryGray.300"
+                  icon={
+                    <Icon
+                      w="32px"
+                      h="32px"
+                      as={MdOutlineAttachMoney}
+                      color="green.500"
+                    />
+                  }
                 />
               }
+              name="Commissioni totali"
+              value={`€ ${Number(data.totalCommission).toFixed(2)}`}
             />
-          }
-          name="Commissioni totali"
-          value={`€ ${Number(data.totalCommission).toFixed(2)}`}
-        />
-
+          ) : null
+        }
         <MiniStatistics
           startContent={
             <IconBox

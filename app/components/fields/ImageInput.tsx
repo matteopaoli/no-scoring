@@ -19,9 +19,10 @@ interface ImageInputProps {
   id: string;
   image?: string;
   defaultImage?: string
+  hideDefaultImage?: boolean
 }
 
-const ImageInput: React.FC<ImageInputProps> = ({ name, label, id, image, defaultImage = "/img/product-placeholder.png" }) => {
+const ImageInput: React.FC<ImageInputProps> = ({ name, label, id, image, defaultImage = "/img/product-placeholder.png", hideDefaultImage = false }) => {
   const [imageUrl, setImageUrl] = useState<string | undefined>(image);
   const [hasInteracted, setHasInteracted] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -53,6 +54,8 @@ const ImageInput: React.FC<ImageInputProps> = ({ name, label, id, image, default
     }
   };
 
+  console.log(!hideDefaultImage || Boolean(imageUrl))
+
   return (
     <FormControl>
       <FormLabel
@@ -66,13 +69,17 @@ const ImageInput: React.FC<ImageInputProps> = ({ name, label, id, image, default
       >
         {label}
       </FormLabel>
-      <Image
-        src={imageUrl}
-        alt="Uploaded"
-        boxSize="200px"
-        objectFit="contain"
-        fallbackSrc={defaultImage}
-      />
+      {
+        (!hideDefaultImage || Boolean(imageUrl)) && (
+          <Image
+            src={imageUrl}
+            alt="Uploaded"
+            boxSize="200px"
+            objectFit="contain"
+            fallbackSrc={defaultImage}
+          />
+        )
+      }
       <Input
         type="file"
         accept="image/*"

@@ -1,7 +1,6 @@
 import NextAuth from "next-auth";
 import { authConfig } from "app/auth.config";
 import { NextResponse } from "next/server";
-import { getUser } from "./app/db";
 
 const { auth } = NextAuth(authConfig);
 

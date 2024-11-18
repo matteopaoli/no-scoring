@@ -19,7 +19,7 @@ export default async function login(
 > {
   try {
     await signIn("credentials", {
-      email: formData.get("email"),
+      email: formData.get("email")?.toString().toLowerCase(),
       password: formData.get("password"),
       redirectTo: "/admin",
       roles: ["admin"],

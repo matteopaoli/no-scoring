@@ -10,6 +10,7 @@ import { uploadImageToS3 } from "@/app/utils/s3";
 import formatZodErrors from "@/app/utils/formatZodErrors";
 import { FormActionReturnType } from "@/app/types";
 import getUserFromAuth from "@/app/utils/getUserFromAuth";
+import { FEES_DISCLAIMER } from "@/app/constants";
 
 export default async function createProductAction(
   prevState,
@@ -21,7 +22,7 @@ export default async function createProductAction(
     throw new Error("User not found");
   }
 
-  const stripe = new Stripe(user.stripeSecretKey);
+  const stripe = new Stripe(process.env.STRIPE_API_KEY!, { stripeAccount: user.stripeUserId });
 
   const createProductSchema = z.object({
     name: z.string().min(1, "Name is required"),
@@ -83,7 +84,7 @@ export default async function createProductAction(
   let finalDescription = description || "";
   if (includeCommission) {
     finalDescription +=
-      "\n\nIl prezzo è stato aumentato per includere le commissioni associate al pagamento in più rate.";
+      `\n\n${FEES_DISCLAIMER}`;
   }
 
   // Create the product in Stripe

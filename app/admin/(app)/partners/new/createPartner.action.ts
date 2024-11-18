@@ -1,6 +1,7 @@
 "use server";
 
-import { createPartner, createUser, getUser } from "@/app/db";
+import { createPartner } from "@/app/db";
+import { UserService } from "@/app/services/userService";
 import { FormActionReturnType } from "@/app/types";
 import formatZodErrors from "@/app/utils/formatZodErrors";
 import { redirect } from "next/navigation";
@@ -18,7 +19,7 @@ export default async function createPartnerAction(
       .min(1, "Inserire un indirizzo email valido")
       .email("Inserire un indirizzo email valido") // Add email format validation
       .trim()
-      .refine(async (email) => !(await getUser(email)), {
+      .refine(async (email) => !(await UserService.getUserByEmail(email)), {
         message: "L'utente esiste già",
       }),
     provincia: z.string().min(1, "Selezionare una provincia valida"),
@@ -39,7 +40,7 @@ export default async function createPartnerAction(
   const { firstName, lastName, email, provincia } = validation.data;
 
   // Check for existing user with the same email
-  const existingUserByEmail = await getUser(email);
+  const existingUserByEmail = await UserService.getUserByEmail(email);
 
   if (existingUserByEmail) {
     return [{ field: 'email', message: 'L\'utente esiste già' }];

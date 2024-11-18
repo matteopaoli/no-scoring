@@ -62,7 +62,7 @@ const routes = [
     match: /^\/admin\/business-types(\/.*)?$/,
   },
   {
-    name: 'Leads',
+    name: 'Lead',
     layout: '/admin',
     path: '/admin/leads',
     icon: <Icon as={MdPeople} width="20px" height="20px" color="inherit" />,

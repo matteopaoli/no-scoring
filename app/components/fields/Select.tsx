@@ -23,6 +23,7 @@ interface SelectProps {
   errors: string[];
   children: ReactNode[];
   name: string;
+  isRequired?: boolean;
 }
 
 const SelectComponent: React.FC<SelectProps> = (props) => {
@@ -37,6 +38,7 @@ const SelectComponent: React.FC<SelectProps> = (props) => {
     errors,
     children,
     name,
+    isRequired = false,
     ...rest
   } = props;
 
@@ -44,7 +46,7 @@ const SelectComponent: React.FC<SelectProps> = (props) => {
   const textColorPrimary = useColorModeValue("secondaryGray", "white");
 
   return (
-    <FormControl isInvalid={errors.length > 0} mb={mb || "30px"}>
+    <FormControl isInvalid={errors.length > 0} mb={mb || "30px"} isRequired={isRequired}>
       <FormLabel
         display="flex"
         ms="10px"

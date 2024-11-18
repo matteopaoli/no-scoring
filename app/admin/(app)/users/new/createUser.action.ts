@@ -1,15 +1,17 @@
 "use server";
 
 import {
-  createUser,
-  getBusinessTypes,
   getPartnerById,
-  getUser,
-  getUserByStripeAccountId,
 } from "@/app/db";
+import { BusinessTypeService } from "@/app/services/businessTypeService";
+import { MerchantService } from "@/app/services/merchantService";
+import { UserService } from "@/app/services/userService";
 import { FormActionReturnType } from "@/app/types";
+import { accountCreatedMerchantEmail } from "@/app/utils/emails";
 import formatZodErrors from "@/app/utils/formatZodErrors";
+import getUserFromAuth from "@/app/utils/getUserFromAuth";
 import { redirect } from "next/navigation";
+import Stripe from "stripe";
 import { z, ZodType } from "zod";
 
 export async function numericEnum<TValues extends readonly number[]>(
@@ -31,37 +33,24 @@ export default async function createUserAction(
   prevState: Awaited<FormActionReturnType>,
   formData: FormData
 ): FormActionReturnType {
-  const businessTypeIds = (await getBusinessTypes()).map((b) => b.id);
+  const creator = await getUserFromAuth()
 
+  if (!UserService.isPartner(creator) && !UserService.isAdmin(creator)) {
+    throw new Error('unauthorized')
+  }
+
+  const businessTypeIds = (await BusinessTypeService.getAll()).map((b) => b.id);
   const createUserSchema = z.object({
     email: z
       .string()
       .min(1, "Inserire un indirizzo email valido")
       .email("Inserire un indirizzo email valido") // Add email format validation
       .trim()
-      .refine(async (email) => !(await getUser(email)), {
+      .refine(async (email) => !(await UserService.getUserByEmail(email)), {
         message: "L'utente esiste già",
       }),
     businessName: z.string().min(1, "Inserire un nome valido"),
-    stripeApiKey: z
-      .string()
-      .trim()
-      .regex(
-        /^sk_live_[0-9a-zA-Z]{24,}/,
-        "Inserire una Chiave Segreta valida (sk_live_************************)"
-      ), // Stripe API key validation
     businessTypeId: await numericEnum(businessTypeIds),
-    stripeUserId: z
-      .string()
-      .trim()
-      .regex(/^acct_[a-zA-Z0-9]+$/, {
-        message:
-          "Il formato dell'ID utente di Stripe non è valido. Dovrebbe iniziare con 'acct_' seguito da caratteri alfanumerici.",
-      }),
-    stripeLegAccountId: z.string().regex(/^acct_[a-zA-Z0-9]+$/, {
-      message:
-        "Il formato dell'ID LEG di Stripe non è valido. Dovrebbe iniziare con 'acct_' seguito da caratteri alfanumerici.",
-    }),
     partner: z
       .string()
       .nullable()
@@ -72,17 +61,18 @@ export default async function createUserAction(
         },
         { message: "Il partner non esiste" }
       ),
+    phoneNumber: z.string().regex(/^(\+39\s?)?\d{6,10}$/, "Inserire un numero di telefono valido (es. +39 123 456 7890)"),
+    refName: z.string().min(1, "Inserire un nome valido"),
   });
 
   // Validate form data against the schema
   const validation = await createUserSchema.safeParseAsync({
     email: formData.get("email"),
-    stripeApiKey: formData.get("stripeApiKey"),
+    phoneNumber: formData.get("phoneNumber"),
     businessTypeId: Number(formData.get("businessTypeId")),
     businessName: formData.get("businessName"),
-    stripeUserId: formData.get("stripeUserId"),
-    stripeLegAccountId: formData.get("stripeLegAccountId"),
     partner: formData.get("partner"),
+    refName: formData.get("refName"),
   });
 
   if (!validation.success) {
@@ -91,41 +81,59 @@ export default async function createUserAction(
 
   const {
     email,
-    stripeApiKey,
     businessTypeId,
     businessName,
-    stripeUserId,
-    stripeLegAccountId,
-    partner,
+    partner: partnerId,
+    phoneNumber,
+    refName
   } = validation.data;
 
-  // Check for existing user with the same email or Stripe account ID
-  const existingUserByEmail = await getUser(email);
-  const existingUserByStripeId = await getUserByStripeAccountId(stripeUserId);
+  const existingUserByEmail = await UserService.getUserByEmail(email);
 
   if (existingUserByEmail) {
     return [{ field: "email", message: "L'utente esiste già" }];
   }
 
-  if (existingUserByStripeId) {
-    return [
-      {
-        field: "stripeUserId",
-        message:
-          "L'ID utente di Stripe fornito è già associato a un altro account.",
+  const stripe = new Stripe(process.env.STRIPE_API_KEY!);
+
+  const merchantAccount = await stripe.accounts.create({
+    country: 'IT',
+    email,
+    controller: {
+      fees: {
+        payer: "account",
       },
-    ];
+      losses: {
+        payments: 'stripe',
+      },
+      stripe_dashboard: {
+        type: 'full',
+      },
+    },
+  });
+
+  const accountLink = await stripe.accountLinks.create({
+    account: merchantAccount.id,
+    refresh_url: `${process.env.BASE_URL}/api/stripe/refresh-url?accountId=${merchantAccount.id}`,
+    return_url: `${process.env.BASE_URL}/login`,
+    type: "account_onboarding",
+  });
+
+  if (!accountLink.url) {
+    throw new Error("Could not create account link");
   }
 
-  // If no existing user, proceed to create the new user
-  await createUser(
+  await MerchantService.createMerchant({
     email,
-    stripeApiKey,
     businessTypeId,
     businessName,
-    stripeUserId,
-    stripeLegAccountId,
-    partner
-  );
-  redirect("/admin/users?success=true&action=create");
+    onboardingLink: accountLink.url,
+    stripeUserId: merchantAccount.id,
+    partnerId: partnerId ?? undefined,
+    phoneNumber,
+    refName,
+  });
+
+  accountCreatedMerchantEmail({ email, onboardingLink: accountLink.url });
+  redirect(`/admin/users?success=true&action=create`);
 }

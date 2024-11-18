@@ -1,6 +1,8 @@
 "use server";
 
-import { updateUser, getBusinessTypes, getUser } from "@/app/db";
+import { BusinessTypeService } from "@/app/services/businessTypeService";
+import { MerchantService } from "@/app/services/merchantService";
+import { UserService } from "@/app/services/userService";
 import { FormActionReturnType } from "@/app/types";
 import formatZodErrors from "@/app/utils/formatZodErrors";
 import { redirect } from "next/navigation";
@@ -25,7 +27,7 @@ export default async function updateUserAction(
   prevState: string | null,
   formData: FormData
 ): FormActionReturnType {
-  const businessTypeIds = (await getBusinessTypes()).map((b) => b.id);
+  const businessTypeIds = (await BusinessTypeService.getAll()).map((b) => b.id);
 
   const updateUserSchema = z.object({
     email: z
@@ -33,45 +35,30 @@ export default async function updateUserAction(
       .min(1, "Inserire un indirizzo email valido")
       .email("Inserire un indirizzo email valido"), // Email format validation
     businessName: z.string().min(1, "Inserire un nome valido"),
-    stripeApiKey: z
-      .string()
-      .regex(
-        /^sk_live_[0-9a-zA-Z]{24,}/,
-        "Inserire una Chiave Segreta valida (sk_live_************************)"
-      ), // Stripe API key validation
     businessTypeId: await numericEnum(businessTypeIds),
-    stripeUserId: z.string().regex(/^acct_[a-zA-Z0-9]+$/, {
-      message: "Il formato dell'ID utente di Stripe non è valido. Dovrebbe iniziare con 'acct_' seguito da caratteri alfanumerici.",
-    }),
-    stripeLegAccountId: z.string().regex(/^acct_[a-zA-Z0-9]+$/, {
-      message: "Il formato dell'ID LEG di Stripe non è valido. Dovrebbe iniziare con 'acct_' seguito da caratteri alfanumerici.",
-    })
   });
 
   // Parse and validate the form data
   const validation = await updateUserSchema.safeParseAsync({
     email: formData.get("email"),
-    stripeApiKey: formData.get("stripeApiKey"),
     businessTypeId: Number(formData.get("businessType")),
     businessName: formData.get("businessName"),
-    stripeUserId: formData.get('stripeUserId'),
-    stripeLegAccountId: formData.get('stripeLegAccountId')
   });
 
   if (!validation.success) {
     return formatZodErrors(validation)
   }
 
-  const { email, stripeApiKey, businessTypeId, businessName, stripeUserId, stripeLegAccountId } = validation.data;
+  const { email, businessTypeId, businessName} = validation.data;
 
   // Check if the user exists before updating
-  const existingUser = await getUser(email);
+  const existingUser = await UserService.getUserByEmail(email);
   if (!existingUser) {
     throw new Error('Errore in admin - modifica utente: Utente non trovato')
   }
 
   // Update the user
-  await updateUser(email, stripeApiKey, businessTypeId, businessName, stripeUserId, stripeLegAccountId);
+  await MerchantService.updateMerchantBusinessInfo(email, businessTypeId, businessName);
   
   redirect("/admin/users?success=true&action=update");
 }

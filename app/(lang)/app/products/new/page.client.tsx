@@ -2,13 +2,10 @@
 
 import {
   Box,
-  Button,
-  Grid,
   GridItem,
-  useColorModeValue,
   Checkbox,
   Text,
-  Spinner,
+  SimpleGrid,
 } from "@chakra-ui/react";
 
 import createProduct from "../createProduct.action";
@@ -20,7 +17,7 @@ import getFormErrors from "@/app/utils/getFormErrors";
 import PriceInput from "@/app/components/fields/PriceField";
 import { useState } from "react";
 import SubmitButton from "../../../../components/SubmitButton";
-import { STRIPE_COMMISSION_VAR, STRIPE_COMMISSION_FIXED, VAT, LEG_COMMISSION_RATE } from "@/app/constants";
+import { getAmountWithFees } from "@/app/utils/fees";
 
 type ClientPageProps = {
     storeImage?: string
@@ -34,9 +31,7 @@ export default function Client({ storeImage }: ClientPageProps) {
 
   const handlePriceChange = (event) => {
     const price = parseFloat(event.target.value.replace(',', '.')) || 0;
-    const commission = (price * (STRIPE_COMMISSION_VAR + LEG_COMMISSION_RATE) + STRIPE_COMMISSION_FIXED) * VAT;
-    const calculatedPrice = price + commission; // Add commission to price
-    setFinalPrice(calculatedPrice);
+    setFinalPrice(getAmountWithFees(price));
   };
 
   const handleSubmit = async (formData: FormData) => {
@@ -47,9 +42,9 @@ export default function Client({ storeImage }: ClientPageProps) {
   };
 
   return (
-    <Box width={{ base: "100%" }} pl={{ md: "24px" }}>
-      <form action={handleSubmit} style={{ width: "100%" }}>
-        <Grid templateColumns={{ base: "1fr", md: "1fr 1fr", lg: '1fr 1fr 1fr' }} gap={6}>
+    <Box px={{ base: "24px" }} py={{ base: '24px', lg: "50px" }} mt={{ base: '50px', md: 0 }} background="white" borderRadius="lg" maxW="1200px">
+      <form action={handleSubmit}>
+        <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
           <GridItem>
             <InputField
               id="product-name"
@@ -101,11 +96,11 @@ export default function Client({ storeImage }: ClientPageProps) {
               name="image"
               label="Immagine Prodotto"
               id="product-image"
-              defaultImage={storeImage}
+              defaultImage={storeImage ?? undefined}
             />
             <Text fontSize="xs" mt={2}>Puoi sostituire l&apos;immagine di default con una personalizzata</Text>
           </GridItem>
-        </Grid>
+        </SimpleGrid>
         <SubmitButton>Salva Prodotto</SubmitButton>
       </form>
     </Box>

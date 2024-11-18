@@ -64,18 +64,55 @@ export default function SignIn() {
   return (
     <DefaultAuth>
       <Callout autoDismiss={true} dismissDuration={5000} />
+        <Box
+          bg="white"
+          p={5}
+          borderRadius="md"
+          boxShadow="sm"
+          mx={{ base: 4, md: 0 }} // Horizontal margin: 4 units on small screens, 8 units on larger screens
+        >
+          <Text fontSize={{ base: "lg", md: "xl" }} fontWeight="bold" mb={4}>
+            Benvenuto su PayTomorrow!
+          </Text>
+          <Text fontSize={{ base: "sm", md: "md" }} mb={4}>
+            Se è la tua prima volta qui, abbiamo inviato una mail all'indirizzo
+            fornito con le istruzioni per il tuo primo accesso.
+          </Text>
+          <Text fontSize={{ base: "sm", md: "md" }} mb={4}>
+            Se hai bisogno di assistenza, puoi contattarci via email a{" "}
+            <Link
+              href="mailto:info@paytomorrow.it"
+              color="brand.500"
+              fontWeight="bold"
+            >
+              info@paytomorrow.it
+            </Link>{" "}
+            o tramite WhatsApp/SMS al{" "}
+            <Link href="tel:+393514753825" color="brand.500" fontWeight="bold">
+              351 4753825
+            </Link>
+            .
+          </Text>
+          <Text fontSize={{ base: "sm", md: "md" }} fontStyle="italic">
+            In caso sei già dei nostri... sai come fare! Buona navigazione su
+            PayTomorrow!
+          </Text>
+        </Box>
+
       <Flex
         maxW={{ base: "100%", md: "max-content" }}
         w="100%"
         mx={{ base: "auto", lg: "0px" }}
         me="auto"
-        h="100%"
         alignItems="start"
         justifyContent="center"
         mb={{ base: "30px", md: "60px" }}
-        px={{ base: "25px", md: "0px" }}
+        px={{ base: "25px", md: "0" }}
+        p={{ md: "50px" }}
+        borderRadius={12}
         mt={{ base: "40px", md: "14vh" }}
         flexDirection="column"
+        bgColor="white"
       >
         {onboardingComplete && ( // Conditionally render the alert
           <Alert status="success" mb="20px">
@@ -131,6 +168,7 @@ export default function SignIn() {
                 fontWeight="500"
                 size="lg"
                 name="email"
+                data-testid="mt-email-field"
               />
               <FormLabel
                 ms="4px"
@@ -150,6 +188,7 @@ export default function SignIn() {
                   size="lg"
                   type={show ? "text" : "password"}
                   name="password"
+                  data-testid="mt-password-field"
                 />
                 <InputRightElement display="flex" alignItems="center" mt="4px">
                   <Icon
@@ -165,7 +204,11 @@ export default function SignIn() {
                   {t("wrongCredentialsMessage")}
                 </FormErrorMessage>
               ) : null}
-              <SubmitButton w="100%" loadingText="Accesso in corso">
+              <SubmitButton
+                w="100%"
+                loadingText="Accesso in corso"
+                data-testid="mt-login-button"
+              >
                 {t("signIn")}
               </SubmitButton>
             </FormControl>

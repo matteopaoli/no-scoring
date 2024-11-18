@@ -13,22 +13,26 @@ import {
   useColorModeValue,
   Card,
   Heading,
+  useMediaQuery,
 } from "@chakra-ui/react";
+import { useSize } from "@chakra-ui/react-use-size";
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   useReactTable,
+  VisibilityState,
 } from "@tanstack/react-table";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface GenericTableProps<T> {
   data: T[];
   columns: ColumnDef<T>[];
   itemsPerPage?: number;
   title: string;
-  onRowClick?: (rowData: T) => void; // Row click handler
+  onRowClick?: (rowData: T) => void; // Row click handler,
+  hideColumnsResponsive?: string[];
   menu?: (props: any) => JSX.Element;
 }
 
@@ -38,16 +42,42 @@ export default function GenericTable<T>({
   itemsPerPage = 10,
   title,
   onRowClick,
+  hideColumnsResponsive,
   menu: Menu,
 }: GenericTableProps<T>) {
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = Math.ceil(data.length / itemsPerPage);
+  const boxRef = useRef(null);
+  const dimensions = useSize(boxRef);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const table = useReactTable({
+    state: {
+      columnVisibility,
+    },
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    onColumnVisibilityChange: setColumnVisibility,
   });
+
+  useEffect(() => {
+    if (hideColumnsResponsive) {
+      if (dimensions?.width && dimensions.width > 500) {
+        setColumnVisibility(
+          Object.fromEntries(
+            hideColumnsResponsive.map((c: string) => [c, true])
+          )
+        );
+      } else
+        setColumnVisibility(
+          Object.fromEntries(
+            hideColumnsResponsive.map((c: string) => [c, false])
+          )
+        );
+    } else {
+    }
+  }, [dimensions?.width]);
 
   const paginatedRows = table
     .getRowModel()
@@ -70,14 +100,14 @@ export default function GenericTable<T>({
       w="100%"
       px="0px"
       overflowX={{ sm: "scroll", lg: "hidden" }}
+      ref={boxRef}
     >
       <Flex px="25px" mb="8px" justifyContent="space-between" align="center">
         <Heading
-          as="h3"
-          size="xl"
+          as="h4"
+          size="md"
           fontWeight="bold"
           my={4}
-          ms={{ base: "10px", md: "20px" }}
           color={headingColor}
         >
           {title}
@@ -106,53 +136,69 @@ export default function GenericTable<T>({
           ))}
         </Thead>
         <Tbody>
-          {paginatedRows.map((row) => (
-            <Tr
-              key={row.id}
-              onClick={() => handleRowClick(row.original)} // Handle row click
-              _hover={{ bg: "gray.100", cursor: "pointer" }} // Hover effect
-            >
-              {row.getVisibleCells().map((cell) => (
-                <Td key={cell.id} borderColor="transparent">
-                  <Flex align="center">
-                    {cell.column.columnDef.accessorKey === "actions" ? (
-                      flexRender(cell.column.columnDef.cell, cell.getContext())
-                    ) : (
-                      <Text fontSize="sm" fontWeight="bold" color={textColor}>
-                        {flexRender(
+          {paginatedRows.length ? (
+            paginatedRows.map((row) => (
+              <Tr
+                key={row.id}
+                onClick={() => handleRowClick(row.original)} // Handle row click
+                _hover={{ bg: "gray.100", cursor: "pointer" }} // Hover effect
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <Td key={cell.id} borderColor="transparent">
+                    <Flex align="center">
+                      {cell.column.columnDef.accessorKey === "actions" ? (
+                        flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
-                        )}
-                      </Text>
-                    )}
-                  </Flex>
-                </Td>
-              ))}
+                        )
+                      ) : (
+                        <Text fontSize="sm" fontWeight="bold" color={textColor}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </Text>
+                      )}
+                    </Flex>
+                  </Td>
+                ))}
+              </Tr>
+            ))
+          ) : (
+            <Tr>
+              <Td colSpan={columns.length} textAlign="center" py={4}>
+                <Text fontSize="md" color={textColor}>
+                  Questa tabella è vuota
+                </Text>
+              </Td>
             </Tr>
-          ))}
+          )}
         </Tbody>
       </Table>
 
-      {/* Pagination Controls */}
-      <Flex justify="space-between" align="center" my={4}>
-        <Button
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          isDisabled={currentPage === 1}
-        >
-          Precedente
-        </Button>
-        <Text>
-          Pagina {currentPage} di {totalPages}
-        </Text>
-        <Button
-          onClick={() =>
-            setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-          }
-          isDisabled={currentPage === totalPages}
-        >
-          Successivo
-        </Button>
-      </Flex>
+      {
+        paginatedRows.length ? (
+          <Flex justify="space-between" align="center" my={4}>
+            <Button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              isDisabled={currentPage === 1}
+            >
+              Precedente
+            </Button>
+            <Text>
+              Pagina {currentPage} di {totalPages}
+            </Text>
+            <Button
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              isDisabled={currentPage === totalPages}
+            >
+              Successivo
+            </Button>
+          </Flex>
+        ) : null
+      }
     </Card>
   );
 }

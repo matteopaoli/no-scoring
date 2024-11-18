@@ -3,7 +3,8 @@ import {
   SendEmailCommand,
   SendRawEmailCommand,
 } from "@aws-sdk/client-ses";
-import Handlebars from "handlebars";
+//@ts-ignore
+import * as Handlebars from "handlebars/dist/cjs/handlebars";
 import { getAdmins, Lead, User } from "../db";
 import { resolve } from "path";
 import { readFileSync } from "fs";
@@ -16,13 +17,22 @@ interface SendEmailParams {
   data: Record<string, any>;
 }
 
+async function getAdminsEmailAddresses() {
+  return (await getAdmins())
+    .map((admin) => admin.email)
+    .filter(Boolean) as string[];
+}
+
 async function sendEmail({
   recipients,
   templateName,
   data,
 }: SendEmailParams): Promise<void> {
-  const template = readFileSync(resolve(process.cwd(), `app/utils/templates/${templateName}.hbs`), 'utf-8')
-  const compiledTemplate = Handlebars.compile(template)
+  const template = readFileSync(
+    resolve(process.cwd(), `app/utils/templates/${templateName}.hbs`),
+    "utf-8"
+  );
+  const compiledTemplate = Handlebars.compile(template);
   const renderedEmail = compiledTemplate({
     ...data,
     to: recipients.join(", "),
@@ -30,25 +40,29 @@ async function sendEmail({
   });
 
   try {
-    const command = new SendRawEmailCommand({
-      RawMessage: {
-        Data: Buffer.from(renderedEmail),
-      },
-    });
-    await sesClient.send(command);
+    if (process.env.ENABLE_EMAILS === "true") {
+      const command = new SendRawEmailCommand({
+        RawMessage: {
+          Data: Buffer.from(renderedEmail),
+        },
+      });
+      await sesClient.send(command);
+    }
   } catch (error) {
     console.error("Error sending email:", error);
   }
 }
+  
+export async function sendNewLeadEmailToAdmin(
+  lead: Lead,
+  referrerName: string
+) {
+  const recipients = await getAdminsEmailAddresses()
 
-export async function sendNewLeadEmailToAdmin(lead: Lead, referrerName: string) {
-  const recipients = (await getAdmins())
-    .map((admin) => admin.email)
-    .filter(Boolean) as string[];
   if (recipients) {
     await sendEmail({
       recipients,
-      templateName: 'newLeadAdmin',
+      templateName: "newLeadAdmin",
       data: {
         leadName: `${lead.firstName} ${lead.lastName}`,
         referrerName,
@@ -60,9 +74,48 @@ export async function sendNewLeadEmailToAdmin(lead: Lead, referrerName: string) 
 export async function sendNewLeadEmailToLead(lead: Lead) {
   return await sendEmail({
     recipients: [lead.email],
-    templateName: 'leadReportNotification',
+    templateName: "leadReportNotification",
     data: {
       leadName: `${lead.firstName}`,
     },
+  });
+}
+
+export async function accountCreatedMerchantEmail({
+  email,
+  onboardingLink,
+}: {
+  email: string;
+  onboardingLink: string;
+}) {
+  return await sendEmail({
+    recipients: [email],
+    templateName: "accountCreatedMerchant",
+    data: {
+      onboardingLink,
+    },
+  });
+}
+
+export async function newMerchantAdminEmail({ partnerName, merchantEmail }: { partnerName: string, merchantEmail: string }) {
+  const recipients = await getAdminsEmailAddresses()
+
+  if (recipients) {
+    return await sendEmail({
+      recipients,
+      templateName: 'newMerchantAdmin',
+      data: {
+        partnerName,
+        merchantEmail
+      }
+    })
+  }
+}
+
+export async function merchantWelcomeEmail({ email }: { email: string }) {
+  return await sendEmail({
+    recipients: [email],
+    templateName: "merchantWelcome",
+    data: {},
   });
 }

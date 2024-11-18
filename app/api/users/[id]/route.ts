@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { deleteUser, getUser } from "@/app/db";
+import { deleteUser } from "@/app/db";
 import { auth } from "@/app/auth";
+import { UserService } from "@/app/services/userService";
 
 export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
@@ -13,7 +14,7 @@ export async function DELETE(request: Request, props: { params: Promise<{ id: st
         { status: 403 }
       );
     }
-    const user = await getUser(session.user.email)
+    const user = await UserService.getUserByEmail(session.user.email)
 
     if (!user || user.role !== 'admin') {
       return NextResponse.json(

@@ -1,20 +1,19 @@
-import {
-  getStoresByPartnerId,
-  getAllPartnerFees,
-  getSales,
-  getLeadsByReferrerId,
-} from "@/app/db";
+import { getStoresByPartnerId, getAllPartnerFees, getSales } from "@/app/db";
 import StoresTable from "./StoresTable";
-import { InactiveMerchantsTable } from "./InactiveMerchantsTable";
+import MerchantsTable from "./MerchantsTable";
 import Statistics from "./Statistics";
-import { Box, GridItem, SimpleGrid } from "@chakra-ui/react";
+import { Divider, Flex } from "@chakra-ui/react";
 import getUserFromAuth from "@/app/utils/getUserFromAuth";
-import { LeadsTable } from "./LeadsTable";
+import CreateMerchant from "./CreateMerchant";
+import { BusinessTypeService } from "@/app/services/businessTypeService";
+import { MerchantService } from "@/app/services/merchantService";
 
 export default async function MerchantsPage() {
   const user = await getUserFromAuth();
-  const { inactiveMerchants, stores } = await getStoresByPartnerId(user.id);
-  const leads = await getLeadsByReferrerId(user.id);
+  const stores = await getStoresByPartnerId(user.id);
+  const merchants = await MerchantService.getMerchantsByPartnerId(user.id);
+  const businessTypesOptions = await BusinessTypeService.getAllAsComponent();
+
   const { firstLevelCommission, secondLevelCommission, totalCommission } =
     await getAllPartnerFees(user.id);
   const sales = await getSales(user.id, user.role);
@@ -37,15 +36,18 @@ export default async function MerchantsPage() {
       <Statistics
         data={{
           firstLevelCommission,
-          secondLevelCommission,
-          totalCommission,
+          secondLevelCommission: user.role === "partner" ? secondLevelCommission : null,
+          totalCommission: user.role === "partner" ? totalCommission : null,
           salesVolume,
           salesVolumeStartofMonth,
         }}
       />
+      <Flex justifyContent="end">
+        <CreateMerchant businessTypesOptions={businessTypesOptions} />
+      </Flex>
       <StoresTable stores={stores} />
-      <LeadsTable leads={leads} />
-      {/* <InactiveMerchantsTable merchants={inactiveMerchants} /> */}
+      <Divider p={10} />
+      <MerchantsTable merchants={merchants} />
     </>
   );
 }
