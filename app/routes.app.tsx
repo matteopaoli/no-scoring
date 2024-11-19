@@ -47,6 +47,7 @@ const routes = [
     icon: <Icon as={IoDocuments} width="20px" height="20px" color="inherit" />,
   },
   {
+    target: '_blank',
     name: "Acquista",
     layout: "/admin",
     path: "https://secureprivacy.thrivecart.com/paytomorrow-abbonamento",

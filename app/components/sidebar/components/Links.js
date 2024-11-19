@@ -54,7 +54,7 @@ export function SidebarLinks(props) {
       ) {
         const isActive = activeRoute(route.match)
         return (
-          <Link key={index} href={route.path}>
+          <Link key={index} href={route.path} target={route.target || '_self'}>
             {route.icon ? (
               <Box>
                 <HStack
