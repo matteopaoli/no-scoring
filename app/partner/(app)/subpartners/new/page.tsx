@@ -21,8 +21,9 @@ export default function CreateSubPartnerPage() {
       w={{ base: "100%", md: "500px" }}
       h="100%"
       mb={{ base: "30px", md: "60px" }}
-      px={{ base: "25px", md: "0px" }}
+      p={{ base: "25px" }}
       flexDirection="column"
+      bg="white"
     >
       <Box width="100%">
         <form action={action} style={{ width: "100%" }}>
