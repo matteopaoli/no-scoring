@@ -11,11 +11,13 @@ import {
   UnorderedList,
 } from "@chakra-ui/react";
 import IntroCarousel from "./IntroCarousel";
+import DownloadSigns from "./DownloadSigns";
 
 export default async function ProtectedPage() {
   return (
     <Box p={4}>
         <IntroCarousel />
+        <DownloadSigns />
     </Box>
   );
 }
