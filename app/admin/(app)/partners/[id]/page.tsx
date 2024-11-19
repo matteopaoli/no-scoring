@@ -1,5 +1,13 @@
 import { getAllPartnerFees } from "@/app/db";
-import { Box, Flex, Icon, IconButton, SimpleGrid, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Divider,
+  Flex,
+  Icon,
+  IconButton,
+  SimpleGrid,
+  Text,
+} from "@chakra-ui/react";
 import SubPartnersTable from "./SubPartnersTable";
 import { getSubPartnersByUserId } from "@/app/db";
 import Statistics from "./Statistics";
@@ -7,19 +15,18 @@ import { MdOutlineEdit } from "react-icons/md";
 import EditButton from "./EditButton";
 import { UserService } from "@/app/services/userService";
 
-export default async function UsersPage(
-  props: {
-    params: Promise<{ id: string }>;
-  }
-) {
+export default async function UsersPage(props: {
+  params: Promise<{ id: string }>;
+}) {
   const params = await props.params;
   const partner = await UserService.getUserById(params.id);
-  if (partner.role !== "partner") {
+  if (!UserService.isPartner(partner)) {
     throw new Error("not a partner");
   }
 
-  const subpartners = await getSubPartnersByUserId(partner.id);
-  const { totalCommission } = await getAllPartnerFees(partner.id)
+  const subpartners = await getSubPartnersByUserId(partner.id)
+  const subpartnersCount = subpartners?.length ?? 0;
+  const { totalCommission } = await getAllPartnerFees(partner.id);
 
   return (
     <Box px="20px">
@@ -29,8 +36,15 @@ export default async function UsersPage(
         </Text>
         <EditButton userId={params.id} />
       </Flex>
-      <Statistics partner={partner} subpartners={subpartners.length} totalFee={totalCommission} />
-      <SubPartnersTable tableData={subpartners} />
+      <Statistics
+        partner={partner}
+        subpartners={subpartnersCount}
+        totalFee={totalCommission}
+      />
+      <Divider mt={8} />
+      {partner.role === "partner" && (
+        <SubPartnersTable tableData={subpartners} />
+      )}
     </Box>
   );
 }
