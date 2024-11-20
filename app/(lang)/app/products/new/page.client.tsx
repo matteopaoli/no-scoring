@@ -12,6 +12,7 @@ import PriceInput from "@/app/components/fields/PriceField";
 import { useState } from "react";
 import SubmitButton from "../../../../components/SubmitButton";
 import { getAmountWithFees } from "@/app/utils/fees";
+import { FEES_DISCLAIMER } from "@/app/constants";
 
 type ClientPageProps = {
   storeImage?: string;
@@ -21,6 +22,7 @@ export default function Client({ storeImage }: ClientPageProps) {
   const [errors, action] = useFormState(createProduct, []);
   const [includeCommission, setIncludeCommission] = useState(false);
   const [finalPrice, setFinalPrice] = useState(0);
+  const [description, setDescription] = useState("");
 
   const handlePriceChange = (event) => {
     const price = parseFloat(event.target.value.replace(",", ".")) || 0;
@@ -33,6 +35,14 @@ export default function Client({ storeImage }: ClientPageProps) {
     }
     await action(formData);
   };
+
+  const handleIncludeFeeChange = (event) => {
+    setIncludeCommission(!includeCommission);
+    if (!includeCommission && description === '') {
+      setDescription(FEES_DISCLAIMER);
+    }
+  }
+
 
   return (
     <Box
@@ -68,7 +78,7 @@ export default function Client({ storeImage }: ClientPageProps) {
             <Box mb={4}>
               <Checkbox
                 isChecked={includeCommission}
-                onChange={() => setIncludeCommission(!includeCommission)}
+                onChange={handleIncludeFeeChange}
                 name="includeCommission"
                 value="yes"
               >
@@ -87,6 +97,8 @@ export default function Client({ storeImage }: ClientPageProps) {
               placeholder="Descrizione del prodotto"
               isRequired={true}
               errors={getFormErrors(errors, "description")}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
             />
           </GridItem>
           <GridItem>
