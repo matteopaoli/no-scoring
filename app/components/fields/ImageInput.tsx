@@ -54,8 +54,6 @@ const ImageInput: React.FC<ImageInputProps> = ({ name, label, id, image, default
     }
   };
 
-  console.log(!hideDefaultImage || Boolean(imageUrl))
-
   return (
     <FormControl>
       <FormLabel

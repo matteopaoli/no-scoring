@@ -18,8 +18,6 @@ export async function acceptTosAction(
     }),
   });
 
-  console.log(formData)
-
   const user = await getUserFromAuth();
   if (!user) {
     throw new Error("User is not authenticated");
