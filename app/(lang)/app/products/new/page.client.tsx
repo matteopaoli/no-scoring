@@ -1,15 +1,9 @@
 "use client";
 
-import {
-  Box,
-  GridItem,
-  Checkbox,
-  Text,
-  SimpleGrid,
-} from "@chakra-ui/react";
+import { Box, GridItem, Checkbox, Text, SimpleGrid } from "@chakra-ui/react";
 
 import createProduct from "../createProduct.action";
-import { useFormState, useFormStatus } from "react-dom";
+import { useFormState } from "react-dom";
 import InputField from "@/app/components/fields/InputField"; // Import the InputField component
 import TextArea from "@/app/components/fields/TextArea"; // Import the TextArea component
 import ImageInput from "@/app/components/fields/ImageInput";
@@ -18,19 +12,20 @@ import PriceInput from "@/app/components/fields/PriceField";
 import { useState } from "react";
 import SubmitButton from "../../../../components/SubmitButton";
 import { getAmountWithFees } from "@/app/utils/fees";
+import { FEES_DISCLAIMER } from "@/app/constants";
 
 type ClientPageProps = {
-    storeImage?: string
-}
+  storeImage?: string;
+};
 
 export default function Client({ storeImage }: ClientPageProps) {
   const [errors, action] = useFormState(createProduct, []);
-  const { pending } = useFormStatus()
   const [includeCommission, setIncludeCommission] = useState(false);
   const [finalPrice, setFinalPrice] = useState(0);
+  const [description, setDescription] = useState("");
 
   const handlePriceChange = (event) => {
-    const price = parseFloat(event.target.value.replace(',', '.')) || 0;
+    const price = parseFloat(event.target.value.replace(",", ".")) || 0;
     setFinalPrice(getAmountWithFees(price));
   };
 
@@ -41,8 +36,23 @@ export default function Client({ storeImage }: ClientPageProps) {
     await action(formData);
   };
 
+  const handleIncludeFeeChange = (event) => {
+    setIncludeCommission(!includeCommission);
+    if (!includeCommission && description === '') {
+      setDescription(FEES_DISCLAIMER);
+    }
+  }
+
+
   return (
-    <Box px={{ base: "24px" }} py={{ base: '24px', lg: "50px" }} mt={{ base: '50px', md: 0 }} background="white" borderRadius="lg" maxW="1200px">
+    <Box
+      px={{ base: "24px" }}
+      py={{ base: "24px", lg: "50px" }}
+      mt={{ base: "50px", md: 0 }}
+      background="white"
+      borderRadius="lg"
+      maxW="1200px"
+    >
       <form action={handleSubmit}>
         <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
           <GridItem>
@@ -52,7 +62,7 @@ export default function Client({ storeImage }: ClientPageProps) {
               name="name"
               placeholder="Nome del prodotto"
               isRequired={true}
-              errors={getFormErrors(errors, 'name')}
+              errors={getFormErrors(errors, "name")}
             />
 
             <PriceInput
@@ -62,9 +72,22 @@ export default function Client({ storeImage }: ClientPageProps) {
               type="text"
               placeholder="Prezzo"
               isRequired={true}
-              errors={getFormErrors(errors, 'price')}
+              errors={getFormErrors(errors, "price")}
               onChange={handlePriceChange}
             />
+            <Box mb={4}>
+              <Checkbox
+                isChecked={includeCommission}
+                onChange={handleIncludeFeeChange}
+                name="includeCommission"
+                value="yes"
+              >
+                <Text as="span">Commissioni a carico del cliente</Text>
+              </Checkbox>
+              {includeCommission && (
+                <Text mt={2}>Prezzo finale: <b>€{finalPrice.toFixed(2)}</b></Text>
+              )}
+            </Box>
 
             {/* Product Description Field (using TextArea) */}
             <TextArea
@@ -73,23 +96,10 @@ export default function Client({ storeImage }: ClientPageProps) {
               name="description"
               placeholder="Descrizione del prodotto"
               isRequired={true}
-              errors={getFormErrors(errors, 'description')}
+              errors={getFormErrors(errors, "description")}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
             />
-
-            <Checkbox
-              isChecked={includeCommission}
-              onChange={() => setIncludeCommission(!includeCommission)}
-              mt={4}
-              name="includeCommission"
-              value="yes"
-            >
-              <Text as="span">Commissioni a carico del cliente</Text>
-            </Checkbox>
-            {includeCommission && (
-              <Text mt={2}>
-                Prezzo finale: €{finalPrice.toFixed(2)}
-              </Text>
-            )}
           </GridItem>
           <GridItem>
             <ImageInput
@@ -98,7 +108,9 @@ export default function Client({ storeImage }: ClientPageProps) {
               id="product-image"
               defaultImage={storeImage ?? undefined}
             />
-            <Text fontSize="xs" mt={2}>Puoi sostituire l&apos;immagine di default con una personalizzata</Text>
+            <Text fontSize="xs" mt={2}>
+              Puoi sostituire l&apos;immagine di default con una personalizzata
+            </Text>
           </GridItem>
         </SimpleGrid>
         <SubmitButton>Salva Prodotto</SubmitButton>

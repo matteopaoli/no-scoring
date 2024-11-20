@@ -78,19 +78,12 @@ export default async function createProductAction(
         throw new Error("Failed to upload image to S3");
       }
     }
-
-    // Modify the description if the checkbox is checked
-  }
-  let finalDescription = description || "";
-  if (includeCommission) {
-    finalDescription +=
-      `\n\n${FEES_DISCLAIMER}`;
   }
 
   // Create the product in Stripe
   const product = await stripe.products.create({
     name,
-    description: finalDescription, // Use the updated description
+    description, // Use the updated description
     images: imageUrl ? [imageUrl] : [],
     default_price_data: {
       currency: "eur",
