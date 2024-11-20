@@ -13,7 +13,6 @@ import {
   Flex,
   OrderedList,
 } from "@chakra-ui/react";
-import { BiLeftArrowAlt, BiRightArrowAlt } from "react-icons/bi";
 import Slider from "react-slick";
 
 const settings = {
@@ -72,62 +71,6 @@ export default function Carousel() {
                 sistema Buy Now, Pay Later (BNPL) può aiutarti a rendere più
                 flessibili i pagamenti per i tuoi clienti, aumentando le tue
                 vendite e migliorando la loro esperienza di acquisto.
-              </Text>
-            </Box>
-          </Flex>
-        </Box>
-
-        <Box {...slideProps}>
-          <Flex alignItems="center" h="100%">
-            <Box>
-              <Heading>Cos&apos;è un link di pagamento editabile?</Heading>
-              <Text>
-                È un link che puoi inviare ai clienti per permettere loro di
-                pagare una cifra specifica. Ecco come funziona in modo semplice:
-              </Text>
-              <OrderedList>
-                <ListItem>
-                  <b>Importo personalizzabile</b>: chi riceve il link può
-                  inserire l’importo da pagare.
-                </ListItem>
-                <ListItem>
-                  <b>Facilità d&apos;uso</b>: puoi riutilizzare lo stesso link per
-                  diversi clienti o per acquisti futuri.
-                </ListItem>
-                <ListItem>
-                  <b>Flessibilità</b>: utile per vendere prodotti con prezzi
-                  variabili o offrire una soluzione di pagamento più flessibile.
-                </ListItem>
-              </OrderedList>
-            </Box>
-          </Flex>
-        </Box>
-
-        <Box {...slideProps}>
-          <Flex alignItems="center" h="100%">
-            <Box>
-              <Heading>
-                Scopri la comodità del link di pagamento editabile di
-                Paytomorrow!
-              </Heading>
-              <UnorderedList listStyleType="none" mx="0">
-                <ListItem>
-                  💰 <b>Personalizza l’importo</b> – Invia il link e lascia che
-                  i tuoi clienti inseriscano facilmente la cifra da pagare. Un
-                  acquisto singolo o multiplo? Nessun problema! I clienti
-                  possono sommare i prodotti e pagare tutto in una volta.
-                </ListItem>
-                <ListItem>
-                  ♻️ <b>Usalo più volte</b> – Dimentica la creazione di link
-                  ogni volta: questo link è flessibile e riutilizzabile!
-                  Perfetto per clienti ricorrenti o per chi offre servizi con
-                  prezzi variabili.
-                </ListItem>
-              </UnorderedList>
-              <Text>
-                <b>Inizia subito</b> a semplificare i tuoi pagamenti con
-                Paytomorrow e offri ai tuoi clienti un&apos;esperienza di pagamento
-                semplice e veloce!
               </Text>
             </Box>
           </Flex>
