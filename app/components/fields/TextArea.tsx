@@ -21,6 +21,8 @@ interface TextAreaProps {
   mb?: string;
   name: string;
   defaultValue?: string;
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
 }
 
 const TextArea: React.FC<TextAreaProps> = ({
@@ -32,7 +34,9 @@ const TextArea: React.FC<TextAreaProps> = ({
   mb,
   name,
   errors,
-  defaultValue
+  defaultValue,
+  value,
+  onChange,
 }) => {
   // Chakra Color Mode
   const textColorPrimary = useColorModeValue("secondaryGray.900", "white");
@@ -57,6 +61,8 @@ const TextArea: React.FC<TextAreaProps> = ({
           )}
         </FormLabel>
         <Textarea
+          value={value}
+          onChange={onChange}
           defaultValue={defaultValue}
           name={name}
           id={id}
