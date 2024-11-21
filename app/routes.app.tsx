@@ -1,7 +1,7 @@
 import React from "react";
 
 import { Icon } from "@chakra-ui/react";
-import { MdHome, MdPointOfSale, MdShoppingCart } from "react-icons/md";
+import { MdBusiness, MdHome, MdPointOfSale, MdShoppingCart, MdVideoLibrary } from "react-icons/md";
 import { IoMdCube } from "react-icons/io";
 import { IoDocuments } from "react-icons/io5";
 
@@ -52,6 +52,20 @@ const routes = [
     layout: "/admin",
     path: "https://secureprivacy.thrivecart.com/paytomorrow-abbonamento",
     icon: <Icon as={MdShoppingCart} width="20px" height="20px" color="inherit" />,
+  },
+  {
+    target: '_blank',
+    name: "Guadagna con noi",
+    layout: "/admin",
+    path: "https://form.typeform.com/to/F3TB2OVv",
+    icon: <Icon as={MdBusiness} width="20px" height="20px" color="inherit" />,
+  },
+  {
+    target: '_blank',
+    name: "Video spiegazione PayTomorrow",
+    layout: "/admin",
+    path: "https://www.youtube.com/@Legconsulenze",
+    icon: <Icon as={MdVideoLibrary} width="20px" height="20px" color="inherit" />,
   }
 ];
 
