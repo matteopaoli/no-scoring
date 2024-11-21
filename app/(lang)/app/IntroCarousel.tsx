@@ -86,8 +86,8 @@ export default function Carousel() {
                 Il QR Code è la versione digitale del tuo link di pagamento
                 editabile: ha le stesse identiche funzioni e flessibilità! Basta
                 mostrarlo al cliente e farglielo inquadrare con lo smartphone.
-                Il cliente potrà inserire l&apos;importo, sommare eventuali prodotti,
-                e pagare in pochi secondi!
+                Il cliente potrà inserire l&apos;importo, sommare eventuali
+                prodotti, e pagare in pochi secondi!
                 <b>🚀 Come funziona?</b>
                 <OrderedList>
                   <ListItem>Genera il QR Code del link di pagamento.</ListItem>
@@ -162,11 +162,19 @@ export default function Carousel() {
                 <Link
                   href="mailto:info@paytomorrow.it"
                   textDecoration="underline"
+                  target="_blank"
                 >
                   <b>info@paytomorrow.it</b>
                 </Link>{" "}
-                o contattaci su WhatsApp al <b>+39 351 475 3825</b>! Siamo qui
-                per aiutarti a ogni passo.
+                o contattaci su WhatsApp al{" "}
+                <Link
+                  href="https://wa.me/393514753825"
+                  textDecoration="underline"
+                  target="_blank"
+                >
+                  <b>+39 351 475 3825</b>
+                </Link>
+                ! Siamo qui per aiutarti a ogni passo.
               </Text>
             </Box>
           </Flex>
