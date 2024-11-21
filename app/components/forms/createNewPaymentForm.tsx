@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Flex,
@@ -13,11 +13,11 @@ import {
   Text,
   Image,
 } from "@chakra-ui/react";
-import InputField from "@/app/components/fields/InputField";
+import PriceField from "@/app/components/fields/PriceField";
 import getFormErrors from "@/app/utils/getFormErrors";
 import SubmitButton from "@/app/components/SubmitButton";
-import partnerCreateMerchantAction from "./partnerCreateMerchant.action";
 import { useFormState } from "react-dom";
+import createNewPaymentAction from "@/app/actions/createNewPayment.action";
 
 export default function PaymentModal({
   isOpen,
@@ -26,16 +26,21 @@ export default function PaymentModal({
   isOpen: boolean;
   onClose: () => void;
 }) {
-  const [errors, action] = useFormState(partnerCreateMerchantAction, []);
+  const [formState, action] = useFormState(createNewPaymentAction, {});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [paymentLink, setPaymentLink] = useState<string | null>(null);
 
   const handleSubmit = async (formData: FormData) => {
-    const response = await action(formData);
-    // Assuming `response` contains a payment link
-    setPaymentLink(response.paymentLink);
-    setIsSubmitted(true);
+    await action(formData);
   };
+
+  useEffect(() => {
+    console.log(formState);
+    if (formState?.paymentLink) {
+      setIsSubmitted(true);
+      setPaymentLink(formState.paymentLink);
+    }
+  }, [formState]);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
@@ -43,33 +48,29 @@ export default function PaymentModal({
       <ModalContent maxW="600px" p={10}>
         <ModalHeader p={0} mb="20px">
           <Box as="span" textAlign="left">
-            <b>Pagamento</b>
+            <b>Crea nuovo link di pagamento istantaneo</b>
           </Box>
         </ModalHeader>
         <ModalCloseButton />
-        <ModalBody>
+        <ModalBody p={0}>
           {!isSubmitted ? (
             <form action={handleSubmit} style={{ width: "100%" }}>
-              <Flex flexDirection="column" alignItems="center" gap={4}>
-                <InputField
-                  id="price"
+              <Flex flexDirection="column" alignItems="center">
+                <PriceField
+                  id="amount"
                   label="Prezzo"
-                  name="price"
-                  placeholder="Inserisci l'importo"
+                  name="amount"
+                  type="text"
+                  placeholder="Prezzo"
                   isRequired={true}
-                  type="number"
-                  errors={getFormErrors(errors, "price")}
-                  size="lg"
-                  inputProps={{ fontSize: "2xl", textAlign: "center" }}
+                  errors={getFormErrors(formState.errors, "price")}
                 />
-                <SubmitButton>Procedi al Pagamento</SubmitButton>
+                <SubmitButton>Genera metodi di pagamento</SubmitButton>
               </Flex>
             </form>
           ) : (
             <Flex flexDirection="column" alignItems="center" gap={6}>
-              <Text fontSize="lg">
-                Grazie! Ecco il link per il pagamento:
-              </Text>
+              <Text fontSize="lg">Grazie! Ecco il link per il pagamento:</Text>
               {paymentLink && (
                 <Text
                   as="a"

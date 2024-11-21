@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { FormActionReturnType } from "@/app/types";
+import { FormActionReturnTypeWithStatus } from "@/app/types";
 import formatZodErrors from "@/app/utils/formatZodErrors";
 import getUserFromAuth from "@/app/utils/getUserFromAuth";
 import validateNewPayment from "@/app/formSchemas/newPaymentSchema";
@@ -12,13 +12,16 @@ import { createPaymentLink } from "../utils/stripe";
 import { generateQrCodeWithLogo } from "../utils/images";
 
 export default async function createNewPaymentAction(
-  prevState,
+  prevState: Awaited<FormActionReturnTypeWithStatus>,
   formData: FormData
-): FormActionReturnType {
+): FormActionReturnTypeWithStatus {
   const validation = validateNewPayment(formData);
 
   if (!validation.success) {
-    return formatZodErrors(validation);
+    return {
+      status: "error",
+      errors: formatZodErrors(validation),
+    }
   }
 
   let { amount, includeCommission } = validation.data;
@@ -26,6 +29,7 @@ export default async function createNewPaymentAction(
   if (!user?.email) {
     redirect("/login");
   }
+
   const stripe = new Stripe(process.env.STRIPE_API_KEY!, {
     stripeAccount: user.stripeUserId,
   });
@@ -47,5 +51,5 @@ export default async function createNewPaymentAction(
   const paymentLink = await createPaymentLink(stripe, product.id);
   const qrcode = await generateQrCodeWithLogo(paymentLink.url);
 
-  return { paymentLink, qrcode };
+  return { status: 'success', paymentLink, qrcode, errors: [] };
 }
