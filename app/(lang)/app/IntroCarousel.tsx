@@ -144,7 +144,7 @@ export default function Carousel() {
               <Text>
                 Dai un’occhiata ai nostri video di spiegazione e agli ultimi
                 aggiornamenti sul nostro canale YouTube:{" "}
-                <Link href="#" isExternal textDecoration="underline">
+                <Link href="https://www.youtube.com/@Legconsulenze" isExternal textDecoration="underline">
                   Legconsulenze
                 </Link>
                 .
