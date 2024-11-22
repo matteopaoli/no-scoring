@@ -42,6 +42,7 @@ import { useMemo, useState } from "react";
 import { User } from "@/app/db";
 import { Link } from "@chakra-ui/next-js";
 import CopyButton from "@/app/components/CopyButton";
+import { FaSort, FaSortDown, FaSortUp } from "react-icons/fa";
 
 type UsersTableProps = {
   tableData: unknown[];
@@ -180,7 +181,7 @@ export default function UsersTable({ tableData }: UsersTableProps) {
                 />
               </Link>
             </Tooltip>
-          
+
             <Tooltip label="Elimina Utente" hasArrow placement="auto">
               <span>
                 <Icon
@@ -196,14 +197,6 @@ export default function UsersTable({ tableData }: UsersTableProps) {
                 />
               </span>
             </Tooltip>
-          
-            {info.row.original.status === "pending" && (
-                <Tooltip label="Copia link onboarding" hasArrow placement="auto">
-                  <span>
-                  <CopyButton text={info.row.original.onboardingLink} />
-                  </span>
-                </Tooltip>
-            )}
           </Flex>
         ),
       }),
@@ -253,13 +246,29 @@ export default function UsersTable({ tableData }: UsersTableProps) {
                     colSpan={header.colSpan}
                     pe="10px"
                     borderColor={borderColor}
+                    onClick={header.column.getToggleSortingHandler()}
                   >
-                    <Flex align="center">
+                    <Text
+                      fontSize={{ sm: "10px", lg: "12px" }}
+                      color="gray.400"
+                      fontWeight="bold"
+                      display="flex"
+                      alignItems="center"
+                    >
                       {flexRender(
                         header.column.columnDef.header,
                         header.getContext()
                       )}
-                    </Flex>
+                      {header.column.getIsSorted() ? (
+                        header.column.getIsSorted() === "asc" ? (
+                          <FaSortUp color="gray.400" />
+                        ) : (
+                          <FaSortDown color="gray.400" />
+                        )
+                      ) : (
+                        <FaSort color="gray.400" />
+                      )}
+                    </Text>
                   </Th>
                 ))}
               </Tr>

@@ -14,6 +14,7 @@ import {
   Card,
   Heading,
   useMediaQuery,
+  Select,
 } from "@chakra-ui/react";
 import { useSize } from "@chakra-ui/react-use-size";
 import {
@@ -23,15 +24,18 @@ import {
   getFilteredRowModel,
   useReactTable,
   VisibilityState,
+  getSortedRowModel,
+  SortingState,
 } from "@tanstack/react-table";
 import { useEffect, useRef, useState } from "react";
+import { FaSort, FaSortDown, FaSortUp } from "react-icons/fa";
 
 interface GenericTableProps<T> {
   data: T[];
   columns: ColumnDef<T>[];
   itemsPerPage?: number;
   title: string;
-  onRowClick?: (rowData: T) => void; // Row click handler,
+  onRowClick?: (rowData: T) => void; // Row click handler
   hideColumnsResponsive?: string[];
   menu?: (props: any) => JSX.Element;
 }
@@ -46,19 +50,25 @@ export default function GenericTable<T>({
   menu: Menu,
 }: GenericTableProps<T>) {
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = Math.ceil(data.length / itemsPerPage);
+  const [itemsPerPageState, setItemsPerPageState] = useState(itemsPerPage);
+  const totalPages = Math.ceil(data.length / itemsPerPageState);
   const boxRef = useRef(null);
   const dimensions = useSize(boxRef);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [sorting, setSorting] = useState<SortingState>([]);
+
   const table = useReactTable({
     state: {
       columnVisibility,
+      sorting,
     },
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
+    onSortingChange: setSorting,
   });
 
   useEffect(() => {
@@ -75,13 +85,15 @@ export default function GenericTable<T>({
             hideColumnsResponsive.map((c: string) => [c, false])
           )
         );
-    } else {
     }
   }, [dimensions?.width]);
 
   const paginatedRows = table
     .getRowModel()
-    .rows.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    .rows.slice(
+      (currentPage - 1) * itemsPerPageState,
+      currentPage * itemsPerPageState
+    );
 
   const borderColor = useColorModeValue("gray.200", "whiteAlpha.100");
   const textColor = useColorModeValue("secondaryGray.900", "white");
@@ -92,6 +104,18 @@ export default function GenericTable<T>({
     if (onRowClick) {
       onRowClick(rowData);
     }
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
+  const handleItemsPerPageChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const newItemsPerPage = parseInt(event.target.value, 10);
+    setItemsPerPageState(newItemsPerPage);
+    setCurrentPage(1); // Reset to first page
   };
 
   return (
@@ -112,22 +136,50 @@ export default function GenericTable<T>({
         >
           {title}
         </Heading>
-        {Menu ? <Menu /> : null}
+        <Flex justify="flex-end" align="center" my={4} gap="10px">
+          <Text mr={2}>Mostra</Text>
+          <Select
+            value={itemsPerPageState.toString()}
+            onChange={handleItemsPerPageChange}
+            width="auto"
+            maxWidth="150px"
+          >
+            <option value="10">10 per pagina</option>
+            <option value="20">20 per pagina</option>
+          </Select>
+          {Menu ? <Menu /> : null}
+        </Flex>
       </Flex>
       <Table variant="simple" color="gray.500">
         <Thead>
           {table.getHeaderGroups().map((headerGroup) => (
             <Tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <Th key={header.id} borderColor={borderColor}>
+                <Th
+                  key={header.id}
+                  borderColor={borderColor}
+                  onClick={header.column.getToggleSortingHandler()}
+                  _hover={{ cursor: "pointer" }}
+                >
                   <Text
                     fontSize={{ sm: "10px", lg: "12px" }}
                     color="gray.400"
                     fontWeight="bold"
+                    display="flex"
+                    alignItems="center"
                   >
                     {flexRender(
                       header.column.columnDef.header,
                       header.getContext()
+                    )}
+                    {header.column.getIsSorted() ? (
+                      header.column.getIsSorted() === "asc" ? (
+                        <FaSortUp color="gray.400" />
+                      ) : (
+                        <FaSortDown color="gray.400" />
+                      )
+                    ) : (
+                      <FaSort color="gray.400" />
                     )}
                   </Text>
                 </Th>
@@ -176,29 +228,27 @@ export default function GenericTable<T>({
         </Tbody>
       </Table>
 
-      {
-        paginatedRows.length ? (
-          <Flex justify="space-between" align="center" my={4}>
-            <Button
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              isDisabled={currentPage === 1}
-            >
-              Precedente
-            </Button>
-            <Text>
-              Pagina {currentPage} di {totalPages}
-            </Text>
-            <Button
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
-              isDisabled={currentPage === totalPages}
-            >
-              Successivo
-            </Button>
-          </Flex>
-        ) : null
-      }
+      {paginatedRows.length ? (
+        <Flex justify="space-between" align="center" my={4}>
+          <Button
+            onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
+            isDisabled={currentPage === 1}
+          >
+            Precedente
+          </Button>
+          <Text>
+            Pagina {currentPage} di {totalPages}
+          </Text>
+          <Button
+            onClick={() =>
+              handlePageChange(Math.min(currentPage + 1, totalPages))
+            }
+            isDisabled={currentPage === totalPages}
+          >
+            Successivo
+          </Button>
+        </Flex>
+      ) : null}
     </Card>
   );
 }
