@@ -448,25 +448,6 @@ export async function createSale({
   });
 }
 
-export async function getAllMerchants() {
-  return await db
-    .select({
-      firstName: users.firstName,
-      lastName: users.lastName,
-      productCount: count(products.id).as("productCount"),
-      createdAt: users.createdAt,
-      id: users.id,
-      status: users.status,
-      onboardingLink: users.onboardingLink,
-      email: users.email,
-      phoneNumber: users.phoneNumber,
-    })
-    .from(users)
-    .leftJoin(products, eq(products.userId, users.id))
-    .where(eq(users.role, "user"))
-    .groupBy(users.id);
-}
-
 export async function getSales(userId: string, userRole: string) {
   if (userRole === "admin") {
     return await db.select().from(sales);

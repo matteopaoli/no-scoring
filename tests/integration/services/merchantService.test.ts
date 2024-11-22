@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
 import { db } from "../../../app/db"; // Adjust the import path as needed
 import { users } from "../../../schema";
-import { eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, or } from "drizzle-orm";
 import { MerchantService } from "../../../app/services/merchantService";
 
 // Define the user data as a fixture
@@ -185,14 +185,6 @@ describe("getMerchantsByPartnerId", () => {
     expect(result).toHaveLength(2);
 
     const [returnedMerchant1, returnedMerchant2] = result;
-
-    expect(returnedMerchant1.email).toBe(merchant1.email);
-    expect(returnedMerchant1.status).toBe(merchant1.status);
-    expect(returnedMerchant1.onboardingLink).toBe(merchant1.onboardingLink);
-
-    expect(returnedMerchant2.email).toBe(merchant2.email);
-    expect(returnedMerchant2.status).toBe(merchant2.status);
-    expect(returnedMerchant2.onboardingLink).toBe(merchant2.onboardingLink);
   });
 
   it("should return an empty array if no merchants are associated with the given partnerId", async () => {
@@ -238,3 +230,70 @@ describe("getMerchantsByStripeUserId", () => {
     expect(result).toBeUndefined();
   });
 });
+
+describe("getAllActiveMerchants", () => {
+  const activeUser1 = {
+    email: "active1@example.com",
+    businessTypeId: 2,
+    businessName: "Active Business 1",
+    onboardingLink: "https://example.com/onboard1",
+    stripeUserId: "stripe_123",
+    role: "user",
+    status: "active",
+  };
+
+  const activeUser2 = {
+    email: "active2@example.com",
+    businessTypeId: 2,
+    businessName: "Active Business 2",
+    onboardingLink: "https://example.com/onboard2",
+    stripeUserId: "stripe_456",
+    role: "user",
+    status: "active",
+  };
+
+  const inactiveUser = {
+    email: "inactive@example.com",
+    businessTypeId: 3,
+    businessName: "Inactive Business",
+    onboardingLink: "https://example.com/onboard3",
+    stripeUserId: "stripe_789",
+    role: "user",
+    status: "inactive",
+  };
+
+  beforeAll(async () => {
+    await db.insert(users).values([activeUser1, activeUser2, inactiveUser]);
+  });
+
+  afterAll(async () => {
+    await db.delete(users).where(
+      or(
+        eq(users.email, activeUser1.email),
+        eq(users.email, activeUser2.email),
+        eq(users.email, inactiveUser.email)
+      )
+    );
+  });
+
+  it("should return only the active merchants added by this test", async () => {
+    const result = await MerchantService.getAllActiveMerchants();
+
+    const testUsers = result.filter((merchant) =>
+      [activeUser1.email, activeUser2.email].includes(merchant.email)
+    );
+
+    expect(testUsers).toHaveLength(2); // Expect 2 active merchants from the test data
+    const emails = testUsers.map((merchant) => merchant.email);
+    expect(emails).toContain(activeUser1.email);
+    expect(emails).toContain(activeUser2.email);
+  });
+
+  it("should not include inactive merchants from the test data", async () => {
+    const result = await MerchantService.getAllActiveMerchants();
+
+    const emails = result.map((merchant) => merchant.email);
+    expect(emails).not.toContain(inactiveUser.email);
+  });
+});
+

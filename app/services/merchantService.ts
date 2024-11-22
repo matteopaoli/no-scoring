@@ -1,6 +1,6 @@
-import { users } from "schema";
+import { products, users } from "schema";
 import { db, User } from "../db";
-import { desc, eq, sql } from "drizzle-orm";
+import { and, count, desc, eq, sql } from "drizzle-orm";
 import { UserService } from "./userService";
 
 export class MerchantService {
@@ -96,5 +96,24 @@ export class MerchantService {
         .from(users)
         .where(eq(users.stripeUserId, stripeUserId))
     )?.[0];
+  }
+
+  static async getAllActiveMerchants() {
+    return await db
+    .select({
+      firstName: users.firstName,
+      lastName: users.lastName,
+      productCount: count(products.id).as("productCount"),
+      createdAt: users.createdAt,
+      id: users.id,
+      status: users.status,
+      onboardingLink: users.onboardingLink,
+      email: users.email,
+      phoneNumber: users.phoneNumber,
+    })
+    .from(users)
+    .leftJoin(products, eq(products.userId, users.id))
+    .where(and(eq(users.role, "user"), eq(users.status, "active")))
+    .groupBy(users.id);
   }
 }
