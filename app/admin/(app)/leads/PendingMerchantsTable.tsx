@@ -35,6 +35,11 @@ export default function PendingMerchantsTable({ merchants }: PendingMerchantsTab
         new Date(info.getValue() as Date).toLocaleDateString("it-IT", { day: '2-digit', month: '2-digit', year: 'numeric' }),
     },
     {
+      accessorKey: "referredByName",
+      header: "Creato da",
+      cell: (info) => (info.getValue() as string).trim() ? info.getValue() : "—"
+    },
+    {
       accessorKey: "actions",
       header: "Onboarding stripe",
       cell: (info) => (
