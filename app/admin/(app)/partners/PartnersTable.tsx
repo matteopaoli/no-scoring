@@ -31,6 +31,11 @@ export default function PartnersTable({ tableData }: PartnersTableProps) {
         header: () => "E-mail",
         cell: (info) => info.getValue(),
       }),
+      columnHelper.accessor("partnerName", {
+        id: "partnerName",
+        header: () => "Partner di riferimento",
+        cell: (info) => info.getValue(),
+      }),
       columnHelper.accessor("totalCommission", {
         id: "totalCommission",
         header: () => "Commissioni Dovute",
