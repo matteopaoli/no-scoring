@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
 import { db } from "../../../app/db"; // Adjust the import path as needed
-import { users } from "../../../schema";
+import { sales, stores, users } from "../../../schema";
 import { and, eq, inArray, or } from "drizzle-orm";
 import { MerchantService } from "../../../app/services/merchantService";
 
@@ -267,13 +267,15 @@ describe("getAllActiveMerchants", () => {
   });
 
   afterAll(async () => {
-    await db.delete(users).where(
-      or(
-        eq(users.email, activeUser1.email),
-        eq(users.email, activeUser2.email),
-        eq(users.email, inactiveUser.email)
-      )
-    );
+    await db
+      .delete(users)
+      .where(
+        or(
+          eq(users.email, activeUser1.email),
+          eq(users.email, activeUser2.email),
+          eq(users.email, inactiveUser.email)
+        )
+      );
   });
 
   it("should return only the active merchants added by this test", async () => {
@@ -297,3 +299,127 @@ describe("getAllActiveMerchants", () => {
   });
 });
 
+describe("getMerchantsWithDetailedMetrics", () => {
+  const testUser1 = {
+    email: "testuser1@example.com",
+    businessTypeId: 4,
+    firstName: "John",
+    lastName: "Doe",
+    role: "user",
+    status: "active",
+  };
+
+  const testUser2 = {
+    email: "testuser2@example.com",
+    businessTypeId: 2,
+    firstName: "Jane",
+    lastName: "Smith",
+    role: "user",
+    status: "active",
+  };
+
+  const inactiveUser = {
+    email: "inactiveuser@example.com",
+    businessTypeId: 3,
+    firstName: "Inactive",
+    lastName: "User",
+    role: "user",
+    status: "inactive",
+  };
+
+  const store1 = {
+    name: "Store 1",
+    image: "store1.jpg",
+    createdAt: new Date(),
+  };
+
+  const store2 = {
+    name: "Store 2",
+    image: "store2.jpg",
+    createdAt: new Date(),
+  };
+
+  const sale1 = {
+    legCommission: "100.00",
+    amount: "500.00",
+    createdAt: new Date(),
+    stripePaymentIntentId: "pi_123",
+    firstLevelPartnerCommission: "50.00",
+    secondLevelPartnerCommission: "25.00",
+  };
+
+  const sale2 = {
+    legCommission: "150.00",
+    amount: "750.00",
+    createdAt: new Date(),
+    stripePaymentIntentId: "pi_456",
+    firstLevelPartnerCommission: "50.00",
+    secondLevelPartnerCommission: "25.00",
+  };
+
+  beforeAll(async () => {
+    // Insert test data into the database
+    await db.insert(users).values([testUser1, testUser2, inactiveUser]);
+    const [insertedStore1] = await db
+      .insert(stores)
+      .values(store1)
+      .returning({ id: stores.id });
+    const [insertedStore2] = await db
+      .insert(stores)
+      .values(store2)
+      .returning({ id: stores.id });
+
+    // Use the retrieved store IDs to insert sales
+    await db.insert(sales).values([
+      { ...sale1, storeId: insertedStore1.id },
+      { ...sale2, storeId: insertedStore2.id },
+    ]);
+  });
+
+  afterAll(async () => {
+    // Clean up test data from the database
+    await db
+      .delete(sales)
+      .where(inArray(sales.stripePaymentIntentId, ["pi_123", "pi_456"]));
+    await db
+      .delete(users)
+      .where(
+        or(
+          eq(users.email, testUser1.email),
+          eq(users.email, testUser2.email),
+          eq(users.email, inactiveUser.email)
+        )
+      );
+    await db
+      .delete(stores)
+      .where(or(eq(stores.name, store1.name), eq(stores.name, store2.name)));
+  });
+
+  it("should return active users with store and commission details", async () => {
+    const result = await MerchantService.getMerchantsWithDetailedMetrics();
+
+    // Filter results to match test data
+    const testUsers = result.filter((user) =>
+      [testUser1.email, testUser2.email].includes(user.email)
+    );
+
+    expect(testUsers).toHaveLength(2); // Expect only active test users
+    const emails = testUsers.map((user) => user.email);
+    expect(emails).toContain(testUser1.email);
+    expect(emails).toContain(testUser2.email);
+
+    // Check store and commission details
+    testUsers.forEach((user) => {
+      expect(user.storeName).toBeDefined();
+      expect(parseFloat(user.totalCommission)).toBeGreaterThanOrEqual(0);
+      expect(parseFloat(user.totalVolume)).toBeGreaterThanOrEqual(0);
+    });
+  });
+
+  it("should not include inactive users", async () => {
+    const result = await MerchantService.getMerchantsWithDetailedMetrics();
+
+    const emails = result.map((user) => user.email);
+    expect(emails).not.toContain(inactiveUser.email);
+  });
+});

@@ -1,7 +1,8 @@
-import { products, users } from "schema";
-import { db, User } from "../db";
-import { and, count, desc, eq, sql } from "drizzle-orm";
+import { businessType, products, sales, stores, users, userStoreRoles } from "schema";
+import { db } from "../db";
+import { and, count, desc, eq, getTableColumns, sql } from "drizzle-orm";
 import { UserService } from "./userService";
+import { alias } from "drizzle-orm/pg-core";
 
 export class MerchantService {
   static async createMerchant({
@@ -115,5 +116,48 @@ export class MerchantService {
     .leftJoin(products, eq(products.userId, users.id))
     .where(and(eq(users.role, "user"), eq(users.status, "active")))
     .groupBy(users.id);
+  }
+
+  static async getMerchantsWithDetailedMetrics() {
+    const { password, role, businessTypeId, partnerId, ...rest } =
+      getTableColumns(users);
+    const partner = alias(users, "partner");
+  
+    return await db
+      .select({
+        ...rest,
+        businessType: businessType.name,
+        partnerName:
+          sql<string>`CONCAT(partner."firstName", ' ', partner."lastName")`.as(
+            "partnerName"
+          ),
+        storeId: stores.id,
+        storeName: stores.name,
+        storeImage: stores.image,
+        storeCreatedAt: stores.createdAt,
+        totalCommission:
+          sql<string>`COALESCE(SUM(CAST(${sales.legCommission} AS numeric)), 0)`.as(
+            "totalCommission"
+          ),
+        totalVolume: sql<string>`COALESCE(SUM(CAST(${sales.amount} AS numeric)), 0)`.as(
+          "totalVolume"
+        ),
+        totalCommissionCurrentMonth:
+          sql<string>`COALESCE(SUM(CASE WHEN date_trunc('month', ${sales.createdAt}) = date_trunc('month', CURRENT_DATE) THEN CAST(${sales.legCommission} AS numeric) ELSE 0 END), 0)`.as(
+            "totalCommissionCurrentMonth"
+          ),
+        totalVolumeCurrentMonth:
+          sql<string>`COALESCE(SUM(CASE WHEN date_trunc('month', ${sales.createdAt}) = date_trunc('month', CURRENT_DATE) THEN CAST(${sales.amount} AS numeric) ELSE 0 END), 0)`.as(
+            "totalVolumeCurrentMonth"
+          ),
+      })
+      .from(users)
+      .leftJoin(businessType, eq(users.businessTypeId, businessType.id))
+      .leftJoin(partner, eq(users.partnerId, sql`partner.id`))
+      .leftJoin(userStoreRoles, eq(users.id, userStoreRoles.userId))
+      .leftJoin(stores, eq(userStoreRoles.storeId, stores.id))
+      .leftJoin(sales, eq(stores.id, sales.storeId))
+      .where(and(eq(users.role, "user"), eq(users.status, "active")))
+      .groupBy(users.id, partner.id, businessType.name, stores.id);
   }
 }

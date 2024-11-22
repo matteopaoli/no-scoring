@@ -63,41 +63,6 @@ export interface Lead {
   sector: string;
 }
 
-export async function getUsersWithStoresAndCommissions() {
-  const { password, role, businessTypeId, partnerId, ...rest } =
-    getTableColumns(users);
-  const partner = alias(users, "partner");
-
-  return await db
-    .select({
-      ...rest,
-      businessType: businessType.name,
-      partnerName:
-        sql<string>`CONCAT(partner."firstName", ' ', partner."lastName")`.as(
-          "partnerName"
-        ),
-      storeId: stores.id,
-      storeName: stores.name,
-      storeImage: stores.image,
-      storeCreatedAt: stores.createdAt,
-      totalCommission:
-        sql`COALESCE(SUM(CAST(${sales.legCommission} AS numeric)), 0)`.as(
-          "totalCommission"
-        ),
-      totalVolume: sql`COALESCE(SUM(CAST(${sales.amount} AS numeric)), 0)`.as(
-        "totalVolume"
-      ),
-    })
-    .from(users)
-    .leftJoin(businessType, eq(users.businessTypeId, businessType.id))
-    .leftJoin(partner, eq(users.partnerId, sql`partner.id`))
-    .leftJoin(userStoreRoles, eq(users.id, userStoreRoles.userId))
-    .leftJoin(stores, eq(userStoreRoles.storeId, stores.id))
-    .leftJoin(sales, eq(stores.id, sales.storeId))
-    .where(and(eq(users.role, "user"), eq(users.status, "active")))
-    .groupBy(users.id, partner.id, businessType.name, stores.id);
-}
-
 export async function updateProfile({
   password,
   profileImage,
@@ -447,6 +412,7 @@ export async function createSale({
     secondLevelPartnerCommission,
   });
 }
+
 
 export async function getSales(userId: string, userRole: string) {
   if (userRole === "admin") {

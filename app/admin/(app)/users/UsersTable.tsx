@@ -80,11 +80,11 @@ export default function UsersTable({ tableData }: UsersTableProps) {
 
   const columns = useMemo(
     () => [
-      columnHelper.accessor("businessName", {
-        id: "businessName",
+      columnHelper.accessor("refName", {
+        id: "refName",
         header: () => (
           <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
-            Nome azienda
+            Nome Referente
           </Text>
         ),
         cell: (info) => (
@@ -93,19 +93,6 @@ export default function UsersTable({ tableData }: UsersTableProps) {
               {info.getValue()}
             </Text>
           </Flex>
-        ),
-      }),
-      columnHelper.accessor("businessType", {
-        id: "businessType",
-        header: () => (
-          <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
-            Tipo Business
-          </Text>
-        ),
-        cell: (info) => (
-          <Text color={textColor} fontSize="sm" fontWeight="700">
-            {info.getValue()}
-          </Text>
         ),
       }),
       columnHelper.accessor("partnerName", {
@@ -121,24 +108,24 @@ export default function UsersTable({ tableData }: UsersTableProps) {
           </Text>
         ),
       }),
-      columnHelper.accessor("storeName", {
-        id: "storeName",
-        header: () => (
-          <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
-            Store Name
-          </Text>
-        ),
-        cell: (info) => (
-          <Text color={textColor} fontSize="sm" fontWeight="700">
-            {info.getValue()}
-          </Text>
-        ),
-      }),
       columnHelper.accessor("totalCommission", {
         id: "totalCommission",
         header: () => (
           <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
-            Total Commission
+            Commssioni guadagnate
+          </Text>
+        ),
+        cell: (info) => (
+          <Text color={textColor} fontSize="sm" fontWeight="700">
+            {Number(info.getValue()).toFixed(2)} €
+          </Text>
+        ),
+      }),
+      columnHelper.accessor("totalCommissionCurrentMonth", {
+        id: "totalCommissionCurrentMonth",
+        header: () => (
+          <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
+            Commssioni guadagnate (mese corrente)
           </Text>
         ),
         cell: (info) => (
@@ -151,7 +138,20 @@ export default function UsersTable({ tableData }: UsersTableProps) {
         id: "totalVolume",
         header: () => (
           <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
-            Total Volume
+            Volume totale
+          </Text>
+        ),
+        cell: (info) => (
+          <Text color={textColor} fontSize="sm" fontWeight="700">
+            {Number(info.getValue()).toFixed(2)} €
+          </Text>
+        ),
+      }),
+      columnHelper.accessor("totalVolumeCurrentMonth", {
+        id: "totalVolumeCurrentMonth",
+        header: () => (
+          <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
+            Volume (mese corrente)
           </Text>
         ),
         cell: (info) => (
