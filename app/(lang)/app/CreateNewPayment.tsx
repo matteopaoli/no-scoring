@@ -5,7 +5,7 @@ import PartnerCreateMerchantForm from "@/app/components/forms/PartnerCreateMerch
 import { Flex, Button, useDisclosure } from "@chakra-ui/react";
 import { MdAdd } from "react-icons/md";
 
-export default function createNewPayment() {
+export default function CreateNewPayment() {
   const { isOpen, onClose, onOpen } = useDisclosure();
   return (
     <Flex justifyContent="end">
