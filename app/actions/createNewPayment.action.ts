@@ -10,6 +10,7 @@ import { getAmountWithFees } from "../utils/fees";
 import { FEES_DISCLAIMER } from "../constants";
 import { createPaymentLink } from "../utils/stripe";
 import { generateQrCodeWithLogo } from "../utils/images";
+import { ProductService } from "../services/productService";
 
 export default async function createNewPaymentAction(
   prevState: Awaited<FormActionReturnTypeWithStatus>,
@@ -24,7 +25,7 @@ export default async function createNewPaymentAction(
     }
   }
 
-  let { amount, includeCommission } = validation.data;
+  let { amount, includeFees } = validation.data;
   const user = await getUserFromAuth();
   if (!user?.email) {
     redirect("/login");
@@ -34,22 +35,12 @@ export default async function createNewPaymentAction(
     stripeAccount: user.stripeUserId,
   });
 
-  if (includeCommission) {
+  if (includeFees) {
     amount = getAmountWithFees(amount);
   }
 
-  const product = await stripe.products.create({
-    name: "Pagamento istantaneo",
-    description: includeCommission ? FEES_DISCLAIMER : undefined,
-    images: [],
-    default_price_data: {
-      currency: "eur",
-      unit_amount: Math.round(amount * 100),
-    },
-  });
+  const { paymentLink, qrcode } = await ProductService.createInstantPayment(amount, user, includeFees);
+  
 
-  const paymentLink = await createPaymentLink(stripe, product.id);
-  const qrcode = await generateQrCodeWithLogo(paymentLink.url);
-
-  return { status: 'success', paymentLink, qrcode, errors: [] };
+  return { status: 'success', paymentLink: paymentLink.url, qrcode, errors: [] };
 }
