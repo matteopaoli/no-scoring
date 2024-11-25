@@ -288,6 +288,13 @@
       "when": 1731689223583,
       "tag": "0040_ancient_guardsmen",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1732522547265,
+      "tag": "0041_third_wilson_fisk",
+      "breakpoints": true
     }
   ]
 }

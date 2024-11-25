@@ -25,7 +25,7 @@ const CopyTextBox: React.FC<CopyTextBoxProps> = ({ children }) => {
 
   return (
     <Tooltip
-      label={hasCopied ? "Copied!" : "Click to copy"}
+      label={hasCopied ? "Copiato!" : "Clicca per copiare"}
       aria-label="A tooltip"
     >
       <Box
@@ -49,7 +49,7 @@ const CopyTextBox: React.FC<CopyTextBoxProps> = ({ children }) => {
           _hover={{ bg: bgButtonHover }} // Change background on button hover
           data-testid="copy-payment-link-button"
         >
-          Copy
+          Copia
         </Button>
       </Box>
     </Tooltip>

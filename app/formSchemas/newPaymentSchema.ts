@@ -19,7 +19,7 @@ const newPaymentSchema = z.object({
       }
     )
     .transform((value) => Number(value.replace(",", "."))),
-  includeCommission: z
+    includeFees: z
     .string()
     .optional()
     .transform((value) => value === "on"),

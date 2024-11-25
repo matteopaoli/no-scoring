@@ -22,6 +22,7 @@ interface DefaultProps {
   errorMessage?: string;
   [key: string]: any; // This allows passing additional props
   errors: string[];
+  isRequired?: boolean;
 }
 
 const Default: React.FC<DefaultProps> = (props) => {
@@ -36,6 +37,7 @@ const Default: React.FC<DefaultProps> = (props) => {
     errorMessage,
     errors,
     onChange,
+    isRequired,
     ...rest
   } = props;
 
@@ -62,7 +64,7 @@ const Default: React.FC<DefaultProps> = (props) => {
 
 
   return (
-    <FormControl isInvalid={errors.length > 0} mb={mb || "30px"}>
+    <FormControl isInvalid={errors.length > 0} mb={mb || "30px"} isRequired={isRequired}>
       <FormLabel
         display="flex"
         ms="10px"

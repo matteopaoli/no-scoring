@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Flex,
@@ -12,12 +12,16 @@ import {
   ModalOverlay,
   Text,
   Image,
+  Checkbox,
+  Button,
 } from "@chakra-ui/react";
-import InputField from "@/app/components/fields/InputField";
+import PriceField from "@/app/components/fields/PriceField";
 import getFormErrors from "@/app/utils/getFormErrors";
 import SubmitButton from "@/app/components/SubmitButton";
-import partnerCreateMerchantAction from "./partnerCreateMerchant.action";
 import { useFormState } from "react-dom";
+import createNewPaymentAction from "@/app/actions/createNewPayment.action";
+import CopyTextBox from "../copyTextBox/CopyTextBox";
+import { getAmountWithFees } from "@/app/utils/fees";
 
 export default function PaymentModal({
   isOpen,
@@ -26,16 +30,30 @@ export default function PaymentModal({
   isOpen: boolean;
   onClose: () => void;
 }) {
-  const [errors, action] = useFormState(partnerCreateMerchantAction, []);
+  const [formState, action] = useFormState(createNewPaymentAction, {});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [paymentLink, setPaymentLink] = useState<string | null>(null);
+  const [amount, setAmount] = useState(0);
+  const [includeFees, setIncludeFees] = useState(false);
 
   const handleSubmit = async (formData: FormData) => {
-    const response = await action(formData);
-    // Assuming `response` contains a payment link
-    setPaymentLink(response.paymentLink);
-    setIsSubmitted(true);
+    await action(formData);
   };
+
+  const handleAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const price = parseFloat(event.target.value.replace(",", ".")) || 0;
+    setAmount(price);
+  }
+
+  useEffect(() => {
+    if (formState?.paymentLink) {
+      setIsSubmitted(true);
+    }
+  }, [formState]);
+
+  const reset = () => {
+    setIsSubmitted(false);
+  }
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
@@ -43,57 +61,53 @@ export default function PaymentModal({
       <ModalContent maxW="600px" p={10}>
         <ModalHeader p={0} mb="20px">
           <Box as="span" textAlign="left">
-            <b>Pagamento</b>
+            <b>Crea nuovo link di pagamento istantaneo</b>
           </Box>
         </ModalHeader>
         <ModalCloseButton />
-        <ModalBody>
+        <ModalBody p={0}>
           {!isSubmitted ? (
             <form action={handleSubmit} style={{ width: "100%" }}>
-              <Flex flexDirection="column" alignItems="center" gap={4}>
-                <InputField
-                  id="price"
+              <Flex flexDirection="column" alignItems="center">
+                <PriceField
+                  id="amount"
                   label="Prezzo"
-                  name="price"
-                  placeholder="Inserisci l'importo"
+                  name="amount"
+                  type="text"
+                  placeholder="Prezzo"
                   isRequired={true}
-                  type="number"
-                  errors={getFormErrors(errors, "price")}
-                  size="lg"
-                  inputProps={{ fontSize: "2xl", textAlign: "center" }}
+                  errors={getFormErrors(formState.errors, "price")}
+                  onChange={handleAmountChange}
                 />
-                <SubmitButton>Procedi al Pagamento</SubmitButton>
+                <Box mb={4}>
+                  <Checkbox
+                    isChecked={includeFees}
+                    onChange={() => setIncludeFees(!includeFees)}
+                    name="includeFees"
+                  >
+                    <Text as="span">Commissioni a carico del cliente</Text>
+                  </Checkbox>
+                  {includeFees && (
+                    <Text mt={2}>
+                      Prezzo finale: <b>€{getAmountWithFees(amount).toFixed(2)}</b>
+                    </Text>
+                  )}
+                </Box>
+                <SubmitButton>Genera metodi di pagamento</SubmitButton>
               </Flex>
             </form>
           ) : (
             <Flex flexDirection="column" alignItems="center" gap={6}>
-              <Text fontSize="lg">
-                Grazie! Ecco il link per il pagamento:
-              </Text>
-              {paymentLink && (
-                <Text
-                  as="a"
-                  href={paymentLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  color="blue.500"
-                  fontSize="lg"
-                  fontWeight="bold"
-                >
-                  Vai al pagamento
-                </Text>
+              <Text fontSize="lg">Ecco il link per il pagamento:</Text>
+              {formState.paymentLink && (
+                <CopyTextBox>{formState.paymentLink}</CopyTextBox>
               )}
-              {/* Example images */}
               <Image
-                src="/images/payment-success.png"
-                alt="Success"
+                src={formState.qrcode}
+                alt="QR Code"
                 boxSize="150px"
               />
-              <Image
-                src="/images/payment-secure.png"
-                alt="Secure Payment"
-                boxSize="150px"
-              />
+              <Button variant="solid" colorScheme="brand" onClick={reset}>Crea un nuovo link di pagamento</Button>
             </Flex>
           )}
         </ModalBody>
