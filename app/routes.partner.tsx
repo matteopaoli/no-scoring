@@ -1,7 +1,7 @@
 import React from "react";
 
 import { Icon, layout } from "@chakra-ui/react";
-import { MdHandshake, MdHome, MdPointOfSale } from "react-icons/md";
+import { MdHandshake, MdHome, MdPointOfSale, MdVideoLibrary } from "react-icons/md";
 import { IoMdCube } from "react-icons/io";
 import { IoDocuments } from "react-icons/io5";
 
@@ -47,7 +47,13 @@ const routes = [
     name: "Crea nuovo agente",
     path: "/partner/subpartners/new",
   },
-
+  {
+    target: '_blank',
+    name: "Video spiegazione PayTomorrow",
+    layout: "/admin",
+    path: "https://www.youtube.com/@Legconsulenze",
+    icon: <Icon as={MdVideoLibrary} width="20px" height="20px" color="inherit" />,
+  }
 ];
 
 const subpartnerRoutes = [...routes].filter(route => route.path !== '/partner/subpartners')
