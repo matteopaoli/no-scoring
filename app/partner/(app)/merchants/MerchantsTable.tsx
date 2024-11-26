@@ -19,10 +19,16 @@ interface MerchantsTableProps {
 }
 
 export default function MerchantsTable({ merchants }: MerchantsTableProps) {
+  console
   const merchantColumns: ColumnDef<Merchant>[] = [
     {
       accessorKey: "name",
       header: "Nome referente",
+      cell: (info) => info.getValue(),
+    },
+    {
+      accessorKey: "email",
+      header: "Email",
       cell: (info) => info.getValue(),
     },
     {
