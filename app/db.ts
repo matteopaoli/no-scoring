@@ -860,9 +860,6 @@ export async function getAdmins() {
   return await db.select().from(users).where(eq(users.role, "admin"));
 }
 
-export async function rejectUser(userId: string) {
-  return await db
-    .update(users)
-    .set({ status: "rejected" })
-    .where(eq(users.id, userId));
+export async function deleteLead(userId: string) {
+  return await db.delete(users).where(and(eq(users.id, userId), eq(users.status, 'pending')));
 }

@@ -118,6 +118,22 @@ export default function GenericTable<T>({
     setCurrentPage(1); // Reset to first page
   };
 
+  const getSortIcon = (header: any) => {
+    if (header.column.columnDef.accessorKey === "actions") {
+      return null;
+    }
+  
+    if (header.column.getIsSorted()) {
+      return header.column.getIsSorted() === "asc" ? (
+        <FaSortUp color="gray.400" />
+      ) : (
+        <FaSortDown color="gray.400" />
+      );
+    }
+  
+    return <FaSort color="gray.400" />;
+  };
+
   return (
     <Card
       flexDirection="column"
@@ -172,15 +188,7 @@ export default function GenericTable<T>({
                       header.column.columnDef.header,
                       header.getContext()
                     )}
-                    {header.column.getIsSorted() ? (
-                      header.column.getIsSorted() === "asc" ? (
-                        <FaSortUp color="gray.400" />
-                      ) : (
-                        <FaSortDown color="gray.400" />
-                      )
-                    ) : (
-                      <FaSort color="gray.400" />
-                    )}
+                    {getSortIcon(header)}
                   </Text>
                 </Th>
               ))}
