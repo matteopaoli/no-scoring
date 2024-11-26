@@ -14,6 +14,7 @@ export class MerchantService {
     partnerId,
     phoneNumber,
     refName,
+    provincia,
   }: {
     email: string;
     businessTypeId: number;
@@ -23,6 +24,7 @@ export class MerchantService {
     partnerId?: string;
     phoneNumber: string;
     refName: string;
+    provincia: string;
   }) {
     const hash = UserService.getDefaultPassword();
     await db.insert(users).values({
@@ -37,6 +39,7 @@ export class MerchantService {
       phoneNumber,
       refName,
       password: hash,
+      provincia,
     });
   }
 
