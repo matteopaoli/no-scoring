@@ -1,4 +1,11 @@
-import { businessType, products, sales, stores, users, userStoreRoles } from "schema";
+import {
+  businessType,
+  products,
+  sales,
+  stores,
+  users,
+  userStoreRoles,
+} from "schema";
 import { db } from "../db";
 import { and, count, desc, eq, getTableColumns, sql } from "drizzle-orm";
 import { UserService } from "./userService";
@@ -72,15 +79,12 @@ export class MerchantService {
         createdAt: users.createdAt,
         onboardingLink: users.onboardingLink,
         status: users.status,
-        name: sql<
-        string
-      >`CASE 
+        name: sql<string>`CASE 
             WHEN ${users.firstName} IS NOT NULL AND ${users.lastName} IS NOT NULL 
             THEN ${users.firstName} || ' ' || ${users.lastName} 
             ELSE ${users.refName} 
           END`,
         phoneNumber: users.phoneNumber,
-
       })
       .from(users)
       .where(eq(users.partnerId, partnerId))
@@ -104,28 +108,28 @@ export class MerchantService {
 
   static async getAllActiveMerchants() {
     return await db
-    .select({
-      firstName: users.firstName,
-      lastName: users.lastName,
-      productCount: count(products.id).as("productCount"),
-      createdAt: users.createdAt,
-      id: users.id,
-      status: users.status,
-      onboardingLink: users.onboardingLink,
-      email: users.email,
-      phoneNumber: users.phoneNumber,
-    })
-    .from(users)
-    .leftJoin(products, eq(products.userId, users.id))
-    .where(and(eq(users.role, "user"), eq(users.status, "active")))
-    .groupBy(users.id);
+      .select({
+        firstName: users.firstName,
+        lastName: users.lastName,
+        productCount: count(products.id).as("productCount"),
+        createdAt: users.createdAt,
+        id: users.id,
+        status: users.status,
+        onboardingLink: users.onboardingLink,
+        email: users.email,
+        phoneNumber: users.phoneNumber,
+      })
+      .from(users)
+      .leftJoin(products, eq(products.userId, users.id))
+      .where(and(eq(users.role, "user"), eq(users.status, "active")))
+      .groupBy(users.id);
   }
 
   static async getMerchantsWithDetailedMetrics() {
     const { password, role, businessTypeId, partnerId, ...rest } =
       getTableColumns(users);
     const partner = alias(users, "partner");
-  
+
     return await db
       .select({
         ...rest,
@@ -142,9 +146,10 @@ export class MerchantService {
           sql<string>`COALESCE(SUM(CAST(${sales.legCommission} AS numeric)), 0)`.as(
             "totalCommission"
           ),
-        totalVolume: sql<string>`COALESCE(SUM(CAST(${sales.amount} AS numeric)), 0)`.as(
-          "totalVolume"
-        ),
+        totalVolume:
+          sql<string>`COALESCE(SUM(CAST(${sales.amount} AS numeric)), 0)`.as(
+            "totalVolume"
+          ),
         totalCommissionCurrentMonth:
           sql<string>`COALESCE(SUM(CASE WHEN date_trunc('month', ${sales.createdAt}) = date_trunc('month', CURRENT_DATE) THEN CAST(${sales.legCommission} AS numeric) ELSE 0 END), 0)`.as(
             "totalCommissionCurrentMonth"
@@ -153,6 +158,7 @@ export class MerchantService {
           sql<string>`COALESCE(SUM(CASE WHEN date_trunc('month', ${sales.createdAt}) = date_trunc('month', CURRENT_DATE) THEN CAST(${sales.amount} AS numeric) ELSE 0 END), 0)`.as(
             "totalVolumeCurrentMonth"
           ),
+        provincia: users.provincia,
       })
       .from(users)
       .leftJoin(businessType, eq(users.businessTypeId, businessType.id))

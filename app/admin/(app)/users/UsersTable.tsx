@@ -96,6 +96,21 @@ export default function UsersTable({ tableData }: UsersTableProps) {
           </Flex>
         ),
       }),
+      columnHelper.accessor("provincia", {
+        id: "provincia",
+        header: () => (
+          <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
+            Provincia
+          </Text>
+        ),
+        cell: (info) => (
+          <Flex align="center">
+            <Text color={textColor} fontSize="sm" fontWeight="700">
+              {info.getValue()}
+            </Text>
+          </Flex>
+        ),
+      }),
       columnHelper.accessor("partnerName", {
         id: "partnerName",
         header: () => (
@@ -249,6 +264,7 @@ export default function UsersTable({ tableData }: UsersTableProps) {
                     onClick={header.column.getToggleSortingHandler()}
                   >
                     <Text
+                      as="div"
                       fontSize={{ sm: "10px", lg: "12px" }}
                       color="gray.400"
                       fontWeight="bold"
