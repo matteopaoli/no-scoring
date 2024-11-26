@@ -462,10 +462,7 @@ export async function getPartners() {
         0
       );
 
-      const totalCommission = Number(
-        totalFirstLevelCommission + (secondLevelCommission || 0)
-      );
-
+      const totalCommission = Number(totalFirstLevelCommission) + Number(secondLevelCommission || 0);
       return {
         ...partner,
         totalCommission,
