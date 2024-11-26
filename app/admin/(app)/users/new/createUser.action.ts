@@ -63,6 +63,7 @@ export default async function createUserAction(
       ),
     phoneNumber: z.string().regex(/^(\+39\s?)?\d{6,10}$/, "Inserire un numero di telefono valido (es. +39 123 456 7890)"),
     refName: z.string().min(1, "Inserire un nome valido"),
+    provincia: z.string().min(1, "Selezionare una provincia valida"),
   });
 
   // Validate form data against the schema
@@ -73,6 +74,7 @@ export default async function createUserAction(
     businessName: formData.get("businessName"),
     partner: formData.get("partner"),
     refName: formData.get("refName"),
+    provincia: formData.get("provincia"),
   });
 
   if (!validation.success) {
@@ -85,7 +87,8 @@ export default async function createUserAction(
     businessName,
     partner: partnerId,
     phoneNumber,
-    refName
+    refName,
+    provincia
   } = validation.data;
 
   const existingUserByEmail = await UserService.getUserByEmail(email);
@@ -132,6 +135,7 @@ export default async function createUserAction(
     partnerId: partnerId ?? undefined,
     phoneNumber,
     refName,
+    provincia,
   });
 
   accountCreatedMerchantEmail({ email, onboardingLink: accountLink.url });
