@@ -159,6 +159,7 @@ export class MerchantService {
             "totalVolumeCurrentMonth"
           ),
         provincia: users.provincia,
+        phoneNumber: users.phoneNumber,
       })
       .from(users)
       .leftJoin(businessType, eq(users.businessTypeId, businessType.id))

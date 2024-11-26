@@ -96,6 +96,36 @@ export default function UsersTable({ tableData }: UsersTableProps) {
           </Flex>
         ),
       }),
+      columnHelper.accessor("email", {
+        id: "email",
+        header: () => (
+          <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
+            Email
+          </Text>
+        ),
+        cell: (info) => (
+          <Flex align="center">
+            <Text color={textColor} fontSize="sm" fontWeight="700">
+              {info.getValue()}
+            </Text>
+          </Flex>
+        ),
+      }),
+      columnHelper.accessor("phoneNumber", {
+        id: "phoneNumber",
+        header: () => (
+          <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
+            Telefono
+          </Text>
+        ),
+        cell: (info) => (
+          <Flex align="center">
+            <Text color={textColor} fontSize="sm" fontWeight="700">
+              {info.getValue()}
+            </Text>
+          </Flex>
+        ),
+      }),
       columnHelper.accessor("provincia", {
         id: "provincia",
         header: () => (
