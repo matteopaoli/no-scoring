@@ -77,6 +77,7 @@ export class MerchantService {
         id: users.id,
         email: users.email,
         createdAt: users.createdAt,
+        provincia: users.provincia,
         onboardingLink: users.onboardingLink,
         status: users.status,
         name: sql<string>`CASE 

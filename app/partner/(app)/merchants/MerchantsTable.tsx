@@ -37,6 +37,11 @@ export default function MerchantsTable({ merchants }: MerchantsTableProps) {
       cell: (info) => info.getValue(),
     },
     {
+      accessorKey: "provincia",
+      header: "Provincia",
+      cell: (info) => info.getValue(),
+    },
+    {
       accessorKey: "createdAt",
       header: "Data creazione",
       cell: (info) =>

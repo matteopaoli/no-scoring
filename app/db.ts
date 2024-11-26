@@ -756,6 +756,7 @@ export async function getAllPendingUsers() {
       referredByRole: partner.role,
       phoneNumber: users.phoneNumber,
       onboardingLink: users.onboardingLink,
+      provincia: users.provincia,
       name: sql<string>`CASE 
             WHEN ${users.firstName} IS NOT NULL AND ${users.lastName} IS NOT NULL 
             THEN ${users.firstName} || ' ' || ${users.lastName} 

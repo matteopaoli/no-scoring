@@ -48,6 +48,11 @@ export default function PendingMerchantsTable({
       cell: (info) => info.getValue(),
     },
     {
+      accessorKey: "provincia",
+      header: "Provincia",
+      cell: (info) => info.getValue(),
+    },
+    {
       accessorKey: "createdAt",
       header: "Data creazione",
       cell: (info) =>
