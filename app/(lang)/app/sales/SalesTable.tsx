@@ -31,10 +31,10 @@ import { useEffect, useMemo, useState } from "react";
 import type Stripe from "stripe";
 
 type ChargesTableProps = {
-  chargesData: (Stripe.Charge & { productNames: string[] })[]
+  chargesData: (Stripe.Charge & { productNames: string[] })[];
 };
 
-const columnHelper = createColumnHelper<Stripe.Charge>();
+const columnHelper = createColumnHelper();
 
 export default function ChargesTable({ chargesData }: ChargesTableProps) {
   const CHARGES_PER_PAGE = 10; // Define charges per page
@@ -60,105 +60,107 @@ export default function ChargesTable({ chargesData }: ChargesTableProps) {
     pending: "In attesa",
   };
 
-  const columns = useMemo(
-    () => [
-      columnHelper.accessor("id", {
-        header: "ID Transazione",
-        cell: info => (
+  const columns = [
+    columnHelper.accessor("amount", {
+      header: "Importo",
+      cell: (info) => {
+        const amount = info.getValue();
+        const currency = info.row.original.currency.toUpperCase();
+        const formattedAmount = (amount / 100).toFixed(2);
+        return (
           <Text color={textColor} fontSize="sm" fontWeight="700">
-            {info.getValue()}
+            {formattedAmount} {currency}
           </Text>
-        ),
-        enableSorting: true,
-      }),
-      columnHelper.accessor("amount", {
-        header: "Importo",
-        cell: info => {
-          const amount = info.getValue();
-          const currency = info.row.original.currency.toUpperCase();
-          const formattedAmount = (amount / 100).toFixed(2);
-          return (
-            <Text color={textColor} fontSize="sm" fontWeight="700">
-              {formattedAmount} {currency}
-            </Text>
-          );
-        },
-        enableSorting: true,
-      }),
-      columnHelper.accessor("created", {
-        header: "Data Creazione",
-        cell: info => {
-          const timestamp = info.getValue();
-          const date = new Date(timestamp * 1000).toLocaleDateString();
-          return (
-            <Text color={textColor} fontSize="sm" fontWeight="700">
-              {date}
-            </Text>
-          );
-        },
-        enableSorting: true,
-      }),
-      columnHelper.accessor("status", {
-        header: "Stato",
-        cell: info => {
-          const status = info.getValue();
-          let statusIcon;
+        );
+      },
+      enableSorting: true,
+    }),
+    columnHelper.accessor("net", {
+      header: "Netto",
+      cell: (info) => {
+        const net = info.getValue();
+        const currency = info.row.original.currency.toUpperCase();
+        const formattedNet = (net / 100).toFixed(2);
+        return (
+          <Text color={textColor} fontSize="sm" fontWeight="700">
+            {formattedNet} {currency}
+          </Text>
+        );
+      },
+      enableSorting: true,
+    }),
+    columnHelper.accessor("created", {
+      header: "Data",
+      cell: (info) => {
+        const timestamp = info.getValue();
+        const date = new Date(timestamp * 1000).toLocaleDateString();
+        return (
+          <Text color={textColor} fontSize="sm" fontWeight="700">
+            {date}
+          </Text>
+        );
+      },
+      enableSorting: true,
+    }),
+    columnHelper.accessor("status", {
+      header: "Stato",
+      cell: (info) => {
+        const status = info.getValue();
+        let statusIcon;
 
-          switch (status) {
-            case "succeeded":
-              statusIcon = <MdCheckCircle color="green.500" />;
-              break;
-            case "failed":
-              statusIcon = <MdError color="red.500" />;
-              break;
-            case "pending":
-              statusIcon = <MdPending color="yellow.500" />;
-              break;
-            default:
-              statusIcon = <MdError color="gray.500" />;
-          }
+        switch (status) {
+          case "succeeded":
+            statusIcon = <MdCheckCircle color="green.500" />;
+            break;
+          case "failed":
+            statusIcon = <MdError color="red.500" />;
+            break;
+          case "pending":
+            statusIcon = <MdPending color="yellow.500" />;
+            break;
+          default:
+            statusIcon = <MdError color="gray.500" />;
+        }
 
-          return (
-            <Flex align="center">
-              {statusIcon}
-              <Text ml={2} color={textColor} fontSize="sm" fontWeight="700">
-                {statusTranslation[status] || status}
-              </Text>
-            </Flex>
-          );
-        },
-        enableSorting: true,
-      }),
-      columnHelper.accessor("billing_details.name", {
-        header: "Nome Cliente",
-        cell: info => (
-          <Text color={textColor} fontSize="sm" fontWeight="700">
-            {info.getValue() || "N/A"}
-          </Text>
-        ),
-        enableSorting: true,
-      }),
-      columnHelper.accessor("billing_details.email", {
-        header: "Email Cliente",
-        cell: info => (
-          <Text color={textColor} fontSize="sm" fontWeight="700">
-            {info.getValue() || "N/A"}
-          </Text>
-        ),
-        enableSorting: true,
-      }),
-      columnHelper.accessor("productNames", {
-        header: "Nome Prodotto",
-        cell: info => (
-          <Text color={textColor} fontSize="sm" fontWeight="700">
-            {info.getValue().join(", ") || "N/A"}
-          </Text>
-        ),
-        enableSorting: false,
-      }),
-    ],
-    [textColor]
-  );
+        return (
+          <Flex align="center">
+            {statusIcon}
+            <Text ml={2} color={textColor} fontSize="sm" fontWeight="700">
+              {statusTranslation[status] || status}
+            </Text>
+          </Flex>
+        );
+      },
+      enableSorting: true,
+    }),
+    columnHelper.accessor("billing_details.name", {
+      header: "Nome Cliente",
+      cell: (info) => (
+        <Text color={textColor} fontSize="sm" fontWeight="700">
+          {info.getValue() || "N/A"}
+        </Text>
+      ),
+      enableSorting: true,
+    }),
+    columnHelper.accessor("billing_details.email", {
+      header: "Email Cliente",
+      cell: (info) => (
+        <Text color={textColor} fontSize="sm" fontWeight="700">
+          {info.getValue() || "N/A"}
+        </Text>
+      ),
+      enableSorting: true,
+    }),
+    columnHelper.accessor("productNames", {
+      header: "Nome Prodotto",
+      cell: (info) => (
+        <Text color={textColor} fontSize="sm" fontWeight="700">
+          {info.getValue().join(", ") || "N/A"}
+        </Text>
+      ),
+      enableSorting: false,
+    }),
+  ];
 
   const table = useReactTable({
     data: chargesData,
@@ -174,38 +176,60 @@ export default function ChargesTable({ chargesData }: ChargesTableProps) {
   });
 
   // Paginated rows based on the current page and per-page count
-  const paginatedRows = table.getRowModel().rows.slice(
-    (currentPage - 1) * CHARGES_PER_PAGE,
-    currentPage * CHARGES_PER_PAGE
-  );
+  const paginatedRows = table
+    .getRowModel()
+    .rows.slice(
+      (currentPage - 1) * CHARGES_PER_PAGE,
+      currentPage * CHARGES_PER_PAGE
+    );
 
   // Pagination handler functions
-  const goToPreviousPage = () => setCurrentPage(prevPage => Math.max(prevPage - 1, 1));
-  const goToNextPage = () => setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
+  const goToPreviousPage = () =>
+    setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
+  const goToNextPage = () =>
+    setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));
 
   return (
-    <Card flexDirection="column" w="100%" px="0px" overflowX={{ sm: "scroll", lg: "hidden" }}>
+    <Card
+      flexDirection="column"
+      w="100%"
+      px="0px"
+      overflowX={{ sm: "scroll", lg: "hidden" }}
+    >
       <Flex px="25px" mb="8px" justifyContent="space-between" align="center">
-        <Text color={textColor} fontSize="22px" fontWeight="700" lineHeight="100%">
+        <Text
+          color={textColor}
+          fontSize="22px"
+          fontWeight="700"
+          lineHeight="100%"
+        >
           Lista Transazioni
         </Text>
       </Flex>
       <Box>
         <Table variant="simple" color="gray.500" mb="24px" mt="12px">
           <Thead>
-            {table.getHeaderGroups().map(headerGroup => (
+            {table.getHeaderGroups().map((headerGroup) => (
               <Tr key={headerGroup.id}>
-                {headerGroup.headers.map(header => (
+                {headerGroup.headers.map((header) => (
                   <Th key={header.id} colSpan={header.colSpan}>
                     {!header.isPlaceholder && (
                       <Flex
                         justifyContent="space-between"
                         align="center"
                         onClick={header.column.getToggleSortingHandler()}
-                        cursor={header.column.getCanSort() ? "pointer" : "default"}
+                        cursor={
+                          header.column.getCanSort() ? "pointer" : "default"
+                        }
                       >
-                        <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
-                          {flexRender(header.column.columnDef.header, header.getContext())}
+                        <Text
+                          fontSize={{ sm: "10px", lg: "12px" }}
+                          color="gray.400"
+                        >
+                          {flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                         </Text>
                         {header.column.getIsSorted() ? (
                           header.column.getIsSorted() === "asc" ? (
@@ -225,11 +249,14 @@ export default function ChargesTable({ chargesData }: ChargesTableProps) {
           </Thead>
           <Tbody>
             {paginatedRows.length > 0 ? (
-              paginatedRows.map(row => (
+              paginatedRows.map((row) => (
                 <Tr key={row.id}>
-                  {row.getVisibleCells().map(cell => (
+                  {row.getVisibleCells().map((cell) => (
                     <Td key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
                     </Td>
                   ))}
                 </Tr>
