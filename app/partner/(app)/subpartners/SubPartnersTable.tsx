@@ -17,7 +17,7 @@ export default function SubPartnersTable({ tableData }: SubPartnersTableProps) {
   const columns = [
     {
       accessorKey: "name",
-      header: "Nome e Cognome",
+      header: "Nome",
       cell: (info) =>
         `${info.row.original.firstName ?? ""} ${
           info.row.original.lastName ?? ""
