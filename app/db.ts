@@ -606,6 +606,47 @@ export async function _ADMIN_getSubPartnersByUserId(userId: string) {
   return subpartnersWithCommissions;
 }
 
+export async function _PARTNER_getSubPartnersByUserId(userId: string) {
+  // Fetch all subpartners for the given userId
+  const subpartners = await db
+    .select({
+      id: users.id,
+      firstName: users.firstName,
+      lastName: users.lastName,
+      provincia: users.provincia,
+      email: users.email,
+    })
+    .from(users)
+    .where(and(eq(users.partnerId, userId), eq(users.role, "subpartner")));
+
+  // For each subpartner, fetch the first-level commissions
+  const subpartnersWithCommissions = await Promise.all(
+    subpartners.map(async (subpartner) => {
+      // Fetch first-level commissions for this subpartner
+      const merchantStores = (await db
+        .select({
+          totalCommission: sql`COALESCE(SUM(CAST(${sales.secondLevelPartnerCommission} AS numeric)), 0)`,
+        })
+        .from(stores)
+        .innerJoin(userStoreRoles, eq(stores.id, userStoreRoles.storeId))
+        .leftJoin(sales, eq(stores.id, sales.storeId))
+        .where(eq(stores.partnerId, subpartner.id))) as {
+        totalCommission: number;
+      }[];
+
+      const earnings = merchantStores[0]?.totalCommission || 0;
+
+      // Return the subpartner data with totalCommission added
+      return {
+        ...subpartner,
+        earnings: Number(earnings),
+      };
+    })
+  );
+
+  return subpartnersWithCommissions;
+}
+
 export async function searchPartner(query: string) {
   const trimmedQuery = query.trim().toLowerCase();
 
