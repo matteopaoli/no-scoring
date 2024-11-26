@@ -24,6 +24,11 @@ export default function PendingMerchantsTable({ merchants }: PendingMerchantsTab
       cell: (info) => info.getValue(),
     },
     {
+      accessorKey: "email",
+      header: "Email",
+      cell: (info) => info.getValue(),
+    },
+    {
       accessorKey: "phoneNumber",
       header: "Telefono",
       cell: (info) => info.getValue(),
