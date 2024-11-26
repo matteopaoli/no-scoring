@@ -73,6 +73,7 @@ export default function CreateUserPage({
             name="phoneNumber"
             placeholder="+39 123 456 7890"
             errors={getFormErrors(errors, "phoneNumber")}
+            isRequired
           />
 
           <InputField
