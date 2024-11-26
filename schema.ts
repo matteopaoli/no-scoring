@@ -100,11 +100,11 @@ export const products = pgTable("product", {
   qrcode: text("qrcode"),
   tagImage: text("tagImage"),
   paymentLinkId: text("paymentLinkId"),
-  userId: text("userId") 
+  userId: text("userId")
     .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
+    .references(() => users.id, { onDelete: "cascade" }),
+  type: text("type").notNull().default("product"),
 });
-
 
 export const commissionRules = pgTable("commissionRules", {
   id: serial("id").primaryKey(), // Auto-incrementing ID for the rule

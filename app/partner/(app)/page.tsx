@@ -1,4 +1,4 @@
-import { getAllMerchants, getSales } from "@/app/db";
+import { getSales } from "@/app/db";
 import { redirect } from "next/navigation";
 import Statistics from "./Statistics";
 import { GridItem, SimpleGrid } from "@chakra-ui/react";
@@ -10,7 +10,6 @@ export default async function Page() {
   // const user = await UserService.getUserByEmail(session?.user?.email)
   const user = await getUserFromAuth()
   redirect('/partner/merchants')
-  // const merchants = await getAllMerchants();
   // const sales = await getSales(user.id, user.role)
   // return (
   //   <>

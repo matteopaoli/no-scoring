@@ -2,10 +2,9 @@
 import {
   Box
 } from "@chakra-ui/react";
-import { createColumnHelper } from "@tanstack/react-table";
+import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import GenericTable from "@/app/components/GenericTable"; // Import the GenericTable component
 import { User } from "@/app/db";
-import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import PartnersTableMenu from "./PartnersTableMenu";
 
@@ -18,27 +17,29 @@ const columnHelper = createColumnHelper();
 export default function PartnersTable({ tableData }: PartnersTableProps) {
   const router = useRouter();
 
-  const columns = useMemo(
-    () => [
-      columnHelper.accessor("firstName", {
-        id: "name",
-        header: () => "Nome",
-        cell: (info) =>
-          `${info.row.original.firstName} ${info.row.original.lastName}`,
-      }),
-      columnHelper.accessor("email", {
-        id: "email",
-        header: () => "E-mail",
-        cell: (info) => info.getValue(),
-      }),
-      columnHelper.accessor("totalCommission", {
-        id: "totalCommission",
-        header: () => "Commissioni Dovute",
-        cell: (info) => `€ ${(info.getValue() as number).toFixed(2)}`,
-      }),
-    ],
-    []
-  );
+  const columns = [
+    {
+      accessorKey: "firstName",
+      header: "Nome",
+      cell: (info) => `${info.row.original.firstName} ${info.row.original.lastName}`,
+    },
+    {
+      accessorKey: "email",
+      header: "E-mail",
+      cell: (info) => info.getValue(),
+    },
+    {
+      accessorKey: "partnerName",
+      header: "Partner di riferimento",
+      cell: (info) => info.getValue(),
+    },
+    {
+      accessorKey: "totalCommission",
+      header: "Commissioni Dovute",
+      cell: (info) => `€ ${info.getValue()}`,
+    },
+  ];
+  
 
   // const handleDelete = async () => {
   //   if (!selectedUserId) return;

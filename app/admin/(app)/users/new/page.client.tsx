@@ -16,6 +16,7 @@ import {
 } from "@choc-ui/chakra-autocomplete";
 import FormLabel from "@/app/components/fields/FormLabel";
 import PhoneNumberField from "@/app/components/fields/PhoneNumberField";
+import { provinces } from "@/app/constants";
 
 type CreateUserPageProps = {
   businessTypesOptions: ReactNode[];
@@ -72,6 +73,7 @@ export default function CreateUserPage({
             name="phoneNumber"
             placeholder="+39 123 456 7890"
             errors={getFormErrors(errors, "phoneNumber")}
+            isRequired
           />
 
           <InputField
@@ -128,6 +130,21 @@ export default function CreateUserPage({
               </AutoCompleteList>
             </AutoComplete>
           </FormControl>
+
+          <Select
+            id="user-provincia"
+            label="Provincia"
+            name="provincia"
+            placeholder="Seleziona una provincia"
+            errors={getFormErrors(errors, "provincia")}
+            isRequired
+          >
+            {provinces.map((province) => (
+              <option key={province} value={province}>
+                {province}
+              </option>
+            ))}
+          </Select>
         </SimpleGrid>
         <Flex
           justifyContent={{

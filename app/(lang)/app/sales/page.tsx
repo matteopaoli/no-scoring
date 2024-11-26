@@ -18,6 +18,7 @@ export default async function SalesPage() {
   const chargesWithDetails = await Promise.all(
     charges.map(async (charge) => {
       let productNames = [];
+      const { net } = await stripe.balanceTransactions.retrieve(charge.balance_transaction);
       if (charge.payment_intent) {
         const session = await stripe.checkout.sessions.list({
           payment_intent: charge.payment_intent,
@@ -33,6 +34,7 @@ export default async function SalesPage() {
       return {
         ...charge,
         productNames,
+        net,
       };
     })
   );

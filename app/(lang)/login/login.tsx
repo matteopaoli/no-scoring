@@ -64,19 +64,141 @@ export default function SignIn() {
   return (
     <DefaultAuth>
       <Callout autoDismiss={true} dismissDuration={5000} />
+      <Flex justifyContent="space-between" alignItems="center" direction={{ base: 'column-reverse', md: 'row' }} gap={{ base: 5, md: 20 }} px="20px">
+        <Flex
+          maxW={{ base: "100%", md: "max-content" }}
+          w="100%"
+          mx={{ base: "50px", lg: "0px" }}
+          alignItems="start"
+          justifyContent="center"
+          mb={{ base: "30px", md: "60px" }}
+          px={{ base: "25px", md: "0" }}
+          p={{ md: "50px" }}
+          borderRadius={12}
+          mt={{ base: "40px", md: "14vh" }}
+          flexDirection="column"
+          bgColor="white"
+        >
+          {onboardingComplete && ( // Conditionally render the alert
+            <Alert status="success" mb="20px">
+              <AlertIcon />
+              Procedura di onboarding completata. Per favore autenticati di
+              nuovo.
+            </Alert>
+          )}
+          <Box me="auto">
+            <Heading color={textColor} fontSize="36px" mb="10px">
+              {t("signIn")}
+            </Heading>
+            <Text
+              mb="36px"
+              ms="4px"
+              color={textColorSecondary}
+              fontWeight="400"
+              fontSize="md"
+            >
+              {t("enterEmailPassword")}
+            </Text>
+          </Box>
+          <Flex
+            zIndex="2"
+            direction="column"
+            w={{ base: "100%", md: "420px" }}
+            maxW="100%"
+            background="transparent"
+            borderRadius="15px"
+            mx={{ base: "auto", lg: "unset" }}
+            me="auto"
+            mb={{ base: "20px", md: "auto" }}
+          >
+            <form action={action}>
+              <FormControl isInvalid={formState?.error}>
+                <FormLabel
+                  display="flex"
+                  ms="4px"
+                  fontSize="sm"
+                  fontWeight="500"
+                  color={textColor}
+                  mb="8px"
+                >
+                  {t("email")}
+                  <Text color={brandStars}>{t("requiredField")}</Text>
+                </FormLabel>
+                <Input
+                  isRequired={true}
+                  fontSize="sm"
+                  ms={{ base: "0px", md: "0px" }}
+                  type="email"
+                  placeholder="Inserisci email"
+                  mb="24px"
+                  fontWeight="500"
+                  size="lg"
+                  name="email"
+                  data-testid="mt-email-field"
+                />
+                <FormLabel
+                  ms="4px"
+                  fontSize="sm"
+                  fontWeight="500"
+                  color={textColor}
+                  display="flex"
+                >
+                  {t("password")}
+                  <Text color={brandStars}>{t("requiredField")}</Text>
+                </FormLabel>
+                <InputGroup size="md">
+                  <Input
+                    isRequired={true}
+                    fontSize="sm"
+                    placeholder="**********"
+                    size="lg"
+                    type={show ? "text" : "password"}
+                    name="password"
+                    data-testid="mt-password-field"
+                  />
+                  <InputRightElement
+                    display="flex"
+                    alignItems="center"
+                    mt="4px"
+                  >
+                    <Icon
+                      color={textColorSecondary}
+                      _hover={{ cursor: "pointer" }}
+                      as={show ? RiEyeCloseLine : MdOutlineRemoveRedEye}
+                      onClick={handleClick}
+                    />
+                  </InputRightElement>
+                </InputGroup>
+                {formState?.error ? (
+                  <FormErrorMessage>
+                    {t("wrongCredentialsMessage")}
+                  </FormErrorMessage>
+                ) : null}
+                <SubmitButton
+                  w="100%"
+                  loadingText="Accesso in corso"
+                  data-testid="mt-login-button"
+                >
+                  {t("signIn")}
+                </SubmitButton>
+              </FormControl>
+            </form>
+          </Flex>
+        </Flex>
         <Box
           bg="white"
           p={5}
-          borderRadius="md"
+          borderRadius="lg"
           boxShadow="sm"
-          mx={{ base: 4, md: 0 }} // Horizontal margin: 4 units on small screens, 8 units on larger screens
+          maxW="700px"
         >
           <Text fontSize={{ base: "lg", md: "xl" }} fontWeight="bold" mb={4}>
             Benvenuto su PayTomorrow!
           </Text>
           <Text fontSize={{ base: "sm", md: "md" }} mb={4}>
-            Se è la tua prima volta qui, abbiamo inviato una mail all&apos;indirizzo
-            fornito con le istruzioni per il tuo primo accesso.
+            Se è la tua prima volta qui, abbiamo inviato una mail
+            all&apos;indirizzo fornito con le istruzioni per il tuo primo
+            accesso.
           </Text>
           <Text fontSize={{ base: "sm", md: "md" }} mb={4}>
             Se hai bisogno di assistenza, puoi contattarci via email a{" "}
@@ -98,122 +220,6 @@ export default function SignIn() {
             PayTomorrow!
           </Text>
         </Box>
-
-      <Flex
-        maxW={{ base: "100%", md: "max-content" }}
-        w="100%"
-        mx={{ base: "auto", lg: "0px" }}
-        me="auto"
-        alignItems="start"
-        justifyContent="center"
-        mb={{ base: "30px", md: "60px" }}
-        px={{ base: "25px", md: "0" }}
-        p={{ md: "50px" }}
-        borderRadius={12}
-        mt={{ base: "40px", md: "14vh" }}
-        flexDirection="column"
-        bgColor="white"
-      >
-        {onboardingComplete && ( // Conditionally render the alert
-          <Alert status="success" mb="20px">
-            <AlertIcon />
-            Procedura di onboarding completata. Per favore autenticati di nuovo.
-          </Alert>
-        )}
-        <Box me="auto">
-          <Heading color={textColor} fontSize="36px" mb="10px">
-            {t("signIn")}
-          </Heading>
-          <Text
-            mb="36px"
-            ms="4px"
-            color={textColorSecondary}
-            fontWeight="400"
-            fontSize="md"
-          >
-            {t("enterEmailPassword")}
-          </Text>
-        </Box>
-        <Flex
-          zIndex="2"
-          direction="column"
-          w={{ base: "100%", md: "420px" }}
-          maxW="100%"
-          background="transparent"
-          borderRadius="15px"
-          mx={{ base: "auto", lg: "unset" }}
-          me="auto"
-          mb={{ base: "20px", md: "auto" }}
-        >
-          <form action={action}>
-            <FormControl isInvalid={formState?.error}>
-              <FormLabel
-                display="flex"
-                ms="4px"
-                fontSize="sm"
-                fontWeight="500"
-                color={textColor}
-                mb="8px"
-              >
-                {t("email")}
-                <Text color={brandStars}>{t("requiredField")}</Text>
-              </FormLabel>
-              <Input
-                isRequired={true}
-                fontSize="sm"
-                ms={{ base: "0px", md: "0px" }}
-                type="email"
-                placeholder="Inserisci email"
-                mb="24px"
-                fontWeight="500"
-                size="lg"
-                name="email"
-                data-testid="mt-email-field"
-              />
-              <FormLabel
-                ms="4px"
-                fontSize="sm"
-                fontWeight="500"
-                color={textColor}
-                display="flex"
-              >
-                {t("password")}
-                <Text color={brandStars}>{t("requiredField")}</Text>
-              </FormLabel>
-              <InputGroup size="md">
-                <Input
-                  isRequired={true}
-                  fontSize="sm"
-                  placeholder="**********"
-                  size="lg"
-                  type={show ? "text" : "password"}
-                  name="password"
-                  data-testid="mt-password-field"
-                />
-                <InputRightElement display="flex" alignItems="center" mt="4px">
-                  <Icon
-                    color={textColorSecondary}
-                    _hover={{ cursor: "pointer" }}
-                    as={show ? RiEyeCloseLine : MdOutlineRemoveRedEye}
-                    onClick={handleClick}
-                  />
-                </InputRightElement>
-              </InputGroup>
-              {formState?.error ? (
-                <FormErrorMessage>
-                  {t("wrongCredentialsMessage")}
-                </FormErrorMessage>
-              ) : null}
-              <SubmitButton
-                w="100%"
-                loadingText="Accesso in corso"
-                data-testid="mt-login-button"
-              >
-                {t("signIn")}
-              </SubmitButton>
-            </FormControl>
-          </form>
-        </Flex>
       </Flex>
     </DefaultAuth>
   );

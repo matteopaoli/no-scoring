@@ -63,6 +63,7 @@ export default async function createUserAction(
       ),
     refName: z.string().min(1, "Inserire un nome valido"),
     phoneNumber: z.string().min(1, "Inserire un numero di telefono valido"),
+    provincia: z.string().min(1, "Selezionare una provincia valida"),
   });
 
   // Validate form data against the schema
@@ -73,6 +74,7 @@ export default async function createUserAction(
     partner: user.id,
     refName: formData.get("refName"),
     phoneNumber: formData.get("phoneNumber"),
+    provincia: formData.get("provincia"),
   });
 
   if (!validation.success) {
@@ -86,6 +88,7 @@ export default async function createUserAction(
     partner: partnerId,
     refName,
     phoneNumber,
+    provincia,
   } = validation.data;
 
   const stripe = new Stripe(process.env.STRIPE_API_KEY!);
@@ -126,6 +129,7 @@ export default async function createUserAction(
     partnerId: partnerId ?? undefined,
     refName,
     phoneNumber,
+    provincia,
   });
 
   accountCreatedMerchantEmail({ email, onboardingLink: accountLink.url })

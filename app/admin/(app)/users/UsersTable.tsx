@@ -42,6 +42,7 @@ import { useMemo, useState } from "react";
 import { User } from "@/app/db";
 import { Link } from "@chakra-ui/next-js";
 import CopyButton from "@/app/components/CopyButton";
+import { FaSort, FaSortDown, FaSortUp } from "react-icons/fa";
 
 type UsersTableProps = {
   tableData: unknown[];
@@ -80,11 +81,11 @@ export default function UsersTable({ tableData }: UsersTableProps) {
 
   const columns = useMemo(
     () => [
-      columnHelper.accessor("businessName", {
-        id: "businessName",
+      columnHelper.accessor("refName", {
+        id: "refName",
         header: () => (
           <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
-            Nome azienda
+            Nome Referente
           </Text>
         ),
         cell: (info) => (
@@ -95,17 +96,49 @@ export default function UsersTable({ tableData }: UsersTableProps) {
           </Flex>
         ),
       }),
-      columnHelper.accessor("businessType", {
-        id: "businessType",
+      columnHelper.accessor("email", {
+        id: "email",
         header: () => (
           <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
-            Tipo Business
+            Email
           </Text>
         ),
         cell: (info) => (
-          <Text color={textColor} fontSize="sm" fontWeight="700">
-            {info.getValue()}
+          <Flex align="center">
+            <Text color={textColor} fontSize="sm" fontWeight="700">
+              {info.getValue()}
+            </Text>
+          </Flex>
+        ),
+      }),
+      columnHelper.accessor("phoneNumber", {
+        id: "phoneNumber",
+        header: () => (
+          <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
+            Telefono
           </Text>
+        ),
+        cell: (info) => (
+          <Flex align="center">
+            <Text color={textColor} fontSize="sm" fontWeight="700">
+              {info.getValue()}
+            </Text>
+          </Flex>
+        ),
+      }),
+      columnHelper.accessor("provincia", {
+        id: "provincia",
+        header: () => (
+          <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
+            Provincia
+          </Text>
+        ),
+        cell: (info) => (
+          <Flex align="center">
+            <Text color={textColor} fontSize="sm" fontWeight="700">
+              {info.getValue()}
+            </Text>
+          </Flex>
         ),
       }),
       columnHelper.accessor("partnerName", {
@@ -121,24 +154,24 @@ export default function UsersTable({ tableData }: UsersTableProps) {
           </Text>
         ),
       }),
-      columnHelper.accessor("storeName", {
-        id: "storeName",
-        header: () => (
-          <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
-            Store Name
-          </Text>
-        ),
-        cell: (info) => (
-          <Text color={textColor} fontSize="sm" fontWeight="700">
-            {info.getValue()}
-          </Text>
-        ),
-      }),
       columnHelper.accessor("totalCommission", {
         id: "totalCommission",
         header: () => (
           <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
-            Total Commission
+            Commssioni guadagnate
+          </Text>
+        ),
+        cell: (info) => (
+          <Text color={textColor} fontSize="sm" fontWeight="700">
+            {Number(info.getValue()).toFixed(2)} €
+          </Text>
+        ),
+      }),
+      columnHelper.accessor("totalCommissionCurrentMonth", {
+        id: "totalCommissionCurrentMonth",
+        header: () => (
+          <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
+            Commssioni guadagnate (mese corrente)
           </Text>
         ),
         cell: (info) => (
@@ -151,7 +184,20 @@ export default function UsersTable({ tableData }: UsersTableProps) {
         id: "totalVolume",
         header: () => (
           <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
-            Total Volume
+            Volume totale
+          </Text>
+        ),
+        cell: (info) => (
+          <Text color={textColor} fontSize="sm" fontWeight="700">
+            {Number(info.getValue()).toFixed(2)} €
+          </Text>
+        ),
+      }),
+      columnHelper.accessor("totalVolumeCurrentMonth", {
+        id: "totalVolumeCurrentMonth",
+        header: () => (
+          <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
+            Volume (mese corrente)
           </Text>
         ),
         cell: (info) => (
@@ -180,7 +226,7 @@ export default function UsersTable({ tableData }: UsersTableProps) {
                 />
               </Link>
             </Tooltip>
-          
+
             <Tooltip label="Elimina Utente" hasArrow placement="auto">
               <span>
                 <Icon
@@ -196,14 +242,6 @@ export default function UsersTable({ tableData }: UsersTableProps) {
                 />
               </span>
             </Tooltip>
-          
-            {info.row.original.status === "pending" && (
-                <Tooltip label="Copia link onboarding" hasArrow placement="auto">
-                  <span>
-                  <CopyButton text={info.row.original.onboardingLink} />
-                  </span>
-                </Tooltip>
-            )}
           </Flex>
         ),
       }),
@@ -253,13 +291,30 @@ export default function UsersTable({ tableData }: UsersTableProps) {
                     colSpan={header.colSpan}
                     pe="10px"
                     borderColor={borderColor}
+                    onClick={header.column.getToggleSortingHandler()}
                   >
-                    <Flex align="center">
+                    <Text
+                      as="div"
+                      fontSize={{ sm: "10px", lg: "12px" }}
+                      color="gray.400"
+                      fontWeight="bold"
+                      display="flex"
+                      alignItems="center"
+                    >
                       {flexRender(
                         header.column.columnDef.header,
                         header.getContext()
                       )}
-                    </Flex>
+                      {header.column.getIsSorted() ? (
+                        header.column.getIsSorted() === "asc" ? (
+                          <FaSortUp color="gray.400" />
+                        ) : (
+                          <FaSortDown color="gray.400" />
+                        )
+                      ) : (
+                        <FaSort color="gray.400" />
+                      )}
+                    </Text>
                   </Th>
                 ))}
               </Tr>

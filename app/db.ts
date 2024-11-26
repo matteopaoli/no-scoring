@@ -63,41 +63,6 @@ export interface Lead {
   sector: string;
 }
 
-export async function getUsersWithStoresAndCommissions() {
-  const { password, role, businessTypeId, partnerId, ...rest } =
-    getTableColumns(users);
-  const partner = alias(users, "partner");
-
-  return await db
-    .select({
-      ...rest,
-      businessType: businessType.name,
-      partnerName:
-        sql<string>`CONCAT(partner."firstName", ' ', partner."lastName")`.as(
-          "partnerName"
-        ),
-      storeId: stores.id,
-      storeName: stores.name,
-      storeImage: stores.image,
-      storeCreatedAt: stores.createdAt,
-      totalCommission:
-        sql`COALESCE(SUM(CAST(${sales.legCommission} AS numeric)), 0)`.as(
-          "totalCommission"
-        ),
-      totalVolume: sql`COALESCE(SUM(CAST(${sales.amount} AS numeric)), 0)`.as(
-        "totalVolume"
-      ),
-    })
-    .from(users)
-    .leftJoin(businessType, eq(users.businessTypeId, businessType.id))
-    .leftJoin(partner, eq(users.partnerId, sql`partner.id`))
-    .leftJoin(userStoreRoles, eq(users.id, userStoreRoles.userId))
-    .leftJoin(stores, eq(userStoreRoles.storeId, stores.id))
-    .leftJoin(sales, eq(stores.id, sales.storeId))
-    .where(and(eq(users.role, "user"), eq(users.status, "active")))
-    .groupBy(users.id, partner.id, businessType.name, stores.id);
-}
-
 export async function updateProfile({
   password,
   profileImage,
@@ -448,25 +413,6 @@ export async function createSale({
   });
 }
 
-export async function getAllMerchants() {
-  return await db
-    .select({
-      firstName: users.firstName,
-      lastName: users.lastName,
-      productCount: count(products.id).as("productCount"),
-      createdAt: users.createdAt,
-      id: users.id,
-      status: users.status,
-      onboardingLink: users.onboardingLink,
-      email: users.email,
-      phoneNumber: users.phoneNumber,
-    })
-    .from(users)
-    .leftJoin(products, eq(products.userId, users.id))
-    .where(eq(users.role, "user"))
-    .groupBy(users.id);
-}
-
 export async function getSales(userId: string, userRole: string) {
   if (userRole === "admin") {
     return await db.select().from(sales);
@@ -489,15 +435,22 @@ export async function getSales(userId: string, userRole: string) {
 }
 
 export async function getPartners() {
+  const partnerAlias = alias(users, "partner");
+
   const partners = await db
     .select({
       id: users.id,
       firstName: users.firstName,
       lastName: users.lastName,
       email: users.email,
+      partnerName:
+        sql<string>`CONCAT(partner."firstName", ' ', partner."lastName")`.as(
+          "partnerName"
+        ),
     })
     .from(users)
-    .where(or(eq(users.role, "partner"), eq(users.role, "subpartner")));
+    .where(or(eq(users.role, "partner"), eq(users.role, "subpartner")))
+    .leftJoin(partnerAlias, eq(users.partnerId, sql`partner.id`));
 
   const partnersWithCommissions = await Promise.all(
     partners.map(async (partner) => {
@@ -509,10 +462,7 @@ export async function getPartners() {
         0
       );
 
-      const totalCommission = Number(
-        totalFirstLevelCommission + (secondLevelCommission || 0)
-      );
-
+      const totalCommission = Number(totalFirstLevelCommission) + Number(secondLevelCommission || 0);
       return {
         ...partner,
         totalCommission,
@@ -615,7 +565,7 @@ export async function updatePartner({
     })
     .where(eq(users.id, id));
 }
-export async function getSubPartnersByUserId(userId: string) {
+export async function _ADMIN_getSubPartnersByUserId(userId: string) {
   // Fetch all subpartners for the given userId
   const subpartners = await db
     .select({
@@ -649,6 +599,51 @@ export async function getSubPartnersByUserId(userId: string) {
       return {
         ...subpartner,
         totalCommission: Number(firstLevelCommission),
+      };
+    })
+  );
+
+  return subpartnersWithCommissions;
+}
+
+export async function _PARTNER_getSubPartnersByUserId(userId: string) {
+  // Fetch all subpartners for the given userId
+  const subpartners = await db
+    .select({
+      id: users.id,
+      firstName: users.firstName,
+      lastName: users.lastName,
+      provincia: users.provincia,
+      email: users.email,
+    })
+    .from(users)
+    .where(and(eq(users.partnerId, userId), eq(users.role, "subpartner")));
+
+  // For each subpartner, fetch the first-level commissions
+  const subpartnersWithCommissions = await Promise.all(
+    subpartners.map(async (subpartner) => {
+      // Fetch first-level commissions for this subpartner
+      const merchantStores = (await db
+        .select({
+          totalCommission: sql`COALESCE(SUM(CAST(${sales.secondLevelPartnerCommission} AS numeric)), 0)`,
+          currentMonthCommission: sql`COALESCE(SUM(CAST(CASE WHEN ${sales.createdAt} >= date_trunc('month', CURRENT_DATE) AND ${sales.createdAt} < CURRENT_DATE + interval '1 month' THEN ${sales.secondLevelPartnerCommission} END AS numeric)), 0)`,
+        })
+        .from(stores)
+        .innerJoin(userStoreRoles, eq(stores.id, userStoreRoles.storeId))
+        .leftJoin(sales, eq(stores.id, sales.storeId))
+        .where(eq(stores.partnerId, subpartner.id))) as {
+        totalCommission: number;
+        currentMonthCommission: number;
+      }[];
+
+      const earnings = merchantStores[0]?.totalCommission || 0;
+      const earningsCurrentMonth = merchantStores[0]?.currentMonthCommission || 0;
+
+      // Return the subpartner data with totalCommission and earningsCurrentMonth added
+      return {
+        ...subpartner,
+        earnings: Number(earnings),
+        earningsCurrentMonth: Number(earningsCurrentMonth),
       };
     })
   );
@@ -725,6 +720,14 @@ export async function getAllStores() {
       createdAt: stores.createdAt,
       totalCommission: sql`COALESCE(SUM(CAST(${sales.legCommission} AS numeric)), 0)`,
       totalVolume: sql`COALESCE(SUM(CAST(${sales.amount} AS numeric)), 0)`,
+      commissionsCurrentMonth:
+        sql<string>`COALESCE(SUM(CASE WHEN date_trunc('month', ${sales.createdAt}) = date_trunc('month', CURRENT_DATE) THEN CAST(${sales.legCommission} AS numeric) ELSE 0 END), 0)`.as(
+          "totalCommissionCurrentMonth"
+        ),
+      volumeCurrentMonth:
+        sql<string>`COALESCE(SUM(CASE WHEN date_trunc('month', ${sales.createdAt}) = date_trunc('month', CURRENT_DATE) THEN CAST(${sales.amount} AS numeric) ELSE 0 END), 0)`.as(
+          "totalVolumeCurrentMonth"
+        ),
     })
     .from(stores)
     .innerJoin(userStoreRoles, eq(stores.id, userStoreRoles.storeId))
@@ -743,7 +746,7 @@ export async function getAllStores() {
 }
 
 export async function getAllPendingUsers() {
-  const partner = alias(users, 'partner')
+  const partner = alias(users, "partner");
   return await db
     .select({
       id: users.id,
@@ -753,6 +756,7 @@ export async function getAllPendingUsers() {
       referredByRole: partner.role,
       phoneNumber: users.phoneNumber,
       onboardingLink: users.onboardingLink,
+      provincia: users.provincia,
       name: sql<string>`CASE 
             WHEN ${users.firstName} IS NOT NULL AND ${users.lastName} IS NOT NULL 
             THEN ${users.firstName} || ' ' || ${users.lastName} 
@@ -780,6 +784,18 @@ export async function getStoresByPartnerId(partnerId: string) {
       storeImage: stores.image,
       createdAt: stores.createdAt,
       totalCommission: sql`COALESCE(SUM(CAST(${sales.firstLevelPartnerCommission} AS numeric)), 0)`,
+      totalVolume:
+        sql<string>`COALESCE(SUM(CAST(${sales.amount} AS numeric)), 0)`.as(
+          "totalVolume"
+        ),
+      commissionsCurrentMonth:
+        sql<string>`COALESCE(SUM(CASE WHEN date_trunc('month', ${sales.createdAt}) = date_trunc('month', CURRENT_DATE) THEN CAST(${sales.firstLevelPartnerCommission} AS numeric) ELSE 0 END), 0)`.as(
+          "totalCommissionCurrentMonth"
+        ),
+      volumeCurrentMonth:
+        sql<string>`COALESCE(SUM(CASE WHEN date_trunc('month', ${sales.createdAt}) = date_trunc('month', CURRENT_DATE) THEN CAST(${sales.amount} AS numeric) ELSE 0 END), 0)`.as(
+          "totalVolumeCurrentMonth"
+        ),
     })
     .from(stores)
     .innerJoin(userStoreRoles, eq(stores.id, userStoreRoles.storeId))
@@ -793,30 +809,37 @@ export async function getStoresByPartnerId(partnerId: string) {
     totalCommission: number;
   }[];
 
-  return storesByPartner
+  return storesByPartner;
 }
 
-export async function getSecondLevelCommissions(partnerId: string): Promise<string | null> {
+export async function getSecondLevelCommissions(
+  partnerId: string
+): Promise<string | null> {
   const user = await UserService.getUserById(partnerId);
   if (user.role !== "partner") return null;
 
-  const subpartnerIds = (await getSubPartnersByUserId(partnerId)).map((s) => s.id);
-  if (!subpartnerIds.length) return '0.00';
+  const subpartnerIds = (await _ADMIN_getSubPartnersByUserId(partnerId)).map(
+    (s) => s.id
+  );
+  if (!subpartnerIds.length) return "0.00";
 
   const storeIds = (
-    await db.select().from(stores).where(inArray(stores.partnerId, subpartnerIds))
+    await db
+      .select()
+      .from(stores)
+      .where(inArray(stores.partnerId, subpartnerIds))
   ).map((s) => s.id);
-  if (!storeIds.length) return '0.00';
+  if (!storeIds.length) return "0.00";
 
   const [{ totalCommission }] = await db
-    .select({ totalCommission: sql<string>`COALESCE(SUM(${sales.secondLevelPartnerCommission}), 0.00)`})
+    .select({
+      totalCommission: sql<string>`COALESCE(SUM(${sales.secondLevelPartnerCommission}), 0.00)`,
+    })
     .from(sales)
-    .where(inArray(sales.storeId, storeIds))
+    .where(inArray(sales.storeId, storeIds));
 
   return totalCommission;
 }
-
-
 
 export async function getAllPartnerFees(partnerId: string) {
   const stores = await getStoresByPartnerId(partnerId);
@@ -829,7 +852,8 @@ export async function getAllPartnerFees(partnerId: string) {
   return {
     firstLevelCommission,
     secondLevelCommission,
-    totalCommission: firstLevelCommission + parseFloat(secondLevelCommission ?? '0'),
+    totalCommission:
+      firstLevelCommission + parseFloat(secondLevelCommission ?? "0"),
   };
 }
 
@@ -837,9 +861,6 @@ export async function getAdmins() {
   return await db.select().from(users).where(eq(users.role, "admin"));
 }
 
-export async function rejectUser(userId: string) {
-  return await db
-    .update(users)
-    .set({ status: "rejected" })
-    .where(eq(users.id, userId));
+export async function deleteLead(userId: string) {
+  return await db.delete(users).where(and(eq(users.id, userId), eq(users.status, 'pending')));
 }

@@ -4,13 +4,14 @@ import getUserFromAuth from '@/app/utils/getUserFromAuth';
 
 
 export default async function ProductsPage({ searchParams }) {
-    const user = await getUserFromAuth();
-    
+    const user = await getUserFromAuth();   
     const stripe = new Stripe(process.env.STRIPE_API_KEY!, { stripeAccount: user.stripeUserId });
     const { data } = await stripe.products.list({ active: true, limit: 1000 })
+    const products = data.filter(product => product.name !== "Pagamento istantaneo")
+
     return (
         <>
-            <ProductsTable tableData={data} />
+            <ProductsTable tableData={products} />
         </>
     )
 }
