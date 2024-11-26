@@ -450,7 +450,7 @@ export async function getPartners() {
     })
     .from(users)
     .where(or(eq(users.role, "partner"), eq(users.role, "subpartner")))
-    .leftJoin(partnerAlias, eq(users.partnerId, sql`partner.id`))
+    .leftJoin(partnerAlias, eq(users.partnerId, sql`partner.id`));
 
   const partnersWithCommissions = await Promise.all(
     partners.map(async (partner) => {
@@ -678,6 +678,14 @@ export async function getAllStores() {
       createdAt: stores.createdAt,
       totalCommission: sql`COALESCE(SUM(CAST(${sales.legCommission} AS numeric)), 0)`,
       totalVolume: sql`COALESCE(SUM(CAST(${sales.amount} AS numeric)), 0)`,
+      commissionsCurrentMonth:
+        sql<string>`COALESCE(SUM(CASE WHEN date_trunc('month', ${sales.createdAt}) = date_trunc('month', CURRENT_DATE) THEN CAST(${sales.legCommission} AS numeric) ELSE 0 END), 0)`.as(
+          "totalCommissionCurrentMonth"
+        ),
+      volumeCurrentMonth:
+        sql<string>`COALESCE(SUM(CASE WHEN date_trunc('month', ${sales.createdAt}) = date_trunc('month', CURRENT_DATE) THEN CAST(${sales.amount} AS numeric) ELSE 0 END), 0)`.as(
+          "totalVolumeCurrentMonth"
+        ),
     })
     .from(stores)
     .innerJoin(userStoreRoles, eq(stores.id, userStoreRoles.storeId))
@@ -733,6 +741,18 @@ export async function getStoresByPartnerId(partnerId: string) {
       storeImage: stores.image,
       createdAt: stores.createdAt,
       totalCommission: sql`COALESCE(SUM(CAST(${sales.firstLevelPartnerCommission} AS numeric)), 0)`,
+      totalVolume:
+        sql<string>`COALESCE(SUM(CAST(${sales.amount} AS numeric)), 0)`.as(
+          "totalVolume"
+        ),
+      commissionsCurrentMonth:
+        sql<string>`COALESCE(SUM(CASE WHEN date_trunc('month', ${sales.createdAt}) = date_trunc('month', CURRENT_DATE) THEN CAST(${sales.firstLevelPartnerCommission} AS numeric) ELSE 0 END), 0)`.as(
+          "totalCommissionCurrentMonth"
+        ),
+      volumeCurrentMonth:
+        sql<string>`COALESCE(SUM(CASE WHEN date_trunc('month', ${sales.createdAt}) = date_trunc('month', CURRENT_DATE) THEN CAST(${sales.amount} AS numeric) ELSE 0 END), 0)`.as(
+          "totalVolumeCurrentMonth"
+        ),
     })
     .from(stores)
     .innerJoin(userStoreRoles, eq(stores.id, userStoreRoles.storeId))

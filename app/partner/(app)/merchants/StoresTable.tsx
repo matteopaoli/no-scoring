@@ -47,6 +47,16 @@ export default function StoresTable({ stores }: StoresTableProps) {
       cell: (info) => `€ ${Number(info.getValue() ?? 0).toFixed(2)}`,
     },
     {
+      accessorKey: "commissionsCurrentMonth",
+      header: "Commssioni guadagnate (mese corrente)",
+      cell: (info) => `€ ${Number(info.getValue() ?? 0).toFixed(2)}`,
+    },
+    {
+      accessorKey: "volumeCurrentMonth",
+      header: "Volume (mese corrente)",
+      cell: (info) => `€ ${Number(info.getValue() ?? 0).toFixed(2)}`,
+    },
+    {
       accessorKey: "createdAt",
       header: "Data Creazione",
       cell: (info) =>
