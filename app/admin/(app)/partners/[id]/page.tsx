@@ -9,7 +9,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import SubPartnersTable from "./SubPartnersTable";
-import { getSubPartnersByUserId } from "@/app/db";
+import { _ADMIN_getSubPartnersByUserId } from "@/app/db";
 import Statistics from "./Statistics";
 import { MdOutlineEdit } from "react-icons/md";
 import EditButton from "./EditButton";
@@ -24,7 +24,7 @@ export default async function UsersPage(props: {
     throw new Error("not a partner");
   }
 
-  const subpartners = await getSubPartnersByUserId(partner.id)
+  const subpartners = await _ADMIN_getSubPartnersByUserId(partner.id)
   const subpartnersCount = subpartners?.length ?? 0;
   const { totalCommission } = await getAllPartnerFees(partner.id);
 

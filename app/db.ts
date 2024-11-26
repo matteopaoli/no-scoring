@@ -565,7 +565,7 @@ export async function updatePartner({
     })
     .where(eq(users.id, id));
 }
-export async function getSubPartnersByUserId(userId: string) {
+export async function _ADMIN_getSubPartnersByUserId(userId: string) {
   // Fetch all subpartners for the given userId
   const subpartners = await db
     .select({
@@ -772,7 +772,7 @@ export async function getSecondLevelCommissions(
   const user = await UserService.getUserById(partnerId);
   if (user.role !== "partner") return null;
 
-  const subpartnerIds = (await getSubPartnersByUserId(partnerId)).map(
+  const subpartnerIds = (await _ADMIN_getSubPartnersByUserId(partnerId)).map(
     (s) => s.id
   );
   if (!subpartnerIds.length) return "0.00";
