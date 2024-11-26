@@ -38,6 +38,11 @@ export default function SubPartnersTable({ tableData }: SubPartnersTableProps) {
       header: "Guadagni generati",
       cell: (info) => `€ ${info.getValue().toFixed(2)}`,
     },
+    {
+      accessorKey: "earningsCurrentMonth",
+      header: "Guadagni generati (mese corrente)",
+      cell: (info) => `€ ${info.getValue().toFixed(2)}`,
+    },
   ];
 
   return (
