@@ -21,6 +21,7 @@ export default async function createPartnerAction(
       .min(1, "Inserire un indirizzo email valido")
       .email("Inserire un indirizzo email valido") // Add email format validation
       .trim()
+      .transform((email) => email.toLowerCase())
       .refine(async (email) => !(await UserService.getUserByEmail(email)), {
         message: "L'utente esiste già",
       }),
@@ -44,7 +45,7 @@ export default async function createPartnerAction(
   const existingUserByEmail = await UserService.getUserByEmail(email);
 
   if (existingUserByEmail) {
-    return [{ field: 'email', message: 'L\'utente esiste già' }];
+    return [{ field: "email", message: "L'utente esiste già" }];
   }
 
   // If no existing user, proceed to create the new user
@@ -53,7 +54,7 @@ export default async function createPartnerAction(
     lastName,
     email,
     provincia,
-    partnerId: partner.id
+    partnerId: partner.id,
   });
 
   redirect("/partner/subpartners?success=true&action=createSubpartner");
