@@ -43,6 +43,7 @@ import { User } from "@/app/db";
 import { Link } from "@chakra-ui/next-js";
 import CopyButton from "@/app/components/CopyButton";
 import { FaSort, FaSortDown, FaSortUp } from "react-icons/fa";
+import GenericTable from "@/app/components/GenericTable";
 
 type UsersTableProps = {
   tableData: unknown[];
@@ -81,140 +82,57 @@ export default function UsersTable({ tableData }: UsersTableProps) {
 
   const columns = useMemo(
     () => [
-      columnHelper.accessor("refName", {
-        id: "refName",
-        header: () => (
-          <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
-            Nome Referente
-          </Text>
-        ),
+      {
+        accessorKey: "refName",
+        header: "Nome Referente",
+        cell: (info) => info.getValue(),
+      },
+      {
+        accessorKey: "email",
+        header: "Email",
+        cell: (info) => info.getValue(),
+      },
+      {
+        accessorKey: "phoneNumber",
+        header: "Telefono",
+        cell: (info) => info.getValue(),
+      },
+      {
+        accessorKey: "provincia",
+        header: "Provincia",
+        cell: (info) => info.getValue(),
+      },
+      {
+        accessorKey: "partnerName",
+        header: "Partner",
+        cell: (info) =>
+          (info.getValue() as string).trim() ? info.getValue() : "—",
+      },
+      {
+        accessorKey: "totalCommission",
+        header: "Commissioni guadagnate",
+        cell: (info) => Number(info.getValue()).toFixed(2),
+      },
+      {
+        accessorKey: "totalCommissionCurrentMonth",
+        header: "Commssioni guadagnate (mese corrente)",
+        cell: (info) => `€ ${Number(info.getValue()).toFixed(2)}`,
+      },
+      {
+        accessorKey: "totalVolume",
+        header: "Volume totale",
+        cell: (info) => `€ ${Number(info.getValue()).toFixed(2)}`,
+      },
+      {
+        accessorKey: "totalVolumeCurrentMonth",
+        header: "Volume (mese corrente)",
+        cell: (info) => `€ ${Number(info.getValue()).toFixed(2)}`,
+      },
+      {
+        accessorKey: "actions",
+        header: "",
         cell: (info) => (
-          <Flex align="center">
-            <Text color={textColor} fontSize="sm" fontWeight="700">
-              {info.getValue()}
-            </Text>
-          </Flex>
-        ),
-      }),
-      columnHelper.accessor("email", {
-        id: "email",
-        header: () => (
-          <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
-            Email
-          </Text>
-        ),
-        cell: (info) => (
-          <Flex align="center">
-            <Text color={textColor} fontSize="sm" fontWeight="700">
-              {info.getValue()}
-            </Text>
-          </Flex>
-        ),
-      }),
-      columnHelper.accessor("phoneNumber", {
-        id: "phoneNumber",
-        header: () => (
-          <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
-            Telefono
-          </Text>
-        ),
-        cell: (info) => (
-          <Flex align="center">
-            <Text color={textColor} fontSize="sm" fontWeight="700">
-              {info.getValue()}
-            </Text>
-          </Flex>
-        ),
-      }),
-      columnHelper.accessor("provincia", {
-        id: "provincia",
-        header: () => (
-          <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
-            Provincia
-          </Text>
-        ),
-        cell: (info) => (
-          <Flex align="center">
-            <Text color={textColor} fontSize="sm" fontWeight="700">
-              {info.getValue()}
-            </Text>
-          </Flex>
-        ),
-      }),
-      columnHelper.accessor("partnerName", {
-        id: "partnerName",
-        header: () => (
-          <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
-            Partner
-          </Text>
-        ),
-        cell: (info) => (
-          <Text color={textColor} fontSize="sm" fontWeight="700">
-            {(info.getValue() as string).trim() ? info.getValue() : "—"}
-          </Text>
-        ),
-      }),
-      columnHelper.accessor("totalCommission", {
-        id: "totalCommission",
-        header: () => (
-          <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
-            Commssioni guadagnate
-          </Text>
-        ),
-        cell: (info) => (
-          <Text color={textColor} fontSize="sm" fontWeight="700">
-            {Number(info.getValue()).toFixed(2)} €
-          </Text>
-        ),
-      }),
-      columnHelper.accessor("totalCommissionCurrentMonth", {
-        id: "totalCommissionCurrentMonth",
-        header: () => (
-          <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
-            Commssioni guadagnate (mese corrente)
-          </Text>
-        ),
-        cell: (info) => (
-          <Text color={textColor} fontSize="sm" fontWeight="700">
-            {Number(info.getValue()).toFixed(2)} €
-          </Text>
-        ),
-      }),
-      columnHelper.accessor("totalVolume", {
-        id: "totalVolume",
-        header: () => (
-          <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
-            Volume totale
-          </Text>
-        ),
-        cell: (info) => (
-          <Text color={textColor} fontSize="sm" fontWeight="700">
-            {Number(info.getValue()).toFixed(2)} €
-          </Text>
-        ),
-      }),
-      columnHelper.accessor("totalVolumeCurrentMonth", {
-        id: "totalVolumeCurrentMonth",
-        header: () => (
-          <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
-            Volume (mese corrente)
-          </Text>
-        ),
-        cell: (info) => (
-          <Text color={textColor} fontSize="sm" fontWeight="700">
-            {Number(info.getValue()).toFixed(2)} €
-          </Text>
-        ),
-      }),
-      columnHelper.accessor("id", {
-        id: "id",
-        header: () => (
-          <Text fontSize={{ sm: "10px", lg: "12px" }} color="gray.400">
-            Azioni
-          </Text>
-        ),
-        cell: (info) => (
-          <Flex gap="8px" alignItems="center">
+          <>
             <Tooltip label="Modifica utente" hasArrow placement="auto">
               <Link href={`/admin/users/edit/${info.getValue()}`}>
                 <Icon
@@ -242,108 +160,22 @@ export default function UsersTable({ tableData }: UsersTableProps) {
                 />
               </span>
             </Tooltip>
-          </Flex>
+          </>
         ),
-      }),
+      },
     ],
-    [textColor, onOpen]
+    []
   );
 
-  const [data] = useState(() => [...tableData]);
-  const table = useReactTable({
-    data,
-    columns,
-    state: {
-      sorting,
-    },
-    onSortingChange: setSorting,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    debugTable: true,
-  });
-
   return (
-    <Card
-      flexDirection="column"
-      w="100%"
-      px="0px"
-      overflowX={{ sm: "scroll", lg: "hidden" }}
-    >
-      <Flex px="25px" mb="8px" justifyContent="space-between" align="center">
-        <Text
-          color={textColor}
-          fontSize="22px"
-          fontWeight="700"
-          lineHeight="100%"
-        >
-          Lista Utenti
-        </Text>
-        <Menu />
-      </Flex>
-      <Box overflowX="scroll">
-        <Table variant="simple" color="gray.500" mb="24px" mt="12px">
-          <Thead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <Tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <Th
-                    key={header.id}
-                    colSpan={header.colSpan}
-                    pe="10px"
-                    borderColor={borderColor}
-                    onClick={header.column.getToggleSortingHandler()}
-                  >
-                    <Text
-                      as="div"
-                      fontSize={{ sm: "10px", lg: "12px" }}
-                      color="gray.400"
-                      fontWeight="bold"
-                      display="flex"
-                      alignItems="center"
-                    >
-                      {flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                      {header.column.getIsSorted() ? (
-                        header.column.getIsSorted() === "asc" ? (
-                          <FaSortUp color="gray.400" />
-                        ) : (
-                          <FaSortDown color="gray.400" />
-                        )
-                      ) : (
-                        <FaSort color="gray.400" />
-                      )}
-                    </Text>
-                  </Th>
-                ))}
-              </Tr>
-            ))}
-          </Thead>
-          <Tbody>
-            {table
-              .getRowModel()
-              .rows.slice(0, 11)
-              .map((row) => (
-                <Tr key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <Td
-                      key={cell.id}
-                      fontSize={{ sm: "14px" }}
-                      minW={{ sm: "150px", md: "200px" }}
-                      borderColor="transparent"
-                    >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </Td>
-                  ))}
-                </Tr>
-              ))}
-          </Tbody>
-        </Table>
-      </Box>
+    <>
+      <GenericTable
+        columns={columns}
+        data={tableData}
+        title="Merchant attivi"
+        itemsPerPage={10}
+        menu={Menu}
+      />
 
       {/* Confirmation Modal */}
       <Modal isOpen={isOpen} onClose={onClose}>
@@ -361,6 +193,6 @@ export default function UsersTable({ tableData }: UsersTableProps) {
           </ModalFooter>
         </ModalContent>
       </Modal>
-    </Card>
+    </>
   );
 }
