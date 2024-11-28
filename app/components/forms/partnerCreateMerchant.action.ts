@@ -1,13 +1,17 @@
 "use server";
 
-import {
-  getPartnerById,
-} from "@/app/db";
+import { getPartnerById } from "@/app/db";
 import { BusinessTypeService } from "@/app/services/businessTypeService";
 import { MerchantService } from "@/app/services/merchantService";
 import { UserService } from "@/app/services/userService";
-import { FormActionReturnType, FormActionReturnTypeWithStatus } from "@/app/types";
-import { accountCreatedMerchantEmail, newMerchantAdminEmail } from "@/app/utils/emails";
+import {
+  FormActionReturnType,
+  FormActionReturnTypeWithStatus,
+} from "@/app/types";
+import {
+  accountCreatedMerchantEmail,
+  newMerchantAdminEmail,
+} from "@/app/utils/emails";
 import formatZodErrors from "@/app/utils/formatZodErrors";
 import getUserFromAuth from "@/app/utils/getUserFromAuth";
 import { redirect } from "next/navigation";
@@ -33,10 +37,10 @@ export default async function createUserAction(
   prevState: Awaited<FormActionReturnTypeWithStatus>,
   formData: FormData
 ): FormActionReturnTypeWithStatus {
-  const user = await getUserFromAuth()
+  const user = await getUserFromAuth();
 
   if (!UserService.isPartner(user)) {
-    throw new Error('unauthorized')
+    throw new Error("unauthorized");
   }
 
   const businessTypeIds = (await BusinessTypeService.getAll()).map((b) => b.id);
@@ -46,6 +50,7 @@ export default async function createUserAction(
       .min(1, "Inserire un indirizzo email valido")
       .email("Inserire un indirizzo email valido") // Add email format validation
       .trim()
+      .transform((email) => email.toLowerCase())
       .refine(async (email) => !(await UserService.getUserByEmail(email)), {
         message: "L'utente esiste già",
       }),
@@ -94,17 +99,17 @@ export default async function createUserAction(
   const stripe = new Stripe(process.env.STRIPE_API_KEY!);
 
   const merchantAccount = await stripe.accounts.create({
-    country: 'IT',
+    country: "IT",
     email,
     controller: {
       fees: {
         payer: "account",
       },
       losses: {
-        payments: 'stripe',
+        payments: "stripe",
       },
       stripe_dashboard: {
-        type: 'full',
+        type: "full",
       },
     },
   });
@@ -132,8 +137,11 @@ export default async function createUserAction(
     provincia,
   });
 
-  accountCreatedMerchantEmail({ email, onboardingLink: accountLink.url })
-  newMerchantAdminEmail({ merchantEmail: email, partnerName: `${user.firstName} ${user.lastName}` })
+  accountCreatedMerchantEmail({ email, onboardingLink: accountLink.url });
+  newMerchantAdminEmail({
+    merchantEmail: email,
+    partnerName: `${user.firstName} ${user.lastName}`,
+  });
 
   return { status: "success" };
 }

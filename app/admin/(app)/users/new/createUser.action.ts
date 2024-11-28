@@ -1,8 +1,6 @@
 "use server";
 
-import {
-  getPartnerById,
-} from "@/app/db";
+import { getPartnerById } from "@/app/db";
 import { BusinessTypeService } from "@/app/services/businessTypeService";
 import { MerchantService } from "@/app/services/merchantService";
 import { UserService } from "@/app/services/userService";
@@ -33,10 +31,10 @@ export default async function createUserAction(
   prevState: Awaited<FormActionReturnType>,
   formData: FormData
 ): FormActionReturnType {
-  const creator = await getUserFromAuth()
+  const creator = await getUserFromAuth();
 
   if (!UserService.isPartner(creator) && !UserService.isAdmin(creator)) {
-    throw new Error('unauthorized')
+    throw new Error("unauthorized");
   }
 
   const businessTypeIds = (await BusinessTypeService.getAll()).map((b) => b.id);
@@ -46,6 +44,7 @@ export default async function createUserAction(
       .min(1, "Inserire un indirizzo email valido")
       .email("Inserire un indirizzo email valido") // Add email format validation
       .trim()
+      .transform((email) => email.toLowerCase())
       .refine(async (email) => !(await UserService.getUserByEmail(email)), {
         message: "L'utente esiste già",
       }),
@@ -61,7 +60,12 @@ export default async function createUserAction(
         },
         { message: "Il partner non esiste" }
       ),
-    phoneNumber: z.string().regex(/^(\+39\s?)?\d{6,10}$/, "Inserire un numero di telefono valido (es. +39 123 456 7890)"),
+    phoneNumber: z
+      .string()
+      .regex(
+        /^(\+39\s?)?\d{6,10}$/,
+        "Inserire un numero di telefono valido (es. +39 123 456 7890)"
+      ),
     refName: z.string().min(1, "Inserire un nome valido"),
     provincia: z.string().min(1, "Selezionare una provincia valida"),
   });
@@ -88,7 +92,7 @@ export default async function createUserAction(
     partner: partnerId,
     phoneNumber,
     refName,
-    provincia
+    provincia,
   } = validation.data;
 
   const existingUserByEmail = await UserService.getUserByEmail(email);
@@ -100,17 +104,17 @@ export default async function createUserAction(
   const stripe = new Stripe(process.env.STRIPE_API_KEY!);
 
   const merchantAccount = await stripe.accounts.create({
-    country: 'IT',
+    country: "IT",
     email,
     controller: {
       fees: {
         payer: "account",
       },
       losses: {
-        payments: 'stripe',
+        payments: "stripe",
       },
       stripe_dashboard: {
-        type: 'full',
+        type: "full",
       },
     },
   });

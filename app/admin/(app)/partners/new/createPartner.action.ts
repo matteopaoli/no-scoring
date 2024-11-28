@@ -19,6 +19,7 @@ export default async function createPartnerAction(
       .min(1, "Inserire un indirizzo email valido")
       .email("Inserire un indirizzo email valido") // Add email format validation
       .trim()
+      .transform((email) => email.toLowerCase())
       .refine(async (email) => !(await UserService.getUserByEmail(email)), {
         message: "L'utente esiste già",
       }),

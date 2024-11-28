@@ -33,7 +33,9 @@ export default async function updateUserAction(
     email: z
       .string()
       .min(1, "Inserire un indirizzo email valido")
-      .email("Inserire un indirizzo email valido"), // Email format validation
+      .email("Inserire un indirizzo email valido")
+      .trim()
+      .transform((email) => email.toLowerCase()),
     businessName: z.string().min(1, "Inserire un nome valido"),
     businessTypeId: await numericEnum(businessTypeIds),
   });
