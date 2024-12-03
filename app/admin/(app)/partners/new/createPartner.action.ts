@@ -3,6 +3,7 @@
 import { createPartner } from "@/app/db";
 import { UserService } from "@/app/services/userService";
 import { FormActionReturnType } from "@/app/types";
+import { partnerWelcomeEmail } from "@/app/utils/emails";
 import formatZodErrors from "@/app/utils/formatZodErrors";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -54,6 +55,6 @@ export default async function createPartnerAction(
     email,
     provincia,
   });
-
+  partnerWelcomeEmail({ email, partnerName: `${firstName} ${lastName}` });
   redirect("/admin/partners?success=true&action=createPartner");
 }

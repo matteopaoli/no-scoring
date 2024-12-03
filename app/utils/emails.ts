@@ -119,3 +119,13 @@ export async function merchantWelcomeEmail({ email }: { email: string }) {
     data: {},
   });
 }
+
+export async function partnerWelcomeEmail({ email, partnerName }: { email: string, partnerName: string }) {
+  return await sendEmail({
+    recipients: [email],
+    templateName: "partnerWelcome",
+    data: {
+      partnerName
+    },
+  });
+}
