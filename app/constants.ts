@@ -23,6 +23,6 @@ export const provinces = [
     "Treviso", "Trieste", "Udine", "Varese", "Venezia", "Verbano-Cusio-Ossola",
     "Vercelli", "Verona", "Vibo Valentia", "Vicenza", "Viterbo", "Estero"
   ];
-export const VERSION="2.1.2"
+export const VERSION="2.1.3"
 export const SPECIAL_FIRST_LEVEL_PARTNER_FEE_RATE = 0.01
 export const SPECIAL_SECOND_LEVEL_PARTNER_FEE_RATE = 0.005
