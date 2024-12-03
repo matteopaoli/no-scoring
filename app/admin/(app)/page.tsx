@@ -1,7 +1,7 @@
 import { getAllStores, getSales } from "@/app/db";
 import Statistics from "./Statistics";
 import getUserFromAuth from "@/app/utils/getUserFromAuth";
-import StoresTable from "@/app/partner/(app)/merchants/StoresTable";
+import StoresTable from "./StoresTable";
 import { MerchantService } from "@/app/services/merchantService";
 
 export default async function Page() {
@@ -17,8 +17,6 @@ export default async function Page() {
   return (
     <>
       <Statistics merchants={merchants} revenue={legRevenue} />
-      {/* <Flex justifyContent="end">
-      </Flex> */}
       <StoresTable stores={stores} />
     </>
   );

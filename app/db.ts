@@ -703,6 +703,7 @@ export async function getPartnerById(userId: string) {
 }
 
 export async function getAllStores() {
+  const partner = alias(users, "partner");
   const merchantIds = (
     await db
       .select({
@@ -716,7 +717,10 @@ export async function getAllStores() {
     .select({
       storeId: stores.id,
       storeName: stores.name,
-      storeImage: stores.image,
+      partnerName:
+      sql<string>`CONCAT(partner."firstName", ' ', partner."lastName")`.as(
+        "partnerName"
+      ),
       createdAt: stores.createdAt,
       totalCommission: sql`COALESCE(SUM(CAST(${sales.legCommission} AS numeric)), 0)`,
       totalVolume: sql`COALESCE(SUM(CAST(${sales.amount} AS numeric)), 0)`,
@@ -731,12 +735,13 @@ export async function getAllStores() {
     })
     .from(stores)
     .innerJoin(userStoreRoles, eq(stores.id, userStoreRoles.storeId))
+    .leftJoin(partner, eq(stores.partnerId, sql`partner.id`))
     .leftJoin(sales, eq(stores.id, sales.storeId))
     .where(inArray(userStoreRoles.userId, merchantIds))
-    .groupBy(stores.id)) as {
+    .groupBy(stores.id, partner.id)) as {
     storeId: string;
     storeName: string;
-    storeImage: string | null;
+    partnerName: string;
     createdAt: Date | null;
     totalCommission: number;
     totalVolume: number;
