@@ -4,6 +4,7 @@ import { auth } from "@/app/auth";
 import { createSubPartner } from "@/app/db";
 import { UserService } from "@/app/services/userService";
 import { FormActionReturnType } from "@/app/types";
+import { partnerWelcomeEmail } from "@/app/utils/emails";
 import formatZodErrors from "@/app/utils/formatZodErrors";
 import getUserFromAuth from "@/app/utils/getUserFromAuth";
 import { redirect } from "next/navigation";
@@ -56,6 +57,6 @@ export default async function createPartnerAction(
     provincia,
     partnerId: partner.id,
   });
-
+  partnerWelcomeEmail({ email, partnerName: `${firstName} ${lastName}` });
   redirect("/partner/subpartners?success=true&action=createSubpartner");
 }
