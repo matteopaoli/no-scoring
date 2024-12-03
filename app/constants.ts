@@ -24,3 +24,5 @@ export const provinces = [
     "Vercelli", "Verona", "Vibo Valentia", "Vicenza", "Viterbo", "Estero"
   ];
 export const VERSION="2.1.2"
+export const SPECIAL_FIRST_LEVEL_PARTNER_FEE_RATE = 0.01
+export const SPECIAL_SECOND_LEVEL_PARTNER_FEE_RATE = 0.005

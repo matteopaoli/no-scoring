@@ -381,6 +381,7 @@ export async function getStoreByUserId(userId: string) {
       id: stores.id,
       name: stores.name,
       image: stores.image,
+      partnerId: stores.partnerId,
     })
     .from(stores)
     .innerJoin(userStoreRoles, eq(userStoreRoles.storeId, stores.id))
