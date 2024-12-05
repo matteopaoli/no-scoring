@@ -162,6 +162,7 @@ export default function GenericTable<T>({
           >
             <option value="10">10 per pagina</option>
             <option value="20">20 per pagina</option>
+            <option value="100">100 per pagina</option>
           </Select>
           {Menu ? <Menu /> : null}
         </Flex>
