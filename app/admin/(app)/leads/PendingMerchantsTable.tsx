@@ -211,7 +211,7 @@ export default function PendingMerchantsTable({
         data={filteredMerchants}
         columns={merchantColumns}
         title="Lead"
-        itemsPerPage={100} // Customize the number of items per page if needed
+        itemsPerPage={100}
       />
     </>
   );

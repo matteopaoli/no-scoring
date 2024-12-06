@@ -178,7 +178,7 @@ export default function UsersTable({ tableData }: UsersTableProps) {
         columns={columns}
         data={tableData}
         title="Merchant attivi"
-        itemsPerPage={10}
+        itemsPerPage={100}
         menu={Menu}
       />
 

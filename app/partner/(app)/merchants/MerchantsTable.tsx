@@ -132,7 +132,7 @@ export default function MerchantsTable({ merchants }: MerchantsTableProps) {
       data={merchants}
       columns={merchantColumns}
       title="Lead"
-      itemsPerPage={10} // Customize the number of items per page if needed
+      itemsPerPage={100}
     />
   );
 }
