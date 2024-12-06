@@ -768,6 +768,7 @@ export async function getAllPendingUsers() {
             THEN ${users.firstName} || ' ' || ${users.lastName} 
             ELSE ${users.refName} 
           END`,
+      leadStatus: users.leadStatus,
     })
     .from(users)
     .leftJoin(partner, eq(users.partnerId, partner.id))
@@ -869,4 +870,8 @@ export async function getAdmins() {
 
 export async function deleteLead(userId: string) {
   return await db.delete(users).where(and(eq(users.id, userId), eq(users.status, 'pending')));
+}
+
+export async function updateLeadStatus(leadId: string, status: string) {
+  return await db.update(users).set({ leadStatus: status }).where(eq(users.id, leadId));
 }
