@@ -139,7 +139,7 @@ export default function GenericTable<T>({
       flexDirection="column"
       w="100%"
       px="0px"
-      overflowX={{ sm: "scroll", lg: "hidden" }}
+      overflowX="scroll"
       ref={boxRef}
     >
       <Flex px="25px" mb="8px" justifyContent="space-between" align="center">
@@ -158,7 +158,7 @@ export default function GenericTable<T>({
             value={itemsPerPageState.toString()}
             onChange={handleItemsPerPageChange}
             width="auto"
-            maxWidth="150px"
+            maxWidth="200px"
           >
             <option value="10">10 per pagina</option>
             <option value="20">20 per pagina</option>
