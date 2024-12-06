@@ -88,6 +88,11 @@ export default function UsersTable({ tableData }: UsersTableProps) {
         cell: (info) => info.getValue(),
       },
       {
+        accessorKey: "storeName",
+        header: "Negozio",
+        cell: (info) => info.getValue(),
+      },
+      {
         accessorKey: "email",
         header: "Email",
         cell: (info) => info.getValue(),
