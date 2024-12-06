@@ -86,6 +86,7 @@ export class MerchantService {
             ELSE ${users.refName} 
           END`,
         phoneNumber: users.phoneNumber,
+        leadStatus: users.leadStatus
       })
       .from(users)
       .where(eq(users.partnerId, partnerId))

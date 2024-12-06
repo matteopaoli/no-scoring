@@ -19,7 +19,6 @@ interface MerchantsTableProps {
 }
 
 export default function MerchantsTable({ merchants }: MerchantsTableProps) {
-  console
   const merchantColumns: ColumnDef<Merchant>[] = [
     {
       accessorKey: "name",
@@ -45,41 +44,68 @@ export default function MerchantsTable({ merchants }: MerchantsTableProps) {
       accessorKey: "createdAt",
       header: "Data creazione",
       cell: (info) =>
-        new Date(info.getValue() as Date).toLocaleDateString("it-IT", { day: '2-digit', month: '2-digit', year: 'numeric' }),
+        new Date(info.getValue() as Date).toLocaleDateString("it-IT", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }),
     },
     {
       accessorKey: "status",
       header: "Stato",
       cell: (info) => {
         const status = info.getValue() as string;
-        const statusMap: Record<string, { label: string; icon: JSX.Element }> =
-          {
-            pending: {
-              label: "In Attesa",
-              icon: (
-                <MdHourglassEmpty
-                  style={{ color: "#FFB547", fontSize: "1.5em" }}
-                />
-              ),
-            },
-            active: {
-              label: "Attivo",
-              icon: (
-                <MdCheckCircle style={{ color: "green", fontSize: "1.5em" }} />
-              ),
-            },
+
+        if (status === "active") {
+          return (
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <span
+                style={{
+                  display: "inline-block",
+                  width: "8px",
+                  height: "8px",
+                  borderRadius: "50%",
+                  backgroundColor: "#32CD32",
+                }}
+              ></span>
+              Attivo
+            </div>
+          );
+        } else {
+          const leadStatus = info.row.original.leadStatus;
+          const statusColors: Record<string, string> = {
+            to_contact: "#FFA500", // Orange
+            awaiting_response: "#FFD700", // Yellow
+            appointment_set: "#32CD32", // Green
+            to_cancel: "#FF4500", // Red
+            history: "#808080", // Gray
           };
 
-        const { label, icon } = statusMap[status] || {};
+          const statusText: Record<string, string> = {
+            to_contact: "Da contattare",
+            awaiting_response: "In attesa di risposta",
+            appointment_set: "Fissato appuntamento",
+            to_cancel: "Da annullare",
+            history: "Storico",
+          };
+          const color = statusColors[leadStatus] || "#000000"; // Default to black if not defined
+          const text = statusText[leadStatus] || leadStatus;
 
-        return (
-          <span
-            style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
-          >
-            {icon}
-            {label}
-          </span>
-        );
+          return (
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <span
+                style={{
+                  display: "inline-block",
+                  width: "8px",
+                  height: "8px",
+                  borderRadius: "50%",
+                  backgroundColor: color,
+                }}
+              ></span>
+              {text}
+            </div>
+          );
+        }
       },
     },
     {
@@ -93,7 +119,9 @@ export default function MerchantsTable({ merchants }: MerchantsTableProps) {
                 <CopyButton text={info.row.original.onboardingLink} />
               </span>
             </Tooltip>
-          ): <Text>N/A</Text>}
+          ) : (
+            <Text>N/A</Text>
+          )}
         </Flex>
       ),
     },
@@ -104,7 +132,7 @@ export default function MerchantsTable({ merchants }: MerchantsTableProps) {
       data={merchants}
       columns={merchantColumns}
       title="Lead"
-      itemsPerPage={10} // Customize the number of items per page if needed
+      itemsPerPage={100}
     />
   );
 }

@@ -1,0 +1,1 @@
+ALTER TABLE "user" ALTER COLUMN "leadStatus" SET DEFAULT 'to_contact';

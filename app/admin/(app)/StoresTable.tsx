@@ -79,7 +79,7 @@ export default function StoresTable({ stores }: StoresTableProps) {
         data={stores}
         columns={storeColumns}
         title="Negozi Attivi"
-        itemsPerPage={10} // Customize the number of items per page if needed
+        itemsPerPage={100}
         hideColumnsResponsive={["createdAt"]}
       />
     </>

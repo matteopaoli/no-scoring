@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import {
   Tooltip,
@@ -6,28 +8,30 @@ import {
   PopoverTrigger,
   PopoverContent,
   PopoverArrow,
-  PopoverCloseButton,
-  PopoverHeader,
   PopoverBody,
   PopoverFooter,
   Button,
 } from "@chakra-ui/react";
 import { MdDelete } from "react-icons/md";
-import deleteLeadAction from "./deleteLead.action";
-import { useRouter } from "next/navigation";
 
-export default function DeleteLeadButton({ userId }: { userId: string }) {
+export default function DeleteUserButton({ userId }: { userId: string }) {
   const [isPopoverOpen, setPopoverOpen] = useState(false);
-  const router = useRouter();
 
   const togglePopover = () => {
     setPopoverOpen(!isPopoverOpen);
   };
 
   const handleDelete = async () => {
-    await deleteLeadAction(userId);
-    setPopoverOpen(false);
-    router.refresh();
+    try {
+      await fetch(`/api/users/${userId}`, {
+        method: "DELETE",
+      });
+    } catch (error) {
+      console.error("Error deleting user:", error);
+    } finally {
+      setPopoverOpen(false);
+      window.location.reload();
+    }
   };
 
   return (

@@ -70,7 +70,7 @@ export default function PartnersTable({ tableData }: PartnersTableProps) {
       <GenericTable
         data={tableData}
         columns={columns}
-        itemsPerPage={10}
+        itemsPerPage={100}
         title="Lista Partner"
         onRowClick={onRowClick} // Pass the row click handler to GenericTable
         menu={PartnersTableMenu}

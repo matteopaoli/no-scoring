@@ -42,6 +42,7 @@ export const users = pgTable("user", {
   status: text("status").notNull(),
   phoneNumber: varchar("phoneNumber", { length: 15 }),
   refName: text("refName"),
+  leadStatus: text("leadStatus").default('to_contact'),
 });
 
 export const stores = pgTable("store", {
