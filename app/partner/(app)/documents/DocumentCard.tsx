@@ -2,7 +2,11 @@
 "use client";
 import React from "react";
 import { Box, Text, IconButton } from "@chakra-ui/react";
-import { AiFillFilePdf, AiOutlineDownload } from "react-icons/ai";
+import {
+  AiFillFilePdf,
+  AiOutlineDownload,
+  AiOutlineFileImage,
+} from "react-icons/ai";
 
 interface Document {
   title: string;
@@ -23,6 +27,7 @@ const DocumentCard: React.FC<DocumentCardProps> = ({ document }) => {
 
     // Append to the body and trigger a click
     window.document.body.appendChild(link);
+    console.log(link.href);
     link.click();
 
     // Remove the element after triggering the download
@@ -56,7 +61,11 @@ const DocumentCard: React.FC<DocumentCardProps> = ({ document }) => {
         borderRadius="md"
         mt={2}
       >
-        <AiFillFilePdf size="50px" color="#E53E3E" />
+        {document.url.endsWith(".pdf") ? (
+          <AiFillFilePdf size="50px" color="#E53E3E" />
+        ) : (
+          <AiOutlineFileImage size="50px" color="#E53E3E" />
+        )}
       </Box>
       <Text fontWeight="bold" mt={2}>
         {document.title}
