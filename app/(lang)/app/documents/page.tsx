@@ -7,16 +7,12 @@ const documents = [
     url: '/docs/Brochure Paytomorrow.pdf',
   },
   {
-    title: 'Contratto di Licenza con l\'Utente Finale',
-    url: '/docs/contratto Paytomorrow.pdf',
-  },
-  {
     title: 'Presentazione PayTomorrow',
     url: '/docs/Presentazione paytomorrow ( lavora con noi ).pdf',
   },
   {
     title: 'Vetrofania',
-    url: '/docs/Vetrofania.pdf',
+    url: '/docs/Vetrofania.png',
   },
 ];
 
