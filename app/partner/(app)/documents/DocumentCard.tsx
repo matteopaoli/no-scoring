@@ -18,19 +18,14 @@ interface DocumentCardProps {
 }
 
 const DocumentCard: React.FC<DocumentCardProps> = ({ document }) => {
+  
   const handleDownload = () => {
-    // Create an anchor element
     const link = window.document.createElement("a");
     link.href = document.url;
-    link.download = document.title; // Specify a default filename if possible
+    link.download = document.title;
     link.target = "_blank";
-
-    // Append to the body and trigger a click
     window.document.body.appendChild(link);
-    console.log(link.href);
     link.click();
-
-    // Remove the element after triggering the download
     window.document.body.removeChild(link);
   };
 
