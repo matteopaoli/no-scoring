@@ -733,6 +733,7 @@ export async function getAllStores() {
         sql<string>`COALESCE(SUM(CASE WHEN date_trunc('month', ${sales.createdAt}) = date_trunc('month', CURRENT_DATE) THEN CAST(${sales.amount} AS numeric) ELSE 0 END), 0)`.as(
           "totalVolumeCurrentMonth"
         ),
+      isSubscriptionActive: stores.isSubscriptionActive,
     })
     .from(stores)
     .innerJoin(userStoreRoles, eq(stores.id, userStoreRoles.storeId))

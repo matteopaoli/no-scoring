@@ -1,25 +1,16 @@
 "use client";
 
-import {
-  Box,
-  Button,
-  Flex,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  useDisclosure,
-} from "@chakra-ui/react";
 import { ColumnDef } from "@tanstack/react-table";
 import GenericTable from "@/app/components/GenericTable"; // Adjust the import path if needed
+import { Switch } from '@chakra-ui/react'
+import changeStoreStatus from "./changeStoreStatus.action";
+import { useRouter } from "next/navigation";
 
 interface Store {
   storeId: string;
   storeName: string;
   storeImage: string | null;
+  isSubscriptionActive: boolean;
   createdAt: Date | null;
   totalCommission: number;
   totalVolume: number;
@@ -30,7 +21,6 @@ interface StoresTableProps {
 }
 
 export default function StoresTable({ stores }: StoresTableProps) {
-    console.log(stores)
   const storeColumns: ColumnDef<Store>[] = [
     {
       accessorKey: "storeName",
@@ -71,7 +61,19 @@ export default function StoresTable({ stores }: StoresTableProps) {
           dateStyle: "long",
         }),
     },
+    {
+      accessorKey: "actions",
+      header: "",
+      cell: (info) => <Switch onChange={() => activeStatusToggleChangeHandler(info.row.original.storeId, !info.row.original.isSubscriptionActive)} isChecked={info.row.original.isSubscriptionActive} />
+    }
   ];
+
+  const router = useRouter();
+
+  const activeStatusToggleChangeHandler = async (id: string, value: boolean) => {
+    await changeStoreStatus(id, value)
+    await router.refresh();
+  }
 
   return (
     <>

@@ -53,6 +53,7 @@ export const stores = pgTable("store", {
   createdAt: timestamp("createdAt").defaultNow(),
   image: text("image"),
   partnerId: text("partnerId").references(() => users.id),
+  isSubscriptionActive: boolean("isSubscriptionActive").default(true)
 });
 
 export const sales = pgTable("sale", {
