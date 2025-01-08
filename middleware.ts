@@ -1,10 +1,11 @@
 import NextAuth from "next-auth";
 import { authConfig } from "app/auth.config";
 import { NextResponse } from "next/server";
+import { NextAuthRequest } from "next-auth/lib";
 
 const { auth } = NextAuth(authConfig);
 
-export default auth((req) => {
+export const authorizationMiddleware = (req: NextAuthRequest) => {
   // const locales = ["en", "it"];
 
   // const { pathname } = req.nextUrl;
@@ -65,7 +66,9 @@ export default auth((req) => {
   // }
 
   // return NextResponse.redirect(req.nextUrl);
-});
+}
+
+export default auth(authorizationMiddleware);
 
 export const config = {
   // https://nextjs.org/docs/app/building-your-application/routing/middleware#matcher
