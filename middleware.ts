@@ -6,71 +6,54 @@ import { NextAuthRequest } from "next-auth/lib";
 const { auth } = NextAuth(authConfig);
 
 export const authorizationMiddleware = (req: NextAuthRequest) => {
-  // const locales = ["en", "it"];
+  const { pathname } = req.nextUrl;
 
-  // const { pathname } = req.nextUrl;
-  // let locale = "en";
-  // const pathnameHasLocale = locales.some((l) => {
-  //   const isMatch = pathname.startsWith(`/${l}/`) || pathname === `/${l}`;
-  //   if (isMatch) {
-  //     locale = l;
-  //   }
-  //   return isMatch;
-  // });
+  // Reserved page patterns
+  const reservedPagePatterns = {
+    app: /^\/app/,
+    admin: /^\/admin(?!\/login).*/,
+    partner: /^\/partner(?!\/login).*/,
+  };
 
-  // if (pathnameHasLocale) {
-  const isAppReservedPage = /^\/app/.test(req.nextUrl.pathname);
-  const isAdminReservedPage = /^\/admin(?!\/login).*/.test(
-    req.nextUrl.pathname
-  );
-  const isPartnerReservedPage = /^\/partner(?!\/login).*/.test(
-    req.nextUrl.pathname
-  );
+  const loginPaths = {
+    app: "/login",
+    admin: "/admin/login",
+    partner: "/partner/login",
+  };
 
-  // Determine if it's a reserved page
-  const isReservedPage = isAppReservedPage || isAdminReservedPage || isPartnerReservedPage;
+  const reservedPageType = Object.entries(reservedPagePatterns).find(([type, pattern]) =>
+    pattern.test(pathname)
+  )?.[0] as keyof typeof loginPaths;
 
-  if (!isReservedPage) {
-    return NextResponse.next()
+  if (!reservedPageType) {
+    return NextResponse.next();
   }
 
-  // If the page is reserved and the user is not authenticated, redirect to login
-  if (isReservedPage && !req.auth) {
-    req.nextUrl.pathname = isAppReservedPage ? "/login" : isAdminReservedPage ? "/admin/login" : '/partner/login';
+  const redirectToLogin = (loginPath: string) => {
+    req.nextUrl.pathname = loginPath;
     return NextResponse.redirect(req.nextUrl);
+  };
+
+  if (!req.auth) {
+    return redirectToLogin(loginPaths[reservedPageType]);
   }
 
-  // If the page is reserved and the user is authenticated, check user role
-  if (isReservedPage && req.auth) {
-    // Redirect based on user role
-    if (isAppReservedPage && req.auth?.user?.role !== "user") {
-      req.nextUrl.pathname = "/login"; // User with wrong role trying to access app page
-      return NextResponse.redirect(req.nextUrl);
-    }
+  const userRole = req.auth.user?.role;
+  const roleRequirements = {
+    app: ["user"],
+    admin: ["admin"],
+    partner: ["partner", "subpartner"],
+  };
 
-    if (isAdminReservedPage && req.auth?.user?.role !== "admin") {
-      req.nextUrl.pathname = "/admin/login"; // Admin with wrong role trying to access admin page
-      return NextResponse.redirect(req.nextUrl);
-    }
-
-    if (isPartnerReservedPage && !(['partner', 'subpartner'].includes(req.auth?.user?.role))) {
-      req.nextUrl.pathname = "/partner/login"; // Admin with wrong role trying to access admin page
-      return NextResponse.redirect(req.nextUrl);
-    }
+  if (!roleRequirements[reservedPageType].includes(userRole)) {
+    return redirectToLogin(loginPaths[reservedPageType]);
   }
-  // Allow the request to continue if it's not a reserved page or valid access
+
   return NextResponse.next();
-
-  // if (["/api", "/admin"].some((x) => pathname.startsWith(x))) {
-  //   return NextResponse.next();
-  // }
-
-  // return NextResponse.redirect(req.nextUrl);
 }
 
 export default auth(authorizationMiddleware);
 
 export const config = {
-  // https://nextjs.org/docs/app/building-your-application/routing/middleware#matcher
   matcher: ["/((?!api|_next/static|_next/image|.*\\.png$).*)"],
 };
