@@ -6,6 +6,10 @@ dotenv.config({ path: '.env' });
 export default defineConfig({
   test: {
     include: ['./tests/integration/**/*.test.ts', './tests/unit/**/*.test.ts'],
-    // setupFiles: ['./vitest.setup.ts'],
-  },
+    server: {
+      deps: {
+        inline: ['next']
+      }
+    },
+  }
 });

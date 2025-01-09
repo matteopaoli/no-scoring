@@ -1,6 +1,6 @@
-import { users } from "schema";
+import { stores, users, userStoreRoles } from "schema";
 import { db, User } from "../db";
-import { eq } from "drizzle-orm";
+import { eq, getTableColumns } from "drizzle-orm";
 import { genSaltSync, hashSync } from "bcrypt-ts";
 
 export class UserService {
@@ -31,4 +31,8 @@ export class UserService {
   static isAdmin(user: { role?: string | null }) {
     return user?.role ? user.role === 'admin' : false
   }
+
+  static async getStores(user: User) {
+    return (await db.select({ ...getTableColumns(stores) }).from(stores).innerJoin(userStoreRoles, eq(stores.id, userStoreRoles.storeId)).innerJoin(users, eq(userStoreRoles.userId, users.id)).where(eq(users.id, user.id)))
+  } 
 }
