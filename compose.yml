@@ -12,7 +12,12 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./db:/docker-entrypoint-initdb.d 
     restart: unless-stopped
-
+  api:
+    container_name: api
+    build: 
+      context: ./api/
+    ports:
+      - "8000:8000"    
   # web:
   #   container_name: web
   #   build:
