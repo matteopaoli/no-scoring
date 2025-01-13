@@ -60,7 +60,7 @@ export default function EditableCell({
   ) : (
     <span>
         <Tooltip label="Clicca per modificare">
-            <span onClick={handleClick} style={{ cursor: "pointer", display: 'inline-block', height: '100%', margin: '-16px -24px', padding: '16px 24px', width: '300px' }}>
+            <span onClick={handleClick} style={{ cursor: "pointer", display: 'inline-block', whiteSpace: 'pre-wrap', height: '100%', margin: '-16px -24px', padding: '16px 24px', width: '300px' }}>
             {value ? value : <Text as="span" fontWeight="300">Inserisci una nota</Text>}
             </span>
         </Tooltip>
