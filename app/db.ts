@@ -770,6 +770,7 @@ export async function getAllPendingUsers() {
             ELSE ${users.refName} 
           END`,
       leadStatus: users.leadStatus,
+      notes: users.notes,
     })
     .from(users)
     .leftJoin(partner, eq(users.partnerId, partner.id))

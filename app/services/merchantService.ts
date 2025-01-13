@@ -172,4 +172,8 @@ export class MerchantService {
       .where(and(eq(users.role, "user"), eq(users.status, "active")))
       .groupBy(users.id, partner.id, businessType.name, stores.id);
   }
+
+  static async updateNotes(userId: string, value: string) {
+    return await db.update(users).set({ notes: value }).where(eq(users.id, userId));
+  }
 }

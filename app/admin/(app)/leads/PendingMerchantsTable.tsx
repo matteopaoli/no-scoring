@@ -21,6 +21,9 @@ import PendingMerchantsFilters from "./PendingMerchantsFilters"; // Import the f
 import { useEffect, useState } from "react";
 import updateLeadStatusAction from "./updateLeadStatus.action";
 import { useRouter } from "next/navigation";
+import EditableCell from "./EditableCell";
+import { MerchantService } from "@/app/services/merchantService";
+import updateNotesAction from "./updateNotes.action";
 
 interface Merchant {
   id: string;
@@ -76,6 +79,11 @@ export default function PendingMerchantsTable({
       accessorKey: "name",
       header: "Nome referente",
       cell: (info) => info.getValue(),
+    },
+    {
+      accessorKey: "notes",
+      header: "Note",
+      cell: (info) => <EditableCell initialValue={info.getValue()} updateMyData={(value) => updateNotesAction(info.row.original.id, value)} />,
     },
     {
       accessorKey: "email",
