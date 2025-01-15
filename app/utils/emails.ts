@@ -129,3 +129,13 @@ export async function partnerWelcomeEmail({ email, partnerName }: { email: strin
     },
   });
 }
+
+export async function magicLink({ email, url }: { email: string, url: string }) {
+  return await sendEmail({
+    recipients: [email],
+    templateName: "magicLink",
+    data: {
+      url
+    }
+  })
+}

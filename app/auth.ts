@@ -5,6 +5,7 @@ import { authConfig } from 'app/auth.config';
 import { db } from '../schema'
 import { DrizzleAdapter } from '@auth/drizzle-adapter';
 import { UserService } from './services/userService';
+import sendVerificationRequest from './utils/sendVerificationRequest';
 
 export const {
   handlers: { GET, POST },
@@ -28,5 +29,12 @@ export const {
         }
       },
     }),
+    {
+      id: "posMagicLink",
+      name: "email",
+      type: "email",
+      maxAge: 60 * 60 * 24,
+      sendVerificationRequest,
+    },
   ],
 });

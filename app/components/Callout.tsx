@@ -27,6 +27,7 @@ const actionMessages: Record<string, string> = {
   update: 'Il prodotto è stato aggiornato con successo.',
   process: 'Il prodotto è stato elaborato con successo.',
   createMerchant: 'Nuovo profilo lead inserito con successo',
+  createPos: "POS inserito con successo",
 };
 
 const Callout: React.FC<CalloutProps> = ({

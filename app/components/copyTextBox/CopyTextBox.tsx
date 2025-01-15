@@ -7,6 +7,7 @@ import {
   useClipboard,
   Tooltip,
   useColorModeValue,
+  Text,
 } from "@chakra-ui/react";
 
 interface CopyTextBoxProps {
@@ -38,10 +39,10 @@ const CopyTextBox: React.FC<CopyTextBoxProps> = ({ children }) => {
         alignItems="center"
         justifyContent="space-between"
         cursor="pointer"
-        onClick={onCopy} // Copy to clipboard on box click
-        _hover={{ bg: bgButtonHover }} // Change background on hover
+        onClick={onCopy}
+        _hover={{ bg: bgButtonHover }}
       >
-        <span style={{ color: textColor }}>{children}</span>
+        <Text style={{ color: textColor }} fontSize={{ sm: "sm", md: 'md' }}>{children}</Text>
         <Button
           size="sm"
           onClick={onCopy}

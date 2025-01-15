@@ -1,7 +1,7 @@
 import React from "react";
 
 import { Icon } from "@chakra-ui/react";
-import { MdBusiness, MdHome, MdPointOfSale, MdShoppingCart, MdVideoLibrary } from "react-icons/md";
+import { MdBusiness, MdHome, MdOutlineReceipt, MdPointOfSale, MdShoppingCart, MdVideoLibrary } from "react-icons/md";
 import { IoMdCube } from "react-icons/io";
 import { IoDocuments } from "react-icons/io5";
 
@@ -31,12 +31,21 @@ const routes = [
     match: /^\/app\/settings\/user$/,
   },
   {
+    name: "Punti Vendita",
+    layout: "/admin",
+    path: "/app/pos",
+    match: /^\/app\/pos(\/.*)?$/,
+    icon: (
+      <Icon as={MdPointOfSale} width="20px" height="20px" color="inherit" />
+    ),
+  },
+  {
     name: "Vendite",
     layout: "/admin",
     path: "/app/sales",
     match: /^\/app\/sales(\/.*)?$/,
     icon: (
-      <Icon as={MdPointOfSale} width="20px" height="20px" color="inherit" />
+      <Icon as={MdOutlineReceipt} width="20px" height="20px" color="inherit" />
     ),
   },
   {
