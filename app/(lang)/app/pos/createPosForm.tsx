@@ -54,7 +54,7 @@ export default function CreatePosForm() {
             <Text mb="20px" fontSize="sm">
               Inserisci le informazioni richieste per aggiugnere un nuovo POS.
               <br />
-              <br /> Una volta creato, invieremo un'email all'indirizzo inserito
+              <br /> Una volta creato, invieremo un&apos;email all&apos;indirizzo inserito
               con le istruzioni per accedere a PayTomorrow in modalità POS
             </Text>
             <form action={createPos}>

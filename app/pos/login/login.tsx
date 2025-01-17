@@ -74,7 +74,7 @@ export default function SignIn() {
               fontWeight="400"
               fontSize="md"
             >
-              Inserisci la tua email per effettuare l'accesso
+              Inserisci la tua email per effettuare l&apos;accesso
             </Text>
           </Box>
           <Flex
