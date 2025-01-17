@@ -8,7 +8,7 @@ import {
   FormErrorMessage,
 } from "@chakra-ui/react";
 // Custom components
-import React from "react";
+import React, { forwardRef } from "react";
 import FormLabel from "./FormLabel";
 
 interface DefaultProps {
@@ -25,7 +25,7 @@ interface DefaultProps {
   isRequired?: boolean;
 }
 
-const InputField: React.FC<DefaultProps> = (props) => {
+const InputField: React.FC<DefaultProps> = forwardRef<HTMLInputElement | null, any>((props, ref) => {
   const {
     id,
     label,
@@ -56,10 +56,11 @@ const InputField: React.FC<DefaultProps> = (props) => {
         _placeholder={{ fontWeight: "400", color: "secondaryGray.600" }}
         h="44px"
         maxH="44px"
+        ref={ref}
       />
       {errors.length > 0 && errors.map(e => <FormErrorMessage key={e}>{e}</FormErrorMessage>)}
     </FormControl>
   );
-};
+});
 
 export default InputField;

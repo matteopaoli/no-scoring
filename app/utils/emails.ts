@@ -40,6 +40,7 @@ async function sendEmail({
   });
 
   try {
+    console.log(process.env.ENABLE_EMAILS)
     if (process.env.ENABLE_EMAILS === "true") {
       const command = new SendRawEmailCommand({
         RawMessage: {

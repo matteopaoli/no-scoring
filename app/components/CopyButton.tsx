@@ -4,14 +4,15 @@ import { CopyIcon } from "@chakra-ui/icons";
 import { Button, IconButton, useToast } from "@chakra-ui/react";
 import { MdContentCopy, MdLink } from "react-icons/md";
 
-export default function CopyButton({ text }: { text: string }) {
+export default function CopyButton({ text, variant = 'outline' }: { text: string, variant: string }) {
   const toast = useToast();
   return (
     <Button
       aria-label="Copy"
       leftIcon={<MdLink />}
       size="md"
-      variant="outline"
+      variant={variant}
+      colorScheme="brand"
       onClick={() => {
         navigator.clipboard.writeText(text);
         toast({
@@ -22,7 +23,7 @@ export default function CopyButton({ text }: { text: string }) {
         });
       }}
     >
-      Link
+      Copia Link
     </Button>
   );
 }

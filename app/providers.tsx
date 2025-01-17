@@ -5,18 +5,21 @@ import { ReactNode } from "react";
 import theme from "@/app/theme/theme";
 import { AppProgressBar } from "next-nprogress-bar";
 import { globalStyles } from "./theme/styles";
+import { DictionaryProvider } from "./DictionaryProvider";
 
 export default function Providers({ children }: { children: ReactNode }) {
   return (
-    <ChakraProvider theme={theme}>
-      {" "}
-      <AppProgressBar
-        height="4px"
-        color={globalStyles.colors.brand[600]}
-        options={{ showSpinner: false }}
-        shallowRouting
-      />
-      {children}
-    </ChakraProvider>
+    <DictionaryProvider>
+      <ChakraProvider theme={theme}>
+        {" "}
+        <AppProgressBar
+          height="4px"
+          color={globalStyles.colors.brand[600]}
+          options={{ showSpinner: false }}
+          shallowRouting
+        />
+        {children}
+      </ChakraProvider>
+    </DictionaryProvider>
   );
 }

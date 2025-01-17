@@ -5,6 +5,43 @@ import { genSaltSync, hashSync } from "bcrypt-ts";
 import { Store } from "./storeService";
 
 export class UserService {
+  private static async checkAdminAuthorization(userId: string, posId: string) {
+    try {
+      const [user, pos] = await Promise.all([
+        UserService.getUserById(userId),
+        UserService.getUserById(posId),
+      ]);
+  
+      if (!user) {
+        throw { field: "server", message: "User not authenticated" };
+      }
+      if (!pos) {
+        throw { field: "server", message: "Point of sale not found" };
+      }
+  
+      const [userRoles, posRoles] = await Promise.all([
+        UserService.getStoreRoles(user as unknown as User),
+        UserService.getStoreRoles(pos as unknown as User),
+      ]);
+  
+      const posStoreId = posRoles[0]?.storeId;
+      if (!posStoreId) {
+        throw { field: "server", message: "Point of sale store ID not found" };
+      }
+  
+      const isAdmin = userRoles.some(
+        (role) => role.storeId === posStoreId && role.role === "admin"
+      );
+      if (!isAdmin) {
+        throw { field: "server", message: "Unauthorized" };
+      }
+  
+      return { success: true };
+    } catch (error) {
+      return { errors: [error] };
+    }
+  }
+  
   static async getUserByEmail(email: string) {
     return (
       await db
@@ -92,10 +129,17 @@ export class UserService {
   
   static async getAllPos(storeId: string) {
     return await db
-    .select({ email: users.email, name: users.refName })
+    .select({ email: users.email, name: users.refName, id: users.id })
     .from(users)
     .innerJoin(userStoreRoles, eq(userStoreRoles.userId, users.id))
     .where(and(eq(userStoreRoles.storeId, storeId), eq(userStoreRoles.role, 'pos')));  
+  }
+
+  static async deletePos(posId: string, userId: string) {
+    console.log(posId, userId);
+    await UserService.checkAdminAuthorization(userId, posId);
+    await db.delete(userStoreRoles).where(eq(userStoreRoles.userId, posId));
+    await db.delete(users).where(eq(users.id, posId));
   }
 
   static async generatePosEmail(storeId: string) {
@@ -117,5 +161,9 @@ export class UserService {
 
   static async saveMagicLink(userId: string, magicLinkUrl: string) {
     return db.update(users).set({ magicLinkUrl }).where(eq(users.id, userId))
+  }
+
+  static async getStoreRoles(user: User) {
+    return db.select().from(userStoreRoles).where(eq(userStoreRoles.userId, user.id))
   }
 }

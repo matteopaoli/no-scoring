@@ -1,4 +1,3 @@
-import { DictionaryProvider } from "@/app/DictionaryProvider";
 import SignIn from "./login";
 import { auth } from "@/app/auth";
 import { redirect } from "next/navigation";
@@ -10,8 +9,6 @@ export default async function LoginPage() {
   }
 
   return (
-    <DictionaryProvider>
       <SignIn />
-    </DictionaryProvider>
   );
 }
