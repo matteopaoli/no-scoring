@@ -57,7 +57,7 @@ export default function SignIn() {
           flexDirection="column"
           bgColor="white"
         >
-          {formState?.success && (
+          {formState?.status === 'success' && (
             <Alert status="success" mb="20px">
               <AlertIcon />
               Per favore controlla la posta per ricevere il link di accesso.

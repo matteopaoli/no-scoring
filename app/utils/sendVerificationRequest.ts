@@ -15,7 +15,5 @@ export async function sendVerificationRequestLogin({ identifier: email, url }: {
   if (user?.role !== "pos") {
     throw new Error("Not a POS")
   }
-  console.log(user);
-  console.log(url)
   await magicLink({ email, url });
 }

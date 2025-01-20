@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "2.5.0-alpha-3",
+  "version": "2.5.0-beta",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

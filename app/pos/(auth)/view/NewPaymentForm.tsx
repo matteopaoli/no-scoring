@@ -10,13 +10,13 @@ import {
   Text,
 } from "@chakra-ui/react";
 import PriceField from "@/app/components/fields/PriceField";
-import getFormErrors from "../../utils/getFormErrors";
+import getFormErrors from "@/app/utils/getFormErrors";
 import { useFormState } from "react-dom";
 import { useEffect, useState } from "react";
-import createNewPaymentAction from "../../actions/createNewPayment.action";
-import { getAmountWithFees } from "../../utils/fees";
-import SubmitButton from "../../components/SubmitButton";
-import CopyTextBox from "../../components/copyTextBox/CopyTextBox";
+import createNewPaymentAction from "@/app/actions/createNewPayment.action";
+import { getAmountWithFees } from "@/app/utils/fees";
+import SubmitButton from "@/app/components/SubmitButton";
+import CopyTextBox from "@/app/components/copyTextBox/CopyTextBox";
 import Image from "next/image";
 
 export default function NewPaymentForm() {
@@ -64,7 +64,7 @@ export default function NewPaymentForm() {
       </Flex>
     );
   }
-  
+
   return (
     <form action={handleSubmit} style={{ width: "100%" }}>
       <Flex flexDirection="column">

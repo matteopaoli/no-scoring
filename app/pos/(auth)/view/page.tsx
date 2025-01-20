@@ -1,36 +1,15 @@
-import { redirect } from "next/navigation";
-import getUserFromAuth from "../../utils/getUserFromAuth";
 import {
   Box,
-  Checkbox,
   Flex,
-  Grid,
   Heading,
-  Stat,
-  StatLabel,
-  StatNumber,
-  Table,
-  Tbody,
-  Td,
-  Text,
-  Th,
-  Thead,
-  Tr,
 } from "@chakra-ui/react";
 import NewPaymentForm from "./NewPaymentForm";
-import Footer from "../../components/footer/FooterAdmin";
+import Footer from "@/app/components/footer/FooterAdmin";
 
 export default async function PosPage() {
-  const user = await getUserFromAuth();
-
   return (
-    <Flex flexDirection="column" minHeight="100vh" backgroundColor="#f4f4f4">
+    <Flex flexDirection="column" minHeight="100vh">
       <Box padding={4}>
-        <Box textAlign="center" marginBottom={8}>
-          <Text fontSize="4xl" fontWeight="bold">
-            Paytomorrow - Sistema POS
-          </Text>
-        </Box>
 
         {/* <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={6}>
           <Box

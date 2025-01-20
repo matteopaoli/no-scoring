@@ -79,7 +79,7 @@ const routes = [
   {
     name: "Modalità POS",
     layout: "/admin",
-    path: "/pos",
+    path: "/pos/view",
     icon: <Icon as={MdPointOfSale} width="20px" height="20px" color="inherit" />,
   }
 ];

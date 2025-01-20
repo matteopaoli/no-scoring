@@ -11,20 +11,25 @@ export default async function PosAppLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const user = await getUserFromAuth();
-
-  if (user.role !== "pos") redirect("/login");
-
-  if (
-    (await UserService.getStores(user)).every((x) => !x.isSubscriptionActive)
-  ) {
-    redirect("/expired");
+  try {
+    const user = await getUserFromAuth();
+  
+    if (!["user", "pos"].includes(user.role)) redirect("/login");
+  
+    if (
+      (await UserService.getStores(user)).every((x) => !x.isSubscriptionActive)
+    ) {
+      redirect("/expired");
+    }
+  
+    return (
+      <Client user={user}>
+        <Callout autoDismiss={true} dismissDuration={5000} />
+        <>{children}</>
+      </Client>
+    );
   }
-
-  return (
-    <>
-      <Callout autoDismiss={true} dismissDuration={5000} />
-      <>{children}</>
-    </>
-  );
+  catch {
+    redirect('/pos/login');
+  }
 }

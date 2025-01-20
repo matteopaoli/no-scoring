@@ -168,7 +168,7 @@ export default function HeaderLinks({
               _focus={{ bg: "none" }}
               borderRadius="8px"
               px="14px"
-              onClick={() => router.push("/app/settings/user")}
+              onClick={() => router.push("/pos/settings")}
             >
               <Text fontSize="sm">Modifica Profilo</Text>
             </MenuItem>

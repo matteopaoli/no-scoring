@@ -38,5 +38,9 @@ export default async function updateUserAction(prevState, formData: FormData): F
     redirect('/partner?success=true')
   }
 
+  if (user.role === 'pos') {
+    redirect('/pos/view?success=true')
+  }
+
   redirect("/app?success=true");
 }
