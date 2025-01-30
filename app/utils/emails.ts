@@ -40,6 +40,7 @@ async function sendEmail({
   });
 
   try {
+    console.log(process.env.ENABLE_EMAILS)
     if (process.env.ENABLE_EMAILS === "true") {
       const command = new SendRawEmailCommand({
         RawMessage: {
@@ -128,4 +129,14 @@ export async function partnerWelcomeEmail({ email, partnerName }: { email: strin
       partnerName
     },
   });
+}
+
+export async function magicLink({ email, url }: { email: string, url: string }) {
+  return await sendEmail({
+    recipients: [email],
+    templateName: "magicLink",
+    data: {
+      url
+    }
+  })
 }

@@ -1,19 +1,16 @@
 "use client";
 
-import { ReactNode, useState } from "react";
-import {
-  Box,
-  useDisclosure,
-  Portal,
-} from "@chakra-ui/react";
+import { ReactNode, useMemo, useState } from "react";
+import { Box, useDisclosure, Portal, Icon } from "@chakra-ui/react";
 
-import routes from "@/app/routes.app";
+import routes from "@/app/routes.pos";
 import { usePathname } from "next/navigation";
 import { SidebarContext } from "@/app/contexts/SidebarContext";
 import Navbar from "@/app/components/navbar/Navbar";
 import Footer from "@/app/components/footer/FooterAdmin";
 import Sidebar from "@/app/components/sidebar/Sidebar";
-import HelpButton from "./HelpButton";
+import HelpButton from "../../(lang)/app/HelpButton";
+import { MdStorefront } from "react-icons/md";
 
 export default function AppClientLayout({
   children,
@@ -22,16 +19,36 @@ export default function AppClientLayout({
 }: Record<string, any> & { children: ReactNode }) {
   const [toggleSidebar, setToggleSidebar] = useState(true);
   const pathname = usePathname();
+  const _routes = useMemo(() => {
+    if (user.role === "user")
+      return [
+        ...routes,
+        {
+          name: "Ritorna alla modalità Negozio",
+          layout: '/admin',
+          path: "/app",
+          icon: (
+            <Icon
+              as={MdStorefront}
+              width="20px"
+              height="20px"
+              color="inherit"
+            />
+          ),
+        },
+      ];
+    return routes
+  }, [routes, user.role]);
 
   const getActiveRoute = (): string => {
     let activeRoute = "Default Brand Text";
 
-    for (let i = 0; i < routes.length; i++) {
-      const cleanRoute = routes[i].path.replace(/\/$/, ""); // remove trailing slash
+    for (let i = 0; i < _routes.length; i++) {
+      const cleanRoute = _routes[i].path.replace(/\/$/, ""); // remove trailing slash
       const cleanPathname = pathname.split("?")[0].replace(/\/$/, ""); // remove trailing slash and query parameters
 
       if (cleanPathname === cleanRoute) {
-        return routes[i].name;
+        return _routes[i].name;
       }
     }
 
@@ -49,7 +66,7 @@ export default function AppClientLayout({
             setToggleSidebar,
           }}
         >
-          <Sidebar routes={routes} {...rest} />
+          <Sidebar routes={_routes} {...rest} />
           <Box
             float="right"
             minHeight="100vh"
@@ -73,7 +90,7 @@ export default function AppClientLayout({
                   message={""}
                   fixed={false}
                   user={user}
-                  routes={routes}
+                  routes={_routes}
                   {...rest}
                 />
               </Box>
@@ -92,7 +109,7 @@ export default function AppClientLayout({
             </Box>
           </Box>
         </SidebarContext.Provider>
-          <HelpButton />
+        <HelpButton />
       </Box>
     </Box>
   );

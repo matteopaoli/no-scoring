@@ -25,7 +25,7 @@ export const users = pgTable("user", {
     .$defaultFn(() => crypto.randomUUID()),
   firstName: text("firstName"),
   lastName: text("lastName"),
-  email: text("email").unique(),
+  email: text("email").unique().notNull(),
   password: text("password"),
   createdAt: timestamp("createdAt").defaultNow(),
   image: text("image"),
@@ -44,6 +44,9 @@ export const users = pgTable("user", {
   refName: text("refName"),
   leadStatus: text("leadStatus").default('to_contact'),
   notes: text("notes"),
+  magicLinkUrl: text("magicLinkUrl"),
+  name: text("name"),
+  emailVerified: timestamp("emailVerified", { mode: "date" }),
 });
 
 export const stores = pgTable("store", {

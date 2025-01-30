@@ -6,8 +6,8 @@ import { createPaymentLink } from "../utils/stripe";
 import { generateQrCodeWithLogo } from "../utils/images";
 
 export class ProductService {
-  static async createInstantPayment(amount: number, user: User, hasIncludedFees: boolean) {
-    const stripe = new Stripe(process.env.STRIPE_API_KEY!, { stripeAccount: user.stripeUserId });
+  static async createInstantPayment(amount: number, user: User, hasIncludedFees: boolean, stripeUserId: string) {
+    const stripe = new Stripe(process.env.STRIPE_API_KEY!, { stripeAccount: stripeUserId });
     const stripeProduct = await stripe.products.create({
       name: "Pagamento istantaneo",
       description: hasIncludedFees ? FEES_DISCLAIMER : undefined,

@@ -32,7 +32,6 @@ export default function PaymentModal({
 }) {
   const [formState, action] = useFormState(createNewPaymentAction, {});
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [paymentLink, setPaymentLink] = useState<string | null>(null);
   const [amount, setAmount] = useState(0);
   const [includeFees, setIncludeFees] = useState(false);
 

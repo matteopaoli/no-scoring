@@ -5,17 +5,15 @@ import { FormActionReturnTypeWithStatus } from "@/app/types";
 import formatZodErrors from "@/app/utils/formatZodErrors";
 import getUserFromAuth from "@/app/utils/getUserFromAuth";
 import validateNewPayment from "@/app/formSchemas/newPaymentSchema";
-import Stripe from "stripe";
 import { getAmountWithFees } from "../utils/fees";
-import { FEES_DISCLAIMER } from "../constants";
-import { createPaymentLink } from "../utils/stripe";
-import { generateQrCodeWithLogo } from "../utils/images";
 import { ProductService } from "../services/productService";
+import { getStoreByUserId } from "../db";
+import { Store } from "../services/storeService";
 
 export default async function createNewPaymentAction(
-  prevState: Awaited<FormActionReturnTypeWithStatus>,
+  prevState: Awaited<FormActionReturnTypeWithStatus<{paymentLink?: string, qrcode?: string}>>,
   formData: FormData
-): FormActionReturnTypeWithStatus {
+): FormActionReturnTypeWithStatus<{paymentLink?: string, qrcode?: string}> {
   const validation = validateNewPayment(formData);
 
   if (!validation.success) {
@@ -30,16 +28,18 @@ export default async function createNewPaymentAction(
   if (!user?.email) {
     redirect("/login");
   }
+  let stripeUserId = user.stripeUserId;
 
-  const stripe = new Stripe(process.env.STRIPE_API_KEY!, {
-    stripeAccount: user.stripeUserId,
-  });
+  if (user.role === 'pos') {
+    const store = await getStoreByUserId(user.id);
+    stripeUserId = await Store.getStripeUserId(store.id)
+  }
 
   if (includeFees) {
     amount = getAmountWithFees(amount);
   }
 
-  const { paymentLink, qrcode } = await ProductService.createInstantPayment(amount, user, includeFees);
+  const { paymentLink, qrcode } = await ProductService.createInstantPayment(amount, user, includeFees, stripeUserId);
   
 
   return { status: 'success', paymentLink: paymentLink.url, qrcode, errors: [] };

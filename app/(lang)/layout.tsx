@@ -1,4 +1,3 @@
-import { DictionaryProvider } from "@/app/DictionaryProvider";
 import { UserContextProvider } from "../contexts/UserContext";
 import { auth } from "../auth";
 
@@ -21,7 +20,7 @@ export default async function Layout({
 
   return (
     <UserContextProvider value={session}>
-      <DictionaryProvider>{children}</DictionaryProvider>
+      {children}
     </UserContextProvider>
   );
 }

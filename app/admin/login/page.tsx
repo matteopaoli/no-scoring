@@ -10,8 +10,6 @@ export default async function LoginPage() {
   }
 
   return (
-    <DictionaryProvider>
       <SignIn />
-    </DictionaryProvider>
   );
 }

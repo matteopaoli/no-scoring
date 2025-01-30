@@ -7,5 +7,9 @@ export default async function getUserFromAuth() {
   if (!session?.user?.email) {
     throw new Error('User is not authenticated')
   }
-  return await UserService.getUserByEmail(session.user.email)
+  const user = await UserService.getUserByEmail(session.user.email)
+  if (!user) {
+    throw new Error('Authenticated but not found in our users database');
+  }
+  return user;
 }
