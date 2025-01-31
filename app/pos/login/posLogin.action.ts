@@ -32,7 +32,7 @@ export default async function posLoginAction(
     }
     await signIn("posMagicLinkLogin", {
       email: validation.data,
-      redirectTo: "/pos",
+      redirectTo: "/pos/view",
       redirect: false,
       roles: ["pos"],
     });

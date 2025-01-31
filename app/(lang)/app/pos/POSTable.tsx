@@ -55,6 +55,7 @@ import SubmitButton from "@/app/components/SubmitButton";
 import CopyButton from "@/app/components/CopyButton";
 import GenericTable from "@/app/components/GenericTable";
 import CreatePosForm from "./createPosForm";
+import DeletePOSButton from "./DeletePosButton";
 
 // Default image URL
 const DEFAULT_IMAGE_URL = "/img/product-placeholder.png";
@@ -63,14 +64,13 @@ type ProductsTableProps = {
   tableData: {
     email: string;
     name: string | null;
+    id: string;
   }[];
 };
 
 const columnHelper = createColumnHelper<Stripe.Product>();
 
 export default function ProductsTable({ tableData }: ProductsTableProps) {
-  const [createPosState, createPos] = useFormState(createPosAction, {});
-
   const textColor = useColorModeValue("secondaryGray.900", "white");
 
   const columns = useMemo(
@@ -81,19 +81,16 @@ export default function ProductsTable({ tableData }: ProductsTableProps) {
         cell: (info) => info.getValue(),
       },
       {
+        accessorKey: "email",
+        header: 'Email',
+        cell: (info) => info.getValue(),
+      },
+      {
         accessorKey: "actions",
         header: "Azioni",
         cell: (info) => (
           <Flex gap="8px" alignItems="center">
-            {info.row.original.status === "pending" ? (
-              <Tooltip label="Copia link onboarding" hasArrow placement="auto">
-                <span>
-                  <CopyButton text={info.row.original.onboardingLink} />
-                </span>
-              </Tooltip>
-            ) : (
-              <Text>N/A</Text>
-            )}
+            <DeletePOSButton posId={info.row.original.id} />
           </Flex>
         ),
       },

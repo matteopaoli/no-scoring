@@ -38,7 +38,7 @@ export default function DeletePOSButton({ posId }: { posId: string }) {
   };
 
   return (
-    <Tooltip label="Elimina lead">
+    <Tooltip label="Elimina POS">
       <React.Fragment>
         <Popover isOpen={isPopoverOpen} onClose={() => setPopoverOpen(false)}>
           <PopoverTrigger>
@@ -46,6 +46,8 @@ export default function DeletePOSButton({ posId }: { posId: string }) {
               icon={<MdDelete />}
               aria-label="Elimina"
               ms="20px"
+
+              + 
               colorScheme="red"
               variant="outline"
               size="md"
@@ -55,7 +57,7 @@ export default function DeletePOSButton({ posId }: { posId: string }) {
           <PopoverContent>
             <PopoverArrow />
             <PopoverBody>
-              Questa azione eliminerà permanentemente il lead.
+              Questa azione eliminerà permanentemente il POS.
             </PopoverBody>
             <PopoverFooter display="flex" justifyContent="flex-end">
               <Button
