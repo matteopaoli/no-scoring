@@ -46,8 +46,6 @@ export default function DeletePOSButton({ posId }: { posId: string }) {
               icon={<MdDelete />}
               aria-label="Elimina"
               ms="20px"
-
-              + 
               colorScheme="red"
               variant="outline"
               size="md"
