@@ -38,12 +38,12 @@ export default function StoresTable({ stores }: StoresTableProps) {
     },
     {
       accessorKey: "totalCommission",
-      header: "Commissione",
+      header: "Commissioni guadagnate (Totale)",
       cell: (info) => `€ ${Number(info.getValue()).toFixed(2)}`,
     },
     {
       accessorKey: "totalVolume",
-      header: "Volume",
+      header: "Volume (Totale)",
       cell: (info) => `€ ${Number(info.getValue() ?? 0).toFixed(2)}`,
     },
     {
