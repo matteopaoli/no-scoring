@@ -4,7 +4,6 @@ import CopyButton from "@/app/components/CopyButton";
 import GenericTable from "@/app/components/GenericTable";
 import { Flex, Text, Tooltip } from "@chakra-ui/react";
 import { ColumnDef } from "@tanstack/react-table";
-import { MdCheckCircle, MdHourglassEmpty } from "react-icons/md";
 
 interface Merchant {
   id: string;

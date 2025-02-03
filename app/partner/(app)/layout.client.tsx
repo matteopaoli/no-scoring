@@ -22,11 +22,12 @@ export default function AdminLayout({
     let activeRoute = "Default Brand Text";
 
     for (let i = 0; i < routes.length; i++) {
-      // Compare only the base path without considering query parameters or trailing slashes
-      const cleanRoute = routes[i].path.replace(/\/$/, ""); // remove trailing slash
-      const cleanPathname = pathname.split("?")[0].replace(/\/$/, ""); // remove trailing slash and query parameters
-
-      if (cleanPathname === cleanRoute) {
+      const cleanRoute = routes[i].path.replace(/\/$/, "");
+      const cleanPathname = pathname.split("?")[0].replace(/\/$/, "");
+      const routeRegex = new RegExp(
+        `^${cleanRoute.replace(/\[.+?\]/g, "[^/]+")}$`
+      );
+      if (routeRegex.test(cleanPathname)) {
         return routes[i].name;
       }
     }

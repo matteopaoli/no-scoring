@@ -2,6 +2,10 @@
 
 import GenericTable from "@/app/components/GenericTable";
 import SubPartnersTableMenu from "./SubPartnersTableMenu";
+import { useRouter } from "next/navigation";
+import { Flex, Icon, Text, useColorModeValue } from "@chakra-ui/react";
+import styles from './Table.module.css'
+import { MdArrowForward } from "react-icons/md";
 
 type SubPartnersTableProps = {
   tableData: {
@@ -13,7 +17,8 @@ type SubPartnersTableProps = {
 };
 
 export default function SubPartnersTable({ tableData }: SubPartnersTableProps) {
-  console.log(tableData)
+  const textColor = useColorModeValue("secondaryGray.900", "white");
+  const router = useRouter();
   const columns = [
     {
       accessorKey: "name",
@@ -43,13 +48,41 @@ export default function SubPartnersTable({ tableData }: SubPartnersTableProps) {
       header: "Guadagni generati (mese corrente)",
       cell: (info) => `€ ${info.getValue().toFixed(2)}`,
     },
+    {
+      accessorKey: "details",
+      header: "Dettagli",
+      cell: () => (
+        <Flex as="span" alignItems="center">
+          <Icon
+            as={MdArrowForward}
+            color="navy.700"
+            width="24px"
+            className={styles.icon}
+            me="16px"
+          />
+          <Text
+            color={textColor}
+            textDecoration="underline"
+            fontSize="sm"
+            fontWeight="700"
+          >
+            Dettagli Agente
+          </Text>
+        </Flex>
+      ),
+    },
   ];
+
+  const onRowClick = (row: any) => {
+    router.push(`/partner/subpartners/${row.id}`);
+  };
 
   return (
     <GenericTable
       columns={columns}
       data={tableData}
       title="Agenti"
+      onRowClick={onRowClick}
       itemsPerPage={10}
       menu={SubPartnersTableMenu}
     />
