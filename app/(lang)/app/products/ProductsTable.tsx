@@ -48,8 +48,6 @@ export default function ProductsTable({ tableData }: ProductsTableProps) {
     }
   }, [isMdViewport]);
 
-  console.log(tableData)
-
   const textColor = useColorModeValue("secondaryGray.900", "white");
   const borderColor = useColorModeValue("gray.200", "whiteAlpha.100");
 

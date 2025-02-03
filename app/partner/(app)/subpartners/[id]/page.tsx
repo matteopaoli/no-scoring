@@ -8,14 +8,12 @@ import {
   SimpleGrid,
   Text,
 } from "@chakra-ui/react";
-import SubPartnersTable from "./SubPartnersTable";
 import { _ADMIN_getSubPartnersByUserId } from "@/app/db";
 import Statistics from "./Statistics";
-import EditButton from "./EditButton";
 import { UserService } from "@/app/services/userService";
 import getUserFromAuth from "@/app/utils/getUserFromAuth";
 import { redirect } from "next/navigation";
-import StoresTable from "../../merchants/StoresTable";
+import StoresTable from "./StoresTable";
 
 export default async function AgentDetailPage({ params }: { params: { id: string } }) {
   const user = await getUserFromAuth();
