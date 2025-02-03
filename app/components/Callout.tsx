@@ -28,6 +28,7 @@ const actionMessages: Record<string, string> = {
   process: 'Il prodotto è stato elaborato con successo.',
   createMerchant: 'Nuovo profilo lead inserito con successo',
   createPos: "POS inserito con successo",
+  unauthorized: 'Non sei autorizzato a visualizzare questo elemento'
 };
 
 const Callout: React.FC<CalloutProps> = ({

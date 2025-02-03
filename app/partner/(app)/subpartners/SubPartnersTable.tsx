@@ -2,6 +2,7 @@
 
 import GenericTable from "@/app/components/GenericTable";
 import SubPartnersTableMenu from "./SubPartnersTableMenu";
+import { useRouter } from "next/navigation";
 
 type SubPartnersTableProps = {
   tableData: {
@@ -13,7 +14,7 @@ type SubPartnersTableProps = {
 };
 
 export default function SubPartnersTable({ tableData }: SubPartnersTableProps) {
-  console.log(tableData)
+  const router = useRouter();
   const columns = [
     {
       accessorKey: "name",
@@ -44,12 +45,17 @@ export default function SubPartnersTable({ tableData }: SubPartnersTableProps) {
       cell: (info) => `€ ${info.getValue().toFixed(2)}`,
     },
   ];
+  
+  const onRowClick = (row: any) => {
+    router.push(`/partner/subpartners/${row.id}`);
+  };
 
   return (
     <GenericTable
       columns={columns}
       data={tableData}
       title="Agenti"
+      onRowClick={onRowClick}
       itemsPerPage={10}
       menu={SubPartnersTableMenu}
     />

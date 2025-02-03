@@ -776,36 +776,62 @@ export async function getAllPendingUsers() {
     .leftJoin(partner, eq(users.partnerId, partner.id))
     .where(and(eq(users.status, "pending"), eq(users.role, "user")));
 }
-export async function getStoresByPartnerId(partnerId: string) {
+
+export async function getStoresByPartnerId(
+  partnerId: string,
+  useSecondLevelCommission: boolean = false
+) {
+  // Determine which commission column to use based on the flag
+  const commissionColumn = useSecondLevelCommission
+    ? sales.secondLevelPartnerCommission
+    : sales.firstLevelPartnerCommission;
+
+  // Retrieve merchant IDs associated with the partner
   const merchantIds = (
     await db
-      .select({
-        id: users.id,
-      })
+      .select({ id: users.id })
       .from(users)
       .where(and(eq(users.partnerId, partnerId), eq(users.role, "user")))
   ).map((user) => user.id);
 
+  // Early exit if there are no associated merchants
+  if (merchantIds.length === 0) {
+    return [];
+  }
+
+  // Define a reusable filter for the current month
+  const currentMonthFilter = sql`date_trunc('month', ${sales.createdAt}) = date_trunc('month', CURRENT_DATE)`;
+
+  // Build the select fields object for clarity
+  const fields = {
+    storeId: stores.id,
+    storeName: stores.name,
+    storeImage: stores.image,
+    createdAt: stores.createdAt,
+    totalCommission: sql`COALESCE(SUM(CAST(${commissionColumn} AS numeric)), 0)`,
+    totalVolume: sql`COALESCE(SUM(CAST(${sales.amount} AS numeric)), 0)`.as("totalVolume"),
+    commissionsCurrentMonth: sql`
+      COALESCE(
+        SUM(
+          CASE WHEN ${currentMonthFilter}
+          THEN CAST(${commissionColumn} AS numeric)
+          ELSE 0
+          END
+        ), 0
+      )`.as("totalCommissionCurrentMonth"),
+    volumeCurrentMonth: sql`
+      COALESCE(
+        SUM(
+          CASE WHEN ${currentMonthFilter}
+          THEN CAST(${sales.amount} AS numeric)
+          ELSE 0
+          END
+        ), 0
+      )`.as("totalVolumeCurrentMonth"),
+  };
+
   const storesByPartner = (await db
-    .select({
-      storeId: stores.id,
-      storeName: stores.name,
-      storeImage: stores.image,
-      createdAt: stores.createdAt,
-      totalCommission: sql`COALESCE(SUM(CAST(${sales.firstLevelPartnerCommission} AS numeric)), 0)`,
-      totalVolume:
-        sql<string>`COALESCE(SUM(CAST(${sales.amount} AS numeric)), 0)`.as(
-          "totalVolume"
-        ),
-      commissionsCurrentMonth:
-        sql<string>`COALESCE(SUM(CASE WHEN date_trunc('month', ${sales.createdAt}) = date_trunc('month', CURRENT_DATE) THEN CAST(${sales.firstLevelPartnerCommission} AS numeric) ELSE 0 END), 0)`.as(
-          "totalCommissionCurrentMonth"
-        ),
-      volumeCurrentMonth:
-        sql<string>`COALESCE(SUM(CASE WHEN date_trunc('month', ${sales.createdAt}) = date_trunc('month', CURRENT_DATE) THEN CAST(${sales.amount} AS numeric) ELSE 0 END), 0)`.as(
-          "totalVolumeCurrentMonth"
-        ),
-    })
+    .select(fields)
     .from(stores)
     .innerJoin(userStoreRoles, eq(stores.id, userStoreRoles.storeId))
     .leftJoin(sales, eq(stores.id, sales.storeId))
@@ -816,10 +842,14 @@ export async function getStoresByPartnerId(partnerId: string) {
     storeImage: string | null;
     createdAt: Date | null;
     totalCommission: number;
+    totalVolume: number;
+    commissionsCurrentMonth: number;
+    volumeCurrentMonth: number;
   }[];
 
   return storesByPartner;
 }
+
 
 export async function getSecondLevelCommissions(
   partnerId: string

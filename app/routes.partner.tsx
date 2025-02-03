@@ -26,6 +26,14 @@ const routes = [
     path: "/partner/settings/user",
   },
   {
+    name: "Crea nuovo agente",
+    path: "/partner/subpartners/new",
+  },
+  {
+    name: "Dettagli Partner",
+    path: "/partner/subpartners/[id]",
+  },
+  {
     name: "Commercianti",
     layout: '/admin',
     path: "/partner/merchants",
@@ -42,10 +50,6 @@ const routes = [
     match: /^\/partner\/documents(\/.*)?$/,
     icon: <Icon as={IoDocuments} width="20px" height="20px" color="inherit" />,
     sidebar: true
-  },
-  {
-    name: "Crea nuovo agente",
-    path: "/partner/subpartners/new",
   },
   {
     target: '_blank',
