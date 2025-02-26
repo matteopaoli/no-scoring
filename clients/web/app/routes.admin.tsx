@@ -53,14 +53,14 @@ const routes = [
     sidebar: true,
     match: /^\/admin\/partners(\/.*)?$/,
   },
-  {
-    name: 'Categorie clienti',
-    layout: '/admin',
-    icon: <Icon as={MdBarChart} width="20px" height="20px" color="inherit" />,
-    path: '/admin/business-types',
-    sidebar: true,
-    match: /^\/admin\/business-types(\/.*)?$/,
-  },
+  // {
+  //   name: 'Categorie clienti',
+  //   layout: '/admin',
+  //   icon: <Icon as={MdBarChart} width="20px" height="20px" color="inherit" />,
+  //   path: '/admin/business-types',
+  //   sidebar: true,
+  //   match: /^\/admin\/business-types(\/.*)?$/,
+  // },
   {
     name: 'Lead',
     layout: '/admin',
