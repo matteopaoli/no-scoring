@@ -76,7 +76,7 @@ export default function UsersTable({ tableData }: UsersTableProps) {
         cell: (info) => info.getValue(),
       },
       {
-        accessorKey: "provincia",
+        accessorKey: "regionName",
         header: "Provincia",
         cell: (info) => info.getValue(),
       },

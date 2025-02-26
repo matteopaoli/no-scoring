@@ -23,16 +23,17 @@ import partnerCreateMerchantAction from "./partnerCreateMerchant.action";
 import { ReactNode, useEffect } from "react";
 import PhoneNumberField from "../fields/PhoneNumberField";
 import { useRouter } from "next/navigation";
-import { provinces } from "@/app/constants";
 
 export default function ReferLeadForm({
   isOpen,
   onClose,
   businessTypesOptions,
+  regionsOptions
 }: {
   isOpen: boolean;
   onClose: () => void;
   businessTypesOptions: ReactNode[];
+  regionsOptions: ReactNode[];
 }) {
   const [formState, action] = useFormState(partnerCreateMerchantAction, {});
   const router = useRouter();
@@ -105,16 +106,12 @@ export default function ReferLeadForm({
             <Select
               id="user-provincia"
               label="Provincia"
-              name="provincia"
+              name="regionId"
               placeholder="Seleziona una provincia"
-              errors={getFormErrors(formState.errors, "provincia")}
+              errors={getFormErrors(formState.errors, "regionId")}
               isRequired
             >
-              {provinces.map((province) => (
-                <option key={province} value={province}>
-                  {province}
-                </option>
-              ))}
+              {regionsOptions}
             </Select>
           </SimpleGrid>
           <Flex justifyContent="end" w="100%">

@@ -29,9 +29,9 @@ export default function SubPartnersTable({ tableData }: SubPartnersTableProps) {
         }`,
     },
     {
-      accessorKey: "provincia",
+      accessorKey: "regionName",
       header: "Provincia",
-      cell: (info) => info.row.original.provincia || "-",
+      cell: (info) => info.row.original.regionName || "-",
     },
     {
       accessorKey: "email",

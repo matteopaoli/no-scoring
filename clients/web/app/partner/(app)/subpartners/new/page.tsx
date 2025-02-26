@@ -57,9 +57,9 @@ export default function CreateSubPartnerPage() {
           <Select
             id="user-provincia"
             label="Provincia"
-            name="provincia"
+            name="regionId"
             placeholder="Seleziona una provincia"
-            errors={getFormErrors(errors, "provincia")}
+            errors={getFormErrors(errors, "regionId")}
           >
             {provinces.map((province) => (
               <option key={province} value={province}>

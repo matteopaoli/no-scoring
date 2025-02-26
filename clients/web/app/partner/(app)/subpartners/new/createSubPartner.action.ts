@@ -26,7 +26,7 @@ export default async function createPartnerAction(
       .refine(async (email) => !(await UserService.getUserByEmail(email)), {
         message: "L'utente esiste già",
       }),
-    provincia: z.string().min(1, "Selezionare una provincia valida"),
+    regionId: z.string().min(1, "Selezionare una provincia valida").transform(v => Number(v))
   });
 
   // Validate form data against the schema
@@ -34,27 +34,22 @@ export default async function createPartnerAction(
     firstName: formData.get("firstName"),
     lastName: formData.get("lastName"),
     email: formData.get("email"),
-    provincia: formData.get("provincia"),
+    regionId: formData.get("regionId"),
   });
 
   if (!validation.success) {
     return formatZodErrors(validation);
   }
 
-  const { firstName, lastName, email, provincia } = validation.data;
+  const { firstName, lastName, email, regionId } = validation.data;
   const partner = await getUserFromAuth();
-  const existingUserByEmail = await UserService.getUserByEmail(email);
-
-  if (existingUserByEmail) {
-    return [{ field: "email", message: "L'utente esiste già" }];
-  }
 
   // If no existing user, proceed to create the new user
   await createSubPartner({
     firstName,
     lastName,
     email,
-    provincia,
+    regionId,
     partnerId: partner.id,
   });
   partnerWelcomeEmail({ email, partnerName: `${firstName} ${lastName}` });

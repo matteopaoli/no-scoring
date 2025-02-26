@@ -67,7 +67,7 @@ export default async function createUserAction(
         "Inserire un numero di telefono valido (es. +39 123 456 7890)"
       ),
     refName: z.string().min(1, "Inserire un nome valido"),
-    provincia: z.string().min(1, "Selezionare una provincia valida"),
+    regionId: z.string().min(1, "Selezionare una provincia valida").transform(v => Number(v))
   });
 
   // Validate form data against the schema
@@ -78,7 +78,7 @@ export default async function createUserAction(
     businessName: formData.get("businessName"),
     partner: formData.get("partner"),
     refName: formData.get("refName"),
-    provincia: formData.get("provincia"),
+    regionId: formData.get("regionId"),
   });
 
   if (!validation.success) {
@@ -92,14 +92,8 @@ export default async function createUserAction(
     partner: partnerId,
     phoneNumber,
     refName,
-    provincia,
+    regionId,
   } = validation.data;
-
-  const existingUserByEmail = await UserService.getUserByEmail(email);
-
-  if (existingUserByEmail) {
-    return [{ field: "email", message: "L'utente esiste già" }];
-  }
 
   const stripe = new Stripe(process.env.STRIPE_API_KEY!);
 
@@ -139,7 +133,7 @@ export default async function createUserAction(
     partnerId: partnerId ?? undefined,
     phoneNumber,
     refName,
-    provincia,
+    regionId,
   });
 
   accountCreatedMerchantEmail({ email, onboardingLink: accountLink.url });

@@ -1,7 +1,6 @@
 "use client";
 
 import PaymentModal from "@/app/components/forms/createNewPaymentForm";
-import PartnerCreateMerchantForm from "@/app/components/forms/PartnerCreateMerchantForm";
 import { Flex, Button, useDisclosure } from "@chakra-ui/react";
 import { MdAdd } from "react-icons/md";
 

@@ -48,7 +48,7 @@ export default function Statistics({
           />
         }
         name="Provincia"
-        value={partner.provincia || "-"}
+        value={partner.regionName || "-"}
       />
 
       <MiniStatistics

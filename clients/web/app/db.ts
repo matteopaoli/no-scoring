@@ -10,6 +10,7 @@ import {
   userStoreRoles,
   products,
   sales,
+  regions,
 } from "schema";
 import { imageToBase64, compressProfileImageToBase64 } from "./utils/images";
 import { alias } from "drizzle-orm/pg-core";
@@ -45,7 +46,8 @@ export interface User {
   businessName: string;
   onboardingCompleted: boolean;
   stripeUserId: string;
-  provincia: string;
+  regionId: number;
+  regionName: string;
   partnerId?: string;
   onboardingLink: string;
   status: string;
@@ -482,7 +484,7 @@ export async function getSubPartners() {
       firstName: users.firstName,
       lastName: users.lastName,
       email: users.email,
-      provincia: users.provincia,
+      regionId: users.regionId,
     })
     .from(users)
     .where(eq(users.role, "subpartner"));
@@ -518,14 +520,19 @@ export async function createPartner({
   firstName,
   lastName,
   email,
-  provincia,
-}: Record<string, string>) {
+  regionId,
+}: {
+  firstName: string,
+  lastName: string,
+  email: string,
+  regionId: number,
+}) {
   const hash = UserService.getDefaultPassword();
   return await db.insert(users).values({
     firstName,
     lastName,
     email,
-    provincia,
+    regionId,
     role: "partner",
     password: hash,
   });
@@ -535,15 +542,21 @@ export async function createSubPartner({
   firstName,
   lastName,
   email,
-  provincia,
+  regionId,
   partnerId,
-}: Record<string, string>) {
+}: {
+  firstName: string,
+  lastName: string,
+  email: string,
+  regionId: number,
+  partnerId: string,
+}) {
   const hash = UserService.getDefaultPassword();
   return await db.insert(users).values({
     firstName,
     lastName,
     email,
-    provincia,
+    regionId,
     role: "subpartner",
     password: hash,
     partnerId,
@@ -553,16 +566,20 @@ export async function createSubPartner({
 export async function updatePartner({
   firstName,
   lastName,
-  provincia,
+  regionId,
   id,
-}: Record<string, string>) {
+}: {
+  firstName: string,
+  lastName: string,
+  regionId: number,
+  id: string,
+}) {
   return await db
     .update(users)
     .set({
       firstName,
       lastName,
-      provincia,
-      role: "partner",
+      regionId,
     })
     .where(eq(users.id, id));
 }
@@ -573,11 +590,12 @@ export async function _ADMIN_getSubPartnersByUserId(userId: string) {
       id: users.id,
       firstName: users.firstName,
       lastName: users.lastName,
-      provincia: users.provincia,
+      regionName: regions.name,
       email: users.email,
     })
     .from(users)
-    .where(and(eq(users.partnerId, userId), eq(users.role, "subpartner")));
+    .leftJoin(regions, eq(users.regionId, regions.id))
+    .where(and(eq(users.partnerId, userId), eq(users.role, "subpartner")))
 
   // For each subpartner, fetch the first-level commissions
   const subpartnersWithCommissions = await Promise.all(
@@ -614,10 +632,11 @@ export async function _PARTNER_getSubPartnersByUserId(userId: string) {
       id: users.id,
       firstName: users.firstName,
       lastName: users.lastName,
-      provincia: users.provincia,
+      regionName: regions.name,
       email: users.email,
     })
     .from(users)
+    .leftJoin(regions, eq(users.regionId, regions.id))
     .where(and(eq(users.partnerId, userId), eq(users.role, "subpartner")));
 
   // For each subpartner, fetch the first-level commissions
@@ -763,7 +782,7 @@ export async function getAllPendingUsers() {
       referredByRole: partner.role,
       phoneNumber: users.phoneNumber,
       onboardingLink: users.onboardingLink,
-      provincia: users.provincia,
+      regionName: regions.name,
       name: sql<string>`CASE 
             WHEN ${users.firstName} IS NOT NULL AND ${users.lastName} IS NOT NULL 
             THEN ${users.firstName} || ' ' || ${users.lastName} 
@@ -774,6 +793,7 @@ export async function getAllPendingUsers() {
     })
     .from(users)
     .leftJoin(partner, eq(users.partnerId, partner.id))
+    .leftJoin(regions, eq(users.regionId, regions.id))
     .where(and(eq(users.status, "pending"), eq(users.role, "user")));
 }
 

@@ -1,4 +1,4 @@
-import { stores, users, userStoreRoles } from "schema";
+import { regions, stores, users, userStoreRoles } from "schema";
 import { db, User } from "../db";
 import { and, eq, getTableColumns } from "drizzle-orm";
 import { genSaltSync, hashSync } from "bcrypt-ts";
@@ -45,15 +45,20 @@ export class UserService {
   static async getUserByEmail(email: string) {
     return (
       await db
-        .select()
+        .select({ ...getTableColumns(users), regionName: regions.name })
         .from(users)
         .where(eq(users.email, email ?? ""))
+        .leftJoin(regions, eq(users.regionId, regions.id))
     )?.[0] as User | undefined;
   }
 
   static async getUserById(id: string) {
     const { password, image, ...nonPwCols } = getTableColumns(users);
-    return (await db.select(nonPwCols).from(users).where(eq(users.id, id)))?.[0];
+    return (await db.select({...nonPwCols, regionName: regions.name})
+      .from(users)
+      .where(eq(users.id, id))
+      .leftJoin(regions, eq(users.regionId, regions.id)))
+      ?.[0];
   }
 
   static getDefaultPassword() {

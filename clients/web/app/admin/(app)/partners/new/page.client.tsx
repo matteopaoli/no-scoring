@@ -1,25 +1,15 @@
 "use client";
-
 import { Box, Flex, useColorModeValue } from "@chakra-ui/react";
-import { ReactNode } from "react";
+import createPartnerAction from "./createPartner.action";
 import { useFormState } from "react-dom";
-import updateUserAction from "./updatePartner.action";
 import InputField from "@/app/components/fields/InputField";
 import getFormErrors from "@/app/utils/getFormErrors";
 import Select from "@/app/components/fields/Select";
 import SubmitButton from "@/app/components/SubmitButton";
-import { User } from "@/app/db";
+import { ReactNode } from "react";
 
-type UpdateUserPageProps = {
-  existingPartner: User;
-  regionsOptions: ReactNode[];
-};
-
-export default function UpdateUserPage({
-  existingPartner,
-  regionsOptions,
-}: UpdateUserPageProps) {
-  const [errors, action] = useFormState(updateUserAction, []);
+export default function CreatePartnerPage({ regionsOptions }: { regionsOptions: ReactNode[]; }) {
+  const [errors, action] = useFormState(createPartnerAction, []);
 
   // Chakra color mode
   const textColor = useColorModeValue("navy.700", "white");
@@ -37,45 +27,43 @@ export default function UpdateUserPage({
       <Box width="100%">
         <form action={action} style={{ width: "100%" }}>
           <InputField
-            id="email"
-            label="Email"
-            name="email"
-            placeholder="mail@email.com"
-            isRequired={true}
-            defaultValue={existingPartner.email}
-            readOnly={true} // Email cannot be changed
-            errors={getFormErrors(errors, "email")}
-          />
-          <InputField
-            id="firstName"
+            id="user-nome"
             label="Nome"
             name="firstName"
             placeholder="Inserisci il nome"
             isRequired={true}
-            defaultValue={existingPartner.firstName}
-            errors={getFormErrors(errors, "firstName")}
+            errors={getFormErrors(errors, "nome")}
           />
 
           <InputField
-            id="lastName"
+            id="user-cognome"
             label="Cognome"
             name="lastName"
             placeholder="Inserisci il cognome"
             isRequired={true}
-            defaultValue={existingPartner.lastName}
-            errors={getFormErrors(errors, "lastName")}
+            errors={getFormErrors(errors, "cognome")}
           />
+
+          <InputField
+            id="user-email"
+            label="Email"
+            name="email"
+            placeholder="mail@email.com"
+            isRequired={true}
+            errors={getFormErrors(errors, "email")}
+          />
+
           <Select
-            id="provincia"
+            id="user-provincia"
             label="Provincia"
-            defaultValue={existingPartner.regionId}
-            name="provincia"
+            name="regionId"
             placeholder="Seleziona una provincia"
-            errors={getFormErrors(errors, "provincia")}
+            errors={getFormErrors(errors, "regionId")}
           >
             {regionsOptions}
           </Select>
-          <SubmitButton>Aggiorna Partner</SubmitButton>
+
+          <SubmitButton>Aggiungi Partner</SubmitButton>
         </form>
       </Box>
     </Flex>

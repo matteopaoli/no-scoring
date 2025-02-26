@@ -32,7 +32,7 @@ interface Merchant {
   onboardingLink: string | null;
   name: string | null;
   phoneNumber: string | null;
-  provincia: string | null;
+  regionName: string;
   referredByName: string | null;
   leadStatus: string | null;
 }
@@ -96,7 +96,7 @@ export default function PendingMerchantsTable({
       cell: (info) => info.getValue(),
     },
     {
-      accessorKey: "provincia",
+      accessorKey: "regionName",
       header: "Provincia",
       cell: (info) => info.getValue(),
     },

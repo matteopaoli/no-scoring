@@ -20,6 +20,7 @@ import { provinces } from "@/app/constants";
 
 type CreateUserPageProps = {
   businessTypesOptions: ReactNode[];
+  regionsOptions: ReactNode[];
   partners: {
     id: string;
     firstName: string | null;
@@ -32,6 +33,7 @@ type CreateUserPageProps = {
 export default function CreateUserPage({
   businessTypesOptions,
   partners,
+  regionsOptions
 }: CreateUserPageProps) {
   const [errors, action] = useFormState(createUserAction, []);
   const [partnerId, setPartnerId] = useState(null);
@@ -134,16 +136,12 @@ export default function CreateUserPage({
           <Select
             id="user-provincia"
             label="Provincia"
-            name="provincia"
+            name="regionId"
             placeholder="Seleziona una provincia"
-            errors={getFormErrors(errors, "provincia")}
+            errors={getFormErrors(errors, "regionId")}
             isRequired
           >
-            {provinces.map((province) => (
-              <option key={province} value={province}>
-                {province}
-              </option>
-            ))}
+            {regionsOptions}
           </Select>
         </SimpleGrid>
         <Flex

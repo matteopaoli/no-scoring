@@ -36,7 +36,7 @@ export const users = pgTable("user", {
   stripeUserId: text("stripeUserId"),
   tosAccepted: boolean("tosAccepted").notNull().default(false),
   tosAcceptedAt: timestamp("tosAcceptedAt", { mode: "date" }),
-  provincia: text("provincia"),
+  regionId: integer("regionId").references((): PgColumn => regions.id),
   partnerId: text("partnerId").references((): PgColumn => users.id),
   onboardingLink: text("onboardingLink"),
   status: text("status").notNull(),
@@ -125,6 +125,18 @@ export const commissionRules = pgTable("commissionRules", {
     scale: 2,
   }).notNull(), // Value of the commission (flat amount or percentage)
 });
+
+export const areas = pgTable("areas", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  managerId: text("managerId").references(() => users.id)
+})
+
+export const regions = pgTable("regions", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  areaId: integer("areaId").references(() => areas.id)
+})
 
 export const accounts = pgTable(
   "account",

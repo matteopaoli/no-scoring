@@ -20,7 +20,7 @@ export default async function updateUserAction(
       .min(1, "Inserire un indirizzo email valido")
       .email("Inserire un indirizzo email valido") // Add email format validation
       .trim(),
-    provincia: z.string().min(1, "Selezionare una provincia valida"),
+    regionId: z.string().min(1, "Selezionare una provincia valida").transform(v => Number(v))
   });
 
   // Parse and validate the form data
@@ -28,14 +28,14 @@ export default async function updateUserAction(
     firstName: formData.get("firstName"),
     lastName: formData.get("lastName"),
     email: formData.get("email"),
-    provincia: formData.get("provincia"),
+    regionId: formData.get("regionId"),
   });
 
   if (!validation.success) {
     return formatZodErrors(validation);
   }
 
-  const { email, firstName, lastName, provincia } = validation.data;
+  const { email, firstName, lastName, regionId } = validation.data;
 
   // Check if the user exists before updating
   const existingUser = await UserService.getUserByEmail(email);
@@ -44,7 +44,7 @@ export default async function updateUserAction(
   }
 
   // Update the user
-  await updatePartner({ id: existingUser.id, firstName, lastName, provincia });
+  await updatePartner({ id: existingUser.id, firstName, lastName, regionId });
 
   redirect("/admin/partners?success=true&action=update");
 }

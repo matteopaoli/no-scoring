@@ -24,7 +24,7 @@ export default async function createPartnerAction(
       .refine(async (email) => !(await UserService.getUserByEmail(email)), {
         message: "L'utente esiste già",
       }),
-    provincia: z.string().min(1, "Selezionare una provincia valida"),
+    regionId: z.string().min(1, "Selezionare una provincia valida").transform(v => Number(v))
   });
 
   // Validate form data against the schema
@@ -32,14 +32,14 @@ export default async function createPartnerAction(
     firstName: formData.get("firstName"),
     lastName: formData.get("lastName"),
     email: formData.get("email"),
-    provincia: formData.get("provincia"),
+    regionId: formData.get("regionId"),
   });
 
   if (!validation.success) {
     return formatZodErrors(validation);
   }
 
-  const { firstName, lastName, email, provincia } = validation.data;
+  const { firstName, lastName, email, regionId } = validation.data;
 
   // Check for existing user with the same email
   const existingUserByEmail = await UserService.getUserByEmail(email);
@@ -53,7 +53,7 @@ export default async function createPartnerAction(
     firstName,
     lastName,
     email,
-    provincia,
+    regionId,
   });
   partnerWelcomeEmail({ email, partnerName: `${firstName} ${lastName}` });
   redirect("/admin/partners?success=true&action=createPartner");

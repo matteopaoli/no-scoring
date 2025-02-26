@@ -5,7 +5,7 @@ import { Button, Flex, useDisclosure } from "@chakra-ui/react";
 import { ReactNode } from "react";
 import { MdAdd, MdPlusOne } from "react-icons/md";
 
-export default function CreateMerchant({ businessTypesOptions }: { businessTypesOptions: ReactNode[] }) {
+export default function CreateMerchant({ businessTypesOptions, regionsOptions }: { businessTypesOptions: ReactNode[], regionsOptions: ReactNode[] }) {
   const { isOpen, onClose, onOpen } = useDisclosure();
   return (
     <Flex justifyContent="end">
@@ -18,7 +18,7 @@ export default function CreateMerchant({ businessTypesOptions }: { businessTypes
       >
         Crea un nuovo profilo lead
       </Button>
-      <PartnerCreateMerchantForm isOpen={isOpen} onClose={onClose} businessTypesOptions={businessTypesOptions} />
+      <PartnerCreateMerchantForm isOpen={isOpen} onClose={onClose} businessTypesOptions={businessTypesOptions} regionsOptions={regionsOptions} />
     </Flex>
   );
 }

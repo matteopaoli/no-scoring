@@ -53,7 +53,7 @@ export default function PartnersTable({ tableData }: PartnersTableProps) {
   //     //   console.log("User deleted successfully");
   //     // }
   //   } catch (error) {
-  //     console.error("Error deleting user:", error);
+//     console.error("Error deleting user:", error);
   //   } finally {
   //     setSelectedUserId(null);
   //     onClose();
@@ -72,7 +72,7 @@ export default function PartnersTable({ tableData }: PartnersTableProps) {
         columns={columns}
         itemsPerPage={100}
         title="Lista Partner"
-        onRowClick={onRowClick} // Pass the row click handler to GenericTable
+        onRowClick={onRowClick}
         menu={PartnersTableMenu}
       />
       {/* Confirmation Modal */}

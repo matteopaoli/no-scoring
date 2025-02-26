@@ -1,6 +1,7 @@
 import {
   businessType,
   products,
+  regions,
   sales,
   stores,
   users,
@@ -21,7 +22,7 @@ export class MerchantService {
     partnerId,
     phoneNumber,
     refName,
-    provincia,
+    regionId,
   }: {
     email: string;
     businessTypeId: number;
@@ -31,7 +32,7 @@ export class MerchantService {
     partnerId?: string;
     phoneNumber: string;
     refName: string;
-    provincia: string;
+    regionId: number;
   }) {
     const hash = UserService.getDefaultPassword();
     await db.insert(users).values({
@@ -46,7 +47,7 @@ export class MerchantService {
       phoneNumber,
       refName,
       password: hash,
-      provincia,
+      regionId
     });
   }
 
@@ -77,7 +78,7 @@ export class MerchantService {
         id: users.id,
         email: users.email,
         createdAt: users.createdAt,
-        provincia: users.provincia,
+        regionName: regions.name,
         onboardingLink: users.onboardingLink,
         status: users.status,
         name: sql<string>`CASE 
@@ -90,6 +91,7 @@ export class MerchantService {
       })
       .from(users)
       .where(eq(users.partnerId, partnerId))
+      .leftJoin(regions, eq(users.regionId, regions.id))
       .orderBy(desc(users.createdAt));
   }
 
@@ -128,50 +130,43 @@ export class MerchantService {
   }
 
   static async getMerchantsWithDetailedMetrics() {
-    const { password, role, businessTypeId, partnerId, ...rest } =
-      getTableColumns(users);
     const partner = alias(users, "partner");
-
+    const selectedColumns = {
+      ...getTableColumns(users),
+      businessType: businessType.name,
+      partnerName: sql<string>`CONCAT(partner."firstName", ' ', partner."lastName")`.as("partnerName"),
+      storeId: stores.id,
+      storeName: stores.name,
+      storeImage: stores.image,
+      storeCreatedAt: stores.createdAt,
+      totalCommission: sql<string>`COALESCE(SUM(CAST(${sales.legCommission} AS numeric)), 0)`.as("totalCommission"),
+      totalVolume: sql<string>`COALESCE(SUM(CAST(${sales.amount} AS numeric)), 0)`.as("totalVolume"),
+      totalCommissionCurrentMonth: sql<string>`COALESCE(SUM(CASE WHEN date_trunc('month', ${sales.createdAt}) = date_trunc('month', CURRENT_DATE) THEN CAST(${sales.legCommission} AS numeric) ELSE 0 END), 0)`.as("totalCommissionCurrentMonth"),
+      totalVolumeCurrentMonth: sql<string>`COALESCE(SUM(CASE WHEN date_trunc('month', ${sales.createdAt}) = date_trunc('month', CURRENT_DATE) THEN CAST(${sales.amount} AS numeric) ELSE 0 END), 0)`.as("totalVolumeCurrentMonth"),
+      phoneNumber: users.phoneNumber,
+      regionName: regions.name,
+    };
+  
+    // Perform the query
     return await db
-      .select({
-        ...rest,
-        businessType: businessType.name,
-        partnerName:
-          sql<string>`CONCAT(partner."firstName", ' ', partner."lastName")`.as(
-            "partnerName"
-          ),
-        storeId: stores.id,
-        storeName: stores.name,
-        storeImage: stores.image,
-        storeCreatedAt: stores.createdAt,
-        totalCommission:
-          sql<string>`COALESCE(SUM(CAST(${sales.legCommission} AS numeric)), 0)`.as(
-            "totalCommission"
-          ),
-        totalVolume:
-          sql<string>`COALESCE(SUM(CAST(${sales.amount} AS numeric)), 0)`.as(
-            "totalVolume"
-          ),
-        totalCommissionCurrentMonth:
-          sql<string>`COALESCE(SUM(CASE WHEN date_trunc('month', ${sales.createdAt}) = date_trunc('month', CURRENT_DATE) THEN CAST(${sales.legCommission} AS numeric) ELSE 0 END), 0)`.as(
-            "totalCommissionCurrentMonth"
-          ),
-        totalVolumeCurrentMonth:
-          sql<string>`COALESCE(SUM(CASE WHEN date_trunc('month', ${sales.createdAt}) = date_trunc('month', CURRENT_DATE) THEN CAST(${sales.amount} AS numeric) ELSE 0 END), 0)`.as(
-            "totalVolumeCurrentMonth"
-          ),
-        provincia: users.provincia,
-        phoneNumber: users.phoneNumber,
-      })
+      .select(selectedColumns)
       .from(users)
       .leftJoin(businessType, eq(users.businessTypeId, businessType.id))
-      .leftJoin(partner, eq(users.partnerId, sql`partner.id`))
+      .leftJoin(partner, eq(users.partnerId, partner.id))
       .leftJoin(userStoreRoles, eq(users.id, userStoreRoles.userId))
       .leftJoin(stores, eq(userStoreRoles.storeId, stores.id))
       .leftJoin(sales, eq(stores.id, sales.storeId))
+      .leftJoin(regions, eq(users.regionId, regions.id)) // Join regions to get the region name
       .where(and(eq(users.role, "user"), eq(users.status, "active")))
-      .groupBy(users.id, partner.id, businessType.name, stores.id);
+      .groupBy(
+        users.id,
+        partner.id,
+        businessType.name,
+        stores.id,
+        regions.id // Ensure the region is included in group by for aggregation
+      );
   }
+  
 
   static async updateNotes(userId: string, value: string) {
     return await db.update(users).set({ notes: value }).where(eq(users.id, userId));
