@@ -16,7 +16,6 @@ import {
 } from "@choc-ui/chakra-autocomplete";
 import FormLabel from "@/app/components/fields/FormLabel";
 import PhoneNumberField from "@/app/components/fields/PhoneNumberField";
-import { provinces } from "@/app/constants";
 
 type CreateUserPageProps = {
   businessTypesOptions: ReactNode[];
