@@ -5,6 +5,6 @@ export const VAT = 1.22
 export const FIRST_LEVEL_PARTNER_FEE_RATE = 0.005
 export const SECOND_LEVEL_PARTNER_FEE_RATE = 0.0025
 export const FEES_DISCLAIMER = 'Il prezzo è stato aumentato per includere le commissioni associate al pagamento in più rate.'
-export const VERSION="2.6.1"
+export const VERSION="2.6.2"
 export const SPECIAL_FIRST_LEVEL_PARTNER_FEE_RATE = 0.01
 export const SPECIAL_SECOND_LEVEL_PARTNER_FEE_RATE = 0.005
