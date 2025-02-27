@@ -13,13 +13,21 @@ services:
       - ./db:/docker-entrypoint-initdb.d 
     restart: unless-stopped
 
-  # web:
-  #   container_name: web
-  #   build:
-  #     context: .
-  #     dockerfile: ./Dockerfile
-  #   ports:
-  #     - "3000:3000"
+  web:
+    image: web
+    container_name: web
+    build:
+      context: ./clients/web/
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./clients/web:/app:delegated  # Mount project directory
+    env_file:
+      - ./clients/web/.env
+volumes:
+  postgres_data:
+
   
   # workspace:
   #   container_name: workspace
@@ -32,6 +40,3 @@ services:
   #   restart: always   # This is where you define the restart 
   #   volumes:
   #     - ./:/workspace
-
-volumes:
-  postgres_data:
