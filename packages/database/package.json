@@ -1,0 +1,19 @@
+{
+  "name": "@paytomorrow/db",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./index.ts"
+  },
+  "scripts": {
+    "db:migrate": "ts-node ./migrate.ts"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.40.0",
+    "postgres": "^3.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.5"
+  }
+}
