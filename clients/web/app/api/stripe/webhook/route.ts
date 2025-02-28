@@ -2,8 +2,6 @@ import {
   FIRST_LEVEL_PARTNER_FEE_RATE,
   LEG_FEE_RATE,
   SECOND_LEVEL_PARTNER_FEE_RATE,
-  SPECIAL_FIRST_LEVEL_PARTNER_FEE_RATE,
-  SPECIAL_SECOND_LEVEL_PARTNER_FEE_RATE,
   VAT,
 } from "@/app/constants";
 import { createSale, getStoreByUserId } from "@/app/db";
@@ -53,20 +51,16 @@ export async function POST(request: NextRequest) {
 
       const store = await getStoreByUserId(merchant.id);
 
-      // SPECIAL FEE RATE FOR info@fabioleanzi.com (ID available in prod only)
-      const firstLevelFeeRate = store.partnerId === '287f4832-712c-42ef-9ff8-60e2fd784e64' ? SPECIAL_FIRST_LEVEL_PARTNER_FEE_RATE : FIRST_LEVEL_PARTNER_FEE_RATE;
-      const secondLevelFeeRate = store.partnerId === '287f4832-712c-42ef-9ff8-60e2fd784e64' ? SPECIAL_SECOND_LEVEL_PARTNER_FEE_RATE : SECOND_LEVEL_PARTNER_FEE_RATE;
-
       await createSale({
         stripePaymentIntentId: paymentIntent.id,
         amount: `${amount / 100}`,
         storeId: store.id,
         legCommission: `${transferAmount / 100}`,
         firstLevelPartnerCommission: `${
-          Math.round(amount * firstLevelFeeRate * VAT) / 100
+          Math.round(amount * FIRST_LEVEL_PARTNER_FEE_RATE * VAT) / 100
         }`,
         secondLevelPartnerCommission: `${
-          Math.round(amount * secondLevelFeeRate * VAT) / 100
+          Math.round(amount * SECOND_LEVEL_PARTNER_FEE_RATE * VAT) / 100
         }`,
       });
     } else if (event.type === "account.updated") {
