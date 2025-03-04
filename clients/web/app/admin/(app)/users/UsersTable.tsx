@@ -87,26 +87,6 @@ export default function UsersTable({ tableData }: UsersTableProps) {
           (info.getValue() as string).trim() ? info.getValue() : "—",
       },
       {
-        accessorKey: "totalCommission",
-        header: "Commissioni guadagnate",
-        cell: (info) => `€ ${Number(info.getValue()).toFixed(2)}`,
-      },
-      {
-        accessorKey: "totalCommissionCurrentMonth",
-        header: "Commssioni guadagnate (mese corrente)",
-        cell: (info) => `€ ${Number(info.getValue()).toFixed(2)}`,
-      },
-      {
-        accessorKey: "totalVolume",
-        header: "Volume totale",
-        cell: (info) => `€ ${Number(info.getValue()).toFixed(2)}`,
-      },
-      {
-        accessorKey: "totalVolumeCurrentMonth",
-        header: "Volume (mese corrente)",
-        cell: (info) => `€ ${Number(info.getValue()).toFixed(2)}`,
-      },
-      {
         accessorKey: "actions",
         header: "",
         cell: (info) => (
