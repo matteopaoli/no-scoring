@@ -4,7 +4,6 @@ import getUserFromAuth from "@/app/utils/getUserFromAuth";
 import StoresTable from "./StoresTable";
 import { MerchantService } from "@/app/services/merchantService";
 import { UserService } from "@/app/services/userService";
-import TempMigrateButton from "./TEMPMigrateButton";
 import { Store } from "@/app/services/storeService";
 import { PartnerService } from "@/app/services/partnerService";
 
@@ -63,7 +62,6 @@ export default async function Page() {
     <>
       <Statistics merchants={merchants} revenue={totalEarnings ?? 0} />
       <StoresTable stores={merged} canDisable={UserService.isAdmin(user)} />
-      <TempMigrateButton />
     </>
   );
 }

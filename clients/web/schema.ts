@@ -71,18 +71,6 @@ export const sales = pgTable("sale", {
   amount: numeric("amount", { precision: 12, scale: 2 }).notNull(),
   createdAt: timestamp("createdAt").defaultNow(),
   stripePaymentIntentId: text("stripePaymentIntentId").notNull(),
-  legCommission: numeric("legCommission", {
-    precision: 12,
-    scale: 2,
-  }).notNull(),
-  firstLevelPartnerCommission: numeric("firstLevelPartnerCommission", {
-    precision: 12,
-    scale: 2,
-  }).notNull(),
-  secondLevelPartnerCommission: numeric("secondLevelPartnerCommission", {
-    precision: 12,
-    scale: 2,
-  }).notNull(),
 });
 
 export const userStoreRoles = pgTable("userStoreRole", {

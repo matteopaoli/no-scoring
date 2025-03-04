@@ -142,10 +142,6 @@ export class MerchantService {
       storeName: stores.name,
       storeImage: stores.image,
       storeCreatedAt: stores.createdAt,
-      totalCommission: sql<string>`COALESCE(SUM(CAST(${sales.legCommission} AS numeric)), 0)`.as("totalCommission"),
-      totalVolume: sql<string>`COALESCE(SUM(CAST(${sales.amount} AS numeric)), 0)`.as("totalVolume"),
-      totalCommissionCurrentMonth: sql<string>`COALESCE(SUM(CASE WHEN date_trunc('month', ${sales.createdAt}) = date_trunc('month', CURRENT_DATE) THEN CAST(${sales.legCommission} AS numeric) ELSE 0 END), 0)`.as("totalCommissionCurrentMonth"),
-      totalVolumeCurrentMonth: sql<string>`COALESCE(SUM(CASE WHEN date_trunc('month', ${sales.createdAt}) = date_trunc('month', CURRENT_DATE) THEN CAST(${sales.amount} AS numeric) ELSE 0 END), 0)`.as("totalVolumeCurrentMonth"),
       phoneNumber: users.phoneNumber,
       regionName: regions.name,
     };

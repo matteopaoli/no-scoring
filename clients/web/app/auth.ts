@@ -22,13 +22,11 @@ export const {
         let user = await UserService.getUserByEmail(credentials.email as string);
         if (!user) return null;
         if (user.status === 'pending') return null;
-        const { image,  ...rest } = user
-        return rest
-        // let passwordsMatch = await compare(credentials.password as string, user.password!);
-        // if (passwordsMatch && (credentials.roles as string[]).includes(user.role)) {
-        //   const { image,  ...rest } = user
-        //   return rest
-        // }
+        let passwordsMatch = await compare(credentials.password as string, user.password!);
+        if (passwordsMatch && (credentials.roles as string[]).includes(user.role)) {
+          const { image,  ...rest } = user
+          return rest
+        }
       },
     }),
     {

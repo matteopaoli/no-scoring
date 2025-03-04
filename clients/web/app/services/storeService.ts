@@ -29,7 +29,14 @@ export class Store {
                     THEN CONCAT(${users.firstName}, ' ', ${users.lastName}, ' (Tu)') 
                     ELSE CONCAT(${users.firstName}, ' ', ${users.lastName}) 
                   END`
-              : sql<string>`CONCAT(${users.firstName}, ' ', ${users.lastName})`
+              : sql<string>`CONCAT(${users.firstName}, ' ', ${users.lastName})`,
+            ownedBy: sql<string>`(
+                SELECT CONCAT("u"."firstName", ' ', "u"."lastName")
+                FROM "userStoreRole" "usr"
+                JOIN public."user" "u" ON "u"."id" = "usr"."userId"
+                WHERE "usr"."storeId" = ${stores.id} AND "usr"."role" = 'admin'
+                LIMIT 1
+              )`,
           })
           .from(stores)
           .leftJoin(users, eq(users.id, stores.partnerId))
