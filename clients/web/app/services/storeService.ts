@@ -1,6 +1,6 @@
 import { stores, users, userStoreRoles } from "schema";
 import { db } from "../db";
-import { and, eq } from "drizzle-orm";
+import { and, eq, getTableColumns, inArray, sql } from "drizzle-orm";
 import { UserService } from "./userService";
 export class Store {
     static getById(storeId: string) {
@@ -18,4 +18,22 @@ export class Store {
         if (!adminUser?.stripeUserId) throw new Error();
         return adminUser.stripeUserId;
     }
+
+    static async getStores(ids: string[], userId?: string) {
+        return db
+          .select({
+            ...getTableColumns(stores), // Selects all fields from the stores table
+            partnerName: userId
+              ? sql<string>`CASE 
+                    WHEN ${stores.partnerId} = ${userId} 
+                    THEN CONCAT(${users.firstName}, ' ', ${users.lastName}, ' (Tu)') 
+                    ELSE CONCAT(${users.firstName}, ' ', ${users.lastName}) 
+                  END`
+              : sql<string>`CONCAT(${users.firstName}, ' ', ${users.lastName})`
+          })
+          .from(stores)
+          .leftJoin(users, eq(users.id, stores.partnerId))
+          .where(inArray(stores.id, ids));
+    }
+    
 }

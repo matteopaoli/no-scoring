@@ -1,11 +1,10 @@
-import { getPartners, getSubPartners } from "@/app/db";
+import { getPartners } from "@/app/db";
 import PartnersTable from "./PartnersTable";
-import SubPartnersTable from "./[id]/SubPartnersTable";
-import { Divider } from "@chakra-ui/react";
+import getUserFromAuth from "@/app/utils/getUserFromAuth";
 
 export default async function PartnersPage() {
-  const partners = await getPartners();
-
+  const user = await getUserFromAuth();
+  const partners = await getPartners(user.id);
 
   return (
     <>

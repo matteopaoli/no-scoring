@@ -46,7 +46,7 @@ export const users = pgTable("user", {
   notes: text("notes"),
   magicLinkUrl: text("magicLinkUrl"),
   name: text("name"),
-  emailVerified: timestamp("emailVerified", { mode: "date" }),
+  emailVerified: timestamp("emailVerified", { mode: "date" })
 });
 
 export const stores = pgTable("store", {
@@ -136,6 +136,19 @@ export const regions = pgTable("regions", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   areaId: integer("areaId").references(() => areas.id)
+})
+
+export const earnings = pgTable("earnings", {
+  id: text("id")
+  .primaryKey()
+  .$defaultFn(() => crypto.randomUUID()),
+  saleId: text("saleId").references(() => sales.id),
+  amount: numeric("amount", {
+    precision: 12,
+    scale: 2,
+  }).notNull(),
+  partnerId: text("partnerId").references(() => users.id),
+  sourcePartnerId: text("sourcePartnerId").references(() => users.id)
 })
 
 export const accounts = pgTable(

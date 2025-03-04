@@ -1,4 +1,4 @@
-import { getSales } from "@/app/db";
+import { getEarningsDetails, getSales } from "@/app/db";
 import UsersTable from "./UsersTable";
 import Statistics from "./Statistics";
 import getUserFromAuth from "@/app/utils/getUserFromAuth";
@@ -8,49 +8,41 @@ export default async function UsersPage() {
   const user = await getUserFromAuth();
 
   const [users, sales] = await Promise.all([
-    MerchantService.getMerchantsWithDetailedMetrics(),
-    getSales(user.id, user.role),
+    MerchantService.getMerchantsWithDetailedMetrics(user.id),
+    getSales(user.id),
   ]);
 
-  interface Accumulator {
-    legRevenue: number;
-    salesVolume: number;
-  }
+  const now = new Date;
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
 
-  const { legRevenue, salesVolume } = sales?.reduce<Accumulator>(
-    (obj, sale) => ({
-      legRevenue: obj.legRevenue + Number(sale.legCommission),
-      salesVolume: obj.salesVolume + Number(sale.amount),
-    }),
-    { legRevenue: 0, salesVolume: 0 }
-  ) || { legRevenue: 0, salesVolume: 0 };
+  const salesVolume = sales.reduce((acc, current) => acc += Number(current.amount), 0);
+  const salesVolumeMonthToDate = sales.filter((x) => {
+    return (
+      x.createdAt!.getMonth() === currentMonth &&
+      x.createdAt!.getFullYear() === currentYear
+    );
+  }).reduce((acc, current) => acc += Number(current.amount), 0);
 
+  const earnings = await getEarningsDetails(user.id)
+  const totalEarnings = earnings.reduce((acc, current) => acc += Number(current.amount), 0);
+  const earningsMonthToDate = earnings.filter((x) => {
+    return (
+      x.createdAt!.getMonth() === currentMonth &&
+      x.createdAt!.getFullYear() === currentYear
+    );
+  }).reduce((acc, current) => acc += Number(current.amount), 0);
   const startOfMonth = new Date();
   startOfMonth.setDate(1);
   startOfMonth.setHours(0, 0, 0, 0);
-
-  const {
-    legRevenue: totalCommissionMonthToDate,
-    salesVolume: salesVolumeMonthToDate,
-  } = sales
-    ?.filter((sale) => {
-      return sale.createdAt && sale.createdAt >= startOfMonth; // Filter for sales in the last 30 days
-    })
-    .reduce<Accumulator>(
-      (obj, sale) => ({
-        legRevenue: obj.legRevenue + Number(sale.legCommission),
-        salesVolume: obj.salesVolume + Number(sale.amount),
-      }),
-      { legRevenue: 0, salesVolume: 0 }
-    ) || { legRevenue: 0, salesVolume: 0 };
 
   return (
     <>
       <Statistics
         data={{
-          totalCommission: legRevenue,
+          totalCommission: totalEarnings,
           volume: salesVolume,
-          totalCommissionMonthToDate,
+          totalCommissionMonthToDate: earningsMonthToDate,
           salesVolumeMonthToDate,
         }}
       />

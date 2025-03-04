@@ -1,13 +1,14 @@
 import {
+  AREA_MANAGER_FEE_RATE,
+  AREA_MANAGER_REGION_FEE_RATE,
   FIRST_LEVEL_PARTNER_FEE_RATE,
   LEG_FEE_RATE,
   SECOND_LEVEL_PARTNER_FEE_RATE,
-  SPECIAL_FIRST_LEVEL_PARTNER_FEE_RATE,
-  SPECIAL_SECOND_LEVEL_PARTNER_FEE_RATE,
   VAT,
 } from "@/app/constants";
-import { createSale, getStoreByUserId } from "@/app/db";
+import { addEarning, createSale, getAreaManagerId, getAreaManagerIdByRegion, getStoreByUserId } from "@/app/db";
 import { MerchantService } from "@/app/services/merchantService";
+import { UserService } from "@/app/services/userService";
 import { merchantWelcomeEmail } from "@/app/utils/emails";
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
@@ -52,23 +53,32 @@ export async function POST(request: NextRequest) {
       );
 
       const store = await getStoreByUserId(merchant.id);
-
-      // SPECIAL FEE RATE FOR info@fabioleanzi.com (ID available in prod only)
-      const firstLevelFeeRate = store.partnerId === '287f4832-712c-42ef-9ff8-60e2fd784e64' ? SPECIAL_FIRST_LEVEL_PARTNER_FEE_RATE : FIRST_LEVEL_PARTNER_FEE_RATE;
-      const secondLevelFeeRate = store.partnerId === '287f4832-712c-42ef-9ff8-60e2fd784e64' ? SPECIAL_SECOND_LEVEL_PARTNER_FEE_RATE : SECOND_LEVEL_PARTNER_FEE_RATE;
-
-      await createSale({
+      const sale = await createSale({
         stripePaymentIntentId: paymentIntent.id,
         amount: `${amount / 100}`,
         storeId: store.id,
-        legCommission: `${transferAmount / 100}`,
-        firstLevelPartnerCommission: `${
-          Math.round(amount * firstLevelFeeRate * VAT) / 100
-        }`,
-        secondLevelPartnerCommission: `${
-          Math.round(amount * secondLevelFeeRate * VAT) / 100
-        }`,
       });
+ 
+      addEarning({ saleId: sale[0].id, partnerId: process.env.ADMIN_USER_ID!, amount: transferAmount / 100 })
+      let areaManagerId = await getAreaManagerId(merchant.id);
+      if (areaManagerId) {
+        const fee = (Math.round(amount * AREA_MANAGER_FEE_RATE * VAT)) / 100;
+        addEarning({ saleId: sale[0].id, partnerId: areaManagerId, amount: fee})
+      }
+      else if (merchant.partnerId) {
+        const firstLevelPartnerFee = Math.round(amount * FIRST_LEVEL_PARTNER_FEE_RATE * VAT) / 100
+        addEarning({ saleId: sale[0].id, partnerId: merchant.partnerId, amount: firstLevelPartnerFee })
+        const partner = await UserService.getUserById(merchant.partnerId);
+        if (partner.partnerId) {
+          const secondLevelPartnerFee = Math.round(amount * SECOND_LEVEL_PARTNER_FEE_RATE * VAT) / 100
+          addEarning({ saleId: sale[0].id, partnerId: partner.partnerId, amount: secondLevelPartnerFee, sourcePartnerId: merchant.partnerId })
+        }
+      }
+      const areaManagerIdFromRegion = await getAreaManagerIdByRegion(merchant.regionId!)
+      if (areaManagerIdFromRegion && areaManagerIdFromRegion !== areaManagerId) {
+        const regionFee = Math.round(amount * AREA_MANAGER_REGION_FEE_RATE * VAT) / 100;
+        addEarning({ saleId: sale[0].id, partnerId: areaManagerIdFromRegion, amount: regionFee})
+      }
     } else if (event.type === "account.updated") {
       const stripeAccount = event.data.object;
       let merchant;

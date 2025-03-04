@@ -19,7 +19,7 @@ interface StoresTableProps {
 export default function StoresTable({ stores }: StoresTableProps) {
   const storeColumns: ColumnDef<Store>[] = [
     {
-      accessorKey: "storeName",
+      accessorKey: "name",
       header: "Nome",
       cell: (info) => info.getValue(),
     },

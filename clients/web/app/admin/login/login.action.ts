@@ -22,7 +22,7 @@ export default async function login(
       email: formData.get("email")?.toString().toLowerCase(),
       password: formData.get("password"),
       redirectTo: "/admin",
-      roles: ["admin"],
+      roles: ["admin", "areamanager"],
     });
   } catch (error) {
     if (error instanceof AuthError) {

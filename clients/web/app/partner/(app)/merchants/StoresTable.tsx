@@ -19,14 +19,19 @@ interface StoresTableProps {
 export default function StoresTable({ stores }: StoresTableProps) {
   const storeColumns: ColumnDef<Store>[] = [
     {
-      accessorKey: "storeName",
+      accessorKey: "name",
       header: "Nome",
+      cell: (info) => info.getValue(),
+    },
+    {
+      accessorKey: "partnerName",
+      header: "Partner di riferimento",
       cell: (info) => info.getValue(),
     },
     {
       accessorKey: "totalCommission",
       header: "Commissioni guadagnate (Totale)",
-      cell: (info) => `€ ${Number(info.getValue()).toFixed(2)}`,
+      cell: (info) => `€ ${Number(info.getValue() ?? 0).toFixed(2)}`,
     },
     {
       accessorKey: "totalVolume",

@@ -41,7 +41,7 @@ export const authorizationMiddleware = (req: NextAuthRequest) => {
   const userRole = req.auth.user?.role;
   const roleRequirements = {
     app: ["user"],
-    admin: ["admin"],
+    admin: ["admin", "areamanager"],
     partner: ["partner", "subpartner"],
   };
 

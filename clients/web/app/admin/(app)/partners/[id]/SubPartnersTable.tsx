@@ -3,7 +3,6 @@
 import {
   createColumnHelper,
 } from "@tanstack/react-table";
-import { useState } from "react";
 import GenericTable from "@/app/components/GenericTable";
 
 type SubPartnersTableProps = {
@@ -44,11 +43,9 @@ export default function SubPartnersTable({ tableData }: SubPartnersTableProps) {
     {
       accessorKey: "totalCommission",
       header: "Commissioni Dovute",
-      cell: (info) => `€ ${(info.getValue() as number).toFixed(2)}`,
+      cell: (info) => `€ ${info.getValue()}`,
     }
   ]
 
-  const [data] = useState(() => [...tableData]);
-
-  return <GenericTable data={data} columns={columns} title="Agenti" />;
+  return <GenericTable data={tableData} columns={columns} title="Agenti" />;
 }

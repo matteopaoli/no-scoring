@@ -44,7 +44,7 @@ export default function Statistics({
               />
             }
             name="Totale commissioni indirette"
-            value={`€ ${ data.secondLevelCommission}`}
+            value={`€ ${ Number(data.secondLevelCommission).toFixed(2)}`}
           />
         ) : null}
         <MiniStatistics

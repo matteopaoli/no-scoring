@@ -1,12 +1,4 @@
 import { Box, SimpleGrid, Icon } from "@chakra-ui/react";
-import MiniStatistics from "@/app/components/card/MiniStatistics";
-import IconBox from "@/app/components/icons/IconBox";
-import {
-  MdPersonOutline,
-  MdProductionQuantityLimits,
-  MdOutlineNewReleases,
-  MdOutlineGroup,
-} from "react-icons/md";
 import TotalUsersBadge from "./statistics-badges/TotalUsersBadge";
 import TotalProductsBadge from "./statistics-badges/TotalProductsBadge";
 import UsersInCurrentMonthBadge from "./statistics-badges/UsersInCurrentMonthBadge";
