@@ -18,12 +18,13 @@ interface Store {
 
 interface StoresTableProps {
   stores: Store[];
+  canDisable: boolean;
 }
 
-export default function StoresTable({ stores }: StoresTableProps) {
+export default function StoresTable({ stores, canDisable }: StoresTableProps) {
   const storeColumns: ColumnDef<Store>[] = [
     {
-      accessorKey: "storeName",
+      accessorKey: "name",
       header: "Nome",
       cell: (info) => info.getValue(),
     },
@@ -36,7 +37,7 @@ export default function StoresTable({ stores }: StoresTableProps) {
     {
       accessorKey: "totalCommission",
       header: "Commissione",
-      cell: (info) => `€ ${Number(info.getValue()).toFixed(2)}`,
+      cell: (info) => `€ ${Number(info.getValue() ?? 0).toFixed(2)}`,
     },
     {
       accessorKey: "totalVolume",
@@ -61,11 +62,12 @@ export default function StoresTable({ stores }: StoresTableProps) {
           dateStyle: "long",
         }),
     },
-    {
+    ...(canDisable ? [{
       accessorKey: "actions",
       header: "",
       cell: (info) => <Switch onChange={() => activeStatusToggleChangeHandler(info.row.original.storeId, !info.row.original.isSubscriptionActive)} isChecked={info.row.original.isSubscriptionActive} />
-    }
+    }]: [])
+
   ];
 
   const router = useRouter();

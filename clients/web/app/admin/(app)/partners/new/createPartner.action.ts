@@ -5,6 +5,7 @@ import { UserService } from "@/app/services/userService";
 import { FormActionReturnType } from "@/app/types";
 import { partnerWelcomeEmail } from "@/app/utils/emails";
 import formatZodErrors from "@/app/utils/formatZodErrors";
+import getUserFromAuth from "@/app/utils/getUserFromAuth";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
@@ -12,6 +13,11 @@ export default async function createPartnerAction(
   prevState: Awaited<FormActionReturnType>,
   formData: FormData
 ): FormActionReturnType {
+  const user = await getUserFromAuth();
+  if (!['admin', 'areamanager'].includes(user.role)) {
+    throw new Error('Unauthorized');
+  }
+
   const createPartnerSchema = z.object({
     firstName: z.string().min(1, "Inserire un nome valido").trim(),
     lastName: z.string().min(1, "Inserire un cognome valido").trim(),
@@ -48,13 +54,24 @@ export default async function createPartnerAction(
     return [{ field: 'email', message: 'L\'utente esiste già' }];
   }
 
-  // If no existing user, proceed to create the new user
-  await createPartner({
-    firstName,
-    lastName,
-    email,
-    regionId,
-  });
+  if (user.role === 'areamanager') {
+    await createPartner({
+      firstName,
+      lastName,
+      email,
+      regionId,
+      partnerId: user.id
+    });
+  }
+  else {
+    await createPartner({
+      firstName,
+      lastName,
+      email,
+      regionId,
+    });
+  }
+
   partnerWelcomeEmail({ email, partnerName: `${firstName} ${lastName}` });
   redirect("/admin/partners?success=true&action=createPartner");
 }

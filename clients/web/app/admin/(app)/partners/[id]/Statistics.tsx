@@ -50,21 +50,24 @@ export default function Statistics({
         name="Provincia"
         value={partner.regionName || "-"}
       />
-
-      <MiniStatistics
-        startContent={
-          <IconBox
-            w="56px"
-            h="56px"
-            bg="secondaryGray.300"
-            icon={
-              <Icon w="32px" h="32px" as={MdMonetizationOn} color="brand.500" />
-            }
-          />
-        }
-        name="Commissioni Dovute"
-        value={`€ ${Number(totalFee).toFixed(2)}`}
-      />
+      {
+        totalFee ? (
+          <MiniStatistics
+          startContent={
+            <IconBox
+              w="56px"
+              h="56px"
+              bg="secondaryGray.300"
+              icon={
+                <Icon w="32px" h="32px" as={MdMonetizationOn} color="brand.500" />
+              }
+            />
+          }
+          name="Commissioni Dovute"
+          value={`€ ${Number(totalFee).toFixed(2)}`}
+        />
+        ) : null
+      }
       {subpartners > 0 && (
         <MiniStatistics
           startContent={

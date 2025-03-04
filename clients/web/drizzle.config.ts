@@ -5,7 +5,7 @@ export default defineConfig({
   out: './drizzle', // Where to store migration files
   dialect: 'postgresql',
   dbCredentials: {
-    host: 'localhost',
+    host: process.env.POSTGRES_HOST!,
     port: 5432, // Default PostgreSQL port
     user: process.env.POSTGRES_USER,
     password: process.env.POSTGRES_PASSWORD,

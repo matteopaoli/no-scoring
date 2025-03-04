@@ -1,9 +1,11 @@
 import { getAllPendingUsers  } from "@/app/db";
 import PendingMerchantsTable from "./PendingMerchantsTable";
 import Statistics from "./Statistics";
+import getUserFromAuth from "@/app/utils/getUserFromAuth";
 
 export default async function UsersPage() {
-  const merchants = await getAllPendingUsers();
+  const user = await getUserFromAuth();
+  const merchants = await getAllPendingUsers(user.id);
 
   return (
     <>

@@ -3,10 +3,11 @@ import Client from "./page.client";
 import { Box, Flex } from "@chakra-ui/react";
 import { BusinessTypeService } from "@/app/services/businessTypeService";
 import { AreaService } from "@/app/services/areaService";
+import getUserFromAuth from "@/app/utils/getUserFromAuth";
 
 export default async function CreateUserPage() {
-
-  const partners = await getAllPartners();
+  const user = await getUserFromAuth();
+  const partners = await getAllPartners(user.id);
   const businessTypesOptions = await BusinessTypeService.getAllAsComponent()
   const regionsOptions = await AreaService.getRegionsAsComponent()
   return (

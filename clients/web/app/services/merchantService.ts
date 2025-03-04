@@ -8,9 +8,10 @@ import {
   userStoreRoles,
 } from "schema";
 import { db } from "../db";
-import { and, count, desc, eq, getTableColumns, sql } from "drizzle-orm";
+import { and, count, desc, eq, getTableColumns, inArray, sql } from "drizzle-orm";
 import { UserService } from "./userService";
 import { alias } from "drizzle-orm/pg-core";
+import { PartnerService } from "./partnerService";
 
 export class MerchantService {
   static async createMerchant({
@@ -104,13 +105,15 @@ export class MerchantService {
           createdAt: users.createdAt,
           onboardingLink: users.onboardingLink,
           status: users.status,
+          regionId: users.regionId,
+          partnerId: users.partnerId
         })
         .from(users)
         .where(eq(users.stripeUserId, stripeUserId))
     )?.[0];
   }
 
-  static async getAllActiveMerchants() {
+  static async getAllActiveMerchants(userId: string) {
     return await db
       .select({
         firstName: users.firstName,
@@ -125,11 +128,11 @@ export class MerchantService {
       })
       .from(users)
       .leftJoin(products, eq(products.userId, users.id))
-      .where(and(eq(users.role, "user"), eq(users.status, "active")))
+      .where(and(eq(users.role, "user"), eq(users.status, "active"), inArray(users.id, await PartnerService.getMerchantsNetwork(userId))))
       .groupBy(users.id);
   }
 
-  static async getMerchantsWithDetailedMetrics() {
+  static async getMerchantsWithDetailedMetrics(userId: string) {
     const partner = alias(users, "partner");
     const selectedColumns = {
       ...getTableColumns(users),
@@ -157,7 +160,7 @@ export class MerchantService {
       .leftJoin(stores, eq(userStoreRoles.storeId, stores.id))
       .leftJoin(sales, eq(stores.id, sales.storeId))
       .leftJoin(regions, eq(users.regionId, regions.id)) // Join regions to get the region name
-      .where(and(eq(users.role, "user"), eq(users.status, "active")))
+      .where(and(eq(users.role, "user"), eq(users.status, "active"), inArray(users.id, await PartnerService.getMerchantsNetwork(userId))))
       .groupBy(
         users.id,
         partner.id,

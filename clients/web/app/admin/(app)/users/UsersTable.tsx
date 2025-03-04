@@ -89,7 +89,7 @@ export default function UsersTable({ tableData }: UsersTableProps) {
       {
         accessorKey: "totalCommission",
         header: "Commissioni guadagnate",
-        cell: (info) => Number(info.getValue()).toFixed(2),
+        cell: (info) => `€ ${Number(info.getValue()).toFixed(2)}`,
       },
       {
         accessorKey: "totalCommissionCurrentMonth",

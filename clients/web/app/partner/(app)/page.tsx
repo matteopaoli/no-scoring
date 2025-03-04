@@ -10,7 +10,7 @@ export default async function Page() {
   // const user = await UserService.getUserByEmail(session?.user?.email)
   const user = await getUserFromAuth()
   redirect('/partner/merchants')
-  // const sales = await getSales(user.id, user.role)
+  // const sales = await getSales(user.id)
   // return (
   //   <>
   //   Welcome!
