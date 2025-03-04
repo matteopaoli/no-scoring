@@ -407,6 +407,13 @@
       "when": 1740991983772,
       "tag": "0057_gigantic_sway",
       "breakpoints": true
+    },
+    {
+      "idx": 58,
+      "version": "7",
+      "when": 1741085740267,
+      "tag": "0058_dark_white_tiger",
+      "breakpoints": true
     }
   ]
 }
