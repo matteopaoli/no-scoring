@@ -11,7 +11,7 @@ type SubPartnersTableProps = {
   tableData: {
     firstName: string | null;
     lastName: string | null;
-    provincia: string | null;
+    regionName: string | null;
     email: string | null;
   }[];
 };
@@ -39,15 +39,15 @@ export default function SubPartnersTable({ tableData }: SubPartnersTableProps) {
       cell: (info) => info.getValue(),
     },
     {
-      accessorKey: "earnings",
+      accessorKey: "totalCommission",
       header: "Guadagni generati",
-      cell: (info) => `€ ${info.getValue().toFixed(2)}`,
+      cell: (info) => `€ ${info.getValue()}`,
     },
-    {
-      accessorKey: "earningsCurrentMonth",
-      header: "Guadagni generati (mese corrente)",
-      cell: (info) => `€ ${info.getValue().toFixed(2)}`,
-    },
+    // {
+    //   accessorKey: "earningsCurrentMonth",
+    //   header: "Guadagni generati (mese corrente)",
+    //   cell: (info) => `€ ${info.getValue().toFixed(2)}`,
+    // },
     {
       accessorKey: "details",
       header: "Dettagli",
