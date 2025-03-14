@@ -13,6 +13,7 @@ import {
   regions,
   areas,
   earnings,
+  subscriptions,
 } from "schema";
 import { imageToBase64, compressProfileImageToBase64 } from "./utils/images";
 import { alias } from "drizzle-orm/pg-core";
@@ -130,6 +131,8 @@ export async function createStore({
       storeId,
       role: "admin",
     });
+
+    db.insert(subscriptions).values({ storeId })
   }
 
   return { newStore, success: true };
@@ -935,7 +938,6 @@ export async function addEarning({ saleId, partnerId, amount, sourcePartnerId }:
 }
 
 export async function getTotalEarnings(userId: string) {
-  console.log(userId)
   return await db.select({ amount: earnings.amount })
     .from(earnings)
     .where(eq(earnings.partnerId, userId))
@@ -943,7 +945,7 @@ export async function getTotalEarnings(userId: string) {
 }
 
 export async function getEarningsDetails(userId: string) {
-  return await db.select({ amount: earnings.amount, sourcePartnerId: earnings.sourcePartnerId, storeId: stores.id, createdAt: sales.createdAt })
+  return await db.select({ amount: earnings.amount, sourcePartnerId: earnings.sourcePartnerId, storeId: stores.id, createdAt: sales.createdAt, type: earnings.type, originStore: earnings.originStore })
     .from(earnings)
     .leftJoin(sales, eq(sales.id, earnings.saleId))
     .leftJoin(stores, eq(sales.storeId, stores.id))

@@ -44,6 +44,7 @@ export default async function MerchantsPage() {
     const currentYear = now.getFullYear();
     return {
       ...s,
+      subscriptionFee: earnings.find(x => x.originStore === s.id && x.type === 'subscriptionFee')?.amount,
       totalVolume: sales
         .filter((x) => x.storeId === s.id)
         .reduce((acc, current) => (acc += Number(current.amount)), 0),

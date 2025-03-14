@@ -136,7 +136,28 @@ export const earnings = pgTable("earnings", {
     scale: 2,
   }).notNull(),
   partnerId: text("partnerId").references(() => users.id),
-  sourcePartnerId: text("sourcePartnerId").references(() => users.id)
+  sourcePartnerId: text("sourcePartnerId").references(() => users.id),
+  type: text("type"),
+  originStore: text("originStore")
+})
+
+export const subscriptions = pgTable("subscription", {
+  id: text("id")
+  .primaryKey()
+  .$defaultFn(() => crypto.randomUUID()),
+  storeId: text("storeId").references(() => stores.id).notNull(),
+  amount: numeric("amount", {
+    precision: 12,
+    scale: 2,
+  }),
+  partnerFee: numeric("partnerFee", {
+    precision: 12,
+    scale: 2,
+  }),
+  upperPartnerFee: numeric("upperPartnerFee", {
+    precision: 12,
+    scale: 2,
+  }),
 })
 
 export const accounts = pgTable(

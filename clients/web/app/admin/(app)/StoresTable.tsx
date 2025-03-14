@@ -29,6 +29,11 @@ export default function StoresTable({ stores, canDisable }: StoresTableProps) {
       cell: (info) => info.getValue(),
     },
     {
+      accessorKey: "subscriptionFee",
+      header: "Guadagno iscrizione",
+      cell: (info) => info.getValue(),
+    },
+    {
       accessorKey: "ownedBy",
       header: "Utente",
       cell: (info) => info.getValue(),
