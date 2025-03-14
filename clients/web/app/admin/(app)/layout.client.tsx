@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode, useContext, useState } from "react";
-import routes from "@/app/routes.admin";
+import { routes, areaManagerRoutes } from "@/app/routes.admin";
 import { usePathname } from "next/navigation";
 import { Box, Portal, useDisclosure } from "@chakra-ui/react";
 import { SidebarContext } from "@/app/contexts/SidebarContext";
@@ -34,6 +34,12 @@ export default function AdminLayout({
     return activeRoute;
   };
 
+  const getRoutes = () => {
+    if (user.role === "admin") return routes;
+    if (user.role === "areamanager") return areaManagerRoutes;
+    return null;
+  };
+
   const { onOpen } = useDisclosure();
   return (
     <Box>
@@ -44,7 +50,7 @@ export default function AdminLayout({
             setToggleSidebar,
           }}
         >
-          <Sidebar routes={routes} display="none" {...rest} />
+          <Sidebar routes={getRoutes()} display="none" {...rest} />
           <Box
             float="right"
             minHeight="100vh"

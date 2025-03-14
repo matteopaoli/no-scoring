@@ -2,14 +2,10 @@ import React from 'react';
 
 import { Icon } from '@chakra-ui/react';
 import {
-  MdBarChart,
-  MdPerson,
   MdHome,
-  MdLock,
-  MdOutlineShoppingCart,
-  MdOutlineVerifiedUser,
   MdStore,
-  MdPeople
+  MdPeople,
+  MdPayment
 } from 'react-icons/md';
 import { FaHandshake } from 'react-icons/fa';
 
@@ -93,6 +89,16 @@ const routes = [
     params: ['partnerId'],
     match: /^\/admin\/partners\/[^/]+$/,
   },
+  {
+    name: "Pagamenti",
+    layout: '/admin',
+    icon: <Icon as={MdPayment} width="20px" height="20px" color="inherit" />,
+    path: "/admin/subscriptions",
+    match: /^\/admin\/subscriptions$/,
+  },
 ];
 
-export default routes;
+const areaManagerRoutes = [...routes].filter(route => route.path !== '/admin/subscriptions')
+
+
+export { routes, areaManagerRoutes };

@@ -6,13 +6,15 @@ import { MerchantService } from "@/app/services/merchantService";
 import { UserService } from "@/app/services/userService";
 import { Store } from "@/app/services/storeService";
 import { PartnerService } from "@/app/services/partnerService";
+import { getSubscriptions } from "@/app/services/subscriptionService";
 
 export default async function Page() {
   const user = await getUserFromAuth();
-  const [stores, merchants, totalEarnings] = await Promise.all([
+  const [stores, merchants, totalEarnings, subscriptions] = await Promise.all([
     Store.getStores(await PartnerService.getStoresNetwork(user.id), user.id),
     MerchantService.getAllActiveMerchants(user.id),
     getTotalEarnings(user.id),
+    getSubscriptions(user.id)
   ]);
     const sales = await getSales(user.id)
     const now = new Date();
@@ -33,7 +35,7 @@ export default async function Page() {
         acc[storeId].totalCommission += amount;
     
         // Add to commissionsCurrentMonth if it's in the current month
-        if (current.createdAt!.getMonth() === currentMonth && current.createdAt!.getFullYear() === currentYear) {
+        if (current.createdAt?.getMonth() === currentMonth && current.createdAt!.getFullYear() === currentYear) {
           acc[storeId].commissionsCurrentMonth += amount;
         }
     
@@ -55,6 +57,7 @@ export default async function Page() {
         );
       })
       .reduce((acc, current) => (acc += Number(current.amount)), 0),
+      subscriptionFee: subscriptions?.find(x => x.storeId === store.id)?.amount ?? null,
       ...store
     }));
 

@@ -414,6 +414,34 @@
       "when": 1741085740267,
       "tag": "0058_dark_white_tiger",
       "breakpoints": true
+    },
+    {
+      "idx": 59,
+      "version": "7",
+      "when": 1741854995422,
+      "tag": "0059_dashing_hex",
+      "breakpoints": true
+    },
+    {
+      "idx": 60,
+      "version": "7",
+      "when": 1741855068856,
+      "tag": "0060_blue_rattler",
+      "breakpoints": true
+    },
+    {
+      "idx": 61,
+      "version": "7",
+      "when": 1741860898598,
+      "tag": "0061_previous_harrier",
+      "breakpoints": true
+    },
+    {
+      "idx": 62,
+      "version": "7",
+      "when": 1741912456929,
+      "tag": "0062_magical_captain_britain",
+      "breakpoints": true
     }
   ]
 }
