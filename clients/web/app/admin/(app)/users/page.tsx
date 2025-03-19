@@ -28,8 +28,8 @@ export default async function UsersPage() {
   const totalEarnings = earnings.reduce((acc, current) => acc += Number(current.amount), 0);
   const earningsMonthToDate = earnings.filter((x) => {
     return (
-      x.createdAt!.getMonth() === currentMonth &&
-      x.createdAt!.getFullYear() === currentYear
+      x.createdAt?.getMonth() === currentMonth &&
+      x.createdAt?.getFullYear() === currentYear
     );
   }).reduce((acc, current) => acc += Number(current.amount), 0);
   const startOfMonth = new Date();
