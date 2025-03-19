@@ -1,30 +1,29 @@
 import { Injectable } from '@nestjs/common';
-import { db, regions, users } from '@paytomorrow/db';
-import { getTableColumns, eq } from 'drizzle-orm';
+import { db, users } from '../db';
+import { eq } from 'drizzle-orm';
 
 @Injectable()
 export class UserService {
   async findByEmail(email: string) {
     return (
       await db
-        .select({ ...getTableColumns(users), regionName: regions.name })
+        .select()
         .from(users)
-        .where(eq(users.email, email ?? ""))
-        .leftJoin(regions, eq(users.regionId, regions.id))
+        .where(eq(users.email, email))
     )?.[0];
   }
 
-  async generatePasswordResetToken(user) {
-    
-  }
-
-  async sendPasswordResetEmail(user, token: string) {
-  }
-
-  async verifyResetToken(token: string) {
+  async findById(id: string) {
+    return (
+      await db
+        .select()
+        .from(users)
+        .where(eq(users.id, id))
+    )?.[0];
   }
   
-  async updatePassword(userId: number, newPassword: string) {
-
+  async updatePassword(userId: string, newPassword: string) {
+    // @ts-ignore: Unreachable code error
+    // await db.update(users).set({ password: newPassword }).where(eq(users.id, userId));
   }
 }

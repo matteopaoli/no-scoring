@@ -10,8 +10,6 @@ import {
   varchar,
   PgColumn,
 } from "drizzle-orm/pg-core";
-import postgres from "postgres";
-import { drizzle } from "drizzle-orm/postgres-js";
 import "dotenv/config";
 
 export const users = pgTable("user", {
