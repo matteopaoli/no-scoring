@@ -38,6 +38,7 @@ interface GenericTableProps<T> {
   onRowClick?: (rowData: T) => void; // Row click handler
   hideColumnsResponsive?: string[];
   menu?: (props: any) => JSX.Element;
+  getRowProps?: (row: any) => any;
 }
 
 export default function GenericTable<T>({
@@ -48,6 +49,7 @@ export default function GenericTable<T>({
   onRowClick,
   hideColumnsResponsive,
   menu: Menu,
+  getRowProps,
 }: GenericTableProps<T>) {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPageState, setItemsPerPageState] = useState(itemsPerPage);
@@ -203,6 +205,7 @@ export default function GenericTable<T>({
                 key={row.id}
                 onClick={() => handleRowClick(row.original)} // Handle row click
                 _hover={{ bg: "gray.100", cursor: "pointer" }} // Hover effect
+                {...getRowProps?.(row)}
               >
                 {row.getVisibleCells().map((cell) => (
                   <Td key={cell.id} borderColor="transparent">

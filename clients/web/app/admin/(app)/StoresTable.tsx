@@ -95,6 +95,11 @@ export default function StoresTable({ stores, canDisable }: StoresTableProps) {
         title="Negozi Attivi"
         itemsPerPage={100}
         hideColumnsResponsive={["createdAt"]}
+        getRowProps={(row) => ({
+          style: {
+            backgroundColor: row.original.subscriptionFee ? "rgba(0, 255, 0, 0.1)" : "transparent",
+          },
+        })}
       />
     </>
   );

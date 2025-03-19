@@ -1,4 +1,4 @@
-import { getEarningsDetails, getSales, getTotalEarnings } from "@/app/db";
+import { db, getEarningsDetails, getSales, getTotalEarnings } from "@/app/db";
 import Statistics from "./Statistics";
 import getUserFromAuth from "@/app/utils/getUserFromAuth";
 import StoresTable from "./StoresTable";
@@ -6,15 +6,16 @@ import { MerchantService } from "@/app/services/merchantService";
 import { UserService } from "@/app/services/userService";
 import { Store } from "@/app/services/storeService";
 import { PartnerService } from "@/app/services/partnerService";
-import { getSubscriptions } from "@/app/services/subscriptionService";
+import { and, eq } from "drizzle-orm";
+import { earnings as earningsTable } from "../../../schema";
 
 export default async function Page() {
   const user = await getUserFromAuth();
-  const [stores, merchants, totalEarnings, subscriptions] = await Promise.all([
+  const [stores, merchants, totalEarnings, subscriptionsFees] = await Promise.all([
     Store.getStores(await PartnerService.getStoresNetwork(user.id), user.id),
     MerchantService.getAllActiveMerchants(user.id),
     getTotalEarnings(user.id),
-    getSubscriptions(user.id)
+    db.select().from(earningsTable).where(and(eq(earningsTable.type, 'subscriptionFee'), eq(earningsTable.partnerId, user.id)))
   ]);
     const sales = await getSales(user.id)
     const now = new Date();
@@ -57,7 +58,7 @@ export default async function Page() {
         );
       })
       .reduce((acc, current) => (acc += Number(current.amount)), 0),
-      subscriptionFee: subscriptions?.find(x => x.storeId === store.id)?.amount ?? null,
+      subscriptionFee: subscriptionsFees?.find(x => x.originStore === store.id)?.amount ?? null,
       ...store
     }));
 
