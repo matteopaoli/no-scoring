@@ -436,7 +436,7 @@ export async function getPartners(userId: string) {
     })
     .from(users)
     .leftJoin(partnerAlias, eq(users.partnerId, partnerAlias.id))
-    .leftJoin(earnings, eq(earnings.partnerId, partnerAlias.id))
+    .leftJoin(earnings, eq(earnings.partnerId, users.id))
     .where(inArray(users.id, partnerIds))
     .groupBy(
       users.id,
