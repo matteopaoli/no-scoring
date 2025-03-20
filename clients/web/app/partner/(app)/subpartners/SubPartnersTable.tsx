@@ -39,8 +39,13 @@ export default function SubPartnersTable({ tableData }: SubPartnersTableProps) {
       cell: (info) => info.getValue(),
     },
     {
+      accessorKey: "owedFee",
+      header: "Commissioni dovute",
+      cell: (info) => `€ ${info.getValue()}`,
+    },
+    {
       accessorKey: "totalCommission",
-      header: "Guadagni generati",
+      header: "Commissioni Over",
       cell: (info) => `€ ${info.getValue()}`,
     },
     // {

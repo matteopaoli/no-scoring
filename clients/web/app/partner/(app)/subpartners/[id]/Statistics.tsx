@@ -14,10 +14,12 @@ export default function Statistics({
   partner,
   stores,
   totalFee,
+  owedFee,
 }: {
   partner: User;
   stores: number;
   totalFee: number;
+  owedFee: number;
 }) {
   return (
     <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
@@ -62,8 +64,22 @@ export default function Statistics({
             }
           />
         }
-        name="Commissioni Guadagnate"
+        name="Commissioni Over"
         value={`€ ${Number(totalFee).toFixed(2)}`}
+      />
+      <MiniStatistics
+        startContent={
+          <IconBox
+            w="56px"
+            h="56px"
+            bg="secondaryGray.300"
+            icon={
+              <Icon w="32px" h="32px" as={MdMonetizationOn} color="brand.500" />
+            }
+          />
+        }
+        name="Commissioni Dovute"
+        value={`€ ${Number(owedFee).toFixed(2)}`}
       />
       <MiniStatistics
         startContent={
