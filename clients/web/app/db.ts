@@ -546,7 +546,8 @@ export async function _ADMIN_getSubPartnersByUserId(userId: string) {
 }
 
 export async function _PARTNER_getSubPartnersByUserId(userId: string) {
-  const subpartnerIds = await getPartnerNetwork(userId)
+  const subpartnerIds = await getPartnerNetwork(userId);
+  
   const subpartners = await db
     .select({
       id: users.id,
@@ -554,10 +555,17 @@ export async function _PARTNER_getSubPartnersByUserId(userId: string) {
       lastName: users.lastName,
       email: users.email,
       totalCommission: sql`COALESCE(SUM(CAST(${earnings.amount} AS numeric)), 0)`,
+      owedFee: sql`
+        COALESCE(
+          (SELECT SUM(CAST(${earnings.amount} AS numeric))
+           FROM ${earnings}
+           WHERE ${earnings.partnerId} = ${users.id}),
+          0
+        )`,
       regionName: regions.name
     })
     .from(users)
-    .leftJoin(earnings, eq(earnings.sourcePartnerId, users.id))
+    .leftJoin(earnings, eq(earnings.sourcePartnerId, users.id))  // This handles totalCommission
     .leftJoin(regions, eq(regions.id, users.regionId))
     .where(inArray(users.id, subpartnerIds))
     .groupBy(
@@ -567,35 +575,7 @@ export async function _PARTNER_getSubPartnersByUserId(userId: string) {
       users.email,
       regions.name
     );
-  // For each subpartner, fetch the first-level commissions
-  // const subpartnersWithCommissions = await Promise.all(
-  //   subpartners.map(async (subpartner) => {
-  //     // Fetch first-level commissions for this subpartner
-  //     const merchantStores = (await db
-  //       .select({
-  //         totalCommission: sql`COALESCE(SUM(CAST(${sales.secondLevelPartnerCommission} AS numeric)), 0)`,
-  //         currentMonthCommission: sql`COALESCE(SUM(CAST(CASE WHEN ${sales.createdAt} >= date_trunc('month', CURRENT_DATE) AND ${sales.createdAt} < CURRENT_DATE + interval '1 month' THEN ${sales.secondLevelPartnerCommission} END AS numeric)), 0)`,
-  //       })
-  //       .from(stores)
-  //       .innerJoin(userStoreRoles, eq(stores.id, userStoreRoles.storeId))
-  //       .leftJoin(sales, eq(stores.id, sales.storeId))
-  //       .where(eq(stores.partnerId, subpartner.id))) as {
-  //       totalCommission: number;
-  //       currentMonthCommission: number;
-  //     }[];
-
-  //     const earnings = merchantStores[0]?.totalCommission || 0;
-  //     const earningsCurrentMonth = merchantStores[0]?.currentMonthCommission || 0;
-
-  //     // Return the subpartner data with totalCommission and earningsCurrentMonth added
-  //     return {
-  //       ...subpartner,
-  //       earnings: Number(earnings),
-  //       earningsCurrentMonth: Number(earningsCurrentMonth),
-  //     };
-  //   })
-  // );
-
+  
   return subpartners;
 }
 

@@ -24,8 +24,13 @@ export default function StoresTable({ stores }: StoresTableProps) {
       cell: (info) => info.getValue(),
     },
     {
+      accessorKey: 'owedFee',
+      header: 'Commissioni da pagare',
+      cell: (info) => `€ ${Number(info.getValue()).toFixed(2)}`
+    },
+    {
       accessorKey: "totalCommission",
-      header: "Commissioni guadagnate (Totale)",
+      header: "Commissioni Over (Totale)",
       cell: (info) => `€ ${Number(info.getValue()).toFixed(2)}`,
     },
     {
@@ -34,8 +39,13 @@ export default function StoresTable({ stores }: StoresTableProps) {
       cell: (info) => `€ ${Number(info.getValue() ?? 0).toFixed(2)}`,
     },
     {
+      accessorKey: "owedFeeCurrentMonth",
+      header: "Commissioni da pagare (mese corrente)",
+      cell: (info) => `€ ${Number(info.getValue()).toFixed(2)}`
+    },
+    {
       accessorKey: "commissionsCurrentMonth",
-      header: "Commssioni guadagnate (mese corrente)",
+      header: "Commssioni Over (mese corrente)",
       cell: (info) => `€ ${Number(info.getValue() ?? 0).toFixed(2)}`,
     },
     {
