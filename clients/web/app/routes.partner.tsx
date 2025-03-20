@@ -30,7 +30,7 @@ const routes = [
     path: "/partner/subpartners/new",
   },
   {
-    name: "Dettagli Partner",
+    name: "Dettagli Agente",
     path: "/partner/subpartners/[id]",
   },
   {
