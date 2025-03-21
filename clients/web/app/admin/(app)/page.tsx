@@ -15,13 +15,15 @@ export default async function Page() {
     Store.getStores(await PartnerService.getStoresNetwork(user.id), user.id),
     MerchantService.getAllActiveMerchants(user.id),
     getTotalEarnings(user.id),
-    db.select().from(earningsTable).where(and(eq(earningsTable.type, 'subscriptionFee'), eq(earningsTable.partnerId, user.id)))
+    db.select().from(earningsTable).where(eq(earningsTable.type, 'subscriptionFee'))
   ]);
     const sales = await getSales(user.id)
     const now = new Date();
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
     
+    const userSubscriptionFees = subscriptionsFees?.filter(x => x.partnerId === user.id);
+
     const earnings = (await getEarningsDetails(user.id))
       .reduce((acc, current) => {
         const storeId = current.storeId!;
@@ -44,6 +46,7 @@ export default async function Page() {
       }, {} as Record<string, { totalCommission: number; commissionsCurrentMonth: number }>);
     
     const merged = stores.map(store => ({
+      hasPaid: subscriptionsFees.find(x => x.originStore === store.id) !== undefined,
       totalCommission: earnings[store.id]?.totalCommission || 0,
       commissionsCurrentMonth: earnings[store.id]?.commissionsCurrentMonth || 0,
       totalVolume: sales
@@ -58,7 +61,7 @@ export default async function Page() {
         );
       })
       .reduce((acc, current) => (acc += Number(current.amount)), 0),
-      subscriptionFee: subscriptionsFees?.find(x => x.originStore === store.id)?.amount ?? null,
+      subscriptionFee: userSubscriptionFees?.find(x => x.originStore === store.id)?.amount ?? null,
       ...store
     }));
 

@@ -10,16 +10,19 @@ import { MerchantService } from "@/app/services/merchantService";
 import { AreaService } from "@/app/services/areaService";
 import { Store } from "@/app/services/storeService";
 import { PartnerService } from "@/app/services/partnerService";
+import { db, earnings as earningsTable } from "@paytomorrow/db";
+import { eq } from "drizzle-orm";
 
 export default async function MerchantsPage() {
   const user = await getUserFromAuth();
-  const [businessTypesOptions, regionsOptions, earnings, sales, merchants] =
+  const [businessTypesOptions, regionsOptions, earnings, sales, merchants, subscriptionFees] =
     await Promise.all([
       BusinessTypeService.getAllAsComponent(),
       AreaService.getRegionsAsComponent(),
       getEarningsDetails(user.id),
       getSales(user.id),
-      MerchantService.getMerchantsByPartnerId(user.id)
+      MerchantService.getMerchantsByPartnerId(user.id),
+      db.select().from(earningsTable).where(eq(earningsTable.type, 'subscriptionFee')),
     ]);
   const directEarnings = earnings
     .filter((x) => !x.sourcePartnerId)
@@ -44,6 +47,7 @@ export default async function MerchantsPage() {
     const currentYear = now.getFullYear();
     return {
       ...s,
+      hasPaid: subscriptionFees.find((x) => x.originStore === s.id) !== undefined,
       subscriptionFee: earnings.find(x => x.originStore === s.id && x.type === 'subscriptionFee')?.amount,
       totalVolume: sales
         .filter((x) => x.storeId === s.id)

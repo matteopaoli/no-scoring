@@ -8,6 +8,8 @@ import { redirect } from "next/navigation";
 import StoresTable from "./StoresTable";
 import { PartnerService } from "@/app/services/partnerService";
 import { Store } from "@/app/services/storeService";
+import { db, earnings as earningsTable } from "@paytomorrow/db";
+import { eq } from "drizzle-orm";
 
 export default async function AgentDetailPage({
   params,
@@ -27,6 +29,7 @@ export default async function AgentDetailPage({
     await PartnerService.getStoresNetwork(agent.id)
   );
   const sales = await getSales(user.id);
+  const subscriptionFees = await db.select().from(earningsTable).where(eq(earningsTable.type, 'subscriptionFee'));
   const now = new Date();
   const currentMonth = now.getMonth();
   const currentYear = now.getFullYear();
@@ -73,6 +76,7 @@ export default async function AgentDetailPage({
   );
 
   const merged = stores.map((store) => ({
+    hasPaid: subscriptionFees.find((x) => x.originStore === store.id) !== undefined,
     totalCommission: earnings[store.id]?.totalCommission || 0,
     owedFee: agentEarnings[store.id]?.totalCommission || 0,
     owedFeeCurrentMonth:
