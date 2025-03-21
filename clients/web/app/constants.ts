@@ -7,4 +7,4 @@ export const SECOND_LEVEL_PARTNER_FEE_RATE = 0.0025
 export const AREA_MANAGER_FEE_RATE = 0.0075
 export const AREA_MANAGER_REGION_FEE_RATE = 0.001;
 export const FEES_DISCLAIMER = 'Il prezzo è stato aumentato per includere le commissioni associate al pagamento in più rate.'
-export const VERSION="3.3.1"
+export const VERSION="3.3.2"
