@@ -6,8 +6,8 @@ import {
   stores,
   users,
   userStoreRoles,
-} from "schema";
-import { db } from "../db";
+  db
+} from "@paytomorrow/db";
 import { and, count, desc, eq, getTableColumns, inArray, sql } from "drizzle-orm";
 import { UserService } from "./userService";
 import { alias } from "drizzle-orm/pg-core";

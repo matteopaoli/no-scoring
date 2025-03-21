@@ -107,7 +107,7 @@ export default function SignIn() {
                 color={textColor}
                 mb="8px"
               >
-                {t("email")}dfcvdfwearfgwedfwef
+                {t("email")}
                 <Text color={brandStars}>{t("requiredField")}</Text>
               </FormLabel>
               <Input

@@ -1,9 +1,14 @@
 import { defineConfig } from "drizzle-kit";
+import * as dotenv from "dotenv";
+
+dotenv.config({
+  path: "../../.env",
+});
 
 export default defineConfig({
-  schema: './schema.ts', // Path to your schema file
-  out: './drizzle', // Where to store migration files
-  dialect: 'postgresql',
+  schema: "./schema.ts", // Path to your schema file
+  out: "./drizzle", // Where to store migration files
+  dialect: "postgresql",
   dbCredentials: {
     host: process.env.POSTGRES_HOST!,
     port: 5432, // Default PostgreSQL port

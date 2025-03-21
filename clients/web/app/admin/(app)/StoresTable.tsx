@@ -97,7 +97,7 @@ export default function StoresTable({ stores, canDisable }: StoresTableProps) {
         hideColumnsResponsive={["createdAt"]}
         getRowProps={(row) => ({
           style: {
-            backgroundColor: row.original.subscriptionFee ? "rgba(0, 255, 0, 0.1)" : "transparent",
+            backgroundColor: row.original.hasPaid ? "rgba(0, 255, 0, 0.1)" : "transparent",
           },
         })}
       />
