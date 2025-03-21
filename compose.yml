@@ -25,6 +25,17 @@ services:
       - ./clients/web:/app:delegated  # Mount project directory
     env_file:
       - ./clients/web/.env
+  api-server:
+    build:
+      context: ./services/api-server
+      dockerfile: Dockerfile
+    env_file:
+      - ./services/api-server/.env
+    ports:
+      - '8000:8000'
+    depends_on:
+      - database  # Adjust if your app depends on a DB service
+    restart: unless-stopped
 volumes:
   postgres_data:
 
