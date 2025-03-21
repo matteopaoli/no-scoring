@@ -15,7 +15,6 @@ import {
 } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
 import SearchResult from "./SearchResult";
-import { users } from "schema";
 
 // Define the props type
 interface SearchBarProps extends InputGroupProps {

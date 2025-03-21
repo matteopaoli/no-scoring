@@ -1,5 +1,5 @@
-import { businessType, commissionRules } from "schema";
-import { BusinessType, db } from "../db";
+import { businessType, commissionRules, db } from "@paytomorrow/db";
+import { BusinessType } from "../db";
 import { eq } from "drizzle-orm";
 import React from "react";
 

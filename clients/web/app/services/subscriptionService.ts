@@ -1,5 +1,4 @@
-import { subscriptions as subscriptionsTable, stores as storesTable, users, earnings } from "schema";
-import { db } from "../db";
+import { subscriptions as subscriptionsTable, stores as storesTable, users, earnings, db } from "@paytomorrow/db";
 import { PartnerService } from "./partnerService";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";

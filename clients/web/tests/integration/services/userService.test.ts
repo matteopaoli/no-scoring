@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
-import { db, User } from "../../../app/db"; // Adjust the import path as needed
-import { users } from "../../../schema";
+import { User } from "../../../app/db"; // Adjust the import path as needed
+import { users, db } from "@paytomorrow/db";
 import { eq } from "drizzle-orm";
 import { UserService } from "../../../app/services/userService";
 import { compareSync } from 'bcrypt-ts'

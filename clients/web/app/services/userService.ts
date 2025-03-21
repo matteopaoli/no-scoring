@@ -1,5 +1,6 @@
-import { regions, stores, users, userStoreRoles } from "schema";
-import { db, User } from "../db";
+import { regions, stores, users, userStoreRoles } from "@paytomorrow/db";
+import { db } from "@paytomorrow/db";
+import { User } from '../db'
 import { and, eq, getTableColumns } from "drizzle-orm";
 import { genSaltSync, hashSync } from "bcrypt-ts";
 import { Store } from "./storeService";

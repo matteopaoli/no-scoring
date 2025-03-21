@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
-import { db } from "../../../app/db"; // Adjust the import path as needed
-import { sales, stores, users } from "../../../schema";
+import { sales, stores, users, db } from "@paytomorrow/db";
 import { and, eq, inArray, or } from "drizzle-orm";
 import { MerchantService } from "../../../app/services/merchantService";
 

@@ -1,5 +1,4 @@
-import { stores, users, userStoreRoles } from "schema";
-import { db } from "../db";
+import { stores, users, userStoreRoles, db } from "@paytomorrow/db";
 import { and, eq, getTableColumns, inArray, sql } from "drizzle-orm";
 import { UserService } from "./userService";
 export class Store {

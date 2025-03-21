@@ -71,6 +71,11 @@ export default function StoresTable({ stores }: StoresTableProps) {
         title="Negozi Attivi"
         itemsPerPage={10} // Customize the number of items per page if needed
         hideColumnsResponsive={["createdAt"]}
+        getRowProps={(row) => ({
+          style: {
+            backgroundColor: row.original.hasPaid ? "rgba(0, 255, 0, 0.1)" : "transparent",
+          },
+        })}
       />
     </>
   );
