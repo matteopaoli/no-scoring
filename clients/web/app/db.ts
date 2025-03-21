@@ -130,8 +130,8 @@ export async function createStore({
       storeId,
       role: "admin",
     });
-
-    db.insert(subscriptions).values({ storeId })
+    
+    await db.insert(subscriptions).values({ storeId })
   }
 
   return { newStore, success: true };
