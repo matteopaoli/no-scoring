@@ -2,7 +2,7 @@ import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { compare } from 'bcrypt-ts';
 import { authConfig } from 'app/auth.config';
-import { db } from '../schema'
+import { db } from "@paytomorrow/db"
 import { DrizzleAdapter } from '@auth/drizzle-adapter';
 import { UserService } from './services/userService';
 import { sendVerificationRequestCreate, sendVerificationRequestLogin  } from './utils/sendVerificationRequest';

@@ -1,6 +1,4 @@
-import { drizzle } from "drizzle-orm/postgres-js";
 import { and, count, eq, getTableColumns, inArray, or, sql } from "drizzle-orm";
-import postgres from "postgres";
 import { genSaltSync, hashSync } from "bcrypt-ts";
 import {
   businessType,
@@ -14,15 +12,16 @@ import {
   areas,
   earnings,
   subscriptions,
-} from "schema";
+  db
+} from "@paytomorrow/db";
 import { imageToBase64, compressProfileImageToBase64 } from "./utils/images";
 import { alias } from "drizzle-orm/pg-core";
 import { UserService } from "./services/userService";
 import { PartnerService } from "./services/partnerService";
 
-let client = postgres(`${process.env.DATABASE_URL!}`);
-export let db = drizzle(client);
-
+export {
+  db
+}
 interface CommissionRule {
   id: number;
   minAmount: number;

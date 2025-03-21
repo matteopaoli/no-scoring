@@ -1,5 +1,4 @@
-import { areas, regions, stores, users, userStoreRoles } from "schema";
-import { db } from "../db";
+import { areas, regions, stores, users, userStoreRoles, db } from "@paytomorrow/db";
 import { UserService } from "./userService";
 import { and, eq, inArray } from "drizzle-orm";
 

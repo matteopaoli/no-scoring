@@ -1,4 +1,4 @@
-import { db, getEarningsDetails, getSales, getTotalEarnings } from "@/app/db";
+import { getEarningsDetails, getSales, getTotalEarnings } from "@/app/db";
 import Statistics from "./Statistics";
 import getUserFromAuth from "@/app/utils/getUserFromAuth";
 import StoresTable from "./StoresTable";
@@ -7,7 +7,7 @@ import { UserService } from "@/app/services/userService";
 import { Store } from "@/app/services/storeService";
 import { PartnerService } from "@/app/services/partnerService";
 import { and, eq } from "drizzle-orm";
-import { earnings as earningsTable } from "../../../schema";
+import { earnings as earningsTable, db } from "@paytomorrow/db";
 
 export default async function Page() {
   const user = await getUserFromAuth();

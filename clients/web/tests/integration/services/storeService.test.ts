@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { db } from "../../../app/db"; 
-import { users, stores, userStoreRoles, sales } from "../../../schema"; 
+import { users, stores, userStoreRoles, sales, db } from "@paytomorrow/db"; 
 import { eq } from "drizzle-orm";
 import { getStoreByUserId, getStoresByPartnerId } from "../../../app/db";
 

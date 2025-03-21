@@ -1,5 +1,4 @@
-import { regions } from "schema";
-import { db } from "../db";
+import { regions, db } from "@paytomorrow/db";
 import React from "react";
 
 export class AreaService {
