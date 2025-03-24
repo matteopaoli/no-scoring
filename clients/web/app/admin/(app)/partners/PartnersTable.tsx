@@ -7,16 +7,16 @@ import GenericTable from "@/app/components/GenericTable"; // Import the GenericT
 import { User } from "@/app/db";
 import { useRouter } from "next/navigation";
 import PartnersTableMenu from "./PartnersTableMenu";
+import { useState } from "react";
+import PartnersFilters from "./PartnersFilters";
 
 type PartnersTableProps = {
   tableData;
 };
 
-const columnHelper = createColumnHelper();
-
 export default function PartnersTable({ tableData }: PartnersTableProps) {
   const router = useRouter();
-
+  const [filtered, setFiltered] = useState(tableData);
   const columns = [
     {
       accessorKey: "firstName",
@@ -65,12 +65,23 @@ export default function PartnersTable({ tableData }: PartnersTableProps) {
     router.push(`/admin/partners/${row.id}`);
   };
 
+  const handleFilterChange = (filters: { text: string }) => {
+    const { text } = filters;
+    const filtered = tableData.filter((user) => {
+      return ["firstName", "lastName", "email"].some((key) =>
+        user[key]?.toLowerCase().includes(text.toLowerCase())
+      );
+    });
+    setFiltered(filtered);
+  };
+
   return (
     <Box>
+      <PartnersFilters onChange={handleFilterChange} />
       <GenericTable
-        data={tableData}
+        data={filtered}
         columns={columns}
-        itemsPerPage={100}
+        itemsPerPage={10}
         title="Lista Partner"
         onRowClick={onRowClick}
         menu={PartnersTableMenu}

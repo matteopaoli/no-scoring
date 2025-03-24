@@ -5,6 +5,8 @@ import GenericTable from "@/app/components/GenericTable"; // Adjust the import p
 import { Switch } from '@chakra-ui/react'
 import changeStoreStatus from "./changeStoreStatus.action";
 import { useRouter } from "next/navigation";
+import StoreFilters from "./StoreFilters";
+import { useState } from "react";
 
 interface Store {
   storeId: string;
@@ -22,6 +24,8 @@ interface StoresTableProps {
 }
 
 export default function StoresTable({ stores, canDisable }: StoresTableProps) {
+  const [filtered, setFiltered] = useState(stores)
+  
   const storeColumns: ColumnDef<Store>[] = [
     {
       accessorKey: "name",
@@ -87,13 +91,26 @@ export default function StoresTable({ stores, canDisable }: StoresTableProps) {
     await router.refresh();
   }
 
+  const handleFilterChange = (filters: {
+    text: string;
+  }) => {
+    const { text } = filters;
+    const filtered = stores.filter((store) => {
+      return ["ownedBy", "partnerName", "name"].some((key) =>
+        store[key]?.toLowerCase().includes(text.toLowerCase())
+      );
+    });
+    setFiltered(filtered);
+  };
+
   return (
     <>
+      <StoreFilters onChange={handleFilterChange} />
       <GenericTable
-        data={stores}
+        data={filtered}
         columns={storeColumns}
         title="Negozi Attivi"
-        itemsPerPage={100}
+        itemsPerPage={10}
         hideColumnsResponsive={["createdAt"]}
         getRowProps={(row) => ({
           style: {

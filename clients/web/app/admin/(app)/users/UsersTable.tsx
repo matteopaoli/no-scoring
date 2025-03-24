@@ -1,58 +1,21 @@
 "use client";
 /* eslint-disable */
 
-import {
-  Box,
-  Button,
-  Flex,
-  Icon,
-  Table,
-  Tbody,
-  Td,
-  Text,
-  Th,
-  Thead,
-  Tr,
-  useColorModeValue,
-  useDisclosure,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Tooltip,
-} from "@chakra-ui/react";
-import {
-  createColumnHelper,
-  flexRender,
-  getCoreRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import {
-  MdOutlineEdit,
-  MdDeleteOutline,
-  MdHourglassEmpty,
-  MdCheckCircle,
-} from "react-icons/md";
-import Card from "@/app/components/card/Card";
+import { Icon, Tooltip } from "@chakra-ui/react";
+import { MdOutlineEdit } from "react-icons/md";
 import Menu from "./UsersTableMenu";
 import { useMemo, useState } from "react";
-import { User } from "@/app/db";
 import { Link } from "@chakra-ui/next-js";
-import CopyButton from "@/app/components/CopyButton";
-import { FaSort, FaSortDown, FaSortUp } from "react-icons/fa";
 import GenericTable from "@/app/components/GenericTable";
 import DeleteUserButton from "./DeleteUserButton";
+import UsersFilters from "./UsersFilters";
 
 type UsersTableProps = {
   tableData: unknown[];
 };
 
-const columnHelper = createColumnHelper();
-
 export default function UsersTable({ tableData }: UsersTableProps) {
+  const [filtered, setFiltered] = useState(tableData);
   const columns = useMemo(
     () => [
       {
@@ -110,13 +73,24 @@ export default function UsersTable({ tableData }: UsersTableProps) {
     []
   );
 
+  const handleFilterChange = (filters: { text: string }) => {
+    const { text } = filters;
+    const filtered = tableData.filter((user) => {
+      return ["refName", "partnerName", "email", "regionName"].some((key) =>
+        user[key]?.toLowerCase().includes(text.toLowerCase())
+      );
+    });
+    setFiltered(filtered);
+  };
+
   return (
     <>
+      <UsersFilters onChange={handleFilterChange} />
       <GenericTable
         columns={columns}
-        data={tableData}
+        data={filtered}
         title="Merchant attivi"
-        itemsPerPage={100}
+        itemsPerPage={10}
         menu={Menu}
       />
     </>

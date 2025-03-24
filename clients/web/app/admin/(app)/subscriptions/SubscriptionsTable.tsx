@@ -4,6 +4,8 @@ import { ColumnDef } from "@tanstack/react-table";
 import GenericTable from "@/app/components/GenericTable";
 import EditableNumberCell from "./EditableNumberCell";
 import updateSubscriptionAction from "./updateSubscription.action";
+import { useState } from "react";
+import SubscriptionsFilters from "./SubscriptionsFilters";
 
 type SubscriptionsTableProps = {
   tableData: any[];
@@ -12,7 +14,7 @@ type SubscriptionsTableProps = {
 export default function SubscriptionsTable({
   tableData,
 }: SubscriptionsTableProps) {
-
+  const [filtered, setFiltered] = useState(tableData);
   const columns: ColumnDef<any>[] = [
     {
       accessorKey: "storeName",
@@ -67,10 +69,21 @@ export default function SubscriptionsTable({
     },
   ];
 
+  const handleFilterChange = (filters: { text: string }) => {
+    const { text } = filters;
+    const filtered = tableData.filter((user) => {
+      return ["storeName"].some((key) =>
+        user[key]?.toLowerCase().includes(text.toLowerCase())
+      );
+    });
+    setFiltered(filtered);
+  };
+
   return (
     <Box>
+      <SubscriptionsFilters onChange={handleFilterChange} />
       <GenericTable
-        data={tableData}
+        data={filtered}
         columns={columns}
         itemsPerPage={100}
         title="Lista Pagamenti"
