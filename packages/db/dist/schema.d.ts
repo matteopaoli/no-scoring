@@ -1,9 +1,7 @@
 import { PgColumn } from "drizzle-orm/pg-core";
 import postgres from "postgres";
+import type { AdapterAccountType } from "next-auth/adapters";
 import "dotenv/config";
-interface AdapterAccountType {
-    type: "oauth" | "oidc" | "email" | "webauthn";
-}
 export declare const db: import("drizzle-orm/postgres-js").PostgresJsDatabase<Record<string, never>> & {
     $client: postgres.Sql<{}>;
 };
@@ -434,23 +432,6 @@ export declare const users: import("drizzle-orm/pg-core").PgTableWithColumns<{
             isAutoincrement: false;
             hasRuntimeDefault: false;
             enumValues: undefined;
-            baseColumn: never;
-            identity: undefined;
-            generated: undefined;
-        }, {}, {}>;
-        refreshToken: PgColumn<{
-            name: "refreshToken";
-            tableName: "user";
-            dataType: "string";
-            columnType: "PgText";
-            data: string;
-            driverParam: string;
-            notNull: false;
-            hasDefault: false;
-            isPrimaryKey: false;
-            isAutoincrement: false;
-            hasRuntimeDefault: false;
-            enumValues: [string, ...string[]];
             baseColumn: never;
             identity: undefined;
             generated: undefined;
@@ -1782,5 +1763,4 @@ export declare const authenticators: import("drizzle-orm/pg-core").PgTableWithCo
     };
     dialect: "pg";
 }>;
-export {};
 //# sourceMappingURL=schema.d.ts.map
