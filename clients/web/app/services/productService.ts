@@ -1,4 +1,4 @@
-import { products } from "schema";
+import { products } from "@paytomorrow/db";
 import { db, User } from "../db";
 import Stripe from 'stripe'
 import { FEES_DISCLAIMER } from "../constants";

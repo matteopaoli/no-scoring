@@ -10,17 +10,11 @@ import {
     varchar,
     PgColumn,
   } from "drizzle-orm/pg-core";
-  import postgres from "postgres";
-  import { drizzle } from "drizzle-orm/postgres-js";
   import "dotenv/config";
 
   interface AdapterAccountType {
     type: "oauth" | "oidc" | "email" | "webauthn"
   }
-  
-  const pool = postgres(process.env.DATABASE_URL!, { max: 1 });
-  
-  export const db = drizzle(pool);
   
   export const users = pgTable("user", {
     id: text("id")
