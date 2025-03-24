@@ -17,7 +17,6 @@ export class UsersService {
           lastName: users.lastName,
           email: users.email,
           role: users.role,
-          refreshToken: users.refreshToken,
         })
         .from(users)
         .where(eq(users.email, email));
@@ -38,7 +37,6 @@ export class UsersService {
           lastName: users.lastName,
           email: users.email,
           role: users.role,
-          refreshToken: users.refreshToken,
         })
         .from(users)
         .where(eq(users.id, id));
