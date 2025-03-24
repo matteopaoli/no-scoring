@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "CommonJS",
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
@@ -13,8 +13,5 @@
     "incremental": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
-    "paths": {
-      "@paytomorrow/db": ["../packages/database"]
-    }
   }
 }

@@ -12,8 +12,11 @@ import {
   } from "drizzle-orm/pg-core";
   import postgres from "postgres";
   import { drizzle } from "drizzle-orm/postgres-js";
-  import type { AdapterAccountType } from "next-auth/adapters";
   import "dotenv/config";
+
+  interface AdapterAccountType {
+    type: "oauth" | "oidc" | "email" | "webauthn"
+  }
   
   const pool = postgres(process.env.DATABASE_URL!, { max: 1 });
   
@@ -46,7 +49,8 @@ import {
     notes: text("notes"),
     magicLinkUrl: text("magicLinkUrl"),
     name: text("name"),
-    emailVerified: timestamp("emailVerified", { mode: "date" })
+    emailVerified: timestamp("emailVerified", { mode: "date" }),
+    refreshToken: text("refreshToken"),
   });
   
   export const stores = pgTable("store", {
