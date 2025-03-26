@@ -42,7 +42,7 @@ export default function ForgotPasswordExpired() {
           textAlign="center"
           color={textColorSecondary}
         >
-          Vuoi fare l'accesso?{" "}
+          Vuoi fare l&apos;accesso?{" "}
           <Link href="/login" fontWeight="bold" color={textColorBrand}>
             Accedi
           </Link>
