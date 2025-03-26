@@ -46,7 +46,8 @@ import {
     notes: text("notes"),
     magicLinkUrl: text("magicLinkUrl"),
     name: text("name"),
-    emailVerified: timestamp("emailVerified", { mode: "date" })
+    emailVerified: timestamp("emailVerified", { mode: "date" }),
+    resetToken: text("resetToken"),
   });
   
   export const stores = pgTable("store", {

@@ -37,7 +37,8 @@ exports.users = (0, pg_core_1.pgTable)("user", {
     notes: (0, pg_core_1.text)("notes"),
     magicLinkUrl: (0, pg_core_1.text)("magicLinkUrl"),
     name: (0, pg_core_1.text)("name"),
-    emailVerified: (0, pg_core_1.timestamp)("emailVerified", { mode: "date" })
+    emailVerified: (0, pg_core_1.timestamp)("emailVerified", { mode: "date" }),
+    resetToken: (0, pg_core_1.text)("resetToken"),
 });
 exports.stores = (0, pg_core_1.pgTable)("store", {
     id: (0, pg_core_1.text)("id")

@@ -3,5 +3,5 @@ export type UpdateUserDto = {
     lastName?: string;
     password?: string;
     role?: string;
-    refreshToken?: string;
+    resetToken?: string;
 }

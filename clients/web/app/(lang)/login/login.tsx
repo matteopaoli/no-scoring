@@ -64,7 +64,13 @@ export default function SignIn() {
   return (
     <DefaultAuth>
       <Callout autoDismiss={true} dismissDuration={5000} />
-      <Flex justifyContent="space-between" alignItems="center" direction={{ base: 'column-reverse', md: 'row' }} gap={{ base: 5, md: 20 }} px="20px">
+      <Flex
+        justifyContent="space-between"
+        alignItems="center"
+        direction={{ base: "column-reverse", md: "row" }}
+        gap={{ base: 5, md: 20 }}
+        px="20px"
+      >
         <Flex
           maxW={{ base: "100%", md: "max-content" }}
           w="100%"
@@ -169,6 +175,34 @@ export default function SignIn() {
                     />
                   </InputRightElement>
                 </InputGroup>
+                <Flex justifyContent="space-between" align="center" mt="24px">
+                  {/* <FormControl display="flex" alignItems="center">
+                    <Checkbox
+                      id="remember-login"
+                      colorScheme="brandScheme"
+                      me="10px"
+                    />
+                    <FormLabel
+                      htmlFor="remember-login"
+                      mb="0"
+                      fontWeight="normal"
+                      color={textColor}
+                      fontSize="sm"
+                    >
+                      Keep me logged in
+                    </FormLabel>
+                  </FormControl> */}
+                  <Link href="/login/forgot-password">
+                    <Text
+                      color={textColorBrand}
+                      fontSize="sm"
+                      maxW="144px"
+                      fontWeight="500"
+                    >
+                      Password dimenticata?
+                    </Text>
+                  </Link>
+                </Flex>
                 {formState?.error ? (
                   <FormErrorMessage>
                     {t("wrongCredentialsMessage")}
@@ -182,16 +216,37 @@ export default function SignIn() {
                   {t("signIn")}
                 </SubmitButton>
               </FormControl>
+              <Flex justifyContent="space-between" align="center" mt="24px">
+                {/* <FormControl display="flex" alignItems="center">
+                    <Checkbox
+                      id="remember-login"
+                      colorScheme="brandScheme"
+                      me="10px"
+                    />
+                    <FormLabel
+                      htmlFor="remember-login"
+                      mb="0"
+                      fontWeight="normal"
+                      color={textColor}
+                      fontSize="sm"
+                    >
+                      Keep me logged in
+                    </FormLabel>
+                  </FormControl> */}
+                <Link href="/partner/login">
+                  <Text
+                    color={textColorBrand}
+                    fontSize="sm"
+                    fontWeight="500"
+                  >
+                    Sei un partner PayTomorrow? <u>Accedi qui</u>
+                  </Text>
+                </Link>
+              </Flex>
             </form>
           </Flex>
         </Flex>
-        <Box
-          bg="white"
-          p={5}
-          borderRadius="lg"
-          boxShadow="sm"
-          maxW="700px"
-        >
+        <Box bg="white" p={5} borderRadius="lg" boxShadow="sm" maxW="700px">
           <Text fontSize={{ base: "lg", md: "xl" }} fontWeight="bold" mb={4}>
             Benvenuto su PayTomorrow!
           </Text>
