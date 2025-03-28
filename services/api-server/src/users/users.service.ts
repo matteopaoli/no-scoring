@@ -47,6 +47,27 @@ export class UsersService {
     }
   }
 
+  async findByInviteCode(inviteCode: string) {
+    try {
+      const result = await db
+        .select({
+          id: users.id,
+          password: users.password,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          email: users.email,
+          role: users.role,
+          onboardingLink: users.onboardingLink
+        })
+        .from(users)
+        .where(eq(users.inviteCode, inviteCode));
+      return result[0];
+    } catch (error) {
+      console.log(error);
+      throw new Error('Error executing query', error);
+    }
+  }
+
   async searchUsers(searchQuery: string): Promise<any> {
     console.log(searchQuery)
     try {

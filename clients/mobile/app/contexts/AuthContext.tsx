@@ -44,7 +44,6 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     try {
       const response = await apiClient.post("/auth/login", { email, password });
-      console.log(response);
       if (response.status !== 201) throw new Error("Login failed");
       const { accessToken, refreshToken } = response.data;
       await setTokens(accessToken, refreshToken);

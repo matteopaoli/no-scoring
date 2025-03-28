@@ -36,7 +36,8 @@ export class MerchantService {
     regionId: number;
   }) {
     const hash = UserService.getDefaultPassword();
-    await db.insert(users).values({
+    const inviteCode = await UserService.generateInviteCode();
+    return await db.insert(users).values({
       email,
       role: "user",
       businessTypeId,
@@ -48,8 +49,9 @@ export class MerchantService {
       phoneNumber,
       refName,
       password: hash,
-      regionId
-    });
+      regionId,
+      inviteCode
+    }).returning();
   }
 
   static async initMerchant(userId: string) {

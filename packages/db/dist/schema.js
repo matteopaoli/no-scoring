@@ -39,6 +39,7 @@ exports.users = (0, pg_core_1.pgTable)("user", {
     name: (0, pg_core_1.text)("name"),
     emailVerified: (0, pg_core_1.timestamp)("emailVerified", { mode: "date" }),
     resetToken: (0, pg_core_1.text)("resetToken"),
+    inviteCode: (0, pg_core_1.text)("inviteCode"),
 });
 exports.stores = (0, pg_core_1.pgTable)("store", {
     id: (0, pg_core_1.text)("id")

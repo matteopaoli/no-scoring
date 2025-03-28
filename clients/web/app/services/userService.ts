@@ -172,4 +172,26 @@ export class UserService {
   static async getStoreRoles(user: User) {
     return db.select().from(userStoreRoles).where(eq(userStoreRoles.userId, user.id))
   }
+
+  static async generateInviteCode(): Promise<string> {
+    const CODE_LENGTH = 10;
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ123456789';
+    let code = '';
+    
+    for (let i = 0; i < CODE_LENGTH; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+
+    const existingCode = await db
+        .select({ id: users.id })
+        .from(users)
+        .where(eq(users.inviteCode, code));
+
+    if (existingCode.length === 0) {
+        return code;
+    }
+
+    return this.generateInviteCode();
+}
+
 }

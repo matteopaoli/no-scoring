@@ -48,6 +48,7 @@ import {
     name: text("name"),
     emailVerified: timestamp("emailVerified", { mode: "date" }),
     resetToken: text("resetToken"),
+    inviteCode: text("inviteCode"),
   });
   
   export const stores = pgTable("store", {
