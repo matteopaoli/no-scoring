@@ -174,7 +174,7 @@ export class UserService {
   }
 
   static async generateInviteCode(): Promise<string> {
-    const CODE_LENGTH = 10;
+    const CODE_LENGTH = 5;
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ123456789';
     let code = '';
     
