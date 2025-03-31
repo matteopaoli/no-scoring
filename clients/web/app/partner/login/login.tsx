@@ -156,8 +156,8 @@ export default function SignIn() {
                   {t("wrongCredentialsMessage")}
                 </FormErrorMessage>
               ) : null}
-              {/* <Flex justifyContent='space-between' align='center' my='24px'>
-              <FormControl display='flex' alignItems='center'>
+              <Flex justifyContent="space-between" align="center" my="24px">
+                {/* <FormControl display='flex' alignItems='center'>
                 <Checkbox
                   id='remember-login'
                   colorScheme='brandScheme'
@@ -172,17 +172,23 @@ export default function SignIn() {
                   {t('keepMeLoggedIn')}
                 </FormLabel>
               </FormControl>
-              <Link href='/auth/forgot-password'>
-                <Text
-                  color={textColorBrand}
-                  fontSize='sm'
-                  w='124px'
-                  fontWeight='500'>
-                  {t('forgotPassword')}
-                </Text>
-              </Link>
-            </Flex> */}
-              <SubmitButton w="100%" loadingText="Accesso in corso" data-testid="pr-login-button">
+              */}
+                <Link href="/login/forgot-password">
+                  <Text
+                    color={textColorBrand}
+                    fontSize="sm"
+                    maxW="154px"
+                    fontWeight="500"
+                  >
+                    {t("forgotPassword")}
+                  </Text>
+                </Link>
+              </Flex>
+              <SubmitButton
+                w="100%"
+                loadingText="Accesso in corso"
+                data-testid="pr-login-button"
+              >
                 {t("signIn")}
               </SubmitButton>
             </FormControl>
