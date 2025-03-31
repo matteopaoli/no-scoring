@@ -28,9 +28,7 @@ export default function MerchantOnboardingScreen(): JSX.Element {
       });
 
       if (response.status === 200) {
-        setOnboardingUrl(
-          'https://connect.stripe.com/setup/s/acct_1R7EY7PC1MGTOz6F/YKMhwOnme3VL',
-        );
+        setOnboardingUrl(response.data.user.onboardingLink);
         setModalVisible(true); // Show the modal when we get the URL
       }
     } catch (error) {
@@ -48,16 +46,15 @@ export default function MerchantOnboardingScreen(): JSX.Element {
   };
 
   const handleNavigationStateChange = (navState: any) => {
-    if (navState.url && navState.url.includes('app.paytomorrow.it/')) {
+    if (navState.url && navState.url.includes('app.paytomorrow.it')) {
       setModalVisible(false);
       Alert.alert(
         'Grazie',
-        'A breve riceverai un\' email contenente le credenziali per accedere a PayTomorrow',
+        "A breve riceverai un' email contenente le credenziali per accedere a PayTomorrow",
       );
-      router.push('/(tabs)/auth')
+      router.push('/(tabs)/auth');
     }
   };
-
 
   return (
     <View style={styles.container}>
