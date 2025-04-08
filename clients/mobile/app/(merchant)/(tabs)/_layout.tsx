@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Home, Map, User } from 'lucide-react-native';
+import { Home, Map, PlusCircle, Settings, User } from 'lucide-react-native';
 
 export default function TabLayout() {
   return (
@@ -19,43 +19,32 @@ export default function TabLayout() {
         tabBarInactiveTintColor: '#666',
       }}>
       <Tabs.Screen
-        name="index"
+        name="store"
         options={{
           title: 'Home',
           tabBarIcon: ({ color, size }) => <Home size={size} color={color} />,
         }}
       />
       <Tabs.Screen
-        name="map"
+        name="create-payment"
         options={{
-          title: 'Esplora',
-          tabBarIcon: ({ color, size }) => <Map size={size} color={color} />,
+          title: 'Crea pagamento',
+          tabBarIcon: ({ color, size }) => <PlusCircle size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="sales"
+        options={{
+          title: 'Vendite',
+          tabBarIcon: ({ color, size }) => <PlusCircle size={size} color={color} />,
         }}
       />
       {/* Hide these screens from the tab bar but keep them accessible via direct navigation */}
       <Tabs.Screen
-        name="profile"
+        name="settings"
         options={{
-          title: 'Profilo',
-          tabBarIcon: ({ color, size }) => <User size={size} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="partner"
-        options={{
-          href: null, // Hide from tab bar
-        }}
-      />
-      <Tabs.Screen
-        name="store"
-        options={{
-          href: null, // Hide from tab bar
-        }}
-      />
-      <Tabs.Screen
-        name="auth"
-        options={{
-          href: null, // Hide from tab bar
+          title: 'Impostazioni',
+          tabBarIcon: ({ color, size }) => <Settings size={size} color={color} />,
         }}
       />
     </Tabs>

@@ -3,5 +3,8 @@ export type UpdateUserDto = {
     lastName?: string;
     password?: string;
     role?: string;
-    resetToken?: string;
+    resetToken?: string | null;
+    image?: string;
+    onboardingCompleted?: boolean
+    inviteCode?: string | null
 }

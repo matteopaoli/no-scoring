@@ -1,45 +1,41 @@
-import { useEffect } from 'react';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { useFonts, Poppins_400Regular, Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins';
-import { useFrameworkReady } from '@/hooks/useFrameworkReady';
-import { View } from 'react-native';
+import { Slot } from 'expo-router';
+import AuthProvider from '../contexts/AuthContext';
+import { ThemeProvider } from '@/contexts/ThemeContext';
+
+import {
+  DMSans_400Regular,
+  DMSans_600SemiBold,
+  DMSans_700Bold,
+  useFonts,
+} from '@expo-google-fonts/dm-sans';
+
 import * as SplashScreen from 'expo-splash-screen';
-import AuthProvider from './contexts/AuthContext';
+import { useEffect } from 'react';
 
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
-  useFrameworkReady();
-
-  const [fontsLoaded] = useFonts({
-    'Poppins-Regular': Poppins_400Regular,
-    'Poppins-SemiBold': Poppins_600SemiBold,
-    'Poppins-Bold': Poppins_700Bold,
+export default function Root() {
+  const [loaded, error] = useFonts({
+    DMSans_400Regular,
+    DMSans_600SemiBold,
+    DMSans_700Bold,
   });
 
   useEffect(() => {
-    if (fontsLoaded) {
+    if (loaded || error) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded]);
+  }, [loaded, error]);
 
-  if (!fontsLoaded) {
-    return <View />;
+  if (!loaded && !error) {
+    return null;
   }
 
   return (
-    <>
     <AuthProvider>
-      <Stack screenOptions={{ 
-        headerShown: false,
-        contentStyle: { backgroundColor: '#9B7EDC' }
-      }}>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="auth" options={{ headerShown: false }} />
-      </Stack>
-      <StatusBar style="light" />
+      <ThemeProvider>
+        <Slot />
+      </ThemeProvider>
     </AuthProvider>
-    </>
   );
 }

@@ -5,6 +5,7 @@ import getUserFromAuth from "@/app/utils/getUserFromAuth";
 
 export default async function EditUserPage() {
     const user = await getUserFromAuth();
+    console.log(user)
     const store = await getStoreByUserId(user.id)
 
     if (!user) {

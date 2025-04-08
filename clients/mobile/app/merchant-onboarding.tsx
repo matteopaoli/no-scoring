@@ -12,6 +12,7 @@ import { useRouter } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
 import apiClient from '@/lib/httpClient';
 import { WebView } from 'react-native-webview';
+import { useAppTheme } from '@/contexts/ThemeContext'; // Import the theme hook
 
 export default function MerchantOnboardingScreen(): JSX.Element {
   const router = useRouter();
@@ -19,6 +20,8 @@ export default function MerchantOnboardingScreen(): JSX.Element {
   const [loading, setLoading] = useState<boolean>(false);
   const [onboardingUrl, setOnboardingUrl] = useState<string>('');
   const [modalVisible, setModalVisible] = useState<boolean>(false);
+
+  const theme = useAppTheme(); // Access the current theme
 
   const handleSubmit = async (): Promise<void> => {
     try {
@@ -52,34 +55,38 @@ export default function MerchantOnboardingScreen(): JSX.Element {
         'Grazie',
         "A breve riceverai un' email contenente le credenziali per accedere a PayTomorrow",
       );
-      router.push('/(tabs)/auth');
+      router.push('/login');
     }
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       {/* Back button */}
-      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-        <ArrowLeft size={24} color="#FFFFFF" />
+      <TouchableOpacity
+        style={[styles.backButton, { backgroundColor: theme.primary }]}
+        onPress={() => router.back()}
+      >
+        <ArrowLeft size={24} color={theme.card} />
       </TouchableOpacity>
 
-      <Text style={styles.title}>Registrazione Commerciante</Text>
+      <Text style={[styles.title, { color: theme.text }]}>Registrazione Commerciante</Text>
 
-      <View style={styles.formContainer}>
+      <View style={[styles.formContainer, { backgroundColor: theme.card }]}>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: theme.background }]}
           placeholder="Codice di invito"
           value={inviteCode}
           onChangeText={setInviteCode}
+          placeholderTextColor={theme.subtext}
         />
       </View>
 
       <TouchableOpacity
-        style={[styles.submitButton, loading && styles.submitButtonDisabled]}
+        style={[styles.submitButton, loading && styles.submitButtonDisabled, { backgroundColor: theme.primary }]}
         onPress={handleSubmit}
         disabled={loading}
       >
-        <Text style={styles.submitButtonText}>
+        <Text style={[styles.submitButtonText, { color: theme.card }]}>
           {loading ? 'Attendi...' : 'Conferma'}
         </Text>
       </TouchableOpacity>
@@ -91,17 +98,17 @@ export default function MerchantOnboardingScreen(): JSX.Element {
         visible={modalVisible}
         onRequestClose={closeModal}
       >
-        <View style={styles.modalContainer}>
+        <View style={[styles.modalContainer, { backgroundColor: theme.background }]}>
           {/* Modal header with close button */}
-          <View style={styles.modalHeader}>
+          <View style={[styles.modalHeader, { backgroundColor: theme.primary }]}>
             <TouchableOpacity onPress={closeModal}>
-              <ArrowLeft size={24} color="#FFFFFF" />
+              <ArrowLeft size={24} color={theme.card} />
             </TouchableOpacity>
-            <Text style={styles.modalTitle}>Onboarding</Text>
+            <Text style={[styles.modalTitle, { color: theme.card }]}>Onboarding</Text>
             <View style={{ width: 24 }} /> {/* Spacer for layout balance */}
           </View>
 
-          {/* WebView content - make sure to uncomment this */}
+          {/* WebView content */}
           {onboardingUrl ? (
             <WebView
               userAgent="Mozilla/5.0 (X11; CrOS x86_64 8172.45.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.64 Safari/537.36"
@@ -120,7 +127,6 @@ export default function MerchantOnboardingScreen(): JSX.Element {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#9B7EDC',
     padding: 20,
     justifyContent: 'center',
     alignItems: 'center',
@@ -129,7 +135,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 40,
     left: 20,
-    backgroundColor: '#7B5CC6',
     width: 45,
     height: 45,
     borderRadius: 22.5,
@@ -144,12 +149,10 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: 'Poppins-Bold',
     fontSize: 32,
-    color: '#FFFFFF',
     marginBottom: 30,
   },
   formContainer: {
     width: '100%',
-    backgroundColor: '#FFFFFF',
     padding: 20,
     borderRadius: 15,
     shadowColor: '#000',
@@ -159,14 +162,12 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   input: {
-    backgroundColor: '#F5F5F5',
     padding: 15,
     borderRadius: 10,
     fontFamily: 'Poppins-Regular',
     marginBottom: 15,
   },
   submitButton: {
-    backgroundColor: '#7B5CC6',
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
@@ -177,13 +178,11 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   submitButtonText: {
-    color: '#FFFFFF',
     fontFamily: 'Poppins-SemiBold',
     fontSize: 16,
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: '#9B7EDC',
   },
   modalHeader: {
     flexDirection: 'row',
@@ -191,12 +190,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     paddingTop: 50,
-    backgroundColor: '#7B5CC6',
   },
   modalTitle: {
     fontFamily: 'Poppins-Bold',
     fontSize: 20,
-    color: '#FFFFFF',
   },
   webview: {
     flex: 1,

@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:15
+    image: postgis/postgis:15-3.3-alpine
     container_name: db
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -10,36 +10,53 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./db:/docker-entrypoint-initdb.d 
+      - ./db:/docker-entrypoint-initdb.d
     restart: unless-stopped
+  # minio:
+  #   image: minio/minio
+  #   container_name: minio
+  #   command: server /data --console-address ":9001"
+  #   environment:
+  #     MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+  #     MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+  #   ports:
+  #     - "9000:9000"
+  #     - "9001:9001"
+  #   volumes:
+  #     - minio_data:/data
+  #   restart: unless-stopped
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+  #     interval: 30s
+  #     timeout: 20s
+  #     retries: 3
 
-  web:
-    image: web
-    container_name: web
-    build:
-      context: ./clients/web/
-      dockerfile: Dockerfile
-    ports:
-      - '3000:3000'
-    volumes:
-      - ./clients/web:/app:delegated  # Mount project directory
-    env_file:
-      - ./clients/web/.env
-  api-server:
-    build:
-      context: ./services/api-server
-      dockerfile: Dockerfile
-    env_file:
-      - ./services/api-server/.env
-    ports:
-      - '8000:8000'
-    depends_on:
-      - database  # Adjust if your app depends on a DB service
-    restart: unless-stopped
+  # web:
+  #   image: web
+  #   container_name: web
+  #   build:
+  #     context: ./clients/web/
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - '3000:3000'
+  #   volumes:
+  #     - ./clients/web:/app:delegated  # Mount project directory
+  #   env_file:
+  #     - ./clients/web/.env
+  # api-server:
+  #   build:
+  #     context: ./services/api-server
+  #     dockerfile: Dockerfile
+  #   env_file:
+  #     - ./services/api-server/.env
+  #   ports:
+  #     - '8000:8000'
+  #   depends_on:
+  #     - postgres
+  #   restart: unless-stopped
 volumes:
   postgres_data:
 
-  
   # workspace:
   #   container_name: workspace
   #   build:
@@ -48,6 +65,6 @@ volumes:
   #   stdin_open: true  # Keep stdin open to interact with the container
   #   tty: true         # Allocate a pseudo-TTY to allow interaction with the shell
   #   user: "${UID}:${GID}"  # Run as the current user
-  #   restart: always   # This is where you define the restart 
+  #   restart: always   # This is where you define the restart
   #   volumes:
   #     - ./:/workspace

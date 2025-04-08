@@ -1,57 +1,89 @@
 import axios, { AxiosError } from "axios";
+import { setStorageItemAsync, getStorageItemAsync } from '@/hooks/useStorageState'; // Adjust import path
 
 const backendUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
+
+let tokenCache = {
+  accessToken: null as string | null,
+  refreshToken: null as string | null,
+  logout: async () => {}, // Will be set by syncAuthTokens
+};
+
 const apiClient = axios.create({
-  baseURL: backendUrl, 
-  headers: {
-    "Content-Type": "application/json",
-  },
+  baseURL: backendUrl,
+  headers: { "Content-Type": "application/json" },
 });
 
-export const setAuthTokens = (getAuthTokens: () => { accessToken: string | null; refreshToken: string | null; logout: () => void; setTokens: (newAccessToken: string, newRefreshToken: string) => void }) => {
-  apiClient.interceptors.request.use(
-    async (config) => {
-      const { accessToken } = getAuthTokens();
-      if (accessToken) {
-        config.headers["Authorization"] = `Bearer ${accessToken}`;
-      }
-      return config;
-    },
-    (error) => Promise.reject(error)
-  );
+export const syncAuthTokens = async (params: {
+  accessToken?: string | null;
+  refreshToken?: string | null;
+  logout?: () => Promise<void>;
+}) => {
+  if (params.accessToken !== undefined) {
+    tokenCache.accessToken = params.accessToken;
+    await setStorageItemAsync('accessToken', params.accessToken);
+  }
+  if (params.refreshToken !== undefined) {
+    tokenCache.refreshToken = params.refreshToken;
+    await setStorageItemAsync('refreshToken', params.refreshToken);
+  }
+  if (params.logout !== undefined) {
+    tokenCache.logout = params.logout;
+  }
+};
 
-  apiClient.interceptors.response.use(
-    (response) => response,
-    async (error: AxiosError) => {
-      const { response } = error;
-      console.log(JSON.stringify(error, null, 2));
-      if (response?.status === 401) {
-        const { refreshToken, logout, setTokens } = getAuthTokens();
-        try {
-          const refreshResponse = await axios.post(
-            `${backendUrl}/auth/refresh`,
-            {},
-            {
-              headers: {
-                "Authorization": `Bearer ${refreshToken}`,
-              },
-            }
-          );
+apiClient.interceptors.request.use((config) => {
+  if (tokenCache.accessToken) {
+    config.headers.Authorization = `Bearer ${tokenCache.accessToken}`;
+  }
+  return config;
+});
 
-          const { accessToken: newAccessToken, refreshToken: newRefreshToken } = refreshResponse.data;
-          setTokens(newAccessToken, newRefreshToken);
+let isRefreshing = false;
+let refreshQueue: (() => void)[] = [];
 
-          error.config!.headers["Authorization"] = `Bearer ${newAccessToken}`;
-          return axios(error.config!);
-        } catch (refreshError) {
-          console.error("Token refresh failed, logging out...");
-          logout();
-          return Promise.reject(refreshError);
-        }
-      }
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error: AxiosError) => {
+    const originalRequest = error.config;
+    if (error.response?.status !== 401 || !originalRequest) {
       return Promise.reject(error);
     }
-  );
-};
+
+    if (isRefreshing) {
+      return new Promise((resolve) => {
+        refreshQueue.push(() => resolve(apiClient(originalRequest)));
+      });
+    }
+
+    isRefreshing = true;
+
+    try {
+      if (!tokenCache.refreshToken) throw new Error('No refresh token');
+      
+      const refreshResponse = await axios.get(`${backendUrl}/auth/refresh`, {
+        headers: { Authorization: `Bearer ${tokenCache.refreshToken}` },
+      });
+
+      const { accessToken, refreshToken } = refreshResponse.data;
+      
+      await syncAuthTokens({ accessToken, refreshToken });
+      refreshQueue.forEach((cb) => cb());
+      refreshQueue = [];
+
+      originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+      return apiClient(originalRequest);
+    } catch (refreshError) {
+      await syncAuthTokens({ 
+        accessToken: null, 
+        refreshToken: null 
+      });
+      await tokenCache.logout();
+      return Promise.reject(refreshError);
+    } finally {
+      isRefreshing = false;
+    }
+  }
+);
 
 export default apiClient;

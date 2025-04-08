@@ -1,0 +1,149 @@
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+} from 'react-native';
+import { useState } from 'react';
+import { useRouter } from 'expo-router';
+import { Eye, EyeOff } from 'lucide-react-native'; // Importing the eye icons from lucide-react-native
+import { useAuth } from '@/contexts/AuthContext';
+import { useAppTheme } from '@/contexts/ThemeContext'; // Import the theme hook
+
+export default function AuthScreen(): JSX.Element {
+  const router = useRouter();
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const { login, isLoading, isAuthenticated, user } = useAuth();
+  const theme = useAppTheme(); // Access the current theme
+
+  const handleLogin = async (): Promise<void> => {
+    try {
+      await login(email, password);
+      router.replace('/(guest)');
+    } catch (error) {
+      Alert.alert('Errore', 'Si è verificato un errore durante il login');
+    }
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(prevState => !prevState); // Toggle password visibility
+  };
+
+  return (
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <Text style={[styles.title, { color: theme.text }]}>Accedi</Text>
+
+      <View style={[styles.formContainer, { backgroundColor: theme.card }]}>
+        <TextInput
+          style={[styles.input, { backgroundColor: theme.background }]}
+          placeholder="Email"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
+        <View style={styles.passwordContainer}>
+          <TextInput
+            style={[styles.input, { backgroundColor: theme.background }]}
+            placeholder="Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={!showPassword} // Toggle password visibility based on state
+          />
+          <TouchableOpacity
+            onPress={togglePasswordVisibility}
+            style={styles.eyeButton}>
+            {showPassword ? (
+              <EyeOff size={24} color={theme.text} />
+            ) : (
+              <Eye size={24} color={theme.text} />
+            )}
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      <TouchableOpacity
+        style={[styles.loginButton, isLoading && styles.loginButtonDisabled, { backgroundColor: theme.primary }]}
+        onPress={handleLogin}
+        disabled={isLoading}>
+        <Text style={[styles.loginButtonText, { color: theme.card }]}>
+          {isLoading ? 'Accesso in corso...' : 'Accedi'}
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.registrationLink}
+        onPress={() => router.push('/merchant-onboarding')}>
+        <Text style={[styles.registrationText, { color: theme.text }]}>
+          Hai un codice d'invito? Clicca qui
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  title: {
+    fontFamily: 'Poppins-Bold',
+    fontSize: 32,
+    marginBottom: 30,
+  },
+  formContainer: {
+    width: '100%',
+    padding: 20,
+    borderRadius: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  input: {
+    padding: 15,
+    borderRadius: 10,
+    fontFamily: 'Poppins-Regular',
+    marginBottom: 15,
+  },
+  passwordContainer: {
+    position: 'relative', // This allows us to position the eye button over the input
+  },
+  eyeButton: {
+    position: 'absolute',
+    right: 10,
+    top: '50%',
+    transform: [{ translateY: -18 }], // Vertically center the icon within the input
+    zIndex: 1, // Ensure the button is above the input field
+  },
+  loginButton: {
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    width: '100%',
+    marginTop: 20,
+  },
+  loginButtonDisabled: {
+    opacity: 0.7,
+  },
+  loginButtonText: {
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: 16,
+  },
+  registrationLink: {
+    marginTop: 20,
+  },
+  registrationText: {
+    fontFamily: 'Poppins-Regular',
+    fontSize: 14,
+    textDecorationLine: 'underline',
+  },
+});

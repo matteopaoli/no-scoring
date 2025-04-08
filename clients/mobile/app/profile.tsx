@@ -1,8 +1,10 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ArrowLeft, CreditCard, DollarSign, LogOut } from 'lucide-react-native'; // Import LogOut icon
-import { useAuth } from '@/app/contexts/AuthContext';
-import AuthScreen from '@/app/(tabs)/auth';
+import { useAuth } from '@/contexts/AuthContext';
+// import AuthScreen from '@/app/(tabs)/auth';
+// import OnboardingScreen from '../profile-setup';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Mock data
 const MOCK_PROFILE = {
@@ -43,11 +45,16 @@ const MOCK_TRANSACTIONS = [
 
 export default function CustomerProfileScreen() {
   const router = useRouter();
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, user } = useAuth();
 
-  if (!isAuthenticated) {
-    return <AuthScreen />;
-  }
+  // if (!isAuthenticated) {
+  //   return <AuthScreen />;
+  // }
+
+
+  // if (!user?.onboardingCompleted) {
+  //   return <OnboardingScreen />
+  // }
 
   const handleSignOut = async () => {
     await logout();  // Call the logout function from context

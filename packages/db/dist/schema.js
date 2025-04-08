@@ -33,7 +33,7 @@ exports.users = (0, pg_core_1.pgTable)("user", {
     status: (0, pg_core_1.text)("status").notNull(),
     phoneNumber: (0, pg_core_1.varchar)("phoneNumber", { length: 15 }),
     refName: (0, pg_core_1.text)("refName"),
-    leadStatus: (0, pg_core_1.text)("leadStatus").default('to_contact'),
+    leadStatus: (0, pg_core_1.text)("leadStatus").default("to_contact"),
     notes: (0, pg_core_1.text)("notes"),
     magicLinkUrl: (0, pg_core_1.text)("magicLinkUrl"),
     name: (0, pg_core_1.text)("name"),
@@ -49,7 +49,11 @@ exports.stores = (0, pg_core_1.pgTable)("store", {
     createdAt: (0, pg_core_1.timestamp)("createdAt").defaultNow(),
     image: (0, pg_core_1.text)("image"),
     partnerId: (0, pg_core_1.text)("partnerId").references(() => exports.users.id),
-    isSubscriptionActive: (0, pg_core_1.boolean)("isSubscriptionActive").default(true)
+    isSubscriptionActive: (0, pg_core_1.boolean)("isSubscriptionActive").default(true),
+    description: (0, pg_core_1.text)("description"),
+    location: (0, pg_core_1.geometry)("location", { type: 'point', srid: 4326 }),
+    geodata: (0, pg_core_1.jsonb)('geodata').$type(),
+    customerPaysFees: (0, pg_core_1.boolean)('customerPaysFees').notNull().default(false)
 });
 exports.sales = (0, pg_core_1.pgTable)("sale", {
     id: (0, pg_core_1.text)("id")
@@ -103,12 +107,12 @@ exports.commissionRules = (0, pg_core_1.pgTable)("commissionRules", {
 exports.areas = (0, pg_core_1.pgTable)("areas", {
     id: (0, pg_core_1.serial)("id").primaryKey(),
     name: (0, pg_core_1.text)("name").notNull(),
-    managerId: (0, pg_core_1.text)("managerId").references(() => exports.users.id)
+    managerId: (0, pg_core_1.text)("managerId").references(() => exports.users.id),
 });
 exports.regions = (0, pg_core_1.pgTable)("regions", {
     id: (0, pg_core_1.serial)("id").primaryKey(),
     name: (0, pg_core_1.text)("name").notNull(),
-    areaId: (0, pg_core_1.integer)("areaId").references(() => exports.areas.id)
+    areaId: (0, pg_core_1.integer)("areaId").references(() => exports.areas.id),
 });
 exports.earnings = (0, pg_core_1.pgTable)("earnings", {
     id: (0, pg_core_1.text)("id")
@@ -122,13 +126,15 @@ exports.earnings = (0, pg_core_1.pgTable)("earnings", {
     partnerId: (0, pg_core_1.text)("partnerId").references(() => exports.users.id),
     sourcePartnerId: (0, pg_core_1.text)("sourcePartnerId").references(() => exports.users.id),
     type: (0, pg_core_1.text)("type"),
-    originStore: (0, pg_core_1.text)("originStore")
+    originStore: (0, pg_core_1.text)("originStore"),
 });
 exports.subscriptions = (0, pg_core_1.pgTable)("subscription", {
     id: (0, pg_core_1.text)("id")
         .primaryKey()
         .$defaultFn(() => crypto.randomUUID()),
-    storeId: (0, pg_core_1.text)("storeId").references(() => exports.stores.id).notNull(),
+    storeId: (0, pg_core_1.text)("storeId")
+        .references(() => exports.stores.id)
+        .notNull(),
     amount: (0, pg_core_1.numeric)("amount", {
         precision: 12,
         scale: 2,

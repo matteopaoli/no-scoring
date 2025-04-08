@@ -12,7 +12,6 @@ import {
 import { Request } from 'express';
 import { AuthService } from './auth.service';
 import { LoginDTO } from './dto/login.dto';
-import { AccessTokenGuard } from '../common/guards/accessToken.guard';
 import { RefreshTokenGuard } from 'src/common/guards/refreshToken.guard';
 import { ChangePasswordDto } from './dto/changePassword.dto';
 
@@ -47,7 +46,7 @@ export class AuthController {
   @UseGuards(RefreshTokenGuard)
   @Get('refresh')
   refreshTokens(@Req() req: Request) {
-    const userId = req.user['sub'];
+    const userId = req.user?.['sub'];
     return this.authService.refreshAccessToken(userId);
   }
 

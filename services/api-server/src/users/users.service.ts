@@ -37,6 +37,8 @@ export class UsersService {
           lastName: users.lastName,
           email: users.email,
           role: users.role,
+          onboardingCompleted: users.onboardingCompleted,
+          partnerId: users.partnerId
         })
         .from(users)
         .where(eq(users.id, id));
@@ -48,6 +50,7 @@ export class UsersService {
   }
 
   async findByInviteCode(inviteCode: string) {
+    if (!inviteCode) return null
     try {
       const result = await db
         .select({
@@ -69,7 +72,6 @@ export class UsersService {
   }
 
   async searchUsers(searchQuery: string): Promise<any> {
-    console.log(searchQuery)
     try {
       return await db
         .select({
