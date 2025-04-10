@@ -59,7 +59,7 @@ const PaymentModal = ({ store, theme, onClose, onPaymentSuccess }: PaymentModalP
     <StripeProvider
       stripeAccountId={store.stripeUserId}
       publishableKey={process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY!}
-    >
+    > 
       <Modal transparent visible={true} animationType="slide">
         <View
           style={[

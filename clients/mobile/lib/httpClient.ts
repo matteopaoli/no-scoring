@@ -1,5 +1,5 @@
 import axios, { AxiosError } from "axios";
-import { setStorageItemAsync, getStorageItemAsync } from '@/hooks/useStorageState'; // Adjust import path
+import { setStorageItemAsync } from '@/hooks/useStorageState'; // Adjust import path
 
 const backendUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -45,6 +45,7 @@ let refreshQueue: (() => void)[] = [];
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
+    console.log()
     const originalRequest = error.config;
     if (error.response?.status !== 401 || !originalRequest) {
       return Promise.reject(error);
