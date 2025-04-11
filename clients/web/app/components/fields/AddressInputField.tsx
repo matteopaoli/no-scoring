@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import {
   Box,
@@ -50,10 +48,11 @@ const AddressInputField: React.FC<AddressInputFieldProps> = ({
   const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(
     null
   );
+  const [errorMessage, setErrorMessage] = useState<string | null>(null); // Error state
   const inputRef = useRef<HTMLInputElement>(null);
   const textColor = useColorModeValue("navy.700", "white");
 
-  const fetchSuggestions = useCallback((input: string) => {
+  const fetchSuggestions = useCallback(async (input: string) => {
     if (!input || input.length < 3) {
       setSuggestions([]);
       return;
@@ -61,14 +60,28 @@ const AddressInputField: React.FC<AddressInputFieldProps> = ({
 
     setIsLoading(true);
     setShowSuggestions(true);
+    setErrorMessage(null); // Reset error message on each request
 
-    fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/maps/autocomplete?input=${input}`
-    )
-      .then((res) => res.json())
-      .then((data) => setSuggestions(data.predictions))
-      .catch((err) => console.error("Autocomplete error:", err))
-      .finally(() => setIsLoading(false));
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/maps/autocomplete?input=${input}`
+      );
+
+      if (res.status === 429) {
+        setErrorMessage("Too many requests. Please try again later.");
+        setIsLoading(false);
+        setShowSuggestions(false);
+        return;
+      }
+
+      const data = await res.json();
+      setSuggestions(data.predictions);
+    } catch (err) {
+      console.error("Autocomplete error:", err);
+      setErrorMessage("An error occurred. Please try again later.");
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
   const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -88,22 +101,33 @@ const AddressInputField: React.FC<AddressInputFieldProps> = ({
 
   const handleSelectSuggestion = async (suggestion: Suggestion) => {
     setIsLoading(true);
+    setErrorMessage(null); // Reset error message on each request
 
-    fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/maps/place-details?placeId=${suggestion.place_id}`
-    )
-      .then((res) => res.json())
-      .then((place) => {
-        setSelectedPlace({
-          place_id: suggestion.place_id,
-          formatted_address: place.result.formatted_address,
-          geometry: place.result.geometry,
-        });
-        setAddressInput(place.result.formatted_address);
-        setShowSuggestions(false);
-      })
-      .catch((err) => console.error("Place details error:", err))
-      .finally(() => setIsLoading(false));
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/maps/place-details?placeId=${suggestion.place_id}`
+      );
+
+      if (res.status === 429) {
+        setErrorMessage("Troppe richieste. Per favore riprova più tardi.");
+        setIsLoading(false);
+        return;
+      }
+
+      const place = await res.json();
+      setSelectedPlace({
+        place_id: suggestion.place_id,
+        formatted_address: place.result.formatted_address,
+        geometry: place.result.geometry,
+      });
+      setAddressInput(place.result.formatted_address);
+      setShowSuggestions(false);
+    } catch (err) {
+      console.error("Place details error:", err);
+      setErrorMessage("Errore, riprovare più tardi.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -172,6 +196,13 @@ const AddressInputField: React.FC<AddressInputFieldProps> = ({
           transform="translateY(-50%)"
         >
           <Spinner size="sm" />
+        </Box>
+      )}
+
+      {/* Show error message if 429 or any other error occurs */}
+      {errorMessage && (
+        <Box mt={2} color="red.500" fontSize="sm">
+          <Text>{errorMessage}</Text>
         </Box>
       )}
 
