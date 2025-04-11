@@ -51,6 +51,7 @@ exports.stores = (0, pg_core_1.pgTable)("store", {
     partnerId: (0, pg_core_1.text)("partnerId").references(() => exports.users.id),
     isSubscriptionActive: (0, pg_core_1.boolean)("isSubscriptionActive").default(true),
     description: (0, pg_core_1.text)("description"),
+    address: (0, pg_core_1.text)("address"),
     location: (0, pg_core_1.geometry)("location", { type: 'point', srid: 4326 }),
     geodata: (0, pg_core_1.jsonb)('geodata').$type(),
     customerPaysFees: (0, pg_core_1.boolean)('customerPaysFees').notNull().default(false)
@@ -78,8 +79,8 @@ exports.userStoreRoles = (0, pg_core_1.pgTable)("userStoreRole", {
     createdAt: (0, pg_core_1.timestamp)("createdAt").defaultNow(),
 });
 exports.businessType = (0, pg_core_1.pgTable)("businessType", {
-    id: (0, pg_core_1.serial)("id").primaryKey(), // Auto-incrementing ID
-    name: (0, pg_core_1.text)("name").notNull(), // Name of the business type
+    id: (0, pg_core_1.serial)("id").primaryKey(),
+    name: (0, pg_core_1.text)("name").notNull(),
 });
 exports.products = (0, pg_core_1.pgTable)("product", {
     id: (0, pg_core_1.text)("id").notNull(),

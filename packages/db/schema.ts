@@ -63,6 +63,7 @@ export const stores = pgTable("store", {
   partnerId: text("partnerId").references(() => users.id),
   isSubscriptionActive: boolean("isSubscriptionActive").default(true),
   description: text("description"),
+  address: text("address"),
   location: geometry("location", { type: 'point', srid: 4326 }),
   geodata: jsonb('geodata').$type<{ lng: number, lat: number, placeId: string }>(),
   customerPaysFees: boolean('customerPaysFees').notNull().default(false)

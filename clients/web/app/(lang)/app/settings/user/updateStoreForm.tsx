@@ -5,11 +5,13 @@ import getFormErrors from "@/app/utils/getFormErrors";
 import { Box, Grid, GridItem, VStack } from "@chakra-ui/react";
 import { useFormState } from "react-dom";
 import { updateStoreAction } from "./updateStore.action";
+import AddressInputField from "@/app/components/fields/AddressInputField";
 
 interface Store {
   id: string;
   name: string;
   image: string;
+  address: string;
 }
 
 export default function UpdateStoreForm({ store }: { store: Store }) {
@@ -27,6 +29,12 @@ export default function UpdateStoreForm({ store }: { store: Store }) {
               type="text"
               errors={getFormErrors(errors, "storeName")}
               defaultValue={store.name}
+            />
+            <AddressInputField
+              namePrefix="storeAddress_"
+              existingAddress={store.address}
+              errors={getFormErrors(errors, "storeAddress")}
+              label="Indirizzo"
             />
             <ImageInput
               name="storeLogo"

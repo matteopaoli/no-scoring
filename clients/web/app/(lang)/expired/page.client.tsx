@@ -2,7 +2,14 @@
 
 import { Button, Flex, Heading, Text } from "@chakra-ui/react";
 import DefaultAuth from "@/app/layouts/admin/Auth";
+import logout from "@/app/signout.action";
+import { useRouter } from "next/navigation";
 export default function ExpiredPageClient() {
+  const router = useRouter();
+  const handleSignOut = async () => {
+    await logout();  // Call the logout function from context
+    router.push('/'); // Redirect to the home or login screen after logout
+  };
   return (
     <DefaultAuth>
       <Flex
@@ -28,6 +35,13 @@ export default function ExpiredPageClient() {
           colorScheme="brand"
         >
           Attiva PayTomorrow
+        </Button>
+        <Button
+          variant="outline"
+          colorScheme="brand"
+          onClick={handleSignOut}
+        >
+          Esci
         </Button>
       </Flex>
     </DefaultAuth>

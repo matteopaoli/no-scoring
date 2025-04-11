@@ -1,6 +1,9 @@
 {
   "name": "paytomorrow",
   "version": "1.0.0",
+  "dependencies": {
+    "drizzle-orm": "^0.40.1"
+  },
   "devDependencies": {
     "turbo": "^2.4.4"
   },

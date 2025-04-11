@@ -24,7 +24,7 @@ export async function numericEnum<TValues extends readonly number[]>(
 }
 
 export default async function updateUserAction(
-  prevState: string | null,
+  prevState: Awaited<FormActionReturnType>,
   formData: FormData
 ): FormActionReturnType {
   const businessTypeIds = (await BusinessTypeService.getAll()).map((b) => b.id);

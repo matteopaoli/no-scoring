@@ -105,10 +105,18 @@ export async function createStore({
   storeName,
   storeLogo,
   userId,
+  address,
+  lat,
+  lng,
+  placeId,
 }: {
   storeName: string;
   storeLogo: Blob | undefined;
   userId: string;
+  address: string;
+  lat: number;
+  lng: number;
+  placeId: string;
 }) {
   let logoData: string | null = null;
   if (storeLogo) {
@@ -120,6 +128,9 @@ export async function createStore({
       name: storeName,
       image: logoData,
       partnerId: (await UserService.getUserById(userId))?.partnerId,
+      address,
+      location: sql`ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)` as any,
+      geodata: { lat, lng, placeId },
     })
     .returning();
 
@@ -142,36 +153,53 @@ export async function updateStore(
   {
     storeName,
     storeLogo,
+    address,
+    lat,
+    lng,
+    placeId,
   }: {
     storeName: string;
     storeLogo?: Blob;
+    address: string;
+    lat: number;
+    lng: number;
+    placeId: string;
   }
 ) {
   let logoData: string | null = null;
   let updatedStore = null;
-  if (!storeLogo) {
-    updatedStore = await db
-      .update(stores)
-      .set({ name: storeName })
-      .where(eq(stores.id, storeId))
-      .returning();
-  } else {
-    if (storeLogo && storeLogo.size > 0) {
-      logoData = await imageToBase64(storeLogo);
-    }
 
-    updatedStore = await db
-      .update(stores)
-      .set({
-        name: storeName,
-        ...(storeLogo && logoData ? { image: logoData } : { image: null }),
-      })
-      .where(eq(stores.id, storeId))
-      .returning();
+  // Start with the basic fields for update.
+  const updateData: any = {
+    name: storeName,
+  };
+
+  // Conditionally update the address, location, and geodata only if provided.
+  if (address.trim() !== "" && lng && lat && placeId) {
+    updateData.address = address;
+    updateData.location = sql`ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)` as any;
+    updateData.geodata = { lat, lng, placeId };
   }
+
+  // Handle the store logo update if present.
+  if (storeLogo && storeLogo.size > 0) {
+    logoData = await imageToBase64(storeLogo);
+    updateData.image = logoData;
+  } else {
+    updateData.image = null;  // Clear the image if no logo is provided.
+  }
+
+  // Perform the update query.
+  updatedStore = await db
+    .update(stores)
+    .set(updateData)
+    .where(eq(stores.id, storeId))
+    .returning();
 
   return { updatedStore: updatedStore[0] || null, success: true };
 }
+
+
 
 export async function completeOnboarding(email: string) {
   return await db

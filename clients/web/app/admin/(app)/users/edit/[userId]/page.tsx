@@ -3,18 +3,24 @@ import { Box, Flex } from "@chakra-ui/react";
 import { redirect } from "next/navigation";
 import { UserService } from "@/app/services/userService";
 import { BusinessTypeService } from "@/app/services/businessTypeService";
+import { Store } from "@/app/services/storeService";
 
-export default async function CreateUserPage(props: { params: Promise<{ userId: string }> }) {
+export default async function CreateUserPage(props: {
+  params: Promise<{ userId: string }>;
+}) {
   const params = await props.params;
   const businessTypes = await BusinessTypeService.getAll();
-  const user = await UserService.getUserById(params.userId)
+  const user = await UserService.getUserById(params.userId);
+  const store = await Store.getStoreByUserId(params.userId);
 
   if (!user) {
-    redirect('/admin/users?error=true&type=not-found')
+    redirect("/admin/users?error=true&type=not-found");
   }
 
   const businessTypesOptions = businessTypes.map((b) => (
-    <option value={b.id} key={b.id}>{b.name}</option>
+    <option value={b.id} key={b.id}>
+      {b.name}
+    </option>
   ));
 
   return (
@@ -30,7 +36,11 @@ export default async function CreateUserPage(props: { params: Promise<{ userId: 
       mb={{ base: "30px", md: "60px" }}
       // px={{ base: "25px", md: "0px" }}
     >
-      <Client businessTypesOptions={businessTypesOptions} existingUser={user} />
+      <Client
+        businessTypesOptions={businessTypesOptions}
+        existingUser={user}
+        existingStore={store}
+      />
     </Flex>
   );
 }

@@ -7,7 +7,6 @@ export class MapsController {
   constructor(private readonly mapsService: MapsService) {}
 
   @Get('autocomplete')
-  @UseGuards(AccessTokenGuard)
   async autocomplete(@Query('input') input: string) {
     if (!input) {
       throw new Error('Input parameter is required');
@@ -16,7 +15,6 @@ export class MapsController {
   }
 
   @Get('place-details')
-  @UseGuards(AccessTokenGuard)
   async getPlaceDetails(@Query('placeId') placeId: string) {
     if (!placeId) {
       throw new Error('placeId parameter is required');
