@@ -24,27 +24,4 @@ export class MapsController {
     }
     return this.mapsService.getPlaceDetails(placeId);
   }
-
-  @Get('markers')
-  @Throttle({ default: { limit: 100, ttl: 60000 } })
-  async getMarkersInBounds(
-    @Query('minLat') minLat: number,
-    @Query('maxLat') maxLat: number,
-    @Query('minLng') minLng: number,
-    @Query('maxLng') maxLng: number,
-    @Query('limit') limit?: number, // Optional limit results
-  ) {
-    // Validate required parameters
-    if (!minLat || !maxLat || !minLng || !maxLng) {
-      throw new Error('All bounding box parameters are required');
-    }
-
-    return this.mapsService.getMarkersInBounds(
-      minLat,
-      maxLat,
-      minLng,
-      maxLng,
-      limit,
-    );
-  }
 }
