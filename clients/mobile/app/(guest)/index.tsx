@@ -7,22 +7,24 @@ import {
 } from 'react-native';
 import Text from '@/components/CustomText';
 import { Link, Redirect, useRouter } from 'expo-router';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { useEffect, useState } from 'react';
 import * as Location from 'expo-location';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAppTheme } from '@/contexts/ThemeContext'; // Import the theme hook
 import apiClient from '@/lib/httpClient';
 import CategoryItem from '@/components/CategoryItem';
+import { useLocation } from '@/contexts/LocationContext';
+import DynamicMarkersMap from '@/components/DynamicMarkersMap';
 
-const CATEGORIES = [
-  { id: 1, emoji: '💎', name: 'Gioiellerie' },
-  { id: 2, emoji: '🍽️', name: 'Ristoranti Gourmet' },
-  { id: 3, emoji: '🚗', name: 'Concessionari Auto' },
-  { id: 4, emoji: '🛋️', name: 'Arredamento' },
-  { id: 5, emoji: '📱', name: 'Elettronica' },
-  { id: 6, emoji: '✈️', name: 'Viaggi' },
-];
+const mockStoreImages = [
+  'https://images.unsplash.com/photo-1528698827591-e19ccd7bc23d?q=80&w=2076&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1464869372688-a93d806be852?q=80&w=2070&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1571974448718-ac26a9af7d8b?q=80&w=2069&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1580554430120-94cfcb3adf25?q=80&w=2070&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1535401991746-da3d9055713e?q=80&w=2063&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1542581542-0d526913eb3e?q=80&w=2070&auto=format&fit=crop'
+]
 
 type Store = {
   id: string;
@@ -40,21 +42,77 @@ type BusinessType = {
   emoji: string;
 };
 
-function StoreList({ stores }: { stores: Store[] }) {
-  const theme = useAppTheme(); // Get current theme
+function StoreList() {
+  const theme = useAppTheme();
+  const [stores, setStores] = useState<Store[]>([]);
+  const { location } = useLocation();
+  const router = useRouter();
+
+  const formatDistance = (distance) => {
+    // If distance is less than 1000 meters, display in meters
+    if (distance < 1000) {
+      return `${Math.round(distance)}m`;
+    } else {
+      // Otherwise, convert to kilometers
+      const km = (distance / 1000).toFixed(1); // Format to 1 decimal place
+      return `${km}km`;
+    }
+  };
+
+  const fetchStores = async () => {
+    if (location !== null) {
+      try {
+        const response = await apiClient.get('/store/nearby', {
+          params: {
+            lat: location?.latitude,
+            lng: location?.longitude,
+            limit: 5,
+          },
+        });
+        setStores(response.data);
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (location) {
+      fetchStores();
+    }
+  }, [location]);
+
+  if (!location) {
+    return (
+      <View
+        style={[
+          styles.permissionContainer,
+          { backgroundColor: theme.background },
+        ]}
+      >
+        <TouchableOpacity
+          style={[styles.permissionButton, { borderColor: theme.primary }]}
+        >
+          <Text style={[styles.permissionText, { color: theme.text }]}>
+            Per vedere i negozi vicini, abilita la localizzazione
+          </Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
-    <View
+    <ScrollView
       style={[styles.storeListContainer, { backgroundColor: theme.background }]}
     >
       <Text style={[styles.sectionTitle, { color: theme.text }]}>
         Negozi nelle vicinanze
       </Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+      <View>
         {stores.map((store) => (
-          <TouchableOpacity key={store.id} style={styles.storeListCard}>
+          <TouchableOpacity key={store.id} style={styles.storeListCard} onPress={() => router.push(`/store/${store.id}`)}>
             <Image
-              source={{ uri: store.image_url }}
+              source={{ uri: store.image_url || mockStoreImages[Math.floor(Math.random() * mockStoreImages.length)] }}
               style={styles.storeListImage}
             />
             <View style={styles.storeListInfo}>
@@ -67,45 +125,31 @@ function StoreList({ stores }: { stores: Store[] }) {
                 {store.category}
               </Text>
               <View style={styles.storeListStats}>
-                <Text
+                {/* <Text
                   style={[styles.storeListRating, { color: theme.primary }]}
                 >
                   ★ {store.rating}
-                </Text>
+                </Text> */}
                 <Text
                   style={[styles.storeListDistance, { color: theme.subtext }]}
                 >
-                  {'< 1km'}
+                  {formatDistance(store.distance)}
                 </Text>
               </View>
             </View>
           </TouchableOpacity>
         ))}
-      </ScrollView>
-    </View>
+      </View>
+    </ScrollView>
   );
 }
 
 export default function HomeScreen() {
-  const router = useRouter();
-  const [location, setLocation] = useState(null);
-  const [stores, setStores] = useState<Store[]>([]);
   const [businessTypes, setBusinessTypes] = useState<BusinessType[]>([]);
   const { user } = useAuth();
-  const theme = useAppTheme(); // Get current theme
+  const theme = useAppTheme();
 
   useEffect(() => {
-    (async () => {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status === 'granted') {
-        const currentLocation = await Location.getCurrentPositionAsync({});
-        setLocation(currentLocation);
-      }
-    })();
-  }, []);
-
-  useEffect(() => {
-    fetchStores();
     fetchBusinessTypes();
   }, []);
 
@@ -113,16 +157,7 @@ export default function HomeScreen() {
     try {
       const response = await apiClient.get('/business-type'); // Replace with your API endpoint
       const { data } = response;
-      console.log(data);
       setBusinessTypes(data);
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
-
-  const fetchStores = async () => {
-    try {
-      // TODO: Fetch store data from your API
     } catch (error) {
       console.error('Error:', error);
     }
@@ -133,7 +168,9 @@ export default function HomeScreen() {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
+    <ScrollView
+      style={[styles.container, { backgroundColor: theme.background }]}
+    >
       <View style={styles.header}>
         <View>
           <Text style={[styles.title, { color: theme.text }]}>
@@ -183,30 +220,10 @@ export default function HomeScreen() {
       </View>
 
       <View style={styles.mapContainer}>
-        <MapView
-          style={styles.map}
-          initialRegion={{
-            latitude: 41.9028,
-            longitude: 12.4964,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-          }}
-        >
-          {stores.map((store) => (
-            <Marker
-              key={store.id}
-              coordinate={{
-                latitude: store.latitude,
-                longitude: store.longitude,
-              }}
-              title={store.name}
-            />
-          ))}
-        </MapView>
+        <DynamicMarkersMap style={styles.map} />
       </View>
-
-      <StoreList stores={stores} />
-    </View>
+      <StoreList />
+    </ScrollView>
   );
 }
 
@@ -263,7 +280,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   mapContainer: {
-    height: '30%',
+    height: 300,
     marginHorizontal: 20,
     borderRadius: 20,
     overflow: 'hidden',
@@ -284,7 +301,9 @@ const styles = StyleSheet.create({
   storeListCard: {
     borderRadius: 12,
     marginRight: 12,
-    width: 180,
+    width: '100%',
+    backgroundColor: '#fff',
+    marginBottom: 12,
     overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -301,7 +320,7 @@ const styles = StyleSheet.create({
   },
   storeListName: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: 'DMSans_700Bold',
   },
   storeListCategory: {
     fontSize: 11,
@@ -326,5 +345,29 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     borderWidth: 1,
     borderStyle: 'dashed',
+  },
+  permissionContainer: {
+    padding: 16,
+    borderRadius: 8,
+    marginHorizontal: 16,
+    marginVertical: 8,
+  },
+  permissionButton: {
+    padding: 16,
+    borderWidth: 1,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  permissionText: {
+    fontFamily: 'DMSans_600SemiBold',
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  permissionSubtext: {
+    fontFamily: 'DMSans_400Regular',
+    fontSize: 14,
+    textAlign: 'center',
+    fontStyle: 'italic',
   },
 });

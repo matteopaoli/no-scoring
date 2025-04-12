@@ -5,118 +5,144 @@ import {
   Image,
   ScrollView,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAppTheme } from '@/contexts/ThemeContext';
-import { useState } from 'react';
-import { ArrowLeft, Euro, CreditCard } from 'lucide-react-native';
+import { useEffect, useState } from 'react';
+import { ArrowLeft, CreditCard } from 'lucide-react-native';
 import PaymentModal from '@/components/PaymentModal';
-import { StripeProvider } from '@stripe/stripe-react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import apiClient from '@/lib/httpClient'; // adjust path if needed
 
 const StoreDetailPage = () => {
-  const { id } = useLocalSearchParams();
+  const { id } = useLocalSearchParams<{ id: string }>();
   const theme = useAppTheme();
   const router = useRouter();
+
+  const [store, setStore] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [showPaymentModal, setShowPaymentModal] = useState(false);
 
-  // Mock store data - in a real app you'd fetch this based on the ID
-  const store = {
-    id: '3cd2c097-4794-4c1c-aee1-c56954c985fb',
-    stripeUserId: 'acct_1QKex6PC49cZVUwv',
-    name: 'Lusso Gioielli',
-    category: 'Gioiellerie',
-    rating: 4.8,
-    image_url: 'https://via.placeholder.com/400x300',
-    description:
-      'Gioielli artigianali di alta qualità realizzati a mano in Italia.',
-    address: 'Via Roma 123, Milano',
-    phone: '+39 02 1234567',
-  };
+  useEffect(() => {
+    const fetchStore = async () => {
+      try {
+        const response = await apiClient.get(`/store/${id}`);
+        setStore(response.data);
+      } catch (err: any) {
+        setError('Errore durante il caricamento del negozio');
+        console.error('Fetch error:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) fetchStore();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <View style={[styles.centered, { backgroundColor: theme.background }]}>
+        <ActivityIndicator size="large" color={theme.primary} />
+      </View>
+    );
+  }
+
+  if (error || !store) {
+    return (
+      <View style={[styles.centered, { backgroundColor: theme.background }]}>
+        <Text style={{ color: theme.text }}>{error || 'Negozio non trovato.'}</Text>
+        <TouchableOpacity onPress={() => router.back()}>
+          <Text style={{ color: theme.primary, marginTop: 10 }}>Torna indietro</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <View style={[styles.header, { backgroundColor: theme.card }]}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <ArrowLeft size={24} color={theme.primary} />
-        </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: theme.text }]}>
-          {store.name}
-        </Text>
-        <View style={{ width: 24 }} />
-      </View>
-
-      {/* Content */}
-      <ScrollView>
-        <Image source={{ uri: store.image_url }} style={styles.storeImage} />
-
-        <View style={[styles.infoContainer, { backgroundColor: theme.card }]}>
-          <Text style={[styles.storeName, { color: theme.text }]}>
+    <SafeAreaView style={{ flex: 1 }}>
+      <View style={[styles.container, { backgroundColor: theme.background }]}>
+        <View style={[styles.header, { backgroundColor: theme.card }]}>
+          <TouchableOpacity onPress={() => router.back()}>
+            <ArrowLeft size={24} color={theme.primary} />
+          </TouchableOpacity>
+          <Text style={[styles.headerTitle, { color: theme.text }]}>
             {store.name}
           </Text>
-          <Text style={[styles.storeCategory, { color: theme.primary }]}>
-            {store.category}
-          </Text>
-
-          <View style={styles.ratingContainer}>
-            <Text style={[styles.ratingText, { color: theme.text }]}>
-              ★ {store.rating}
-            </Text>
-          </View>
-
-          <Text style={[styles.sectionTitle, { color: theme.text }]}>
-            Descrizione
-          </Text>
-          <Text style={[styles.description, { color: theme.text }]}>
-            {store.description}
-          </Text>
-
-          <Text style={[styles.sectionTitle, { color: theme.text }]}>
-            Informazioni
-          </Text>
-          <View style={styles.infoRow}>
-            <Text style={[styles.infoLabel, { color: theme.subtext }]}>
-              Indirizzo:
-            </Text>
-            <Text style={[styles.infoValue, { color: theme.text }]}>
-              {store.address}
-            </Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={[styles.infoLabel, { color: theme.subtext }]}>
-              Telefono:
-            </Text>
-            <Text style={[styles.infoValue, { color: theme.text }]}>
-              {store.phone}
-            </Text>
-          </View>
+          <View style={{ width: 24 }} />
         </View>
-      </ScrollView>
 
-      <View
-        style={[styles.payButtonContainer, { backgroundColor: theme.card }]}
-      >
-        <TouchableOpacity
-          style={[styles.payButton, { backgroundColor: theme.primary }]}
-          onPress={() => setShowPaymentModal(true)}
+        <ScrollView>
+          <Image source={{ uri: store.image_url }} style={styles.storeImage} />
+          <View style={[styles.infoContainer, { backgroundColor: theme.card }]}>
+            <Text style={[styles.storeName, { color: theme.text }]}>
+              {store.name}
+            </Text>
+            <Text style={[styles.storeCategory, { color: theme.primary }]}>
+              {store.category}
+            </Text>
+
+            <View style={styles.ratingContainer}>
+              <Text style={[styles.ratingText, { color: theme.text }]}>
+                ★ {store.rating}
+              </Text>
+            </View>
+
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>
+              Descrizione
+            </Text>
+            <Text style={[styles.description, { color: theme.text }]}>
+              {store.description}
+            </Text>
+
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>
+              Informazioni
+            </Text>
+            <View style={styles.infoRow}>
+              <Text style={[styles.infoLabel, { color: theme.subtext }]}>
+                Indirizzo:
+              </Text>
+              <Text style={[styles.infoValue, { color: theme.text }]}>
+                {store.address}
+              </Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Text style={[styles.infoLabel, { color: theme.subtext }]}>
+                Telefono:
+              </Text>
+              <Text style={[styles.infoValue, { color: theme.text }]}>
+                {store.phone}
+              </Text>
+            </View>
+          </View>
+        </ScrollView>
+
+        <View
+          style={[styles.payButtonContainer, { backgroundColor: theme.card }]}
         >
-          <CreditCard size={20} color="#FFF" style={styles.payButtonIcon} />
-          <Text style={styles.payButtonText}>Paga questo negozio</Text>
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity
+            style={[styles.payButton, { backgroundColor: theme.primary }]}
+            onPress={() => setShowPaymentModal(true)}
+          >
+            <CreditCard size={20} color="#FFF" style={styles.payButtonIcon} />
+            <Text style={styles.payButtonText}>Paga questo negozio</Text>
+          </TouchableOpacity>
+        </View>
 
-      {/* Payment Modal */}
-      {showPaymentModal && (
-        <PaymentModal
-          store={store}
-          theme={theme}
-          onClose={() => setShowPaymentModal(false)}
-          onPaymentSuccess={() => {
-            setShowPaymentModal(false);
-            router.push('/payment/success');
-          }}
-        />
-      )}
-    </View>
+        {showPaymentModal && (
+          <PaymentModal
+            store={store}
+            theme={theme}
+            onClose={() => setShowPaymentModal(false)}
+            onPaymentSuccess={() => {
+              setShowPaymentModal(false);
+              router.push('/payment/success');
+            }}
+          />
+        )}
+      </View>
+    </SafeAreaView>
   );
 };
 
@@ -212,6 +238,11 @@ const styles = StyleSheet.create({
     fontFamily: 'DMSans_600SemiBold',
     fontSize: 16,
     color: '#FFF',
+  },
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

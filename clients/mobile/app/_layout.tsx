@@ -11,6 +11,7 @@ import {
 
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
+import { LocationProvider } from '@/contexts/LocationContext';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -34,7 +35,9 @@ export default function Root() {
   return (
     <AuthProvider>
       <ThemeProvider>
-        <Slot />
+        <LocationProvider>
+          <Slot />
+        </LocationProvider>
       </ThemeProvider>
     </AuthProvider>
   );

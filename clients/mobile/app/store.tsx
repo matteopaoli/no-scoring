@@ -1,48 +1,62 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ArrowLeft, CreditCard, Building2, TrendingUp, Plus } from 'lucide-react-native';
+import { ArrowLeft, CreditCard, DollarSign, LogOut, Link, ShoppingBag, Users, Activity } from 'lucide-react-native';
+import { useAuth } from '@/contexts/AuthContext';
+import { useAppTheme } from '@/contexts/ThemeContext'; // Adjust the import path as needed
 
-// Mock data for Style Hub store
-const MOCK_STORE = {
+// Mock data remains the same
+const MOCK_MERCHANT = {
   id: '1',
-  name: 'Style Hub',
-  email: 'negozio@demo.com',
-  avatar_url: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8',
-  store_type: 'Abbigliamento',
-  total_transactions: 25000.00,
-  monthly_transactions: 4500.00,
-  transaction_count: 45,
+  email: 'merchant@demo.com',
+  business_name: 'Fashion Boutique',
+  avatar_url: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da',
+  address: '123 Main St, Milan, Italy',
+  total_sales: 12500.00,
+  total_transactions: 84,
+  repeat_customers: 32,
 };
 
-const MOCK_TRANSACTIONS = [
+const MOCK_RECENT_SALES = [
   {
     id: '1',
-    customer_name: 'Sofia Bianchi',
-    amount: 450.00,
-    date: '2025-03-14T10:30:00Z',
+    amount: 250.00,
+    customer_name: 'Marco Rossi',
+    customer_image: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
+    date: '2025-03-15T14:30:00Z',
     status: 'completed',
-    payment_method: 'PayTomorrow',
   },
   {
     id: '2',
-    customer_name: 'Marco Verdi',
-    amount: 780.00,
-    date: '2025-03-13T15:45:00Z',
+    amount: 120.00,
+    customer_name: 'Laura Bianchi',
+    customer_image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2',
+    date: '2025-03-15T11:15:00Z',
     status: 'completed',
-    payment_method: 'PayTomorrow',
   },
   {
     id: '3',
-    customer_name: 'Laura Rossi',
-    amount: 320.00,
-    date: '2025-03-12T09:15:00Z',
+    amount: 85.50,
+    customer_name: 'Giovanni Verdi',
+    customer_image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a',
+    date: '2025-03-14T16:45:00Z',
     status: 'completed',
-    payment_method: 'PayTomorrow',
   },
 ];
 
-export default function StoreProfileScreen() {
+export default function MerchantProfileScreen() {
   const router = useRouter();
+  const { isAuthenticated, logout, user } = useAuth();
+  const theme = useAppTheme();
+  const styles = makeStyles(theme);
+
+  const handleSignOut = async () => {
+    await logout();
+    router.push('/');
+  };
+
+  const handleCreatePaymentLink = () => {
+    router.push('./create-payment');
+  };
 
   return (
     <ScrollView style={styles.container}>
@@ -50,80 +64,102 @@ export default function StoreProfileScreen() {
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.push('/')}>
-          <ArrowLeft size={24} color="#007BFF" />
+          <ArrowLeft size={24} color={theme.primary} />
         </TouchableOpacity>
         
-        <View style={styles.storeInfo}>
+        <View style={styles.userInfo}>
           <Image
-            source={{ uri: MOCK_STORE.avatar_url }}
-            style={styles.storeImage}
+            source={{ uri: MOCK_MERCHANT.avatar_url }}
+            style={styles.avatar}
           />
           <View>
-            <Text style={styles.storeName}>{MOCK_STORE.name}</Text>
-            <Text style={styles.storeEmail}>{MOCK_STORE.email}</Text>
-            <Text style={styles.storeType}>{MOCK_STORE.store_type}</Text>
+            <Text style={styles.userName}>{MOCK_MERCHANT.business_name}</Text>
+            <Text style={styles.userEmail}>{MOCK_MERCHANT.email}</Text>
+            <Text style={styles.storeAddress}>{MOCK_MERCHANT.address}</Text>
           </View>
         </View>
       </View>
 
       <View style={styles.statsContainer}>
         <View style={styles.statCard}>
-          <CreditCard size={24} color="#007BFF" />
-          <Text style={styles.statAmount}>€{MOCK_STORE.monthly_transactions.toFixed(2)}</Text>
-          <Text style={styles.statLabel}>Incasso Mensile</Text>
+          <DollarSign size={24} color={theme.primary} />
+          <Text style={styles.statAmount}>€{MOCK_MERCHANT.total_sales.toFixed(2)}</Text>
+          <Text style={styles.statLabel}>Vendite Totali</Text>
         </View>
+        
         <View style={styles.statCard}>
-          <Building2 size={24} color="#007BFF" />
-          <Text style={styles.statAmount}>{MOCK_STORE.transaction_count}</Text>
+          <ShoppingBag size={24} color={theme.primary} />
+          <Text style={styles.statAmount}>{MOCK_MERCHANT.total_transactions}</Text>
           <Text style={styles.statLabel}>Transazioni</Text>
         </View>
+        
         <View style={styles.statCard}>
-          <TrendingUp size={24} color="#007BFF" />
-          <Text style={styles.statAmount}>€{MOCK_STORE.total_transactions.toFixed(2)}</Text>
-          <Text style={styles.statLabel}>Totale Incassi</Text>
+          <Users size={24} color={theme.primary} />
+          <Text style={styles.statAmount}>{MOCK_MERCHANT.repeat_customers}</Text>
+          <Text style={styles.statLabel}>Clienti Fedeli</Text>
         </View>
       </View>
 
-      <TouchableOpacity style={styles.newPaymentButton}>
-        <Plus size={24} color="#FFFFFF" />
-        <Text style={styles.newPaymentButtonText}>Nuovo Pagamento</Text>
+      <TouchableOpacity 
+        style={styles.paymentLinkButton}
+        onPress={handleCreatePaymentLink}>
+        <Link size={24} color={theme.card} />
+        <Text style={styles.paymentLinkButtonText}>Crea Link di Pagamento</Text>
       </TouchableOpacity>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Ultime Transazioni</Text>
-        {MOCK_TRANSACTIONS.map((transaction) => (
-          <View key={transaction.id} style={styles.transactionCard}>
-            <View style={styles.transactionInfo}>
-              <Text style={styles.customerName}>{transaction.customer_name}</Text>
-              <Text style={styles.transactionAmount}>€{transaction.amount.toFixed(2)}</Text>
-              <Text style={styles.paymentMethod}>{transaction.payment_method}</Text>
-            </View>
-            <View style={styles.transactionMeta}>
-              <Text style={styles.transactionStatus}>
-                {transaction.status === 'completed' ? '✓ Completato' : '⋯ In corso'}
-              </Text>
-              <Text style={styles.transactionDate}>
-                {new Date(transaction.date).toLocaleDateString()}
+        <Text style={styles.sectionTitle}>Vendite Recenti</Text>
+        {MOCK_RECENT_SALES.map((sale) => (
+          <View key={sale.id} style={styles.saleCard}>
+            <Image
+              source={{ uri: sale.customer_image }}
+              style={styles.customerImage}
+            />
+            <View style={styles.saleInfo}>
+              <Text style={styles.customerName}>{sale.customer_name}</Text>
+              <Text style={styles.saleAmount}>€{sale.amount.toFixed(2)}</Text>
+              <Text style={styles.saleStatus}>
+                {sale.status === 'completed' ? '✓ Completato' : '⋯ In corso'}
               </Text>
             </View>
+            <Text style={styles.saleDate}>
+              {new Date(sale.date).toLocaleDateString()}
+            </Text>
           </View>
         ))}
       </View>
+
+      <View style={styles.analyticsSection}>
+        <Text style={styles.sectionTitle}>Analisi</Text>
+        <View style={styles.analyticsCard}>
+          <Activity size={24} color={theme.primary} />
+          <Text style={styles.analyticsText}>Vendite questa settimana: €1,850.00</Text>
+          <Text style={styles.analyticsText}>Nuovi clienti: 5</Text>
+          <Text style={styles.analyticsText}>Tasso di conversione: 42%</Text>
+        </View>
+      </View>
+
+      <TouchableOpacity
+        style={styles.signOutButton}
+        onPress={handleSignOut}>
+        <LogOut size={24} color={theme.card} />
+        <Text style={styles.signOutButtonText}>Esci</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFD580',
+    backgroundColor: theme.background,
   },
   header: {
     padding: 20,
     paddingTop: 60,
   },
   backButton: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.card,
     width: 45,
     height: 45,
     borderRadius: 22.5,
@@ -136,30 +172,30 @@ const styles = StyleSheet.create({
     elevation: 3,
     marginBottom: 20,
   },
-  storeInfo: {
+  userInfo: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  storeImage: {
+  avatar: {
     width: 80,
     height: 80,
     borderRadius: 40,
     marginRight: 20,
   },
-  storeName: {
-    fontFamily: 'Poppins-Bold',
-    fontSize: 24,
-    color: '#333',
+  userName: {
+    fontFamily: theme.fontBold,
+    fontSize: theme.fontSizeHeading + 8,
+    color: theme.text,
   },
-  storeEmail: {
-    fontFamily: 'Poppins-Regular',
-    fontSize: 16,
-    color: '#666',
+  userEmail: {
+    fontFamily: theme.fontRegular,
+    fontSize: theme.fontSize,
+    color: theme.subtext,
   },
-  storeType: {
-    fontFamily: 'Poppins-SemiBold',
-    fontSize: 18,
-    color: '#007BFF',
+  storeAddress: {
+    fontFamily: theme.fontRegular,
+    fontSize: theme.fontSize - 2,
+    color: theme.subtext,
     marginTop: 4,
   },
   statsContainer: {
@@ -170,7 +206,7 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.card,
     padding: 15,
     borderRadius: 15,
     alignItems: 'center',
@@ -181,23 +217,23 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   statAmount: {
-    fontFamily: 'Poppins-Bold',
-    fontSize: 16,
-    color: '#333',
+    fontFamily: theme.fontBold,
+    fontSize: theme.fontSizeHeading + 2,
+    color: theme.text,
     marginTop: 8,
   },
   statLabel: {
-    fontFamily: 'Poppins-Regular',
-    fontSize: 12,
-    color: '#666',
+    fontFamily: theme.fontRegular,
+    fontSize: theme.fontSize - 2,
+    color: theme.subtext,
     marginTop: 4,
     textAlign: 'center',
   },
-  newPaymentButton: {
+  paymentLinkButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#007BFF',
+    backgroundColor: '#28A745', // Consider adding to theme if used frequently
     marginHorizontal: 20,
     padding: 15,
     borderRadius: 15,
@@ -207,23 +243,24 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-  newPaymentButtonText: {
-    fontFamily: 'Poppins-SemiBold',
-    fontSize: 16,
-    color: '#FFFFFF',
+  paymentLinkButtonText: {
+    fontFamily: theme.fontSemiBold,
+    fontSize: theme.fontSizeHeading,
+    color: theme.card,
     marginLeft: 10,
   },
   section: {
     padding: 20,
   },
   sectionTitle: {
-    fontFamily: 'Poppins-Bold',
-    fontSize: 20,
-    color: '#333',
+    fontFamily: theme.fontBold,
+    fontSize: theme.fontSizeHeading + 4,
+    color: theme.text,
     marginBottom: 15,
   },
-  transactionCard: {
-    backgroundColor: '#FFFFFF',
+  saleCard: {
+    flexDirection: 'row',
+    backgroundColor: theme.card,
     padding: 15,
     borderRadius: 15,
     marginBottom: 10,
@@ -232,44 +269,80 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-  },
-  transactionInfo: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
   },
-  customerName: {
-    fontFamily: 'Poppins-SemiBold',
-    fontSize: 16,
-    color: '#333',
+  customerImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 15,
+  },
+  saleInfo: {
     flex: 1,
   },
-  transactionAmount: {
-    fontFamily: 'Poppins-Bold',
-    fontSize: 16,
-    color: '#28A745',
+  customerName: {
+    fontFamily: theme.fontSemiBold,
+    fontSize: theme.fontSizeHeading,
+    color: theme.text,
   },
-  paymentMethod: {
-    fontFamily: 'Poppins-Regular',
-    fontSize: 12,
-    color: '#007BFF',
+  saleAmount: {
+    fontFamily: theme.fontBold,
+    fontSize: theme.fontSize,
+    color: '#28A745', // Consider adding to theme
     marginTop: 4,
   },
-  transactionMeta: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  saleStatus: {
+    fontFamily: theme.fontRegular,
+    fontSize: theme.fontSize - 2,
+    color: theme.subtext,
+    marginTop: 2,
+  },
+  saleDate: {
+    fontFamily: theme.fontRegular,
+    fontSize: theme.fontSize - 2,
+    color: theme.subtext,
+    marginLeft: 10,
+  },
+  analyticsSection: {
+    padding: 20,
+    paddingTop: 0,
+  },
+  analyticsCard: {
+    backgroundColor: theme.card,
+    padding: 20,
+    borderRadius: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  analyticsText: {
+    fontFamily: theme.fontRegular,
+    fontSize: theme.fontSize,
+    color: theme.text,
     marginTop: 8,
   },
-  transactionStatus: {
-    fontFamily: 'Poppins-Regular',
-    fontSize: 12,
-    color: '#28A745',
+  signOutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FF4D4D', // Consider adding to theme
+    marginHorizontal: 20,
+    padding: 15,
+    borderRadius: 15,
+    marginTop: 20,
+    marginBottom: 40,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  transactionDate: {
-    fontFamily: 'Poppins-Regular',
-    fontSize: 12,
-    color: '#666',
+  signOutButtonText: {
+    fontFamily: theme.fontSemiBold,
+    fontSize: theme.fontSizeHeading,
+    color: theme.card,
+    marginLeft: 10,
   },
 });

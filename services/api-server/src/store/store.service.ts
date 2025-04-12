@@ -122,28 +122,35 @@ export class StoreService {
       .where(eq(userStoreRoles.userId, userId));
     return result[0] || null;
   }
-
+  
   async findNearbyStores(
     lat: number,
     lng: number,
-    radius: number = 5000,
     limit: number = 10,
     offset: number = 0,
+    radius?: number,
   ) {
-    const result = await db.execute(
-      sql`
-      SELECT *
-      FROM ${stores}
-      WHERE ST_DWithin(
-        ${stores.location},
-        ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography,
-        ${radius}
-      )
-      LIMIT ${limit}
-      OFFSET ${offset}
-    `,
-    );
+    // Create the point with SRID and cast to geography
+    const sqlPoint = sql`ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography`;
+    // Optional WHERE clause
+    const whereClause = radius !== undefined
+      ? sql`ST_DWithin(${stores.location}::geography, ${sqlPoint}, ${radius})`
+      : undefined;
+  
+    const query = db
+      .select({
+        ...getTableColumns(stores),
+        distance: sql`ST_Distance(${stores.location}::geography, ${sqlPoint})`,
+      })
+      .from(stores)
+      .where(whereClause)
+      .orderBy(sql`${stores.location} <-> ${sqlPoint}`) // spatial index sort
+      .limit(limit)
+      .offset(offset)
 
+    console.log(`Query: ${JSON.stringify(query.toSQL())}`); // Log the SQL query for debugging
+  
+    const result = await query;
     return result;
   }
 
@@ -158,16 +165,46 @@ export class StoreService {
           WHERE ${eq(userStoreRoles.storeId, stores.id)} 
             AND ${eq(userStoreRoles.role, 'admin')}
           LIMIT 1
-        )`.as('stripeUserId') // Alias the subquery result
+        )`.as('stripeUserId'), // Alias the subquery result
       })
       .from(stores)
       .where(eq(stores.id, storeId))
       .limit(1);
-  
+
     if (!result.length) {
       throw new NotFoundException('Store not found');
     }
-  
+
     return result[0];
+  }
+
+  async searchStoresNearby(
+    query: string,
+    lat: number,
+    lng: number,
+    limit: number = 10,
+    offset: number = 0
+  ) {
+    const sqlPoint = sql`ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography`;
+  
+    const q = `%${query.toLowerCase()}%`;
+  
+    const result = await db
+      .select({
+        ...getTableColumns(stores),
+        distance: sql`ST_Distance(${stores.location}::geography, ${sqlPoint})`,
+      })
+      .from(stores)
+      .where(
+        and(
+          sql`LOWER(${stores.name}) LIKE ${q}`,
+          sql`ST_DWithin(${stores.location}::geography, ${sqlPoint}, ${10000})` // 10km radius
+        )
+      )
+      .orderBy(sql`${stores.location} <-> ${sqlPoint}`)
+      .limit(limit)
+      .offset(offset);
+  
+    return result;
   }
 }

@@ -1,11 +1,10 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, SafeAreaView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ArrowLeft, CreditCard, DollarSign, LogOut, Link, ShoppingBag, Users, Activity } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
-// import AuthScreen from '@/app/(tabs)/auth';
-// import OnboardingScreen from '../profile-setup';
+import { useAppTheme } from '@/contexts/ThemeContext'; // Adjust the import path as needed
 
-// Mock data for merchant
+// Mock data remains the same
 const MOCK_MERCHANT = {
   id: '1',
   email: 'merchant@demo.com',
@@ -47,14 +46,8 @@ const MOCK_RECENT_SALES = [
 export default function MerchantProfileScreen() {
   const router = useRouter();
   const { isAuthenticated, logout, user } = useAuth();
-
-  // if (!isAuthenticated) {
-  //   return <AuthScreen />;
-  // }
-
-  // if (!user?.onboardingCompleted) {
-  //   return <OnboardingScreen />;
-  // }
+  const theme = useAppTheme();
+  const styles = makeStyles(theme);
 
   const handleSignOut = async () => {
     await logout();
@@ -62,123 +55,103 @@ export default function MerchantProfileScreen() {
   };
 
   const handleCreatePaymentLink = () => {
-    // Navigate to payment link creation screen
     router.push('./create-payment');
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.push('/')}>
-          <ArrowLeft size={24} color="#007BFF" />
-        </TouchableOpacity>
-        
-        <View style={styles.userInfo}>
-          <Image
-            source={{ uri: MOCK_MERCHANT.avatar_url }}
-            style={styles.avatar}
-          />
-          <View>
-            <Text style={styles.userName}>{MOCK_MERCHANT.business_name}</Text>
-            <Text style={styles.userEmail}>{MOCK_MERCHANT.email}</Text>
-            <Text style={styles.storeAddress}>{MOCK_MERCHANT.address}</Text>
+    <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
+      <ScrollView style={styles.container}>
+        <View style={styles.header}>
+          <View style={styles.userInfo}>
+            <Image
+              source={{ uri: MOCK_MERCHANT.avatar_url }}
+              style={styles.avatar}
+            />
+            <View>
+              <Text style={styles.userName}>{MOCK_MERCHANT.business_name}</Text>
+              <Text style={styles.userEmail}>{MOCK_MERCHANT.email}</Text>
+              <Text style={styles.storeAddress}>{MOCK_MERCHANT.address}</Text>
+            </View>
           </View>
         </View>
-      </View>
 
-      <View style={styles.statsContainer}>
-        <View style={styles.statCard}>
-          <DollarSign size={24} color="#007BFF" />
-          <Text style={styles.statAmount}>€{MOCK_MERCHANT.total_sales.toFixed(2)}</Text>
-          <Text style={styles.statLabel}>Vendite Totali</Text>
+        <View style={styles.statsContainer}>
+          <View style={styles.statCard}>
+            <DollarSign size={24} color={theme.primary} />
+            <Text style={styles.statAmount}>€{MOCK_MERCHANT.total_sales.toFixed(2)}</Text>
+            <Text style={styles.statLabel}>Vendite Totali</Text>
+          </View>
+          
+          <View style={styles.statCard}>
+            <ShoppingBag size={24} color={theme.primary} />
+            <Text style={styles.statAmount}>{MOCK_MERCHANT.total_transactions}</Text>
+            <Text style={styles.statLabel}>Transazioni</Text>
+          </View>
+          
+          <View style={styles.statCard}>
+            <Users size={24} color={theme.primary} />
+            <Text style={styles.statAmount}>{MOCK_MERCHANT.repeat_customers}</Text>
+            <Text style={styles.statLabel}>Clienti Fedeli</Text>
+          </View>
         </View>
-        
-        <View style={styles.statCard}>
-          <ShoppingBag size={24} color="#007BFF" />
-          <Text style={styles.statAmount}>{MOCK_MERCHANT.total_transactions}</Text>
-          <Text style={styles.statLabel}>Transazioni</Text>
-        </View>
-        
-        <View style={styles.statCard}>
-          <Users size={24} color="#007BFF" />
-          <Text style={styles.statAmount}>{MOCK_MERCHANT.repeat_customers}</Text>
-          <Text style={styles.statLabel}>Clienti Fedeli</Text>
-        </View>
-      </View>
 
-      <TouchableOpacity 
-        style={styles.paymentLinkButton}
-        onPress={handleCreatePaymentLink}>
-        <Link size={24} color="#FFFFFF" />
-        <Text style={styles.paymentLinkButtonText}>Crea Link di Pagamento</Text>
-      </TouchableOpacity>
+        <TouchableOpacity 
+          style={styles.paymentLinkButton}
+          onPress={handleCreatePaymentLink}>
+          <Link size={24} color={theme.card} />
+          <Text style={styles.paymentLinkButtonText}>Crea Link di Pagamento</Text>
+        </TouchableOpacity>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Vendite Recenti</Text>
-        {MOCK_RECENT_SALES.map((sale) => (
-          <View key={sale.id} style={styles.saleCard}>
-            <Image
-              source={{ uri: sale.customer_image }}
-              style={styles.customerImage}
-            />
-            <View style={styles.saleInfo}>
-              <Text style={styles.customerName}>{sale.customer_name}</Text>
-              <Text style={styles.saleAmount}>€{sale.amount.toFixed(2)}</Text>
-              <Text style={styles.saleStatus}>
-                {sale.status === 'completed' ? '✓ Completato' : '⋯ In corso'}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Vendite Recenti</Text>
+          {MOCK_RECENT_SALES.map((sale) => (
+            <View key={sale.id} style={styles.saleCard}>
+              <Image
+                source={{ uri: sale.customer_image }}
+                style={styles.customerImage}
+              />
+              <View style={styles.saleInfo}>
+                <Text style={styles.customerName}>{sale.customer_name}</Text>
+                <Text style={styles.saleAmount}>€{sale.amount.toFixed(2)}</Text>
+                <Text style={styles.saleStatus}>
+                  {sale.status === 'completed' ? '✓ Completato' : '⋯ In corso'}
+                </Text>
+              </View>
+              <Text style={styles.saleDate}>
+                {new Date(sale.date).toLocaleDateString()}
               </Text>
             </View>
-            <Text style={styles.saleDate}>
-              {new Date(sale.date).toLocaleDateString()}
-            </Text>
-          </View>
-        ))}
-      </View>
-
-      <View style={styles.analyticsSection}>
-        <Text style={styles.sectionTitle}>Analisi</Text>
-        <View style={styles.analyticsCard}>
-          <Activity size={24} color="#007BFF" />
-          <Text style={styles.analyticsText}>Vendite questa settimana: €1,850.00</Text>
-          <Text style={styles.analyticsText}>Nuovi clienti: 5</Text>
-          <Text style={styles.analyticsText}>Tasso di conversione: 42%</Text>
+          ))}
         </View>
-      </View>
 
-      <TouchableOpacity
-        style={styles.signOutButton}
-        onPress={handleSignOut}>
-        <LogOut size={24} color="#FFFFFF" />
-        <Text style={styles.signOutButtonText}>Esci</Text>
-      </TouchableOpacity>
-    </ScrollView>
+        <View style={styles.analyticsSection}>
+          <Text style={styles.sectionTitle}>Analisi</Text>
+          <View style={styles.analyticsCard}>
+            <Activity size={24} color={theme.primary} />
+            <Text style={styles.analyticsText}>Vendite questa settimana: €1,850.00</Text>
+            <Text style={styles.analyticsText}>Nuovi clienti: 5</Text>
+            <Text style={styles.analyticsText}>Tasso di conversione: 42%</Text>
+          </View>
+        </View>
+
+        <TouchableOpacity
+          style={styles.signOutButton}
+          onPress={handleSignOut}>
+          <LogOut size={24} color={theme.card} />
+          <Text style={styles.signOutButtonText}>Esci</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFD580',
+    backgroundColor: theme.background,
   },
   header: {
     padding: 20,
-    paddingTop: 60,
-  },
-  backButton: {
-    backgroundColor: '#FFFFFF',
-    width: 45,
-    height: 45,
-    borderRadius: 22.5,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    marginBottom: 20,
   },
   userInfo: {
     flexDirection: 'row',
@@ -191,19 +164,19 @@ const styles = StyleSheet.create({
     marginRight: 20,
   },
   userName: {
-    fontFamily: 'Poppins-Bold',
-    fontSize: 24,
-    color: '#333',
+    fontFamily: theme.fontBold,
+    fontSize: theme.fontSizeHeading + 8,
+    color: theme.text,
   },
   userEmail: {
-    fontFamily: 'Poppins-Regular',
-    fontSize: 16,
-    color: '#666',
+    fontFamily: theme.fontRegular,
+    fontSize: theme.fontSize,
+    color: theme.subtext,
   },
   storeAddress: {
-    fontFamily: 'Poppins-Regular',
-    fontSize: 14,
-    color: '#666',
+    fontFamily: theme.fontRegular,
+    fontSize: theme.fontSize - 2,
+    color: theme.subtext,
     marginTop: 4,
   },
   statsContainer: {
@@ -214,7 +187,7 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.card,
     padding: 15,
     borderRadius: 15,
     alignItems: 'center',
@@ -225,15 +198,15 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   statAmount: {
-    fontFamily: 'Poppins-Bold',
-    fontSize: 18,
-    color: '#333',
+    fontFamily: theme.fontBold,
+    fontSize: 12,
+    color: theme.text,
     marginTop: 8,
   },
   statLabel: {
-    fontFamily: 'Poppins-Regular',
-    fontSize: 12,
-    color: '#666',
+    fontFamily: theme.fontRegular,
+    fontSize: theme.fontSize - 2,
+    color: theme.subtext,
     marginTop: 4,
     textAlign: 'center',
   },
@@ -241,7 +214,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#28A745',
+    backgroundColor: '#28A745', // Consider adding to theme if used frequently
     marginHorizontal: 20,
     padding: 15,
     borderRadius: 15,
@@ -252,23 +225,23 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   paymentLinkButtonText: {
-    fontFamily: 'Poppins-SemiBold',
-    fontSize: 16,
-    color: '#FFFFFF',
+    fontFamily: theme.fontSemiBold,
+    fontSize: theme.fontSizeHeading,
+    color: theme.card,
     marginLeft: 10,
   },
   section: {
     padding: 20,
   },
   sectionTitle: {
-    fontFamily: 'Poppins-Bold',
-    fontSize: 20,
-    color: '#333',
+    fontFamily: theme.fontBold,
+    fontSize: theme.fontSizeHeading + 4,
+    color: theme.text,
     marginBottom: 15,
   },
   saleCard: {
     flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.card,
     padding: 15,
     borderRadius: 15,
     marginBottom: 10,
@@ -289,26 +262,26 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   customerName: {
-    fontFamily: 'Poppins-SemiBold',
-    fontSize: 16,
-    color: '#333',
+    fontFamily: theme.fontSemiBold,
+    fontSize: theme.fontSizeHeading,
+    color: theme.text,
   },
   saleAmount: {
-    fontFamily: 'Poppins-Bold',
-    fontSize: 14,
-    color: '#28A745',
+    fontFamily: theme.fontBold,
+    fontSize: theme.fontSize,
+    color: '#28A745', // Consider adding to theme
     marginTop: 4,
   },
   saleStatus: {
-    fontFamily: 'Poppins-Regular',
-    fontSize: 12,
-    color: '#666',
+    fontFamily: theme.fontRegular,
+    fontSize: theme.fontSize - 2,
+    color: theme.subtext,
     marginTop: 2,
   },
   saleDate: {
-    fontFamily: 'Poppins-Regular',
-    fontSize: 12,
-    color: '#666',
+    fontFamily: theme.fontRegular,
+    fontSize: theme.fontSize - 2,
+    color: theme.subtext,
     marginLeft: 10,
   },
   analyticsSection: {
@@ -316,7 +289,7 @@ const styles = StyleSheet.create({
     paddingTop: 0,
   },
   analyticsCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.card,
     padding: 20,
     borderRadius: 15,
     shadowColor: '#000',
@@ -326,16 +299,16 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   analyticsText: {
-    fontFamily: 'Poppins-Regular',
-    fontSize: 14,
-    color: '#333',
+    fontFamily: theme.fontRegular,
+    fontSize: theme.fontSize,
+    color: theme.text,
     marginTop: 8,
   },
   signOutButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FF4D4D',
+    backgroundColor: '#FF4D4D', // Consider adding to theme
     marginHorizontal: 20,
     padding: 15,
     borderRadius: 15,
@@ -348,9 +321,9 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   signOutButtonText: {
-    fontFamily: 'Poppins-SemiBold',
-    fontSize: 16,
-    color: '#FFFFFF',
+    fontFamily: theme.fontSemiBold,
+    fontSize: theme.fontSizeHeading,
+    color: theme.card,
     marginLeft: 10,
   },
 });

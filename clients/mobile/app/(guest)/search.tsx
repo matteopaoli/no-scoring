@@ -11,6 +11,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { Search } from 'lucide-react-native';
 import { useAppTheme } from '@/contexts/ThemeContext';
+import apiClient from '@/lib/httpClient';
+import { useLocation } from '@/contexts/LocationContext';
 
 type Store = {
   id: string;
@@ -20,49 +22,63 @@ type Store = {
   image_url: string;
 };
 
-const MOCK_STORES: Store[] = [
-  {
-    id: '1',
-    name: 'Lusso Gioielli',
-    category: 'Gioiellerie',
-    rating: 4.8,
-    image_url: 'https://via.placeholder.com/180x100',
-  },
-  {
-    id: '2',
-    name: 'Trattoria Italiana',
-    category: 'Ristoranti Gourmet',
-    rating: 4.6,
-    image_url: 'https://via.placeholder.com/180x100',
-  },
-  {
-    id: '3',
-    name: 'TechNow',
-    category: 'Elettronica',
-    rating: 4.5,
-    image_url: 'https://via.placeholder.com/180x100',
-  },
-];
-
 export default function SearchScreen() {
   const theme = useAppTheme();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filteredStores, setFilteredStores] = useState<Store[]>(MOCK_STORES);
   const router = useRouter();
+  const { location } = useLocation();
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [allStores, setAllStores] = useState<Store[]>([]);
+  const [filteredStores, setFilteredStores] = useState<Store[]>([]);
+
+  const fetchStores = async (query?: string) => {
+    if (!location) return;
+
+    try {
+      let response;
+
+      if (query) {
+        response = await apiClient.get('/store/search', {
+          params: {
+            q: query,
+            lat: location.latitude,
+            lng: location.longitude,
+            limit: 20,
+          },
+        });
+      } else {
+        response = await apiClient.get('/store/nearby', {
+          params: {
+            lat: location.latitude,
+            lng: location.longitude,
+            limit: 20,
+          },
+        });
+      }
+
+      setFilteredStores(response.data);
+    } catch (error) {
+      console.error('Error fetching stores:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchStores();
+  }, [location]);
 
   useEffect(() => {
     if (!searchQuery) {
-      setFilteredStores(MOCK_STORES);
+      setFilteredStores([]);
     } else {
       const query = searchQuery.toLowerCase();
-      const results = MOCK_STORES.filter(
+      const results = allStores.filter(
         (store) =>
           store.name.toLowerCase().includes(query) ||
-          store.category.toLowerCase().includes(query)
+          store.category.toLowerCase().includes(query),
       );
       setFilteredStores(results);
     }
-  }, [searchQuery]);
+  }, [searchQuery, allStores]);
 
   const handleStorePress = (storeId: string) => {
     router.push(`/store/${storeId}`);
@@ -85,12 +101,15 @@ export default function SearchScreen() {
 
       <ScrollView contentContainerStyle={styles.resultsContainer}>
         {filteredStores.map((store) => (
-          <TouchableOpacity 
-            key={store.id} 
+          <TouchableOpacity
+            key={store.id}
             style={[styles.storeCard, { backgroundColor: theme.card }]}
             onPress={() => handleStorePress(store.id)}
           >
-            <Image source={{ uri: store.image_url }} style={styles.storeImage} />
+            <Image
+              source={{ uri: store.image_url }}
+              style={styles.storeImage}
+            />
             <View style={styles.storeInfo}>
               <Text style={[styles.storeName, { color: theme.text }]}>
                 {store.name}
@@ -104,7 +123,8 @@ export default function SearchScreen() {
             </View>
           </TouchableOpacity>
         ))}
-        {filteredStores.length === 0 && (
+
+        {searchQuery && filteredStores.length === 0 && (
           <Text style={[styles.noResults, { color: theme.subtext }]}>
             Nessun risultato trovato.
           </Text>

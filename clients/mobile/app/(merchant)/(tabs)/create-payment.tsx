@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,318 +8,493 @@ import {
   Modal,
   Image,
   Share,
+  Animated,
+  Easing,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ArrowLeft, Link, Share2, Check } from 'lucide-react-native';
 import apiClient from '@/lib/httpClient';
+import { useAppTheme } from '@/contexts/ThemeContext';
+import { Keyboard } from 'react-native';
 
 export default function CreatePaymentLinkScreen() {
   const router = useRouter();
+  const theme = useAppTheme();
+  const styles = createStyles(theme);
+
   const [amount, setAmount] = useState('');
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [paymentLink, setPaymentLink] = useState('');
   const [qrCode, setQrCode] = useState('');
-  const [paymentLink, setPaymentLink] = useState(
-    'https://paytomorrow.com/pay/merchant123',
-  );
 
-  const handleCreatePaymentLink = async () => {
+  const inputRef = useRef<TextInput>(null);
+
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  const [showSheet, setShowSheet] = useState(false);
+  const sheetAnim = useRef(new Animated.Value(0)).current;
+
+  const openSheet = () => {
+    setShowSheet(true);
+    Animated.timing(sheetAnim, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const closeSheet = () => {
+    Animated.timing(sheetAnim, {
+      toValue: 0,
+      duration: 250,
+      useNativeDriver: true,
+    }).start(() => setShowSheet(false));
+  };
+
+  const sheetTranslateY = sheetAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [500, 0],
+  });
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
+  const animateInput = () => {
+    Animated.sequence([
+      Animated.timing(scaleAnim, {
+        toValue: 1.05,
+        duration: 120,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        friction: 3,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  const handleAmountChange = (text: string) => {
+    let clean = text.replace(',', '.').replace(/[^0-9.]/g, '');
+
+    if (clean.startsWith('.')) clean = '0' + clean;
+    if ((clean.match(/\./g) || []).length > 1) return;
+
+    const [whole, decimal] = clean.split('.');
+    if (decimal && decimal.length > 2) return;
+
+    setAmount(clean);
+    animateInput();
+  };
+
+  const formattedAmount = () => {
+    if (!amount) return '0.00';
+    if (amount.includes('.')) {
+      const [whole, decimal] = amount.split('.');
+      return `${whole || '0'}.${decimal.padEnd(2, '0')}`;
+    }
+    return `${amount}.00`;
+  };
+
+  const handleCreateLink = async () => {
     if (!amount) return;
-
+    Keyboard.dismiss();
     try {
-      const response = await apiClient.post('/payment/create', {
+      const { data } = await apiClient.post('/payment/create', {
         price: parseFloat(amount),
       });
 
-      const { data } = response;
       setPaymentLink(data.paymentLink.url);
       setQrCode(data.qrCode);
-      setIsModalVisible(true);
-    } catch (error) {
-      console.error('Error creating payment link:', error);
+      openSheet();
+      fadeAnim.setValue(0);
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    } catch (err) {
+      console.error('Failed to create link', err);
     }
   };
 
-  const handleShareLink = async () => {
+  const handleShare = async () => {
     try {
       await Share.share({
-        message: `Pay €${amount} to my store: ${paymentLink}`,
-        title: 'Payment Link',
+        title: 'Link di Pagamento',
+        message: `Paga €${formattedAmount()} nel mio store: ${paymentLink}`,
       });
-    } catch (error) {
-      console.error('Error sharing:', error);
+    } catch (err) {
+      console.error('Share failed:', err);
     }
   };
 
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-        <ArrowLeft size={24} color="#007BFF" />
+        <ArrowLeft size={24} color={theme.primary} />
       </TouchableOpacity>
 
       <View style={styles.content}>
-        <Text style={styles.title}>Crea un Link di Pagamento</Text>
+  <Text style={styles.title}>Inserisci l'importo</Text>
 
-        <View style={styles.amountContainer}>
-          <Text style={styles.currencySymbol}>€</Text>
-          <TextInput
-            style={styles.amountInput}
-            placeholder="0.00"
-            value={amount}
-            onChangeText={setAmount}
-            keyboardType="decimal-pad"
-            autoFocus
-          />
-        </View>
+  <Animated.View style={[styles.amountBox, { transform: [{ scale: scaleAnim }] }]}>
+    <Text style={styles.euro}>€</Text>
+    <TextInput
+      ref={inputRef}
+      value={amount}
+      onChangeText={handleAmountChange}
+      keyboardType="decimal-pad"
+      placeholder="0.00"
+      placeholderTextColor={theme.subtext}
+      selectionColor={theme.primary}
+      style={styles.amountInput}
+    />
+  </Animated.View>
 
+  <TouchableOpacity
+    style={[styles.ctaButton, !amount && styles.disabled]}
+    disabled={!amount}
+    onPress={handleCreateLink}
+  >
+    <Text style={styles.ctaText}>Genera Link</Text>
+    <Link size={20} color={theme.card} style={{ marginLeft: 8 }} />
+  </TouchableOpacity>
+</View>
+
+      {showSheet && (
         <TouchableOpacity
-          style={[styles.confirmButton, !amount && styles.disabledButton]}
-          onPress={handleCreatePaymentLink}
-          disabled={!amount}
+          activeOpacity={1}
+          onPress={closeSheet}
+          style={styles.sheetOverlay}
         >
-          <Text style={styles.confirmButtonText}>Genera Link di Pagamento</Text>
-          <Link size={20} color="#FFFFFF" style={styles.buttonIcon} />
-        </TouchableOpacity>
-      </View>
-
-      <Modal
-        visible={isModalVisible}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setIsModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.successHeader}>
-              <View style={styles.successIcon}>
-                <Check size={32} color="#28A745" />
-              </View>
-              <Text style={styles.successTitle}>Link Creato!</Text>
+          <Animated.View
+            style={[
+              styles.sheetContainer,
+              { transform: [{ translateY: sheetTranslateY }] },
+            ]}
+          >
+            <View style={styles.successCircle}>
+              <Check size={30} color="#28a745" />
             </View>
-
-            <Text style={styles.amountText}>€{amount}</Text>
-
-            <Image
-              source={{ uri: qrCode }}
-              style={styles.qrCode}
-              resizeMode="contain"
-            />
-
-            <Text
-              style={styles.linkText}
-              numberOfLines={1}
-              ellipsizeMode="tail"
-            >
+            <Text style={styles.successText}>Link creato</Text>
+            <Text style={styles.modalAmount}>€{formattedAmount()}</Text>
+            <Image source={{ uri: qrCode }} style={styles.qrCode} />
+            <Text style={styles.linkText} numberOfLines={1}>
               {paymentLink}
             </Text>
 
-            <View style={styles.modalButtons}>
+            <View style={styles.actions}>
               <TouchableOpacity
-                style={styles.visitButton}
-                onPress={() => {
-                  // In a real app, you might open the link in a browser
-                  setIsModalVisible(false);
-                  //   router.push('/merchant/payment-link-details');
-                }}
+                style={styles.primaryAction}
+                onPress={() => router.push(paymentLink)}
               >
-                <Text style={styles.visitButtonText}>Visualizza Link</Text>
+                <Text style={styles.primaryText}>Apri Link</Text>
               </TouchableOpacity>
-
               <TouchableOpacity
-                style={styles.shareButton}
-                onPress={handleShareLink}
+                style={styles.secondaryAction}
+                onPress={handleShare}
               >
-                <Share2 size={20} color="#007BFF" />
-                <Text style={styles.shareButtonText}>Condividi</Text>
+                <Share2 size={16} color={theme.primary} />
+                <Text style={styles.secondaryText}>Condividi</Text>
               </TouchableOpacity>
             </View>
 
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => setIsModalVisible(false)}
-            >
-              <Text style={styles.closeButtonText}>Chiudi</Text>
+            <TouchableOpacity onPress={closeSheet}>
+              <Text style={styles.closeText}>Chiudi</Text>
             </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+          </Animated.View>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFD580',
-    padding: 20,
-    paddingTop: 60,
-  },
-  backButton: {
-    backgroundColor: '#FFFFFF',
-    width: 45,
-    height: 45,
-    borderRadius: 22.5,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    marginBottom: 30,
-  },
-  content: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontFamily: 'Poppins-Bold',
-    fontSize: 24,
-    color: '#333',
-    marginBottom: 40,
-    textAlign: 'center',
-  },
-  amountContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 40,
-  },
-  currencySymbol: {
-    fontFamily: 'Poppins-Bold',
-    fontSize: 48,
-    color: '#333',
-    marginRight: 10,
-  },
-  amountInput: {
-    fontFamily: 'Poppins-Bold',
-    fontSize: 48,
-    color: '#333',
-    minWidth: 200,
-    borderBottomWidth: 2,
-    borderBottomColor: '#007BFF',
-    paddingBottom: 5,
-  },
-  confirmButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#007BFF',
-    paddingVertical: 15,
-    paddingHorizontal: 25,
-    borderRadius: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  disabledButton: {
-    opacity: 0.5,
-  },
-  confirmButtonText: {
-    fontFamily: 'Poppins-SemiBold',
-    fontSize: 18,
-    color: '#FFFFFF',
-    marginRight: 10,
-  },
-  buttonIcon: {
-    marginLeft: 5,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    backgroundColor: '#FFFFFF',
-    width: '90%',
-    borderRadius: 20,
-    padding: 25,
-    alignItems: 'center',
-  },
-  successHeader: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  successIcon: {
-    backgroundColor: '#E8F5E9',
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  successTitle: {
-    fontFamily: 'Poppins-Bold',
-    fontSize: 22,
-    color: '#28A745',
-  },
-  amountText: {
-    fontFamily: 'Poppins-Bold',
-    fontSize: 32,
-    color: '#333',
-    marginBottom: 20,
-  },
-  qrCode: {
-    width: 200,
-    height: 200,
-    marginBottom: 20,
-  },
-  linkText: {
-    fontFamily: 'Poppins-Regular',
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 25,
-    maxWidth: '100%',
-  },
-  modalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    marginBottom: 20,
-  },
-  visitButton: {
-    backgroundColor: '#007BFF',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 10,
-    flex: 1,
-    marginRight: 10,
-  },
-  visitButtonText: {
-    fontFamily: 'Poppins-SemiBold',
-    fontSize: 16,
-    color: '#FFFFFF',
-    textAlign: 'center',
-  },
-  shareButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#E3F2FD',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 10,
-    flex: 1,
-  },
-  shareButtonText: {
-    fontFamily: 'Poppins-SemiBold',
-    fontSize: 16,
-    color: '#007BFF',
-    marginLeft: 8,
-  },
-  closeButton: {
-    width: '100%',
-    paddingVertical: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#EEE',
-    alignItems: 'center',
-  },
-  closeButtonText: {
-    fontFamily: 'Poppins-SemiBold',
-    fontSize: 16,
-    color: '#666',
-  },
-});
+const createStyles = (theme: Theme) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.background,
+      paddingTop: 60,
+      paddingHorizontal: 20,
+    },
+    backButton: {
+      width: 45,
+      height: 45,
+      backgroundColor: theme.card,
+      borderRadius: 22.5,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: 30,
+    },
+    inputWrapper: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      borderBottomWidth: 2,
+      borderBottomColor: theme.primary,
+      marginBottom: 40,
+    },
+    currency: {
+      fontSize: 48,
+      fontFamily: theme.fontBold,
+      color: theme.text,
+      marginRight: 10,
+    },
+    input: {
+      fontSize: 48,
+      fontFamily: theme.fontBold,
+      color: theme.text,
+      padding: 0,
+      minWidth: 160,
+    },
+    generateButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: theme.primary,
+      paddingVertical: 14,
+      paddingHorizontal: 24,
+      borderRadius: 12,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    disabled: {
+      opacity: 0.5,
+    },
+    buttonText: {
+      fontFamily: theme.fontSemiBold,
+      fontSize: theme.fontSizeHeading,
+      color: theme.card,
+    },
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    modalBox: {
+      width: '90%',
+      backgroundColor: theme.card,
+      borderRadius: 20,
+      padding: 25,
+      alignItems: 'center',
+    },
+    successIcon: {
+      width: 60,
+      height: 60,
+      borderRadius: 30,
+      backgroundColor: '#E8F5E9',
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: 15,
+    },
+    modalAmount: {
+      fontFamily: theme.fontBold,
+      fontSize: 36,
+      color: theme.text,
+      marginBottom: 20,
+    },
+    qrImage: {
+      width: 200,
+      height: 200,
+      marginBottom: 20,
+    },
+    modalActions: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      width: '100%',
+      marginBottom: 15,
+    },
+    actionButton: {
+      backgroundColor: theme.primary,
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      borderRadius: 10,
+      flex: 1,
+      marginRight: 10,
+    },
+    actionText: {
+      fontFamily: theme.fontSemiBold,
+      fontSize: theme.fontSizeHeading,
+      color: theme.card,
+      textAlign: 'center',
+    },
+    shareButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: theme.secondary + '20',
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      borderRadius: 10,
+      flex: 1,
+    },
+    shareText: {
+      fontFamily: theme.fontSemiBold,
+      fontSize: theme.fontSizeHeading,
+      color: theme.primary,
+      marginLeft: 8,
+    },
+    closeText: {
+      fontFamily: theme.fontSemiBold,
+      fontSize: theme.fontSizeHeading,
+      color: theme.subtext,
+      marginTop: 10,
+    },
+    sheetOverlay: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.3)',
+      justifyContent: 'flex-end',
+      zIndex: 10,
+    },
+
+    sheetContainer: {
+      backgroundColor: theme.card,
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
+      padding: 24,
+      alignItems: 'center',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: -2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 10,
+      elevation: 10,
+    },
+
+    successCircle: {
+      backgroundColor: '#E8F5E9',
+      width: 60,
+      height: 60,
+      borderRadius: 30,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: 15,
+    },
+
+    successText: {
+      fontFamily: theme.fontBold,
+      fontSize: theme.fontSizeHeading + 4,
+      color: '#28a745',
+      marginBottom: 10,
+    },
+
+    qrCode: {
+      width: 180,
+      height: 180,
+      marginBottom: 16,
+    },
+
+    linkText: {
+      fontFamily: theme.fontRegular,
+      fontSize: theme.fontSize,
+      color: theme.subtext,
+      marginBottom: 20,
+      maxWidth: '100%',
+    },
+
+    actions: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      width: '100%',
+      marginBottom: 20,
+    },
+
+    primaryAction: {
+      backgroundColor: theme.primary,
+      paddingVertical: 12,
+      paddingHorizontal: 20,
+      borderRadius: 12,
+      flex: 1,
+      marginRight: 10,
+      alignItems: 'center',
+    },
+
+    primaryText: {
+      fontFamily: theme.fontSemiBold,
+      fontSize: theme.fontSizeHeading,
+      color: theme.card,
+    },
+
+    secondaryAction: {
+      backgroundColor: theme.secondary + '20',
+      paddingVertical: 12,
+      paddingHorizontal: 20,
+      borderRadius: 12,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      flex: 1,
+    },
+
+    secondaryText: {
+      fontFamily: theme.fontSemiBold,
+      fontSize: theme.fontSizeHeading,
+      color: theme.primary,
+      marginLeft: 8,
+    },
+    content: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingHorizontal: 20,
+    },
+    
+    title: {
+      fontFamily: theme.fontBold,
+      fontSize: 28,
+      color: theme.text,
+      marginBottom: 40,
+      textAlign: 'center',
+    },
+    
+    amountBox: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      borderBottomWidth: 2,
+      borderBottomColor: theme.primary,
+      paddingBottom: 12,
+      marginBottom: 40,
+    },
+    
+    euro: {
+      fontSize: 48,
+      fontFamily: theme.fontBold,
+      color: theme.text,
+      marginRight: 8,
+    },
+    
+    amountInput: {
+      fontSize: 48,
+      fontFamily: theme.fontBold,
+      color: theme.text,
+      minWidth: 160,
+      padding: 0,
+    },
+    
+    ctaButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: theme.primary,
+      paddingVertical: 14,
+      paddingHorizontal: 24,
+      borderRadius: 16,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+      elevation: 3,
+    },
+    
+    ctaText: {
+      fontFamily: theme.fontSemiBold,
+      fontSize: theme.fontSizeHeading,
+      color: theme.card,
+    },
+  });
