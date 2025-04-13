@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
 import { db, stores } from '@paytomorrow/db';
 import { and, eq, isNotNull, sql } from 'drizzle-orm';
+import { AxiosResponse } from 'axios';
 
 @Injectable()
 export class MapsService {
@@ -14,7 +15,7 @@ export class MapsService {
 
   async autocomplete(input: string): Promise<any> {
     const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json`;
-    const response = await firstValueFrom(
+    const response: AxiosResponse<any> = await firstValueFrom(
       this.httpService.get(url, {
         params: {
           input,

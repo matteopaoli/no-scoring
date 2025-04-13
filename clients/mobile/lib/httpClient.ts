@@ -33,6 +33,7 @@ export const syncAuthTokens = async (params: {
 };
 
 apiClient.interceptors.request.use((config) => {
+  console.log("tokenCache", JSON.stringify(tokenCache, null, 2))
   if (tokenCache.accessToken) {
     config.headers.Authorization = `Bearer ${tokenCache.accessToken}`;
   }

@@ -4,8 +4,6 @@ import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
 import { generateQrCodeWithLogo } from '../utils/qr-code';
 import { db, products } from '@paytomorrow/db';
-import { StoreService } from '../store/store.service';
-import { publish } from 'rxjs';
 
 @Injectable()
 export class PaymentService {

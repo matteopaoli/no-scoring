@@ -27,42 +27,21 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     useStorageState('accessToken');
   const [[isRefreshTokenLoading, refreshToken], setRefreshToken] =
     useStorageState('refreshToken');
-  const [isAuthInitializing, setIsAuthInitializing] = useState(true);
   const [user, setUser] = useState<User | null>(null);
 
   const isTokensLoading = isAccessTokenLoading || isRefreshTokenLoading;
-  const isLoading = isAuthInitializing || isTokensLoading;
+  const isLoading = isTokensLoading;
   const isAuthenticated = !!user && !!accessToken && !!refreshToken;
 
   useEffect(() => {
     syncAuthTokens({
-      accessToken: accessToken ?? null,
-      refreshToken: refreshToken ?? null,
+      accessToken: accessToken,
+      refreshToken: refreshToken,
       logout: logout,
-    });
+    }).then(() => {
+      if (accessToken && refreshToken) refreshUser();
+    })
   }, [accessToken, refreshToken]);
-
-  // Initial auth check
-  useEffect(() => {
-    const initializeAuth = async () => {
-      try {
-        if (!isTokensLoading) {
-          if (accessToken && refreshToken) {
-            await refreshUser();
-          } else {
-            await logout();
-          }
-          setIsAuthInitializing(false);
-        }
-      } catch (error) {
-        console.error('Auth initialization error:', error);
-        await logout();
-        setIsAuthInitializing(false);
-      }
-    };
-
-    initializeAuth();
-  }, [isTokensLoading, accessToken, refreshToken]);
 
   const login = async (email: string, password: string) => {
     try {
@@ -70,10 +49,9 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       const { accessToken, refreshToken } = response.data;
 
       // Update storage through custom hook setters
+      console.log(accessToken, refreshToken)
       setAccessToken(accessToken);
       setRefreshToken(refreshToken);
-      syncAuthTokens({ accessToken, refreshToken, logout });
-      await refreshUser();
     } catch (error) {
       console.error('Login failed:', error);
       throw error;
@@ -86,8 +64,9 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
   }, []);
 
-  const refreshUser = useCallback(async () => {
+  const refreshUser = async () => {
     try {
+      console.log("refreshUser")
       const response = await apiClient.get('/users/me');
       setUser(response.data.user);
     } catch (error) {
@@ -95,7 +74,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       await logout();
       throw error;
     }
-  }, [logout]);
+  }
 
   return (
     <AuthContext.Provider
