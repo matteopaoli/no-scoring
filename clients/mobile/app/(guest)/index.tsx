@@ -160,6 +160,7 @@ export default function HomeScreen() {
       setBusinessTypes(data);
     } catch (error) {
       console.error('Error:', error);
+      console.error('full error:', JSON.stringify(error, null, 2));
     }
   };
 
