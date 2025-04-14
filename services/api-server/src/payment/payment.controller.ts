@@ -1,9 +1,11 @@
 // src/payment/payment.controller.ts
-import { Controller, Post, Body, Req, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Req, UseGuards, Get } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { StoreService } from '../store/store.service';
 import { Request } from 'express';
 import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
+import { RoleGuard } from 'src/auth/role/role.guard';
+import { Roles } from 'src/auth/role/roles.decorator';
 
 @Controller('payment')
 export class PaymentController {
@@ -53,5 +55,19 @@ export class PaymentController {
       finalPrice,
       stripeUserId,
     );
+  }
+
+  @Get('sales')
+  @UseGuards(AccessTokenGuard, RoleGuard)
+  @Roles('user')
+  async getSales(@Req() req: Request) {
+    const userId = req.user?.['sub'];
+    const stripeUserId =
+    await this.storesService.getAdminStripeUserIdByUserId(userId);
+    if (!stripeUserId) {
+      throw new Error('Stripe user ID not found for the user.');
+    }
+    const sales = await this.paymentService.getSales(stripeUserId)
+    return sales;
   }
 }

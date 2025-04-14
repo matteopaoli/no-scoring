@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Theme, useAppTheme } from '@/contexts/ThemeContext'; // Adjust the import path as needed
 import { useQuery } from '@tanstack/react-query';
 import apiClient from '@/lib/httpClient';
+import useSales from '@/hooks/useSales';
 
 type MerchantStoreDetails = {
   id: string,
@@ -51,6 +52,7 @@ export default function MerchantProfileScreen() {
     queryKey: ['myStore'],
     queryFn: async () => (await apiClient.get('/store/me')).data
   })
+  const { data: sales } = useSales();
 
   const handleSignOut = async () => {
     await logout();
@@ -69,6 +71,8 @@ export default function MerchantProfileScreen() {
       </SafeAreaView>
     );
   }
+
+  console.log(JSON.stringify(sales, null, 2))
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
@@ -92,7 +96,7 @@ export default function MerchantProfileScreen() {
             <Text style={styles.statAmount}>€{data?.totalRevenue?.toFixed(2)}</Text>
             <Text style={styles.statLabel}>Vendite Totali</Text>
           </View>
-          
+
           <View style={styles.statCard}>
             <ShoppingBag size={24} color={theme.primary} />
             <Text style={styles.statAmount}>{data?.salesCount}</Text>
@@ -100,7 +104,7 @@ export default function MerchantProfileScreen() {
           </View>
         </View>
 
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.paymentLinkButton}
           onPress={handleCreatePaymentLink}>
           <Link size={24} color={theme.card} />
@@ -109,27 +113,38 @@ export default function MerchantProfileScreen() {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Vendite Recenti</Text>
-          {MOCK_RECENT_SALES.map((sale) => (
+          {sales?.slice(0, 3).map((sale) => (
             <View key={sale.id} style={styles.saleCard}>
-              <Image
-                source={{ uri: sale.customer_image }}
-                style={styles.customerImage}
-              />
               <View style={styles.saleInfo}>
-                <Text style={styles.customerName}>{sale.customer_name}</Text>
-                <Text style={styles.saleAmount}>€{sale.amount.toFixed(2)}</Text>
-                <Text style={styles.saleStatus}>
-                  {sale.status === 'completed' ? '✓ Completato' : '⋯ In corso'}
-                </Text>
+                <View style={styles.saleAmountAndStatus}>
+                  <Text style={styles.saleAmount}>
+                    €{(sale.amount / 100).toFixed(2)} {/* Convert amount to EUR */}
+                  </Text>
+
+                  <Text style={styles.saleStatus}>
+                    {sale.status === 'succeeded' ? '✓ Completato' : '⋯ In corso'}
+                  </Text>
+                </View>
+                {/* Display Klarna logo if payment method is Klarna */}
+                {sale.payment_method_types?.includes('klarna') && (
+                  <Image
+                    source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Klarna_Logo_black.svg/512px-Klarna_Logo_black.svg.png' }}
+                    style={styles.paymentMethodLogo}
+                  />
+                )}
+
+                {/* Sale Amount and Status */}
               </View>
+
+              {/* Sale Date */}
               <Text style={styles.saleDate}>
-                {new Date(sale.date).toLocaleDateString()}
+                {new Date(sale.created * 1000).toLocaleString()} {/* Convert Unix timestamp to date and time */}
               </Text>
             </View>
           ))}
         </View>
 
-        <View style={styles.analyticsSection}>
+        {/* <View style={styles.analyticsSection}>
           <Text style={styles.sectionTitle}>Analisi</Text>
           <View style={styles.analyticsCard}>
             <Activity size={24} color={theme.primary} />
@@ -137,14 +152,14 @@ export default function MerchantProfileScreen() {
             <Text style={styles.analyticsText}>Nuovi clienti: 5</Text>
             <Text style={styles.analyticsText}>Tasso di conversione: 42%</Text>
           </View>
-        </View>
+        </View> */}
 
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={styles.signOutButton}
           onPress={handleSignOut}>
           <LogOut size={24} color={theme.card} />
           <Text style={styles.signOutButtonText}>Esci</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </ScrollView>
     </SafeAreaView>
   );
@@ -236,7 +251,8 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     marginLeft: 10,
   },
   section: {
-    padding: 20,
+    marginVertical: 30,
+    paddingHorizontal: 20,
   },
   sectionTitle: {
     fontFamily: theme.fontBold,
@@ -245,17 +261,15 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     marginBottom: 15,
   },
   saleCard: {
-    flexDirection: 'row',
-    backgroundColor: theme.card,
-    padding: 15,
+    backgroundColor: '#FFF',
     borderRadius: 15,
-    marginBottom: 10,
+    padding: 15,
+    marginBottom: 15,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-    alignItems: 'center',
   },
   customerImage: {
     width: 50,
@@ -264,7 +278,10 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     marginRight: 15,
   },
   saleInfo: {
-    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+    justifyContent: 'space-between',  // Space between Klarna logo and amount/status
   },
   customerName: {
     fontFamily: theme.fontSemiBold,
@@ -272,22 +289,31 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     color: theme.text,
   },
   saleAmount: {
-    fontFamily: theme.fontBold,
-    fontSize: theme.fontSize,
-    color: '#28A745', // Consider adding to theme
-    marginTop: 4,
+    fontFamily: 'DMSans_600SemiBold',
+    fontSize: 18,
+    color: '#FF8C00',  // Payment amount in orange
   },
   saleStatus: {
-    fontFamily: theme.fontRegular,
-    fontSize: theme.fontSize - 2,
-    color: theme.subtext,
-    marginTop: 2,
+    fontFamily: 'DMSans_400Regular',
+    fontSize: 14,
+    color: '#666',
+    marginTop: 5,  // Add space between amount and status
   },
   saleDate: {
-    fontFamily: theme.fontRegular,
-    fontSize: theme.fontSize - 2,
-    color: theme.subtext,
-    marginLeft: 10,
+    fontFamily: 'DMSans_400Regular',
+    fontSize: 12,
+    color: '#999',
+    marginTop: 10,
+  },
+  paymentMethodLogo: {
+    width: 70,
+    height: '100%',
+    marginRight: 15,
+    resizeMode: 'contain'
+  },
+  saleAmountAndStatus: {
+    flexDirection: 'column',  // Stack amount and status vertically
+    alignItems: 'flex-start',
   },
   analyticsSection: {
     padding: 20,

@@ -23,16 +23,17 @@ const CATEGORY_EMOJIS: Record<number, string> = {
     16: '🛋️',  // Negozi di arredamento e utensileria
   };
 
-const CategoryItem = ({ category, theme }: { category: BusinessCategory; theme: any }) => (
+const CategoryItem = ({ category, theme, style, onPress }: { category: BusinessCategory; theme: any; style?: Record<string, any>; onPress: () => void; }) => (
   <TouchableOpacity
     style={[
       styles.categoryItem,
+      style,
       {
         backgroundColor: theme.card,
         borderColor: theme.primary + '20',
-        borderWidth: 1,
       },
     ]}
+    onPress={onPress}
   >
     <Text style={[styles.emoji, { color: theme.primary }]}>
       {CATEGORY_EMOJIS[category.id] || '🏢'}
@@ -55,20 +56,26 @@ const CategoryItem = ({ category, theme }: { category: BusinessCategory; theme: 
 const styles = StyleSheet.create({
   // Individual category item
   categoryItem: {
-    width: '30%', // 3 columns (100%/3 - margin)
-    aspectRatio: 1, // Square items
-    justifyContent: 'center',
+    aspectRatio: 2,
+    borderWidth: 1,
     alignItems: 'center',
-    borderRadius: 12,
-    padding: 8,
-    marginBottom: 16, // Space between rows
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
+    padding: 12,
+    marginBottom: 10,
+    borderRadius: 10,
+    display: 'flex',
+    justifyContent: 'center'
   },
   emoji: {
-    fontSize: 32, // Larger emoji
-    marginBottom: 8,
+    fontSize: 20,
+    marginBottom: 4,
   },
   categoryText: {
-    fontSize: 14,
+    fontSize: 12,
     textAlign: 'center',
     flexWrap: 'wrap',
     paddingHorizontal: 4,

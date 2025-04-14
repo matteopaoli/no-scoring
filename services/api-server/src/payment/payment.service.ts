@@ -111,4 +111,15 @@ export class PaymentService {
       customer: customer.id,
     }
   }
+
+
+  async getSales(stripeAccountId: string) {
+    const stripe = new Stripe(
+      this.configService.get<string>('STRIPE_API_KEY')!,
+      {
+        stripeAccount: stripeAccountId,
+      },
+    );
+    return await stripe.paymentIntents.list({ expand: ['data.customer'] })
+  }
 }

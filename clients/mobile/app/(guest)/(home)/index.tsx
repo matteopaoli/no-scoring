@@ -16,6 +16,7 @@ import apiClient from '@/lib/httpClient';
 import CategoryItem from '@/components/CategoryItem';
 import { useLocation } from '@/contexts/LocationContext';
 import DynamicMarkersMap from '@/components/DynamicMarkersMap';
+import useBusinessTypes from '@/hooks/useBusinessTypes';
 
 const mockStoreImages = [
   'https://images.unsplash.com/photo-1528698827591-e19ccd7bc23d?q=80&w=2076&auto=format&fit=crop',
@@ -145,24 +146,10 @@ function StoreList() {
 }
 
 export default function HomeScreen() {
-  const [businessTypes, setBusinessTypes] = useState<BusinessType[]>([]);
   const { user } = useAuth();
   const theme = useAppTheme();
-
-  useEffect(() => {
-    fetchBusinessTypes();
-  }, []);
-
-  const fetchBusinessTypes = async () => {
-    try {
-      const response = await apiClient.get('/business-type'); // Replace with your API endpoint
-      const { data } = response;
-      setBusinessTypes(data);
-    } catch (error) {
-      console.error('Error:', error);
-      console.error('full error:', JSON.stringify(error, null, 2));
-    }
-  };
+  const { data: businessTypes } = useBusinessTypes()
+  const router = useRouter();
 
   if (user?.role === 'user') {
     return <Redirect href="/(merchant)/(tabs)/store" />;
@@ -189,10 +176,10 @@ export default function HomeScreen() {
       </View>
 
       <View style={styles.categoriesGrid}>
-        {businessTypes.slice(0, 6).map((category) => (
-          <CategoryItem key={category.id} category={category} theme={theme} />
+        {businessTypes?.slice(0, 6).map((category) => (
+          <CategoryItem style={styles.categoryGridItem} key={category.id} category={category} theme={theme} onPress={() => void router.push('/')} />
         ))}
-        {businessTypes.length > 6 && (
+        {businessTypes?.length > 6 && (
           <Link
             href={{
               pathname: '/categories',
@@ -202,7 +189,6 @@ export default function HomeScreen() {
           >
             <TouchableOpacity
               style={[
-                styles.categoryGridItem,
                 styles.ghostButton,
                 { borderColor: theme.primary },
               ]}
@@ -213,7 +199,7 @@ export default function HomeScreen() {
                   { color: theme.primary, fontFamily: theme.fontSemiBold },
                 ]}
               >
-                Mostra tutti
+                Mostra tutte le categorie
               </Text>
             </TouchableOpacity>
           </Link>
@@ -260,22 +246,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     marginBottom: 10,
+    columnGap: 10,
   },
   categoryGridItem: {
-    borderRadius: 10,
-    padding: 12,
-    width: '30%',
-    marginBottom: 10,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 2,
-  },
-  categoryEmoji: {
-    fontSize: 20,
-    marginBottom: 2,
+    width: '48%',
   },
   categoryText: {
     textAlign: 'center',

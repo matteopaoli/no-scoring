@@ -133,10 +133,6 @@ export default function CreatePaymentLinkScreen() {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-        <ArrowLeft size={24} color={theme.primary} />
-      </TouchableOpacity>
-
       <View style={styles.content}>
   <Text style={styles.title}>Inserisci l'importo</Text>
 
