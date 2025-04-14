@@ -1,6 +1,6 @@
 import { useAppTheme } from '@/contexts/ThemeContext';
 import { Tabs } from 'expo-router';
-import { Home, Map, PlusCircle, Settings, User } from 'lucide-react-native';
+import { Home, Map, PlusCircle, Settings, ShoppingBag, User } from 'lucide-react-native';
 
 export default function TabLayout() {
   const theme = useAppTheme();
@@ -36,7 +36,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="create-payment"
         options={{
-          title: 'Crea pagamento',
+          title: 'Nuovo',
           tabBarIcon: ({ color, size }) => (
             <PlusCircle size={size} color={color} />
           ),
@@ -47,7 +47,7 @@ export default function TabLayout() {
         options={{
           title: 'Vendite',
           tabBarIcon: ({ color, size }) => (
-            <PlusCircle size={size} color={color} />
+            <ShoppingBag size={size} color={color} />
           ),
         }}
       />

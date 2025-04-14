@@ -1,20 +1,19 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, SafeAreaView, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ArrowLeft, CreditCard, DollarSign, LogOut, Link, ShoppingBag, Users, Activity } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
-import { useAppTheme } from '@/contexts/ThemeContext'; // Adjust the import path as needed
+import { Theme, useAppTheme } from '@/contexts/ThemeContext'; // Adjust the import path as needed
+import { useQuery } from '@tanstack/react-query';
+import apiClient from '@/lib/httpClient';
 
-// Mock data remains the same
-const MOCK_MERCHANT = {
-  id: '1',
-  email: 'merchant@demo.com',
-  business_name: 'Fashion Boutique',
-  avatar_url: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da',
-  address: '123 Main St, Milan, Italy',
-  total_sales: 12500.00,
-  total_transactions: 84,
-  repeat_customers: 32,
-};
+type MerchantStoreDetails = {
+  id: string,
+  name: string,
+  image: string,
+  address: string,
+  totalRevenue: number,
+  salesCount: number,
+}
 
 const MOCK_RECENT_SALES = [
   {
@@ -48,6 +47,10 @@ export default function MerchantProfileScreen() {
   const { isAuthenticated, logout, user } = useAuth();
   const theme = useAppTheme();
   const styles = makeStyles(theme);
+  const { isPending, isError, data, error } = useQuery<MerchantStoreDetails>({
+    queryKey: ['myStore'],
+    queryFn: async () => (await apiClient.get('/store/me')).data
+  })
 
   const handleSignOut = async () => {
     await logout();
@@ -58,19 +61,27 @@ export default function MerchantProfileScreen() {
     router.push('./create-payment');
   };
 
+  if (isPending) {
+    return (
+      <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.background }}>
+        <ActivityIndicator size="large" color={theme.primary} />
+        <Text style={{ marginTop: 16, color: theme.text }}>Caricamento in corso...</Text>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
       <ScrollView style={styles.container}>
         <View style={styles.header}>
           <View style={styles.userInfo}>
             <Image
-              source={{ uri: MOCK_MERCHANT.avatar_url }}
+              source={{ uri: data?.image ?? 'https://images.unsplash.com/photo-1556742111-a301076d9d18?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' }}
               style={styles.avatar}
             />
             <View>
-              <Text style={styles.userName}>{MOCK_MERCHANT.business_name}</Text>
-              <Text style={styles.userEmail}>{MOCK_MERCHANT.email}</Text>
-              <Text style={styles.storeAddress}>{MOCK_MERCHANT.address}</Text>
+              <Text style={styles.userName}>{data?.name}</Text>
+              <Text style={styles.storeAddress}>{data?.address}</Text>
             </View>
           </View>
         </View>
@@ -78,20 +89,14 @@ export default function MerchantProfileScreen() {
         <View style={styles.statsContainer}>
           <View style={styles.statCard}>
             <DollarSign size={24} color={theme.primary} />
-            <Text style={styles.statAmount}>€{MOCK_MERCHANT.total_sales.toFixed(2)}</Text>
+            <Text style={styles.statAmount}>€{data?.totalRevenue?.toFixed(2)}</Text>
             <Text style={styles.statLabel}>Vendite Totali</Text>
           </View>
           
           <View style={styles.statCard}>
             <ShoppingBag size={24} color={theme.primary} />
-            <Text style={styles.statAmount}>{MOCK_MERCHANT.total_transactions}</Text>
+            <Text style={styles.statAmount}>{data?.salesCount}</Text>
             <Text style={styles.statLabel}>Transazioni</Text>
-          </View>
-          
-          <View style={styles.statCard}>
-            <Users size={24} color={theme.primary} />
-            <Text style={styles.statAmount}>{MOCK_MERCHANT.repeat_customers}</Text>
-            <Text style={styles.statLabel}>Clienti Fedeli</Text>
           </View>
         </View>
 

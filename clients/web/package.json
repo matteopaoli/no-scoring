@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "@paytomorrow/web",
+  "name": "web",
   "version": "3.7.1",
   "scripts": {
     "dev": "next dev",

@@ -1,5 +1,5 @@
 {
-  "name": "@paytomorrow/api",
+  "name": "api",
   "private": true,
   "version": "1.4.1",
   "description": "Nest TypeScript starter repository",
@@ -32,7 +32,7 @@
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.16",
     "@nestjs/throttler": "^6.4.0",
-    "@paytomorrow/db": "^0.0.0",
+    "@paytomorrow/db": "*",
     "axios": "^1.8.4",
     "bcrypt": "^5.1.1",
     "bcrypt-ts": "^6.0.0",

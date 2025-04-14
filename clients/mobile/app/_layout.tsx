@@ -13,6 +13,15 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { LocationProvider } from '@/contexts/LocationContext';
 
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQuery,
+} from '@tanstack/react-query'
+
+const queryClient = new QueryClient()
+
+
 SplashScreen.preventAutoHideAsync();
 
 export default function Root() {
@@ -33,12 +42,14 @@ export default function Root() {
   }
 
   return (
-    <AuthProvider>
-      <ThemeProvider>
-        <LocationProvider>
-          <Slot />
-        </LocationProvider>
-      </ThemeProvider>
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <ThemeProvider>
+          <LocationProvider>
+            <Slot />
+          </LocationProvider>
+        </ThemeProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }

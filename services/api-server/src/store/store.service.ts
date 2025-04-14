@@ -6,6 +6,8 @@ import {
   subscriptions,
   db,
   users,
+  products,
+  sales,
 } from '@paytomorrow/db';
 import { and, eq, getTableColumns, sql } from 'drizzle-orm';
 import { UsersService } from 'src/users/users.service';
@@ -121,6 +123,46 @@ export class StoreService {
       .innerJoin(userStoreRoles, eq(userStoreRoles.storeId, stores.id))
       .where(eq(userStoreRoles.userId, userId));
     return result[0] || null;
+  }
+
+  async getDetailedStoreInfoByUserId(userId: string) {
+    const store = await db
+      .select({
+        id: stores.id,
+        name: stores.name,
+        partnerId: stores.partnerId,
+        address: stores.address,
+        image: stores.image,
+        customerPaysFees: stores.customerPaysFees,
+      })
+      .from(stores)
+      .innerJoin(userStoreRoles, eq(userStoreRoles.storeId, stores.id))
+      .where(eq(userStoreRoles.userId, userId))
+      .then(res => res[0]);
+  
+      console.log(userId);
+      console.log("here", store)
+
+    if (!store) return null;
+  
+    // Fetch more detailed store data
+    const [salesCountResult, revenueResult] = await Promise.all([
+      db
+        .select({ count: sql<number>`COUNT(*)` })
+        .from(sales)
+        .where(eq(sales.storeId, store.id)),
+  
+      db
+        .select({ totalRevenue: sql<number>`SUM(${sales.amount})` })
+        .from(sales)
+        .where(eq(sales.storeId, store.id)),
+    ]);
+  
+    return {
+      ...store,
+      salesCount: Number(salesCountResult[0]?.count) || 0,
+      totalRevenue: Number(revenueResult[0]?.totalRevenue) || 0,
+    };
   }
   
   async findNearbyStores(
