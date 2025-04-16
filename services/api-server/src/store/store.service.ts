@@ -111,6 +111,23 @@ export class StoreService {
     return result[0]?.stripeUserId || null;
   }
 
+  async getAdminUserByStoreId(storeId: string) {
+    const result = await db
+      .select()
+      .from(users)
+      .innerJoin(userStoreRoles, eq(userStoreRoles.userId, users.id))
+      .where(
+        and(
+          eq(userStoreRoles.storeId, storeId),
+          eq(userStoreRoles.role, 'admin'),
+        ),
+      )
+      .limit(1);
+  
+    return result[0] || null;
+  }
+  
+
   async getStoreByUserId(userId: string) {
     const result = await db
       .select({
@@ -225,7 +242,8 @@ export class StoreService {
     lat: number,
     lng: number,
     limit: number = 10,
-    offset: number = 0
+    offset: number = 0,
+    categoryId?: number,
   ) {
     const sqlPoint = sql`ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography`;
   
@@ -237,10 +255,14 @@ export class StoreService {
         distance: sql`ST_Distance(${stores.location}::geography, ${sqlPoint})`,
       })
       .from(stores)
+      .innerJoin(userStoreRoles, eq(userStoreRoles.storeId, stores.id))
+      .innerJoin(users, eq(users.id, userStoreRoles.userId))
       .where(
         and(
           sql`LOWER(${stores.name}) LIKE ${q}`,
-          sql`ST_DWithin(${stores.location}::geography, ${sqlPoint}, ${10000})` // 10km radius
+          sql`ST_DWithin(${stores.location}::geography, ${sqlPoint}, ${10000})`, // 10km radius
+          eq(userStoreRoles.role, 'admin'),
+          ...(categoryId ? [eq(users.businessTypeId, categoryId)] : [])
         )
       )
       .orderBy(sql`${stores.location} <-> ${sqlPoint}`)

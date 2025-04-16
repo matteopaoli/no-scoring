@@ -6,82 +6,93 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
+  Modal,
+  TouchableWithoutFeedback,
+  Keyboard,
+  Animated,
 } from 'react-native';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'expo-router';
-import { Search } from 'lucide-react-native';
+import { useRouter, useLocalSearchParams } from 'expo-router';
+import { Search, Filter, X } from 'lucide-react-native';
 import { useAppTheme } from '@/contexts/ThemeContext';
-import apiClient from '@/lib/httpClient';
 import { useLocation } from '@/contexts/LocationContext';
-
-type Store = {
-  id: string;
-  name: string;
-  category: string;
-  rating: number;
-  image_url: string;
-};
+import useBusinessTypes from '@/hooks/useBusinessTypes';
+import useStores from '@/hooks/useStores';
+import { Picker } from '@react-native-picker/picker';
 
 export default function SearchScreen() {
   const theme = useAppTheme();
   const router = useRouter();
-  const { location } = useLocation();
+  const { category } = useLocalSearchParams();
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [allStores, setAllStores] = useState<Store[]>([]);
-  const [filteredStores, setFilteredStores] = useState<Store[]>([]);
+  const [filtersVisible, setFiltersVisible] = useState(false);
+  const [categoryFilter, setCategoryFilter] = useState(category as string || '');
+  const [filterAnim] = useState(new Animated.Value(0));
 
-  const fetchStores = async (query?: string) => {
-    if (!location) return;
+  const {
+    data: businessCategories,
+    isLoading: isCategoriesLoading,
+  } = useBusinessTypes();
 
-    try {
-      let response;
-
-      if (query) {
-        response = await apiClient.get('/store/search', {
-          params: {
-            q: query,
-            lat: location.latitude,
-            lng: location.longitude,
-            limit: 20,
-          },
-        });
-      } else {
-        response = await apiClient.get('/store/nearby', {
-          params: {
-            lat: location.latitude,
-            lng: location.longitude,
-            limit: 20,
-          },
-        });
-      }
-
-      setFilteredStores(response.data);
-    } catch (error) {
-      console.error('Error fetching stores:', error);
-    }
-  };
+  const {
+    stores: filteredStores,
+    isLoading,
+    searchStores,
+    refetch,
+  } = useStores({
+    query: searchQuery,
+    category: categoryFilter,
+  });
 
   useEffect(() => {
-    fetchStores();
-  }, [location]);
-
-  useEffect(() => {
-    if (!searchQuery) {
-      setFilteredStores([]);
+    if (categoryFilter !== '') {
+      Animated.timing(filterAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
     } else {
-      const query = searchQuery.toLowerCase();
-      const results = allStores.filter(
-        (store) =>
-          store.name.toLowerCase().includes(query) ||
-          store.category.toLowerCase().includes(query),
-      );
-      setFilteredStores(results);
+      Animated.timing(filterAnim, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
     }
-  }, [searchQuery, allStores]);
+  }, [categoryFilter]);
+
+  useEffect(() => {
+    if (category) {
+      setCategoryFilter(category as string);
+    } else {
+      setCategoryFilter('');
+    }
+  }, [category])
 
   const handleStorePress = (storeId: string) => {
     router.push(`/store/${storeId}`);
+  };
+
+  const handleFilterToggle = () => {
+    setFiltersVisible(!filtersVisible);
+  };
+
+  const handleApplyFilters = async () => {
+    setFiltersVisible(false);
+    if (searchQuery || categoryFilter) {
+      await searchStores();
+    } else {
+      await refetch();
+    }
+  };
+
+  const handleClearFilters = async () => {
+    setCategoryFilter('');
+    if (searchQuery) {
+      await searchStores();
+    } else {
+      await refetch();
+    }
   };
 
   return (
@@ -96,38 +107,126 @@ export default function SearchScreen() {
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
+          <TouchableOpacity onPress={handleFilterToggle}>
+            <Filter size={20} color={theme.subtext} />
+          </TouchableOpacity>
         </View>
+
+        {categoryFilter !== '' && (
+          <Animated.View
+            style={[
+              styles.activeFilterContainer,
+              {
+                opacity: filterAnim,
+                transform: [
+                  {
+                    translateY: filterAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [-10, 0],
+                    }),
+                  },
+                ],
+              },
+            ]}
+          >
+            <Text style={[styles.activeFilterText, { color: theme.text }]}>
+              {
+                businessCategories?.find(
+                  (c) => c.id.toString() === categoryFilter
+                )?.name || 'Categoria'
+              }
+            </Text>
+            <TouchableOpacity onPress={handleClearFilters}>
+              <X size={16} color={theme.primary} />
+            </TouchableOpacity>
+          </Animated.View>
+        )}
       </View>
 
-      <ScrollView contentContainerStyle={styles.resultsContainer}>
-        {filteredStores.map((store) => (
-          <TouchableOpacity
-            key={store.id}
-            style={[styles.storeCard, { backgroundColor: theme.card }]}
-            onPress={() => handleStorePress(store.id)}
-          >
-            <Image
-              source={{ uri: store.image_url }}
-              style={styles.storeImage}
-            />
-            <View style={styles.storeInfo}>
-              <Text style={[styles.storeName, { color: theme.text }]}>
-                {store.name}
-              </Text>
-              <Text style={[styles.storeCategory, { color: theme.subtext }]}>
-                {store.category}
-              </Text>
-              <Text style={[styles.storeRating, { color: theme.primary }]}>
-                ★ {store.rating}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        ))}
+      {/* Filters Modal */}
+      <Modal
+        transparent={true}
+        animationType="slide"
+        visible={filtersVisible}
+        onRequestClose={handleFilterToggle}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={[styles.modalBackground, { backgroundColor: theme.background }]}>
+            <View style={[styles.filterModal, { backgroundColor: theme.card }]}>
+              <Text style={[styles.modalTitle, { color: theme.text }]}>Filters</Text>
 
-        {searchQuery && filteredStores.length === 0 && (
+              {/* Category Filter */}
+              <View style={styles.filterOption}>
+                <Text style={[styles.filterLabel, { color: theme.text }]}>Categoria</Text>
+                {isCategoriesLoading ? (
+                  <Text style={[styles.filterInput, { color: theme.text }]}>Caricamento...</Text>
+                ) : (
+                  <Picker
+                    selectedValue={categoryFilter}
+                    style={[styles.filterInput, { color: theme.text, borderColor: theme.border }]}
+                    onValueChange={(itemValue) => setCategoryFilter(itemValue)}
+                  >
+                    <Picker.Item label="Seleziona una categoria" value="" />
+                    {businessCategories?.map((category) => (
+                      <Picker.Item key={category.id} label={category.name} value={category.id.toString()} />
+                    ))}
+                  </Picker>
+                )}
+              </View>
+
+              <TouchableOpacity
+                style={[styles.applyButton, { backgroundColor: theme.primary }]}
+                onPress={handleApplyFilters}
+              >
+                <Text style={styles.applyButtonText}>Apply Filters</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={handleClearFilters}>
+                <Text style={[styles.cancelButton, { color: theme.subtext }]}>Clear Filters</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={handleFilterToggle}>
+                <Text style={[styles.cancelButton, { color: theme.subtext }]}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+
+      <ScrollView contentContainerStyle={styles.resultsContainer}>
+        {isLoading ? (
           <Text style={[styles.noResults, { color: theme.subtext }]}>
-            Nessun risultato trovato.
+            Caricamento...
           </Text>
+        ) : (
+          <>
+            {filteredStores.map((store) => (
+              <TouchableOpacity
+                key={store.id}
+                style={[styles.storeCard, { backgroundColor: theme.card }]}
+                onPress={() => handleStorePress(store.id)}
+              >
+                <Image
+                  source={{ uri: store.image_url }}
+                  style={styles.storeImage}
+                />
+                <View style={styles.storeInfo}>
+                  <Text style={[styles.storeName, { color: theme.text }]}>
+                    {store.name}
+                  </Text>
+                  <Text style={[styles.storeCategory, { color: theme.subtext }]}>
+                    {store.category}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+
+            {searchQuery && filteredStores?.length === 0 && (
+              <Text style={[styles.noResults, { color: theme.subtext }]}>
+                Nessun risultato trovato.
+              </Text>
+            )}
+          </>
         )}
       </ScrollView>
     </View>
@@ -192,15 +291,73 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 4,
   },
-  storeRating: {
-    fontFamily: 'DMSans_600SemiBold',
-    fontSize: 12,
-    marginTop: 4,
-  },
   noResults: {
     textAlign: 'center',
     marginTop: 40,
     fontSize: 14,
     fontFamily: 'DMSans_400Regular',
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    opacity: 0.7,
+  },
+  filterModal: {
+    padding: 20,
+    borderRadius: 12,
+    width: '80%',
+  },
+  modalTitle: {
+    fontFamily: 'DMSans_600SemiBold',
+    fontSize: 18,
+    marginBottom: 15,
+  },
+  filterOption: {
+    marginBottom: 15,
+  },
+  filterLabel: {
+    fontFamily: 'DMSans_600SemiBold',
+    fontSize: 14,
+  },
+  filterInput: {
+    borderWidth: 1,
+    borderRadius: 8,
+    marginTop: 5,
+    padding: 10,
+    fontFamily: 'DMSans_400Regular',
+    fontSize: 14,
+  },
+  applyButton: {
+    marginTop: 15,
+    paddingVertical: 12,
+    alignItems: 'center',
+    borderRadius: 8,
+  },
+  applyButtonText: {
+    color: 'white',
+    fontFamily: 'DMSans_600SemiBold',
+    fontSize: 14,
+  },
+  cancelButton: {
+    marginTop: 10,
+    textAlign: 'center',
+    fontFamily: 'DMSans_400Regular',
+    fontSize: 14,
+  },
+  activeFilterContainer: {
+    flexDirection: 'row',
+    alignSelf: 'flex-start',
+    alignItems: 'center',
+    marginTop: 10,
+    marginLeft: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 20,
+  },
+  activeFilterText: {
+    fontSize: 12,
+    fontFamily: 'DMSans_400Regular',
+    marginRight: 8,
   },
 });

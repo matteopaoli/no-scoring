@@ -31,6 +31,7 @@
     "@expo/vector-icons": "^14.0.2",
     "@lucide/lab": "^0.1.2",
     "@react-native-async-storage/async-storage": "1.23.1",
+    "@react-native-picker/picker": "2.9.0",
     "@react-navigation/bottom-tabs": "^7.2.0",
     "@react-navigation/native": "^7.0.14",
     "@stripe/stripe-react-native": "0.38.6",
@@ -82,6 +83,7 @@
     "@types/lodash": "^4.17.16",
     "@types/react": "~18.3.12",
     "@types/react-native-global-props": "^1.1.6",
+    "stripe": "^18.0.0",
     "typescript": "^5.3.3"
   }
 }

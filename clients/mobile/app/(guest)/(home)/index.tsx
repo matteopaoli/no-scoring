@@ -177,7 +177,7 @@ export default function HomeScreen() {
 
       <View style={styles.categoriesGrid}>
         {businessTypes?.slice(0, 6).map((category) => (
-          <CategoryItem style={styles.categoryGridItem} key={category.id} category={category} theme={theme} onPress={() => void router.push('/')} />
+          <CategoryItem style={styles.categoryGridItem} key={category.id} category={category} theme={theme} onPress={() => void router.push(`/search?category=${category.id}`)} />
         ))}
         {businessTypes?.length > 6 && (
           <Link

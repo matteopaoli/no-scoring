@@ -10,6 +10,7 @@ export interface Theme {
   secondary: string;
   subtext: string;
   card: string;
+  border: string;
   fontRegular: string;
   fontSemiBold: string;
   fontBold: string;
@@ -25,6 +26,7 @@ const lightTheme: Theme = {
   secondary: '#FFD580',
   subtext: '#666',
   card: '#FFFFFF',
+  border: '#D1D1D1',
   fontRegular: 'DMSans_400Regular',
   fontSemiBold: 'DMSans_600SemiBold',
   fontBold: 'DMSans_700Bold',
@@ -40,12 +42,14 @@ const darkTheme: Theme = {
   secondary: '#FFD580',
   subtext: '#999',
   card: '#333',
+  border: '#555',
   fontRegular: 'DMSans_400Regular',
   fontSemiBold: 'DMSans_600SemiBold',
   fontBold: 'DMSans_700Bold',
   fontSize: 14,
   fontSizeHeading: 16,
 };
+
 
 interface ThemeContextType {
   theme: Theme;

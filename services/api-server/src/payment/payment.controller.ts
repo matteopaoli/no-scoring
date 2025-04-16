@@ -1,5 +1,5 @@
 // src/payment/payment.controller.ts
-import { Controller, Post, Body, Req, UseGuards, Get } from '@nestjs/common';
+import { Controller, Post, Body, Req, UseGuards, Get, Query } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { StoreService } from '../store/store.service';
 import { Request } from 'express';
@@ -12,7 +12,7 @@ export class PaymentController {
   constructor(
     private readonly paymentService: PaymentService,
     private readonly storesService: StoreService,
-  ) {}
+  ) { }
 
   @Post('create')
   @UseGuards(AccessTokenGuard)
@@ -60,14 +60,41 @@ export class PaymentController {
   @Get('sales')
   @UseGuards(AccessTokenGuard, RoleGuard)
   @Roles('user')
-  async getSales(@Req() req: Request) {
+  async getSales(
+    @Req() req: Request,
+    @Query('limit') limit = '10',  // Default limit if not provided
+    @Query('offset') offset = '0', // Default offset if not provided
+  ) {
     const userId = req.user?.['sub'];
+
     const stripeUserId =
-    await this.storesService.getAdminStripeUserIdByUserId(userId);
+      await this.storesService.getAdminStripeUserIdByUserId(userId);
+    const store = await this.storesService.getStoreByUserId(userId)
     if (!stripeUserId) {
       throw new Error('Stripe user ID not found for the user.');
     }
-    const sales = await this.paymentService.getSales(stripeUserId)
+
+    const parsedLimit = Math.min(parseInt(limit, 10), 100); // Cap limit to 100 to avoid excessive loads
+    const parsedOffset = parseInt(offset, 10);
+
+    const sales = await this.paymentService.getSales(stripeUserId, store.id, parsedLimit, parsedOffset);
+    console.log(sales)
     return sales;
+  }
+
+  @Get('sales/stats')
+  @UseGuards(AccessTokenGuard, RoleGuard)
+  @Roles('user')
+  async getSalesStats(@Req() req: Request) {
+    const userId = req.user?.['sub'];
+    const stripeUserId = await this.storesService.getAdminStripeUserIdByUserId(userId);
+    const store = await this.storesService.getStoreByUserId(userId);
+
+    if (!stripeUserId) {
+      throw new Error('Stripe user ID not found for the user.');
+    }
+
+    const stats = await this.paymentService.getSalesStats(store.id);
+    return stats;
   }
 }

@@ -3,7 +3,9 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
 import { generateQrCodeWithLogo } from '../utils/qr-code';
-import { db, products } from '@paytomorrow/db';
+import { db, products, sales } from '@paytomorrow/db';
+import { and, desc, eq, gte } from 'drizzle-orm';
+import { startOfToday, startOfWeek } from 'date-fns';
 
 @Injectable()
 export class PaymentService {
@@ -15,7 +17,7 @@ export class PaymentService {
   private FEES_DISCLAIMER =
     'Il prezzo è stato aumentato per includere le commissioni associate al pagamento in più rate.';
 
-  constructor(private readonly configService: ConfigService) {}
+  constructor(private readonly configService: ConfigService) { }
 
   getAmountWithFees(amount: number) {
     const stripeFeeVarVAT = this.STRIPE_FEE_VAR * this.VAT;
@@ -113,13 +115,66 @@ export class PaymentService {
   }
 
 
-  async getSales(stripeAccountId: string) {
+  async getSales(stripeAccountId: string, storeId: string, limit = 10, offset = 0) {
+    console.log(stripeAccountId, storeId)
     const stripe = new Stripe(
       this.configService.get<string>('STRIPE_API_KEY')!,
       {
         stripeAccount: stripeAccountId,
       },
     );
-    return await stripe.paymentIntents.list({ expand: ['data.customer'] })
+
+    // Step 1: Get local sales records for the store
+    const localSales = await db
+      .select()
+      .from(sales)
+      .where(eq(sales.storeId, storeId))
+      .orderBy(desc(sales.createdAt))
+      .limit(limit)
+      .offset(offset);
+
+    // Step 2: Fetch corresponding payment intents from Stripe
+    const paymentIntentIds = localSales.map((sale) => sale.stripePaymentIntentId);
+
+    const stripeResponses = await Promise.all(
+      paymentIntentIds.map((id) =>
+        stripe.paymentIntents.retrieve(id, { expand: ['customer'] }).catch(() => null)
+      )
+    );
+
+    const mergedSales = localSales.map((sale) => {
+      const stripeData = stripeResponses.find(
+        (pi) => pi && pi.id === sale.stripePaymentIntentId
+      );
+      return {
+        ...sale,
+        stripe: stripeData,
+      };
+    });
+
+    return mergedSales;
+  }
+
+  async getSalesStats(storeId: string) {
+    const todayStart = startOfToday();
+    const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 }); // Monday as start of week
+
+    const todaySales = await db
+      .select({ amount: sales.amount })
+      .from(sales)
+      .where(and(eq(sales.storeId, storeId), gte(sales.createdAt, todayStart)))
+
+    const weekSales = await db
+      .select({ amount: sales.amount })
+      .from(sales)
+      .where(and(eq(sales.storeId, storeId), gte(sales.createdAt, weekStart)))
+
+    const today = todaySales.reduce((sum, sale) => sum + parseFloat(sale.amount as unknown as string), 0);
+    const week = weekSales.reduce((sum, sale) => sum + parseFloat(sale.amount as unknown as string), 0);
+
+    return {
+      today,
+      week,
+    };
   }
 }

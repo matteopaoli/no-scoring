@@ -45,6 +45,7 @@ export class StoreController {
     @Query('lng') lng: string,
     @Query('limit') limit?: string,
     @Query('offset') offset?: string,
+    @Query('category') categoryId?: number,
   ) {
     const latitude = parseFloat(lat);
     const longitude = parseFloat(lng);
@@ -60,7 +61,8 @@ export class StoreController {
       latitude,
       longitude,
       parsedLimit,
-      parsedOffset
+      parsedOffset,
+      categoryId
     );
   }
 

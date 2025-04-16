@@ -1,11 +1,12 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, SafeAreaView, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ArrowLeft, CreditCard, DollarSign, LogOut, Link, ShoppingBag, Users, Activity } from 'lucide-react-native';
+import { ArrowLeft, CreditCard, DollarSign, LogOut, Link, ShoppingBag, Users, Activity, EuroIcon } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { Theme, useAppTheme } from '@/contexts/ThemeContext'; // Adjust the import path as needed
 import { useQuery } from '@tanstack/react-query';
 import apiClient from '@/lib/httpClient';
 import useSales from '@/hooks/useSales';
+import useSalesStats from '@/hooks/useSalesStats';
 
 type MerchantStoreDetails = {
   id: string,
@@ -15,33 +16,6 @@ type MerchantStoreDetails = {
   totalRevenue: number,
   salesCount: number,
 }
-
-const MOCK_RECENT_SALES = [
-  {
-    id: '1',
-    amount: 250.00,
-    customer_name: 'Marco Rossi',
-    customer_image: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
-    date: '2025-03-15T14:30:00Z',
-    status: 'completed',
-  },
-  {
-    id: '2',
-    amount: 120.00,
-    customer_name: 'Laura Bianchi',
-    customer_image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2',
-    date: '2025-03-15T11:15:00Z',
-    status: 'completed',
-  },
-  {
-    id: '3',
-    amount: 85.50,
-    customer_name: 'Giovanni Verdi',
-    customer_image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a',
-    date: '2025-03-14T16:45:00Z',
-    status: 'completed',
-  },
-];
 
 export default function MerchantProfileScreen() {
   const router = useRouter();
@@ -53,6 +27,7 @@ export default function MerchantProfileScreen() {
     queryFn: async () => (await apiClient.get('/store/me')).data
   })
   const { data: sales } = useSales();
+
 
   const handleSignOut = async () => {
     await logout();
@@ -92,7 +67,7 @@ export default function MerchantProfileScreen() {
 
         <View style={styles.statsContainer}>
           <View style={styles.statCard}>
-            <DollarSign size={24} color={theme.primary} />
+            <EuroIcon size={24} color={theme.primary} />
             <Text style={styles.statAmount}>€{data?.totalRevenue?.toFixed(2)}</Text>
             <Text style={styles.statLabel}>Vendite Totali</Text>
           </View>
@@ -118,15 +93,15 @@ export default function MerchantProfileScreen() {
               <View style={styles.saleInfo}>
                 <View style={styles.saleAmountAndStatus}>
                   <Text style={styles.saleAmount}>
-                    €{(sale.amount / 100).toFixed(2)} {/* Convert amount to EUR */}
+                    €{sale?.amount} {/* Convert amount to EUR */}
                   </Text>
 
                   <Text style={styles.saleStatus}>
-                    {sale.status === 'succeeded' ? '✓ Completato' : '⋯ In corso'}
+                    {sale?.stripe?.status === 'succeeded' ? '✓ Completato' : '⋯ In corso'}
                   </Text>
                 </View>
                 {/* Display Klarna logo if payment method is Klarna */}
-                {sale.payment_method_types?.includes('klarna') && (
+                {sale?.stripe?.payment_method_types?.includes('klarna') && (
                   <Image
                     source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Klarna_Logo_black.svg/512px-Klarna_Logo_black.svg.png' }}
                     style={styles.paymentMethodLogo}
@@ -138,7 +113,14 @@ export default function MerchantProfileScreen() {
 
               {/* Sale Date */}
               <Text style={styles.saleDate}>
-                {new Date(sale.created * 1000).toLocaleString()} {/* Convert Unix timestamp to date and time */}
+                {sale.createdAt
+                  ? new Date(sale.createdAt).toLocaleDateString('it-IT', {
+                    day: 'numeric',
+                    month: 'short',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })
+                  : '--'}
               </Text>
             </View>
           ))}

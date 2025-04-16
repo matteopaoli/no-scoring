@@ -13,8 +13,7 @@ export default function CategoriesScreen() {
 
   const handleCategoryPress = (category: { id: string, name: string }) => {
     router.push({
-      pathname: '/search-results',
-      params: { categoryId: category.id, categoryName: category.name },
+      pathname: `/search`,
     });
   };
 
