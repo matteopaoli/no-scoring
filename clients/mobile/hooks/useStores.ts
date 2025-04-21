@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import apiClient from '@/lib/httpClient';
 import { useLocation } from '@/contexts/LocationContext';
 
@@ -7,69 +7,85 @@ type Store = {
   name: string;
   category: string;
   image: string;
+  distance: number;
 };
 
-type FetchStoresParams = {
+type UseStoresOptions = {
   query?: string;
   category?: string;
+  limit?: number;
+  radius?: number; // Optional if you want to support this too
 };
 
-// Unified fetch function for both nearby and search
 const fetchStores = async ({
+  pageParam = 0,
   query,
   category,
   lat,
   lng,
-}: FetchStoresParams & { lat: number; lng: number }) => {
-  const endpoint = query ? '/store/search' : '/store/nearby';
-
+  limit = 20,
+  radius,
+}: {
+  pageParam?: number;
+  query?: string;
+  category?: string;
+  lat: number;
+  lng: number;
+  limit?: number;
+  radius?: number;
+}): Promise<Store[]> => {
   const params: Record<string, any> = {
     lat,
     lng,
-    limit: 20,
+    limit,
+    offset: pageParam,
   };
 
   if (query) params.q = query;
   if (category) params.category = category;
+  if (radius) params.radius = radius;
 
-  const response = await apiClient.get(endpoint, { params });
+  const response = await apiClient.get('/store/search', { params });
   return response.data;
 };
 
-const useStores = ({ query = '', category = '' }: FetchStoresParams = {}) => {
+const useStores = ({ query, category, limit = 20, radius }: UseStoresOptions = {}) => {
   const { location } = useLocation();
-  const queryClient = useQueryClient();
+  const canFetch = !!location;
 
-  const canFetch = !!location && !query; // auto-fetch nearby only when no search query
-
-  const { data: stores, isLoading, refetch } = useQuery<Store[]>({
-    queryKey: ['stores', { category, lat: location?.latitude, lng: location?.longitude }],
-    queryFn: () =>
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    refetch,
+  } = useInfiniteQuery<Store[]>({
+    queryKey: ['stores', { query, category, radius, lat: location?.latitude, lng: location?.longitude }],
+    queryFn: ({ pageParam = 0 }) =>
       fetchStores({
-        lat: location!.latitude,
-        lng: location!.longitude,
-        category,
-      }),
-    enabled: canFetch,
-  });
-
-  const { mutateAsync: searchStores, isPending: isSearching } = useMutation({
-    mutationFn: () =>
-      fetchStores({
+        pageParam: pageParam as number,
         query,
         category,
+        radius,
         lat: location!.latitude,
         lng: location!.longitude,
+        limit,
       }),
-    onSuccess: (data) => {
-      queryClient.setQueryData(['stores', { category, lat: location?.latitude, lng: location?.longitude }], data);
-    },
+    enabled: canFetch,
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.length < limit ? undefined : allPages.length * limit,
   });
+
+  const stores = data?.pages.flat() ?? [];
 
   return {
     stores,
-    isLoading: isLoading || isSearching,
-    searchStores,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
     refetch,
   };
 };

@@ -30,7 +30,7 @@ export default function PaymentSuccess() {
         </Text>
 
         {/* Transaction details - you can make these dynamic */}
-        <View style={[styles.detailsCard, { backgroundColor: theme.card }]}>
+        <View style={[styles.detailsCard, { backgroundColor: theme.cardBackgroundColor }]}>
           <View style={styles.detailRow}>
             <Text style={[styles.detailLabel, { color: theme.subtext }]}>Importo:</Text>
             <Text style={[styles.detailValue, { color: theme.text }]}>€ 50,00</Text>

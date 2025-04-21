@@ -82,7 +82,7 @@ export default function MerchantProfileScreen() {
         <TouchableOpacity
           style={styles.paymentLinkButton}
           onPress={handleCreatePaymentLink}>
-          <Link size={24} color={theme.card} />
+          <Link size={24} color={theme.cardBackgroundColor} />
           <Text style={styles.paymentLinkButtonText}>Crea Link di Pagamento</Text>
         </TouchableOpacity>
 
@@ -139,7 +139,7 @@ export default function MerchantProfileScreen() {
         {/* <TouchableOpacity
           style={styles.signOutButton}
           onPress={handleSignOut}>
-          <LogOut size={24} color={theme.card} />
+          <LogOut size={24} color={theme.cardBackgroundColor} />
           <Text style={styles.signOutButtonText}>Esci</Text>
         </TouchableOpacity> */}
       </ScrollView>
@@ -189,7 +189,7 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: theme.card,
+    backgroundColor: theme.cardBackgroundColor,
     padding: 15,
     borderRadius: 15,
     alignItems: 'center',
@@ -229,7 +229,7 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
   paymentLinkButtonText: {
     fontFamily: theme.fontSemiBold,
     fontSize: theme.fontSizeHeading,
-    color: theme.card,
+    color: theme.cardBackgroundColor,
     marginLeft: 10,
   },
   section: {
@@ -302,7 +302,7 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     paddingTop: 0,
   },
   analyticsCard: {
-    backgroundColor: theme.card,
+    backgroundColor: theme.cardBackgroundColor,
     padding: 20,
     borderRadius: 15,
     shadowColor: '#000',
@@ -336,7 +336,7 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
   signOutButtonText: {
     fontFamily: theme.fontSemiBold,
     fontSize: theme.fontSizeHeading,
-    color: theme.card,
+    color: theme.cardBackgroundColor,
     marginLeft: 10,
   },
 });

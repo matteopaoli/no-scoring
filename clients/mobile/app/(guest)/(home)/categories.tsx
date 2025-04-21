@@ -11,19 +11,13 @@ export default function CategoriesScreen() {
   const { data: businessTypes } = useBusinessTypes();
   const router = useRouter();
 
-  const handleCategoryPress = (category: { id: string, name: string }) => {
-    router.push({
-      pathname: `/search`,
-    });
-  };
-
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: theme.background }]}
     >
       <View style={styles.categoriesGrid}>
         {businessTypes?.map((category) => (
-            <CategoryItem style={styles.categoryItem} key={category.id} category={category} theme={theme} onPress={() => handleCategoryPress(category)} />
+            <CategoryItem style={styles.categoryItem} key={category.id} category={category} theme={theme} onPress={() => router.push(`/search?category=${category.id}`)} />
         ))}
       </View>
     </ScrollView>

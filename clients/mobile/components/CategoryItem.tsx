@@ -1,3 +1,4 @@
+import { useAppTheme } from '@/contexts/ThemeContext';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 type BusinessCategory = {
@@ -23,13 +24,14 @@ const CATEGORY_EMOJIS: Record<number, string> = {
     16: '🛋️',  // Negozi di arredamento e utensileria
   };
 
-const CategoryItem = ({ category, theme, style, onPress }: { category: BusinessCategory; theme: any; style?: Record<string, any>; onPress: () => void; }) => (
-  <TouchableOpacity
+const CategoryItem = ({ category, style, onPress }: { category: BusinessCategory; style?: Record<string, any>; onPress: () => void; }) => {
+  const theme = useAppTheme()
+  return (<TouchableOpacity
     style={[
       styles.categoryItem,
       style,
       {
-        backgroundColor: theme.card,
+        backgroundColor: theme.cardBackgroundColor,
         borderColor: theme.primary + '20',
       },
     ]}
@@ -52,6 +54,7 @@ const CategoryItem = ({ category, theme, style, onPress }: { category: BusinessC
     </Text>
   </TouchableOpacity>
 );
+}
 
 const styles = StyleSheet.create({
   // Individual category item

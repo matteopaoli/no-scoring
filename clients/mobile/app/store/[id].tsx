@@ -13,35 +13,21 @@ import { useEffect, useState } from 'react';
 import { ArrowLeft, CreditCard } from 'lucide-react-native';
 import PaymentModal from '@/components/PaymentModal';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import apiClient from '@/lib/httpClient'; // adjust path if needed
+import useStoreDetails from '@/hooks/useStoreDetails';
+import { StatusBar } from 'expo-status-bar';
+
+const mockStoreImage = 'https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images.jpg?v=1603109892'
+
 
 const StoreDetailPage = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
   const theme = useAppTheme();
   const router = useRouter();
-
-  const [store, setStore] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const { data: store, isLoading, isError } = useStoreDetails(id)
   const [showPaymentModal, setShowPaymentModal] = useState(false);
 
-  useEffect(() => {
-    const fetchStore = async () => {
-      try {
-        const response = await apiClient.get(`/store/${id}`);
-        setStore(response.data);
-      } catch (err: any) {
-        setError('Errore durante il caricamento del negozio');
-        console.error('Fetch error:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    if (id) fetchStore();
-  }, [id]);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <View style={[styles.centered, { backgroundColor: theme.background }]}>
         <ActivityIndicator size="large" color={theme.primary} />
@@ -49,7 +35,7 @@ const StoreDetailPage = () => {
     );
   }
 
-  if (error || !store) {
+  if (isError || !store) {
     return (
       <View style={[styles.centered, { backgroundColor: theme.background }]}>
         <Text style={{ color: theme.text }}>{error || 'Negozio non trovato.'}</Text>
@@ -62,8 +48,12 @@ const StoreDetailPage = () => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
+      <StatusBar
+        style={theme.type === 'dark' ? 'light' : 'dark'}
+        backgroundColor={theme.background}
+      />
       <View style={[styles.container, { backgroundColor: theme.background }]}>
-        <View style={[styles.header, { backgroundColor: theme.card }]}>
+        <View style={[styles.header, { backgroundColor: theme.cardBackgroundColor }]}>
           <TouchableOpacity onPress={() => router.back()}>
             <ArrowLeft size={24} color={theme.primary} />
           </TouchableOpacity>
@@ -74,8 +64,8 @@ const StoreDetailPage = () => {
         </View>
 
         <ScrollView>
-          <Image source={{ uri: store.image_url }} style={styles.storeImage} />
-          <View style={[styles.infoContainer, { backgroundColor: theme.card }]}>
+          <Image source={{ uri: store.image || mockStoreImage }} style={styles.storeImage} />
+          <View style={[styles.infoContainer, { backgroundColor: theme.cardBackgroundColor }]}>
             <Text style={[styles.storeName, { color: theme.text }]}>
               {store.name}
             </Text>
@@ -83,11 +73,11 @@ const StoreDetailPage = () => {
               {store.category}
             </Text>
 
-            <View style={styles.ratingContainer}>
+            {/* <View style={styles.ratingContainer}>
               <Text style={[styles.ratingText, { color: theme.text }]}>
                 ★ {store.rating}
               </Text>
-            </View>
+            </View> */}
 
             <Text style={[styles.sectionTitle, { color: theme.text }]}>
               Descrizione
@@ -107,19 +97,19 @@ const StoreDetailPage = () => {
                 {store.address}
               </Text>
             </View>
-            <View style={styles.infoRow}>
+            {/* <View style={styles.infoRow}>
               <Text style={[styles.infoLabel, { color: theme.subtext }]}>
                 Telefono:
               </Text>
               <Text style={[styles.infoValue, { color: theme.text }]}>
                 {store.phone}
               </Text>
-            </View>
+            </View> */}
           </View>
         </ScrollView>
 
         <View
-          style={[styles.payButtonContainer, { backgroundColor: theme.card }]}
+          style={[styles.payButtonContainer, { backgroundColor: theme.cardBackgroundColor }]}
         >
           <TouchableOpacity
             style={[styles.payButton, { backgroundColor: theme.primary }]}

@@ -10,13 +10,15 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: theme.card,
+          backgroundColor: theme.cardBackgroundColor,
           borderTopWidth: 0,
           elevation: 8,
           shadowColor: '#000',
           shadowOffset: { width: 0, height: -2 },
           shadowOpacity: theme.type === 'dark' ? 0.3 : 0.1,
           shadowRadius: 4,
+          height: 70,
+          paddingTop: 10
         },
         tabBarActiveTintColor: theme.primary,
         tabBarInactiveTintColor: theme.subtext,

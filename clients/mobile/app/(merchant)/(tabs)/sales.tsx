@@ -76,10 +76,10 @@ export default function SalesScreen() {
         <Text style={[styles.title, { color: theme.text, fontFamily: theme.fontBold }]}>Vendite</Text>
 
         <View style={styles.headerIcons}>
-          <TouchableOpacity style={[styles.iconWrapper, { backgroundColor: theme.card }]}>
+          <TouchableOpacity style={[styles.iconWrapper, { backgroundColor: theme.cardBackgroundColor }]}>
             <Search size={20} color={theme.primary} />
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.iconWrapper, { backgroundColor: theme.card }]}>
+          <TouchableOpacity style={[styles.iconWrapper, { backgroundColor: theme.cardBackgroundColor }]}>
             <Filter size={20} color={theme.primary} />
           </TouchableOpacity>
         </View>
@@ -87,7 +87,7 @@ export default function SalesScreen() {
 
       {/* Stat Cards */}
       <View style={styles.statsRow}>
-        <View style={[styles.statCard, { backgroundColor: theme.card }]}>
+        <View style={[styles.statCard, { backgroundColor: theme.cardBackgroundColor }]}>
           <Text style={[styles.statAmount, { color: theme.text, fontFamily: theme.fontBold }]}>
             €{stats?.today.toFixed(2) ?? '0.00'}
           </Text>
@@ -95,7 +95,7 @@ export default function SalesScreen() {
             Vendite Oggi
           </Text>
         </View>
-        <View style={[styles.statCard, { backgroundColor: theme.card }]}>
+        <View style={[styles.statCard, { backgroundColor: theme.cardBackgroundColor }]}>
           <Text style={[styles.statAmount, { color: theme.text, fontFamily: theme.fontBold }]}>
             €{stats?.week.toFixed(2) ?? '0.00'}
           </Text>
@@ -115,7 +115,7 @@ export default function SalesScreen() {
         {allSales.map((sale) => (
           <TouchableOpacity
             key={sale.id}
-            style={[styles.saleCard, { backgroundColor: theme.card }]}
+            style={[styles.saleCard, { backgroundColor: theme.cardBackgroundColor }]}
             onPress={() => router.push(`./(merchant)/sale-details/${sale.id}`)}
           >
             <View style={styles.saleInfo}>

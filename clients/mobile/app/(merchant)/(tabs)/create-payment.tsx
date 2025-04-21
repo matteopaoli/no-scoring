@@ -156,7 +156,7 @@ export default function CreatePaymentLinkScreen() {
     onPress={handleCreateLink}
   >
     <Text style={styles.ctaText}>Genera Link</Text>
-    <Link size={20} color={theme.card} style={{ marginLeft: 8 }} />
+    <Link size={20} color={theme.cardBackgroundColor} style={{ marginLeft: 8 }} />
   </TouchableOpacity>
 </View>
 
@@ -219,7 +219,7 @@ const createStyles = (theme: Theme) =>
     backButton: {
       width: 45,
       height: 45,
-      backgroundColor: theme.card,
+      backgroundColor: theme.cardBackgroundColor,
       borderRadius: 22.5,
       alignItems: 'center',
       justifyContent: 'center',
@@ -264,7 +264,7 @@ const createStyles = (theme: Theme) =>
     buttonText: {
       fontFamily: theme.fontSemiBold,
       fontSize: theme.fontSizeHeading,
-      color: theme.card,
+      color: theme.cardBackgroundColor,
     },
     modalOverlay: {
       flex: 1,
@@ -274,7 +274,7 @@ const createStyles = (theme: Theme) =>
     },
     modalBox: {
       width: '90%',
-      backgroundColor: theme.card,
+      backgroundColor: theme.cardBackgroundColor,
       borderRadius: 20,
       padding: 25,
       alignItems: 'center',
@@ -316,7 +316,7 @@ const createStyles = (theme: Theme) =>
     actionText: {
       fontFamily: theme.fontSemiBold,
       fontSize: theme.fontSizeHeading,
-      color: theme.card,
+      color: theme.cardBackgroundColor,
       textAlign: 'center',
     },
     shareButton: {
@@ -352,7 +352,7 @@ const createStyles = (theme: Theme) =>
     },
 
     sheetContainer: {
-      backgroundColor: theme.card,
+      backgroundColor: theme.cardBackgroundColor,
       borderTopLeftRadius: 20,
       borderTopRightRadius: 20,
       padding: 24,
@@ -415,7 +415,7 @@ const createStyles = (theme: Theme) =>
     primaryText: {
       fontFamily: theme.fontSemiBold,
       fontSize: theme.fontSizeHeading,
-      color: theme.card,
+      color: theme.cardBackgroundColor,
     },
 
     secondaryAction: {
@@ -491,6 +491,6 @@ const createStyles = (theme: Theme) =>
     ctaText: {
       fontFamily: theme.fontSemiBold,
       fontSize: theme.fontSizeHeading,
-      color: theme.card,
+      color: theme.cardBackgroundColor,
     },
   });

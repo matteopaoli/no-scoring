@@ -5,7 +5,6 @@ import {
   TextInput,
   ScrollView,
   TouchableOpacity,
-  Image,
   Modal,
   TouchableWithoutFeedback,
   Keyboard,
@@ -19,16 +18,19 @@ import { useLocation } from '@/contexts/LocationContext';
 import useBusinessTypes from '@/hooks/useBusinessTypes';
 import useStores from '@/hooks/useStores';
 import { Picker } from '@react-native-picker/picker';
+import StoreCard from '@/components/StoreCard';
+import useDebounce from '@/hooks/useDebounce';
 
 export default function SearchScreen() {
   const theme = useAppTheme();
-  const router = useRouter();
   const { category } = useLocalSearchParams();
 
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearchQuery = useDebounce(searchQuery, 400); // 400ms debounce
   const [filtersVisible, setFiltersVisible] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState(category as string || '');
   const [filterAnim] = useState(new Animated.Value(0));
+  const [isFetchingMore, setIsFetchingMore] = useState(false); // State to track if more results are being fetched
 
   const {
     data: businessCategories,
@@ -38,10 +40,11 @@ export default function SearchScreen() {
   const {
     stores: filteredStores,
     isLoading,
-    searchStores,
-    refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
   } = useStores({
-    query: searchQuery,
+    query: debouncedSearchQuery,
     category: categoryFilter,
   });
 
@@ -67,11 +70,7 @@ export default function SearchScreen() {
     } else {
       setCategoryFilter('');
     }
-  }, [category])
-
-  const handleStorePress = (storeId: string) => {
-    router.push(`/store/${storeId}`);
-  };
+  }, [category]);
 
   const handleFilterToggle = () => {
     setFiltersVisible(!filtersVisible);
@@ -79,25 +78,22 @@ export default function SearchScreen() {
 
   const handleApplyFilters = async () => {
     setFiltersVisible(false);
-    if (searchQuery || categoryFilter) {
-      await searchStores();
-    } else {
-      await refetch();
-    }
   };
 
   const handleClearFilters = async () => {
     setCategoryFilter('');
-    if (searchQuery) {
-      await searchStores();
-    } else {
-      await refetch();
+  };
+
+  const loadMoreStores = () => {
+    if (!isFetchingNextPage && hasNextPage) {
+      setIsFetchingMore(true);
+      fetchNextPage().finally(() => setIsFetchingMore(false)); // Set isFetchingMore to false after fetching is complete
     }
   };
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <View style={[styles.searchHeader, { backgroundColor: theme.card }]}>
+      <View style={[styles.searchHeader, { backgroundColor: theme.cardBackgroundColor }]}>
         <View style={[styles.searchBar, { backgroundColor: theme.background }]}>
           <Search size={20} color={theme.subtext} style={styles.searchIcon} />
           <TextInput
@@ -152,8 +148,8 @@ export default function SearchScreen() {
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={[styles.modalBackground, { backgroundColor: theme.background }]}>
-            <View style={[styles.filterModal, { backgroundColor: theme.card }]}>
-              <Text style={[styles.modalTitle, { color: theme.text }]}>Filters</Text>
+            <View style={[styles.filterModal, { backgroundColor: theme.cardBackgroundColor }]}>
+              <Text style={[styles.modalTitle, { color: theme.text }]}>Filtri di ricerca</Text>
 
               {/* Category Filter */}
               <View style={styles.filterOption}>
@@ -178,52 +174,52 @@ export default function SearchScreen() {
                 style={[styles.applyButton, { backgroundColor: theme.primary }]}
                 onPress={handleApplyFilters}
               >
-                <Text style={styles.applyButtonText}>Apply Filters</Text>
+                <Text style={styles.applyButtonText}>Applica</Text>
               </TouchableOpacity>
 
               <TouchableOpacity onPress={handleClearFilters}>
-                <Text style={[styles.cancelButton, { color: theme.subtext }]}>Clear Filters</Text>
+                <Text style={[styles.cancelButton, { color: theme.subtext }]}>Azzera Filtri</Text>
               </TouchableOpacity>
 
               <TouchableOpacity onPress={handleFilterToggle}>
-                <Text style={[styles.cancelButton, { color: theme.subtext }]}>Cancel</Text>
+                <Text style={[styles.cancelButton, { color: theme.subtext }]}>Annulla</Text>
               </TouchableOpacity>
             </View>
           </View>
         </TouchableWithoutFeedback>
       </Modal>
 
-      <ScrollView contentContainerStyle={styles.resultsContainer}>
+      <ScrollView
+        contentContainerStyle={styles.resultsContainer}
+        onEndReached={loadMoreStores} // Trigger load more stores when the user reaches the end
+        onEndReachedThreshold={0.1} // Load more when 10% away from the end
+      >
         {isLoading ? (
           <Text style={[styles.noResults, { color: theme.subtext }]}>
             Caricamento...
           </Text>
         ) : (
           <>
-            {filteredStores.map((store) => (
-              <TouchableOpacity
-                key={store.id}
-                style={[styles.storeCard, { backgroundColor: theme.card }]}
-                onPress={() => handleStorePress(store.id)}
-              >
-                <Image
-                  source={{ uri: store.image_url }}
-                  style={styles.storeImage}
-                />
-                <View style={styles.storeInfo}>
-                  <Text style={[styles.storeName, { color: theme.text }]}>
-                    {store.name}
-                  </Text>
-                  <Text style={[styles.storeCategory, { color: theme.subtext }]}>
-                    {store.category}
-                  </Text>
-                </View>
-              </TouchableOpacity>
+            {filteredStores?.map(({ id, name, category, distance, image }) => (
+              <StoreCard
+                key={id}
+                id={id}
+                name={name}
+                category={category}
+                distance={distance}
+                image={image}
+              />
             ))}
 
             {searchQuery && filteredStores?.length === 0 && (
               <Text style={[styles.noResults, { color: theme.subtext }]}>
                 Nessun risultato trovato.
+              </Text>
+            )}
+
+            {isFetchingNextPage && (
+              <Text style={[styles.noResults, { color: theme.subtext }]}>
+                Carico più risultati...
               </Text>
             )}
           </>
@@ -236,6 +232,7 @@ export default function SearchScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    marginTop: 20,
   },
   searchHeader: {
     paddingHorizontal: 20,

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useColorScheme } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Define the types for our light and dark themes
 export interface Theme {
   type: 'light' | 'dark';
   background: string;
@@ -9,13 +9,13 @@ export interface Theme {
   primary: string;
   secondary: string;
   subtext: string;
-  card: string;
   border: string;
   fontRegular: string;
   fontSemiBold: string;
   fontBold: string;
   fontSize: number;
   fontSizeHeading: number;
+  cardBackgroundColor: string;
 }
 
 const lightTheme: Theme = {
@@ -25,7 +25,7 @@ const lightTheme: Theme = {
   primary: '#FF8C00',
   secondary: '#FFD580',
   subtext: '#666',
-  card: '#FFFFFF',
+  cardBackgroundColor: '#FFFFFF',
   border: '#D1D1D1',
   fontRegular: 'DMSans_400Regular',
   fontSemiBold: 'DMSans_600SemiBold',
@@ -41,7 +41,7 @@ const darkTheme: Theme = {
   primary: '#FF8C00',
   secondary: '#FFD580',
   subtext: '#999',
-  card: '#333',
+  cardBackgroundColor: '#333',
   border: '#555',
   fontRegular: 'DMSans_400Regular',
   fontSemiBold: 'DMSans_600SemiBold',
@@ -50,43 +50,73 @@ const darkTheme: Theme = {
   fontSizeHeading: 16,
 };
 
+type ThemePreference = 'light' | 'dark' | null;
 
 interface ThemeContextType {
   theme: Theme;
-  toggleTheme: () => void;
+  themePreference: ThemePreference;
+  setThemePreference: (preference: ThemePreference) => void;
 }
 
-// Create the ThemeContext
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export const ThemeProvider = ({ children }: { children: JSX.Element }) => {
-  const systemTheme = useColorScheme();
-  const [theme, setTheme] = useState<Theme>(
-    systemTheme === 'dark' ? darkTheme : lightTheme,
-  );
+export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
+  const systemScheme = useColorScheme();
+  const [themePreference, setThemePreferenceState] = useState<ThemePreference>(null);
+  const [theme, setTheme] = useState<Theme>(lightTheme); // Default theme
 
+  // Load persisted preference
   useEffect(() => {
-    setTheme(systemTheme === 'dark' ? darkTheme : lightTheme);
-  }, [systemTheme]);
+    const loadPreference = async () => {
+      const storedPref = await AsyncStorage.getItem('themePreference');
+      if (storedPref === 'light' || storedPref === 'dark') {
+        setThemePreferenceState(storedPref);
+      }
+    };
+    loadPreference();
+  }, []);
 
-  const toggleTheme = () => {
-    setTheme((prevTheme) =>
-      prevTheme === lightTheme ? darkTheme : lightTheme,
-    );
+  // Resolve active theme
+  useEffect(() => {
+    const resolved =
+      themePreference === 'dark'
+        ? darkTheme
+        : themePreference === 'light'
+        ? lightTheme
+        : systemScheme === 'dark'
+        ? darkTheme
+        : lightTheme;
+
+    setTheme(resolved);
+  }, [systemScheme, themePreference]);
+
+  // Save preference and update state
+  const setThemePreference = async (preference: ThemePreference) => {
+    setThemePreferenceState(preference);
+    if (preference === null) {
+      await AsyncStorage.removeItem('themePreference');
+    } else {
+      await AsyncStorage.setItem('themePreference', preference);
+    }
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider
+      value={{ theme, themePreference, setThemePreference }}
+    >
       {children}
     </ThemeContext.Provider>
   );
 };
 
-// Custom hook to access theme
 export const useAppTheme = (): Theme => {
   const context = useContext(ThemeContext);
-  if (!context) {
-    throw new Error('useAppTheme must be used within a ThemeProvider');
-  }
+  if (!context) throw new Error('useAppTheme must be used within a ThemeProvider');
   return context.theme;
+};
+
+export const useThemeContext = (): ThemeContextType => {
+  const context = useContext(ThemeContext);
+  if (!context) throw new Error('useThemeContext must be used within a ThemeProvider');
+  return context;
 };

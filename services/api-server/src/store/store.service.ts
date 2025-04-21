@@ -8,6 +8,7 @@ import {
   users,
   products,
   sales,
+  businessType,
 } from '@paytomorrow/db';
 import { and, eq, getTableColumns, sql } from 'drizzle-orm';
 import { UsersService } from 'src/users/users.service';
@@ -156,9 +157,6 @@ export class StoreService {
       .innerJoin(userStoreRoles, eq(userStoreRoles.storeId, stores.id))
       .where(eq(userStoreRoles.userId, userId))
       .then(res => res[0]);
-  
-      console.log(userId);
-      console.log("here", store)
 
     if (!store) return null;
   
@@ -206,8 +204,6 @@ export class StoreService {
       .orderBy(sql`${stores.location} <-> ${sqlPoint}`) // spatial index sort
       .limit(limit)
       .offset(offset)
-
-    console.log(`Query: ${JSON.stringify(query.toSQL())}`); // Log the SQL query for debugging
   
     const result = await query;
     return result;
@@ -217,6 +213,7 @@ export class StoreService {
     const result = await db
       .select({
         ...getTableColumns(stores),
+        category: businessType.name,
         stripeUserId: sql`(
           SELECT ${users.stripeUserId}
           FROM ${userStoreRoles}
@@ -227,7 +224,10 @@ export class StoreService {
         )`.as('stripeUserId'), // Alias the subquery result
       })
       .from(stores)
-      .where(eq(stores.id, storeId))
+      .innerJoin(userStoreRoles, eq(stores.id, userStoreRoles.storeId))
+      .innerJoin(users, eq(users.id, userStoreRoles.userId))
+      .innerJoin(businessType, eq(businessType.id, users.businessTypeId))
+      .where(and(eq(stores.id, storeId), eq(userStoreRoles.role, 'admin')))
       .limit(1);
 
     if (!result.length) {
@@ -238,37 +238,53 @@ export class StoreService {
   }
 
   async searchStoresNearby(
-    query: string,
+    query: string = '',
     lat: number,
     lng: number,
     limit: number = 10,
     offset: number = 0,
     categoryId?: number,
+    radiusInMeters?: number,
   ) {
+    console.log(radiusInMeters)
     const sqlPoint = sql`ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography`;
-  
-    const q = `%${query.toLowerCase()}%`;
-  
-    const result = await db
-      .select({
-        ...getTableColumns(stores),
-        distance: sql`ST_Distance(${stores.location}::geography, ${sqlPoint})`,
-      })
-      .from(stores)
-      .innerJoin(userStoreRoles, eq(userStoreRoles.storeId, stores.id))
-      .innerJoin(users, eq(users.id, userStoreRoles.userId))
-      .where(
-        and(
-          sql`LOWER(${stores.name}) LIKE ${q}`,
-          sql`ST_DWithin(${stores.location}::geography, ${sqlPoint}, ${10000})`, // 10km radius
-          eq(userStoreRoles.role, 'admin'),
-          ...(categoryId ? [eq(users.businessTypeId, categoryId)] : [])
-        )
-      )
-      .orderBy(sql`${stores.location} <-> ${sqlPoint}`)
-      .limit(limit)
-      .offset(offset);
+    
+    // Ensure query is always a string (even if it's empty)
+    const q = query ? `%${query.toLowerCase()}%` : '%';  // Default to searching everything if query is empty
+    
+    // Base WHERE conditions
+    const whereConditions = [
+      sql`LOWER(${stores.name}) ILIKE ${q}`,
+      eq(userStoreRoles.role, 'admin'),
+      ...(categoryId ? [eq(users.businessTypeId, categoryId)] : [])
+    ];
+    
+    // Optional radius filter
+    if (radiusInMeters !== undefined) {
+      whereConditions.push(
+        sql`ST_DWithin(${stores.location}::geography, ${sqlPoint}, ${radiusInMeters})`
+      );
+    }
+
+    const sqlquery = db
+    .select({
+      ...getTableColumns(stores),
+      distance: sql`ST_Distance(${stores.location}::geography, ${sqlPoint})`,
+    })
+    .from(stores)
+    .innerJoin(userStoreRoles, eq(userStoreRoles.storeId, stores.id))
+    .leftJoin(users, eq(users.id, userStoreRoles.userId))
+    .where(and(...whereConditions))
+    .orderBy(sql`${stores.location} <-> ${sqlPoint}`)
+    .limit(limit)
+    .offset(offset);
+   
+    console.log(sqlquery.toSQL())
+
+    const result = await sqlquery
   
     return result;
   }
+  
+  
 }

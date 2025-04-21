@@ -23,7 +23,7 @@ export default function AuthScreen(): JSX.Element {
   const handleLogin = async (): Promise<void> => {
     try {
       await login(email, password);
-      router.replace('/(guest)');
+      router.replace("/(merchant)/(tabs)/store");
     } catch (error) {
       Alert.alert('Errore', 'Si è verificato un errore durante il login');
     }
@@ -37,10 +37,11 @@ export default function AuthScreen(): JSX.Element {
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <Text style={[styles.title, { color: theme.text }]}>Accedi</Text>
 
-      <View style={[styles.formContainer, { backgroundColor: theme.card }]}>
+      <View style={[styles.formContainer, { backgroundColor: theme.cardBackgroundColor }]}>
         <TextInput
-          style={[styles.input, { backgroundColor: theme.background }]}
+          style={[styles.input, { backgroundColor: theme.background, color: theme.text  }]}
           placeholder="Email"
+          placeholderTextColor={theme.subtext}
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
@@ -48,7 +49,8 @@ export default function AuthScreen(): JSX.Element {
         />
         <View style={styles.passwordContainer}>
           <TextInput
-            style={[styles.input, { backgroundColor: theme.background }]}
+            style={[styles.input, { backgroundColor: theme.background, color: theme.text }]}
+            placeholderTextColor={theme.subtext}
             placeholder="Password"
             value={password}
             onChangeText={setPassword}
@@ -70,7 +72,7 @@ export default function AuthScreen(): JSX.Element {
         style={[styles.loginButton, isLoading && styles.loginButtonDisabled, { backgroundColor: theme.primary }]}
         onPress={handleLogin}
         disabled={isLoading}>
-        <Text style={[styles.loginButtonText, { color: theme.card }]}>
+        <Text style={[styles.loginButtonText, { color: theme.cardBackgroundColor }]}>
           {isLoading ? 'Accesso in corso...' : 'Accedi'}
         </Text>
       </TouchableOpacity>

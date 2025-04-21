@@ -5,30 +5,50 @@ import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
 import { RoleGuard } from 'src/auth/role/role.guard';
 import { Roles } from 'src/auth/role/roles.decorator';
 import { Request } from 'express';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('store')
 export class StoreController {
   constructor(private readonly storeService: StoreService) { }
 
-  // GET /store/nearby?lat=...&lng=...&radius=...
-  @Get('nearby')
-  async getNearbyStores(
+  @Get('search')
+  @Throttle({ default: { limit: 100, ttl: 60000 } })
+  async searchStores(
+    @Query('q') query: string,
     @Query('lat') lat: string,
     @Query('lng') lng: string,
-    @Query('radius') radius?: string,  // No default value here
     @Query('limit') limit?: string,
     @Query('offset') offset?: string,
+    @Query('category') categoryId?: number,
+    @Query('radius') radius?: string,
   ) {
     const latitude = parseFloat(lat);
     const longitude = parseFloat(lng);
-    const radiusInMeters = radius ? parseFloat(radius) : undefined; // No radius by default
-    const parsedLimit = Math.min(parseInt(limit || '10', 10), 50); // max limit 50
+    const parsedLimit = Math.min(parseInt(limit || '10', 10), 50);
     const parsedOffset = parseInt(offset || '0', 10);
+    const radiusInMeters = radius ? parseFloat(radius) : undefined;
 
+    console.log(query)
+  
     if (isNaN(latitude) || isNaN(longitude)) {
       throw new Error('Invalid coordinates');
     }
-
+  
+    const isSearch = !!query || !!categoryId;
+  
+    if (isSearch) {
+      return this.storeService.searchStoresNearby(
+        query,
+        latitude,
+        longitude,
+        parsedLimit,
+        parsedOffset,
+        categoryId,
+        radiusInMeters
+      );
+    }
+  
+    // If no query/category → behave like the old getNearbyStores
     return this.storeService.findNearbyStores(
       latitude,
       longitude,
@@ -37,44 +57,14 @@ export class StoreController {
       radiusInMeters,
     );
   }
-
-  @Get('search')
-  async searchStores(
-    @Query('q') query: string,
-    @Query('lat') lat: string,
-    @Query('lng') lng: string,
-    @Query('limit') limit?: string,
-    @Query('offset') offset?: string,
-    @Query('category') categoryId?: number,
-  ) {
-    const latitude = parseFloat(lat);
-    const longitude = parseFloat(lng);
-    const parsedLimit = Math.min(parseInt(limit || '10', 10), 50);
-    const parsedOffset = parseInt(offset || '0', 10);
-
-    if (!query || isNaN(latitude) || isNaN(longitude)) {
-      throw new Error('Invalid query or coordinates');
-    }
-
-    return this.storeService.searchStoresNearby(
-      query,
-      latitude,
-      longitude,
-      parsedLimit,
-      parsedOffset,
-      categoryId
-    );
-  }
+  
 
   @UseGuards(AccessTokenGuard, RoleGuard)
   @Roles('user')
   @Get('me')
   async getMyStoreInfo(@Req() req: Request) {
     const userId = req.user?.['sub'];
-    console.log('userid', userId)
     const store = await this.storeService.getDetailedStoreInfoByUserId(userId);
-
-    console.log("result", store)
     return store
   }
 

@@ -13,8 +13,8 @@ export default function RootLayout() {
       },
       headerTintColor: theme.text
     }}>
-      <Stack.Screen name="index" options={{ headerShown: false }}  />
-      <Stack.Screen name="categories" options={{ title: 'Categorie' }} />
+      <Stack.Screen name="login" options={{ headerShown: false }}  />
+      <Stack.Screen name="merchant-onboarding" options={{ title: 'Registrazione Commerciante' }} />
     </Stack>
   );
 }

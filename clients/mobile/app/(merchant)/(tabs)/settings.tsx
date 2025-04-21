@@ -21,7 +21,7 @@ export default function MerchantSettingsScreen() {
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <Text style={[styles.title, { color: theme.text }]}>Impostazioni Negozio</Text>
 
-      <View style={[styles.section, { backgroundColor: theme.card }]}>
+      <View style={[styles.section, { backgroundColor: theme.cardBackgroundColor }]}>
         <Text style={[styles.sectionTitle, { color: theme.subtext }]}>Preferenze</Text>
         
         <View style={styles.settingItem}>
@@ -51,7 +51,7 @@ export default function MerchantSettingsScreen() {
         </View>
       </View>
 
-      <View style={[styles.section, { backgroundColor: theme.card }]}>
+      <View style={[styles.section, { backgroundColor: theme.cardBackgroundColor }]}>
         <Text style={[styles.sectionTitle, { color: theme.subtext }]}>Account</Text>
         
         <TouchableOpacity style={styles.settingItem}>
@@ -70,7 +70,7 @@ export default function MerchantSettingsScreen() {
       </View>
 
       <TouchableOpacity 
-        style={[styles.logoutButton, { backgroundColor: theme.card }]}
+        style={[styles.logoutButton, { backgroundColor: theme.cardBackgroundColor }]}
         onPress={handleLogout}
       >
         <LogOut size={20} color={theme.primary} />

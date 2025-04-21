@@ -67,7 +67,7 @@ const PaymentModal = ({ store, theme, onClose, onPaymentSuccess }: PaymentModalP
             { backgroundColor: theme.background + 'cc' },
           ]}
         >
-          <View style={[styles.modalContent, { backgroundColor: theme.card }]}>
+          <View style={[styles.modalContent, { backgroundColor: theme.cardBackgroundColor }]}>
             <Text style={[styles.modalTitle, { color: theme.text }]}>
               Paga {store.name}
             </Text>

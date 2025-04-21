@@ -45,7 +45,7 @@ let refreshQueue: (() => void)[] = [];
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    console.log()
+    console.error(error)
     const originalRequest = error.config;
     if (error.response?.status !== 401 || !originalRequest) {
       return Promise.reject(error);
