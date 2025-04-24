@@ -13,7 +13,7 @@ export default function RootLayout() {
       },
       headerTintColor: theme.text
     }}>
-      <Stack.Screen name="index" options={{ headerShown: false }}  />
+      <Stack.Screen name="index" options={{ headerShown: false, title: 'Home' }}  />
       <Stack.Screen name="categories" options={{ title: 'Categorie' }} />
     </Stack>
   );

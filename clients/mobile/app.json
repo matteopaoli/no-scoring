@@ -4,7 +4,7 @@
     "slug": "paytomorrow-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/favicon.png",
     "scheme": "paytomorrow",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": false,
@@ -25,9 +25,15 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location."
+          "locationAlwaysAndWhenInUsePermission": "Permetti a $(PRODUCT_NAME) di usare la tua posizione"
         }
-      ]
+      ],
+      [
+      "expo-splash-screen",
+      {
+        "image": "./assets/images/favicon.png"
+      }
+    ]
     ],
     "experiments": {
       "typedRoutes": true

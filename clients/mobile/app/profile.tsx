@@ -2,9 +2,6 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'rea
 import { useRouter } from 'expo-router';
 import { ArrowLeft, CreditCard, DollarSign, LogOut } from 'lucide-react-native'; // Import LogOut icon
 import { useAuth } from '@/contexts/AuthContext';
-// import AuthScreen from '@/app/(tabs)/auth';
-// import OnboardingScreen from '../profile-setup';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Mock data
 const MOCK_PROFILE = {
@@ -46,15 +43,6 @@ const MOCK_TRANSACTIONS = [
 export default function CustomerProfileScreen() {
   const router = useRouter();
   const { isAuthenticated, logout, user } = useAuth();
-
-  // if (!isAuthenticated) {
-  //   return <AuthScreen />;
-  // }
-
-
-  // if (!user?.onboardingCompleted) {
-  //   return <OnboardingScreen />
-  // }
 
   const handleSignOut = async () => {
     await logout();  // Call the logout function from context
@@ -273,27 +261,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Regular',
     fontSize: 12,
     color: '#666',
-    marginLeft: 10,
-  },
-  signOutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FF4D4D',
-    marginHorizontal: 20,
-    padding: 15,
-    borderRadius: 15,
-    marginTop: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  signOutButtonText: {
-    fontFamily: 'Poppins-SemiBold',
-    fontSize: 16,
-    color: '#FFFFFF',
     marginLeft: 10,
   },
 });

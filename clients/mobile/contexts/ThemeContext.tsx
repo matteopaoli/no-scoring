@@ -16,6 +16,7 @@ export interface Theme {
   fontSize: number;
   fontSizeHeading: number;
   cardBackgroundColor: string;
+  buttonTextColor: string;
 }
 
 const lightTheme: Theme = {
@@ -32,6 +33,7 @@ const lightTheme: Theme = {
   fontBold: 'DMSans_700Bold',
   fontSize: 14,
   fontSizeHeading: 16,
+  buttonTextColor: '#FFFFFF',
 };
 
 const darkTheme: Theme = {
@@ -48,6 +50,7 @@ const darkTheme: Theme = {
   fontBold: 'DMSans_700Bold',
   fontSize: 14,
   fontSizeHeading: 16,
+  buttonTextColor: '#333333',
 };
 
 type ThemePreference = 'light' | 'dark' | null;

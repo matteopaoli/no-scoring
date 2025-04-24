@@ -5,12 +5,15 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { Eye, EyeOff } from 'lucide-react-native'; // Importing the eye icons from lucide-react-native
 import { useAuth } from '@/contexts/AuthContext';
 import { useAppTheme } from '@/contexts/ThemeContext'; // Import the theme hook
+
 
 export default function AuthScreen(): JSX.Element {
   const router = useRouter();
@@ -34,57 +37,59 @@ export default function AuthScreen(): JSX.Element {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <Text style={[styles.title, { color: theme.text }]}>Accedi</Text>
+    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+      <View style={[styles.container, { backgroundColor: theme.background }]}>
+        <Text style={[styles.title, { color: theme.text }]}>Accedi</Text>
 
-      <View style={[styles.formContainer, { backgroundColor: theme.cardBackgroundColor }]}>
-        <TextInput
-          style={[styles.input, { backgroundColor: theme.background, color: theme.text  }]}
-          placeholder="Email"
-          placeholderTextColor={theme.subtext}
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-        <View style={styles.passwordContainer}>
+        <View style={[styles.formContainer, { backgroundColor: theme.cardBackgroundColor }]}>
           <TextInput
             style={[styles.input, { backgroundColor: theme.background, color: theme.text }]}
+            placeholder="Email"
             placeholderTextColor={theme.subtext}
-            placeholder="Password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry={!showPassword} // Toggle password visibility based on state
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
           />
-          <TouchableOpacity
-            onPress={togglePasswordVisibility}
-            style={styles.eyeButton}>
-            {showPassword ? (
-              <EyeOff size={24} color={theme.text} />
-            ) : (
-              <Eye size={24} color={theme.text} />
-            )}
-          </TouchableOpacity>
+          <View style={styles.passwordContainer}>
+            <TextInput
+              style={[styles.input, { backgroundColor: theme.background, color: theme.text }]}
+              placeholderTextColor={theme.subtext}
+              placeholder="Password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+            />
+            <TouchableOpacity
+              onPress={togglePasswordVisibility}
+              style={styles.eyeButton}>
+              {showPassword ? (
+                <EyeOff size={24} color={theme.text} />
+              ) : (
+                <Eye size={24} color={theme.text} />
+              )}
+            </TouchableOpacity>
+          </View>
         </View>
+
+        <TouchableOpacity
+          style={[styles.loginButton, isLoading && styles.loginButtonDisabled, { backgroundColor: theme.primary }]}
+          onPress={handleLogin}
+          disabled={isLoading}>
+          <Text style={[styles.loginButtonText, { color: theme.cardBackgroundColor }]}>
+            {isLoading ? 'Accesso in corso...' : 'Accedi'}
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.registrationLink}
+          onPress={() => router.push('/merchant-onboarding')}>
+          <Text style={[styles.registrationText, { color: theme.text }]}>
+            Hai un codice d'invito? Clicca qui
+          </Text>
+        </TouchableOpacity>
       </View>
-
-      <TouchableOpacity
-        style={[styles.loginButton, isLoading && styles.loginButtonDisabled, { backgroundColor: theme.primary }]}
-        onPress={handleLogin}
-        disabled={isLoading}>
-        <Text style={[styles.loginButtonText, { color: theme.cardBackgroundColor }]}>
-          {isLoading ? 'Accesso in corso...' : 'Accedi'}
-        </Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={styles.registrationLink}
-        onPress={() => router.push('/merchant-onboarding')}>
-        <Text style={[styles.registrationText, { color: theme.text }]}>
-          Hai un codice d'invito? Clicca qui
-        </Text>
-      </TouchableOpacity>
-    </View>
+    </TouchableWithoutFeedback>
   );
 }
 

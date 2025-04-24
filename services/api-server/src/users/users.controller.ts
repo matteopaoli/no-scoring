@@ -81,6 +81,8 @@ export class UsersController {
         image: body.profileImage,
         onboardingCompleted: true,
         inviteCode: null,
+        tosAccepted: true,
+        tosAcceptedAt: new Date(),
       });
 
       const user = await this.usersService.findById(userId)
@@ -98,6 +100,18 @@ export class UsersController {
       });
 
       return { user, store };
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @UseGuards(AccessTokenGuard)
+  @Post('delete')
+  async deleteUser(@Req() req: Request) {
+    try {
+      const userId = req.user?.['sub'];
+      await this.usersService.delete(userId);
+      return { message: 'User deleted successfully' };
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }

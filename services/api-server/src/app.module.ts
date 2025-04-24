@@ -12,6 +12,7 @@ import { PaymentModule } from './payment/payment.module';
 import { BusinessTypeController } from './business-type/business-type.controller';
 import { BusinessTypeService } from './business-type/business-type.service';
 import { BusinessTypeModule } from './business-type/business-type.module';
+import { TosModule } from './tos/tos.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { BusinessTypeModule } from './business-type/business-type.module';
     MapsModule,
     PaymentModule,
     BusinessTypeModule,
+    TosModule,
   ],
   providers: [
     {

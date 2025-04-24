@@ -29,7 +29,6 @@ const CategoryItem = ({ category, style, onPress }: { category: BusinessCategory
   return (<TouchableOpacity
     style={[
       styles.categoryItem,
-      style,
       {
         backgroundColor: theme.cardBackgroundColor,
         borderColor: theme.primary + '20',
@@ -59,6 +58,7 @@ const CategoryItem = ({ category, style, onPress }: { category: BusinessCategory
 const styles = StyleSheet.create({
   // Individual category item
   categoryItem: {
+    width: 170,
     aspectRatio: 2,
     borderWidth: 1,
     alignItems: 'center',

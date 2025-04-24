@@ -66,7 +66,6 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const refreshUser = async () => {
     try {
-      console.log("refreshUser")
       const response = await apiClient.get('/users/me');
       setUser(response.data.user);
     } catch (error) {

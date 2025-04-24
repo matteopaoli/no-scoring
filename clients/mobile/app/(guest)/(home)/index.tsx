@@ -3,16 +3,11 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Image,
 } from 'react-native';
 import Text from '@/components/CustomText';
 import { Link, Redirect, useRouter } from 'expo-router';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
-import { useEffect, useState } from 'react';
-import * as Location from 'expo-location';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAppTheme } from '@/contexts/ThemeContext'; // Import the theme hook
-import apiClient from '@/lib/httpClient';
 import CategoryItem from '@/components/CategoryItem';
 import { useLocation } from '@/contexts/LocationContext';
 import DynamicMarkersMap from '@/components/DynamicMarkersMap';
@@ -72,78 +67,79 @@ function StoreList() {
   );
 }
 export default function HomeScreen() {
+
   const { user } = useAuth();
   const theme = useAppTheme();
   const { data: businessTypes } = useBusinessTypes()
   const router = useRouter();
-
+  
   if (user?.role === 'user') {
     return <Redirect href="/(merchant)/(tabs)/store" />;
   }
 
   return (
-    <ScrollView
-      style={[styles.container, { backgroundColor: theme.background }]}
-    >
-      <View style={styles.header}>
-        <View>
-          <Text style={[styles.title, { color: theme.text }]}>
-            Pay<Text style={[styles.title, { color: theme.primary }]}>Tomorrow</Text>
-          </Text>
-          <Text style={[styles.subtitle, { color: theme.text }]}>
-            <Text style={[styles.subtitleBlue, { color: theme.text }]}>
-              compra oggi,{' '}
+      <ScrollView
+        style={[styles.container, { backgroundColor: theme.background }]}
+      >
+        <View style={styles.header}>
+          <View>
+            <Text style={[styles.title, { color: theme.text }]}>
+              Pay<Text style={[styles.title, { color: theme.primary }]}>Tomorrow</Text>
             </Text>
-            <Text style={[styles.subtitleOrange, { color: theme.primary }]}>
-              paga domani
+            <Text style={[styles.subtitle, { color: theme.text }]}>
+              <Text style={[styles.subtitleBlue, { color: theme.text }]}>
+                compra oggi,{' '}
+              </Text>
+              <Text style={[styles.subtitleOrange, { color: theme.primary }]}>
+                paga domani
+              </Text>
             </Text>
-          </Text>
+          </View>
         </View>
-      </View>
 
-      <View style={styles.categoriesGrid}>
-        {businessTypes?.slice(0, 6).map((category) => (
-          <CategoryItem style={styles.categoryGridItem} key={category.id} category={category} onPress={() => void router.push(`/search?category=${category.id}`)} />
-        ))}
-        {businessTypes?.length && businessTypes.length > 6 && (
-          <Link
-            href={{
-              pathname: '/categories',
-              params: { categories: JSON.stringify(businessTypes) },
-            }}
-            asChild
-          >
-            <TouchableOpacity
-              style={[
-                styles.ghostButton,
-                { borderColor: theme.primary },
-              ]}
+        <View style={styles.categoriesGrid}>
+          {businessTypes?.slice(0, 6).map((category) => (
+            <CategoryItem key={category.id} category={category} onPress={() => void router.push(`/search?category=${category.id}`)} />
+          ))}
+          {businessTypes?.length && businessTypes.length > 6 && (
+            <Link
+              href={{
+                pathname: '/categories',
+                params: { categories: JSON.stringify(businessTypes) },
+              }}
+              asChild
             >
-              <Text
+              <TouchableOpacity
                 style={[
-                  styles.categoryText,
-                  { color: theme.primary, fontFamily: theme.fontSemiBold },
+                  styles.ghostButton,
+                  { borderColor: theme.primary },
                 ]}
               >
-                Mostra tutte le categorie
-              </Text>
-            </TouchableOpacity>
-          </Link>
-        )}
-      </View>
+                <Text
+                  style={[
+                    styles.categoryText,
+                    { color: theme.primary, fontFamily: theme.fontSemiBold },
+                  ]}
+                >
+                  Mostra tutte le categorie
+                </Text>
+              </TouchableOpacity>
+            </Link>
+          )}
+        </View>
 
-      <View style={styles.mapContainer}>
-        <DynamicMarkersMap style={styles.map} />
-      </View>
-      <StoreList />
-    </ScrollView>
+        <View style={styles.mapContainer}>
+          <DynamicMarkersMap style={styles.map} />
+        </View>
+        <StoreList />
+      </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 30
+    paddingTop: 30,
   },
   header: {
     flexDirection: 'row',
@@ -173,10 +169,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     marginBottom: 10,
-    columnGap: 10,
   },
   categoryGridItem: {
-    width: '48%',
+    flexBasis: '48%',
   },
   categoryText: {
     textAlign: 'center',
