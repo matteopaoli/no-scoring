@@ -39,13 +39,13 @@ const TermsOfService = () => {
               <ul className="list-disc pl-6 mb-6 space-y-3 text-gray-700">
                 <li>
                   <strong>Account</strong> Viene creato con la registrazione del
-                  Cliente e l'inserimento di tutti i dati. A ciascun account
+                  Cliente e l&apos;inserimento di tutti i dati. A ciascun account
                   verrà associato un ID e una password.
                 </li>
                 <li>
                   <strong>Cliente</strong> indica la persona fisica o giuridica
-                  che registra l'Account sulla Piattaforma e titolare
-                  dell'abbonamento al Servizio.
+                  che registra l&apos;Account sulla Piattaforma e titolare
+                  dell&apos;abbonamento al Servizio.
                 </li>
                 <li>
                   <strong>Cliente finale</strong> Si intende la persona fisica o
@@ -63,8 +63,8 @@ const TermsOfService = () => {
                   software PayTomorrow
                 </li>
                 <li>
-                  <strong>PayTomorrow</strong> E' la piattaforma software in
-                  cloud disponibile all'indirizzo web https://paytomorrow.it, di
+                  <strong>PayTomorrow</strong> E&apos; la piattaforma software in
+                  cloud disponibile all&apos;indirizzo web https://paytomorrow.it, di
                   proprietà di LEG SRL. Ogniqualvolta nelle presenti Condizioni
                   Generali è indicato PayTomorrow il riferimento è anche a Leg
                   S.r.l.
@@ -95,18 +95,18 @@ const TermsOfService = () => {
                 Attraverso la piattaforma innovativa Paytomorrow i Clienti
                 offrono ai loro Clienti finali la possibilità di dilazionare il
                 pagamento del prezzo di un bene o di un servizio acquistato nel
-                negozio fisico, ricevendo immediatamente l'intero corrispettivo
-                dell'acquisto.
+                negozio fisico, ricevendo immediatamente l&apos;intero corrispettivo
+                dell&apos;acquisto.
               </p>
               <p className="mb-4 text-gray-700">
                 Paytomorrow crea una landing page con sistema POS integrato e
                 implementa sistemi di pagamento con carta, pagamento differito e
-                ricorrente tramite l'infrastruttura Stripe Connect sulla
+                ricorrente tramite l&apos;infrastruttura Stripe Connect sulla
                 piattaforma https://paytomorrow.it; sviluppa una pagina
                 e-commerce con caricamento illimitato di schede prodotto, e
                 metodi di pagamento innovativi automatizzati durante il
                 checkout; fornisce un pannello dedicato per funzionalità come
-                "Pay by Link", con informazioni su transazioni, pagamenti,
+                &quot;Pay by Link&quot;, con informazioni su transazioni, pagamenti,
                 bonifici, trasferimenti e statistiche.
               </p>
             </section>
@@ -364,8 +364,8 @@ const TermsOfService = () => {
                 una composizione bonaria della controversia, le parti
                 deferiranno la controversia al Tribunale di Brescia, cui è
                 attribuita competenza esclusiva, a prescindere dalla pluralità
-                di convenuti o dall'escussione di garanzie di terzi, anche per i
-                procedimenti d'urgenza e cautelari sia sommari che di parte.
+                di convenuti o dall&apos;escussione di garanzie di terzi, anche per i
+                procedimenti d&apos;urgenza e cautelari sia sommari che di parte.
               </p>
               <p className="mb-4 text-gray-700">
                 Luogo, data
