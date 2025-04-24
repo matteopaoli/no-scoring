@@ -1,5 +1,13 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform, ActivityIndicator } from 'react-native';
-import { ArrowLeft, Filter, Search, DollarSign } from 'lucide-react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Platform,
+  ActivityIndicator,
+} from 'react-native';
+import { ArrowLeft, Filter, Search, Package } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useAppTheme } from '@/contexts/ThemeContext';
 import useSales from '@/hooks/useSales';
@@ -46,7 +54,8 @@ export default function SalesScreen() {
 
   const handleScroll = (event: any) => {
     const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
-    const distanceFromBottom = contentSize.height - (layoutMeasurement.height + contentOffset.y);
+    const distanceFromBottom =
+      contentSize.height - (layoutMeasurement.height + contentOffset.y);
 
     if (distanceFromBottom < 100) {
       handleLoadMore();
@@ -55,7 +64,9 @@ export default function SalesScreen() {
 
   if (isLoading && offset === 0) {
     return (
-      <View style={[styles.loadingContainer, { backgroundColor: theme.background }]}>
+      <View
+        style={[styles.loadingContainer, { backgroundColor: theme.background }]}
+      >
         <ActivityIndicator size="large" color={theme.primary} />
       </View>
     );
@@ -63,8 +74,12 @@ export default function SalesScreen() {
 
   if (isError) {
     return (
-      <View style={[styles.loadingContainer, { backgroundColor: theme.background }]}>
-        <Text style={{ color: theme.text }}>Errore durante il caricamento delle vendite.</Text>
+      <View
+        style={[styles.loadingContainer, { backgroundColor: theme.background }]}
+      >
+        <Text style={{ color: theme.text }}>
+          Errore durante il caricamento delle vendite.
+        </Text>
       </View>
     );
   }
@@ -73,13 +88,30 @@ export default function SalesScreen() {
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={[styles.title, { color: theme.text, fontFamily: theme.fontBold }]}>Vendite</Text>
+        <Text
+          style={[
+            styles.title,
+            { color: theme.text, fontFamily: theme.fontBold },
+          ]}
+        >
+          Vendite
+        </Text>
 
         <View style={styles.headerIcons}>
-          <TouchableOpacity style={[styles.iconWrapper, { backgroundColor: theme.cardBackgroundColor }]}>
+          <TouchableOpacity
+            style={[
+              styles.iconWrapper,
+              { backgroundColor: theme.cardBackgroundColor },
+            ]}
+          >
             <Search size={20} color={theme.primary} />
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.iconWrapper, { backgroundColor: theme.cardBackgroundColor }]}>
+          <TouchableOpacity
+            style={[
+              styles.iconWrapper,
+              { backgroundColor: theme.cardBackgroundColor },
+            ]}
+          >
             <Filter size={20} color={theme.primary} />
           </TouchableOpacity>
         </View>
@@ -87,92 +119,164 @@ export default function SalesScreen() {
 
       {/* Stat Cards */}
       <View style={styles.statsRow}>
-        <View style={[styles.statCard, { backgroundColor: theme.cardBackgroundColor }]}>
-          <Text style={[styles.statAmount, { color: theme.text, fontFamily: theme.fontBold }]}>
+        <View
+          style={[
+            styles.statCard,
+            { backgroundColor: theme.cardBackgroundColor },
+          ]}
+        >
+          <Text
+            style={[
+              styles.statAmount,
+              { color: theme.text, fontFamily: theme.fontBold },
+            ]}
+          >
             €{stats?.today.toFixed(2) ?? '0.00'}
           </Text>
-          <Text style={[styles.statLabel, { color: theme.subtext, fontFamily: theme.fontRegular }]}>
+          <Text
+            style={[
+              styles.statLabel,
+              { color: theme.subtext, fontFamily: theme.fontRegular },
+            ]}
+          >
             Vendite Oggi
           </Text>
         </View>
-        <View style={[styles.statCard, { backgroundColor: theme.cardBackgroundColor }]}>
-          <Text style={[styles.statAmount, { color: theme.text, fontFamily: theme.fontBold }]}>
+        <View
+          style={[
+            styles.statCard,
+            { backgroundColor: theme.cardBackgroundColor },
+          ]}
+        >
+          <Text
+            style={[
+              styles.statAmount,
+              { color: theme.text, fontFamily: theme.fontBold },
+            ]}
+          >
             €{stats?.week.toFixed(2) ?? '0.00'}
           </Text>
-          <Text style={[styles.statLabel, { color: theme.subtext, fontFamily: theme.fontRegular }]}>
+          <Text
+            style={[
+              styles.statLabel,
+              { color: theme.subtext, fontFamily: theme.fontRegular },
+            ]}
+          >
             Questa Settimana
           </Text>
         </View>
       </View>
 
-      {/* Sales List */}
-      <ScrollView
-        ref={scrollRef}
-        contentContainerStyle={styles.salesList}
-        onScroll={handleScroll}
-        scrollEventThrottle={200}
-      >
-        {allSales.map((sale) => (
-          <TouchableOpacity
-            key={sale.id}
-            style={[styles.saleCard, { backgroundColor: theme.cardBackgroundColor }]}
-            onPress={() => router.push(`./(merchant)/sale-details/${sale.id}`)}
-          >
-            <View style={styles.saleInfo}>
-              <Text style={[styles.customerName, { color: theme.text, fontFamily: theme.fontSemiBold }]}>
-                {sale.stripe?.charges?.data?.[0]?.billing_details?.name || 'Cliente'}
-              </Text>
-              <Text style={[styles.saleDate, { color: theme.subtext, fontFamily: theme.fontRegular }]}>
-                {sale.createdAt
-                  ? new Date(sale.createdAt).toLocaleDateString('it-IT', {
-                    day: 'numeric',
-                    month: 'short',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })
-                  : '--'}
-              </Text>
-            </View>
+      {allSales.length > 0 ? (
+        <ScrollView
+          ref={scrollRef}
+          contentContainerStyle={styles.salesList}
+          onScroll={handleScroll}
+          scrollEventThrottle={200}
+        >
+          {allSales.map((sale) => (
+            <TouchableOpacity
+              key={sale.id}
+              style={[
+                styles.saleCard,
+                { backgroundColor: theme.cardBackgroundColor },
+              ]}
+              onPress={() =>
+                router.push(`./(merchant)/sale-details/${sale.id}`)
+              }
+            >
+              <View style={styles.saleInfo}>
+                <Text
+                  style={[
+                    styles.customerName,
+                    { color: theme.text, fontFamily: theme.fontSemiBold },
+                  ]}
+                >
+                  {sale.stripe?.charges?.data?.[0]?.billing_details?.name ||
+                    'Cliente'}
+                </Text>
+                <Text
+                  style={[
+                    styles.saleDate,
+                    { color: theme.subtext, fontFamily: theme.fontRegular },
+                  ]}
+                >
+                  {sale.createdAt
+                    ? new Date(sale.createdAt).toLocaleDateString('it-IT', {
+                        day: 'numeric',
+                        month: 'short',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })
+                    : '--'}
+                </Text>
+              </View>
 
-            <View style={styles.saleAmountContainer}>
-              <Text
-                style={[
-                  styles.saleAmount,
-                  {
-                    color: getAmountColor('completed'),
-                    fontFamily: theme.fontBold,
-                  },
-                ]}
-              >
-                €{parseFloat(sale.amount).toFixed(2)}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        ))}
+              <View style={styles.saleAmountContainer}>
+                <Text
+                  style={[
+                    styles.saleAmount,
+                    {
+                      color: theme.primary,
+                      fontFamily: theme.fontBold,
+                    },
+                  ]}
+                >
+                  €{parseFloat(sale.amount).toFixed(2)}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          ))}
 
-        {isFetchingMore && (
-          <ActivityIndicator size="small" color={theme.primary} style={{ marginVertical: 16 }} />
-        )}
-      </ScrollView>
+          {isFetchingMore && (
+            <ActivityIndicator
+              size="small"
+              color={theme.primary}
+              style={{ marginVertical: 16 }}
+            />
+          )}
+        </ScrollView>
+      ) : (
+        <View style={styles.emptyState}>
+          <Package size={60} color={theme.subtext} style={styles.emptyIcon} />
+          <Text style={[styles.emptyText, { color: theme.subtext }]}>
+            Nessuna vendita trovata
+          </Text>
+          <Text style={[styles.emptySubtext, { color: theme.subtext }]}>
+            Le vendite effettuate appariranno qui
+          </Text>
+        </View>
+      )}
     </View>
   );
-}
-
-function getAmountColor(status: string) {
-  switch (status) {
-    case 'refunded':
-      return '#FF4D4D';
-    case 'pending':
-      return '#FFA500';
-    default:
-      return '#28A745';
-  }
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 20
+    paddingTop: 70,
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 40,
+  },
+  emptyIcon: {
+    opacity: 0.5,
+    marginBottom: 20,
+  },
+  emptyText: {
+    fontFamily: 'DMSans_600SemiBold',
+    fontSize: 18,
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  emptySubtext: {
+    fontFamily: 'DMSans_400Regular',
+    fontSize: 14,
+    textAlign: 'center',
+    opacity: 0.7,
   },
   loadingContainer: {
     flex: 1,

@@ -9,6 +9,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Animated,
+  Linking,
 } from 'react-native';
 import { useEffect, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -28,14 +29,14 @@ export default function SearchScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearchQuery = useDebounce(searchQuery, 400); // 400ms debounce
   const [filtersVisible, setFiltersVisible] = useState(false);
-  const [categoryFilter, setCategoryFilter] = useState(category as string || '');
+  const [categoryFilter, setCategoryFilter] = useState(
+    (category as string) || '',
+  );
   const [filterAnim] = useState(new Animated.Value(0));
   const [isFetchingMore, setIsFetchingMore] = useState(false); // State to track if more results are being fetched
 
-  const {
-    data: businessCategories,
-    isLoading: isCategoriesLoading,
-  } = useBusinessTypes();
+  const { data: businessCategories, isLoading: isCategoriesLoading } =
+    useBusinessTypes();
 
   const {
     stores: filteredStores,
@@ -93,7 +94,12 @@ export default function SearchScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <View style={[styles.searchHeader, { backgroundColor: theme.cardBackgroundColor }]}>
+      <View
+        style={[
+          styles.searchHeader,
+          { backgroundColor: theme.cardBackgroundColor },
+        ]}
+      >
         <View style={[styles.searchBar, { backgroundColor: theme.background }]}>
           <Search size={20} color={theme.subtext} style={styles.searchIcon} />
           <TextInput
@@ -126,11 +132,9 @@ export default function SearchScreen() {
             ]}
           >
             <Text style={[styles.activeFilterText, { color: theme.text }]}>
-              {
-                businessCategories?.find(
-                  (c) => c.id.toString() === categoryFilter
-                )?.name || 'Categoria'
-              }
+              {businessCategories?.find(
+                (c) => c.id.toString() === categoryFilter,
+              )?.name || 'Categoria'}
             </Text>
             <TouchableOpacity onPress={handleClearFilters}>
               <X size={16} color={theme.primary} />
@@ -147,24 +151,47 @@ export default function SearchScreen() {
         onRequestClose={handleFilterToggle}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={[styles.modalBackground, { backgroundColor: theme.background }]}>
-            <View style={[styles.filterModal, { backgroundColor: theme.cardBackgroundColor }]}>
-              <Text style={[styles.modalTitle, { color: theme.text }]}>Filtri di ricerca</Text>
+          <View
+            style={[
+              styles.modalBackground,
+              { backgroundColor: theme.background },
+            ]}
+          >
+            <View
+              style={[
+                styles.filterModal,
+                { backgroundColor: theme.cardBackgroundColor },
+              ]}
+            >
+              <Text style={[styles.modalTitle, { color: theme.text }]}>
+                Filtri di ricerca
+              </Text>
 
               {/* Category Filter */}
               <View style={styles.filterOption}>
-                <Text style={[styles.filterLabel, { color: theme.text }]}>Categoria</Text>
+                <Text style={[styles.filterLabel, { color: theme.text }]}>
+                  Categoria
+                </Text>
                 {isCategoriesLoading ? (
-                  <Text style={[styles.filterInput, { color: theme.text }]}>Caricamento...</Text>
+                  <Text style={[styles.filterInput, { color: theme.text }]}>
+                    Caricamento...
+                  </Text>
                 ) : (
                   <Picker
                     selectedValue={categoryFilter}
-                    style={[styles.filterInput, { color: theme.text, borderColor: theme.border }]}
+                    style={[
+                      styles.filterInput,
+                      { color: theme.text, borderColor: theme.border },
+                    ]}
                     onValueChange={(itemValue) => setCategoryFilter(itemValue)}
                   >
                     <Picker.Item label="Seleziona una categoria" value="" />
                     {businessCategories?.map((category) => (
-                      <Picker.Item key={category.id} label={category.name} value={category.id.toString()} />
+                      <Picker.Item
+                        key={category.id}
+                        label={category.name}
+                        value={category.id.toString()}
+                      />
                     ))}
                   </Picker>
                 )}
@@ -178,11 +205,15 @@ export default function SearchScreen() {
               </TouchableOpacity>
 
               <TouchableOpacity onPress={handleClearFilters}>
-                <Text style={[styles.cancelButton, { color: theme.subtext }]}>Azzera Filtri</Text>
+                <Text style={[styles.cancelButton, { color: theme.subtext }]}>
+                  Azzera Filtri
+                </Text>
               </TouchableOpacity>
 
               <TouchableOpacity onPress={handleFilterToggle}>
-                <Text style={[styles.cancelButton, { color: theme.subtext }]}>Annulla</Text>
+                <Text style={[styles.cancelButton, { color: theme.subtext }]}>
+                  Annulla
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -232,7 +263,6 @@ export default function SearchScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 20,
   },
   searchHeader: {
     paddingHorizontal: 20,

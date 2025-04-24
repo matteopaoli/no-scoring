@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Switch, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Switch, TouchableOpacity, Linking } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
@@ -21,16 +21,21 @@ export default function MerchantSettingsScreen() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const { theme, themePreference, setThemePreference } = useThemeContext();
 
-  const handleLogout = async () => {
-    await logout();
-    router.replace('/');
+  const isActive = (mode: 'light' | 'dark' | null) => themePreference === mode;
+
+  const openPrivacyPolicy = () => {
+    Linking.openURL('https://app.paytomorrow.it/privacy');
   };
 
-  const isActive = (mode: 'light' | 'dark' | null) => themePreference === mode;
+  const openTermsOfService = () => {
+    Linking.openURL('https://app.paytomorrow.it/terms');
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <Text style={[styles.title, { color: theme.text }]}>Impostazioni Negozio</Text>
+      <Text style={[styles.title, { color: theme.text }]}>
+        Impostazioni
+      </Text>
 
       {/* Preferences Section */}
       <SettingsSection title="Preferenze" theme={theme}>
@@ -43,7 +48,9 @@ export default function MerchantSettingsScreen() {
               value={notificationsEnabled}
               onValueChange={setNotificationsEnabled}
               trackColor={{ false: theme.secondary, true: theme.primary }}
-              thumbColor={notificationsEnabled ? theme.primary : theme.background}
+              thumbColor={
+                notificationsEnabled ? theme.primary : theme.background
+              }
             />
           }
         />
@@ -51,33 +58,60 @@ export default function MerchantSettingsScreen() {
         <View
           style={[
             styles.settingItem,
-            { borderBottomWidth: 0, flexDirection: 'column', alignItems: 'flex-start' },
+            {
+              borderBottomWidth: 0,
+              flexDirection: 'column',
+              alignItems: 'flex-start',
+            },
           ]}
         >
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginBottom: 10,
+            }}
+          >
             <View style={styles.settingIcon}>
               <CreditCard size={20} color={theme.subtext} />
             </View>
-            <Text style={[styles.settingText, { color: theme.text }]}>Tema</Text>
+            <Text style={[styles.settingText, { color: theme.text }]}>
+              Tema
+            </Text>
           </View>
 
           <View style={styles.themeButtonsContainer}>
             <ThemeOption
-              icon={<Smartphone size={18} color={isActive(null) ? theme.background : theme.text} />}
+              icon={
+                <Smartphone
+                  size={18}
+                  color={isActive(null) ? theme.background : theme.text}
+                />
+              }
               label="Sistema"
               active={isActive(null)}
               onPress={() => setThemePreference(null)}
               theme={theme}
             />
             <ThemeOption
-              icon={<Sun size={18} color={isActive('light') ? theme.background : theme.text} />}
+              icon={
+                <Sun
+                  size={18}
+                  color={isActive('light') ? theme.background : theme.text}
+                />
+              }
               label="Chiaro"
               active={isActive('light')}
               onPress={() => setThemePreference('light')}
               theme={theme}
             />
             <ThemeOption
-              icon={<Moon size={18} color={isActive('dark') ? theme.background : theme.text} />}
+              icon={
+                <Moon
+                  size={18}
+                  color={isActive('dark') ? theme.background : theme.text}
+                />
+              }
               label="Scuro"
               active={isActive('dark')}
               onPress={() => setThemePreference('dark')}
@@ -85,7 +119,6 @@ export default function MerchantSettingsScreen() {
             />
           </View>
         </View>
-
 
         {/* Account Section */}
         {/* <SettingsSection title="Account" theme={theme}>
@@ -100,25 +133,55 @@ export default function MerchantSettingsScreen() {
             theme={theme}
           /> */}
       </SettingsSection>
+      <View style={styles.footerLinks}>
+        <TouchableOpacity onPress={openPrivacyPolicy}>
+          <Text style={[styles.footerLinkText, { color: theme.subtext }]}>
+            Privacy Policy
+          </Text>
+        </TouchableOpacity>
+
+        <Text style={[styles.footerLinkSeparator, { color: theme.subtext }]}>
+          •
+        </Text>
+
+        <TouchableOpacity onPress={openTermsOfService}>
+          <Text style={[styles.footerLinkText, { color: theme.subtext }]}>
+            Termini di servizio
+          </Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
 
 function SettingsSection({ title, children, theme }) {
   return (
-    <View style={[styles.section, { backgroundColor: theme.cardBackgroundColor }]}>
-      <Text style={[styles.sectionTitle, { color: theme.subtext }]}>{title}</Text>
+    <View
+      style={[styles.section, { backgroundColor: theme.cardBackgroundColor }]}
+    >
+      <Text style={[styles.sectionTitle, { color: theme.subtext }]}>
+        {title}
+      </Text>
       {children}
     </View>
   );
 }
 
-function SettingsItem({ icon, label, theme, rightElement = null, noBorder = false }) {
+function SettingsItem({
+  icon,
+  label,
+  theme,
+  rightElement = null,
+  noBorder = false,
+}) {
   return (
     <View
       style={[
         styles.settingItem,
-        { borderBottomWidth: noBorder ? 0 : 0.5, borderBottomColor: theme.border },
+        {
+          borderBottomWidth: noBorder ? 0 : 0.5,
+          borderBottomColor: theme.border,
+        },
       ]}
     >
       <View style={styles.settingIcon}>{icon}</View>
@@ -217,7 +280,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginLeft: 10,
     width: '100%',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   themeButton: {
     flexDirection: 'row',
@@ -231,5 +294,40 @@ const styles = StyleSheet.create({
   themeButtonText: {
     fontSize: 14,
     marginLeft: 6,
+  },
+  signOutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FF4D4D',
+    marginHorizontal: 20,
+    padding: 15,
+    borderRadius: 15,
+    marginTop: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  signOutButtonText: {
+    fontFamily: 'DMSans_600SemiBold',
+    fontSize: 16,
+    color: '#FFFFFF',
+    marginLeft: 10,
+  },
+  footerLinks: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 30,
+    marginBottom: 20,
+  },
+  footerLinkText: {
+    fontFamily: 'DMSans_400Regular',
+    fontSize: 14,
+  },
+  footerLinkSeparator: {
+    marginHorizontal: 10,
   },
 });

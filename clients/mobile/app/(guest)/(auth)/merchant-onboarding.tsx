@@ -35,7 +35,7 @@ export default function MerchantOnboardingScreen(): JSX.Element {
         setModalVisible(true);
       }
     } catch (error) {
-      Alert.alert('Errore', 'Si è verificato un errore durante la registrazione');
+      Alert.alert('Errore', 'Si è verificato un errore durante la registrazione, assicurati che il codice di invito sia corretto');
     } finally {
       setLoading(false);
     }
@@ -44,7 +44,7 @@ export default function MerchantOnboardingScreen(): JSX.Element {
   const closeModal = () => setModalVisible(false);
 
   const handleNavigationStateChange = (navState: any) => {
-    if (navState.url?.includes('app.paytomorrow.it')) {
+    if (navState.url?.includes('app.paytomorrow.it/login')) {
       setModalVisible(false);
       Alert.alert(
         'Grazie',

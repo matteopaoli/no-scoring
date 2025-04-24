@@ -7,4 +7,6 @@ export type UpdateUserDto = {
     image?: string;
     onboardingCompleted?: boolean
     inviteCode?: string | null
+    tosAccepted?: boolean
+    tosAcceptedAt?: Date
 }

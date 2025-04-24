@@ -18,6 +18,7 @@ import {
   QueryClientProvider,
   useQuery,
 } from '@tanstack/react-query'
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 const queryClient = new QueryClient()
 
@@ -46,7 +47,9 @@ export default function Root() {
       <AuthProvider>
         <ThemeProvider>
           <LocationProvider>
-            <Slot />
+            <SafeAreaProvider>
+              <Slot />
+            </SafeAreaProvider>
           </LocationProvider>
         </ThemeProvider>
       </AuthProvider>

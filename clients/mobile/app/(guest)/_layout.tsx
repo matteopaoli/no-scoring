@@ -2,10 +2,12 @@ import { useAppTheme } from '@/contexts/ThemeContext';
 import { Tabs } from 'expo-router';
 import { Home, Map, Search, Settings, User } from 'lucide-react-native';
 import { StatusBar } from 'expo-status-bar';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function TabLayout() {
   const theme = useAppTheme();
-
+    const insets = useSafeAreaInsets()
+  
   return (
     <>
       <StatusBar
@@ -23,7 +25,7 @@ export default function TabLayout() {
             shadowOffset: { width: 0, height: -2 },
             shadowOpacity: theme.type === 'dark' ? 0.3 : 0.1,
             shadowRadius: 4,
-            height: 70,
+            height: 60 + insets.bottom,
             paddingTop: 10
           },
           tabBarActiveTintColor: theme.primary,

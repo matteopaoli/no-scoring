@@ -1,10 +1,12 @@
+import { useAuth } from '@/contexts/AuthContext';
 import { useAppTheme } from '@/contexts/ThemeContext';
-import { Tabs } from 'expo-router';
+import { Tabs, useRouter } from 'expo-router';
 import { Home, Map, PlusCircle, Settings, ShoppingBag, User } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function TabLayout() {
   const theme = useAppTheme();
-
+  const insets = useSafeAreaInsets()
   return (
     <Tabs
       screenOptions={{
@@ -17,7 +19,7 @@ export default function TabLayout() {
           shadowOffset: { width: 0, height: -2 },
           shadowOpacity: theme.type === 'dark' ? 0.3 : 0.1,
           shadowRadius: 4,
-          height: 70,
+          height: 60 + insets.bottom,
           paddingTop: 10
         },
         tabBarActiveTintColor: theme.primary,
