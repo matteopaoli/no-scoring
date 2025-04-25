@@ -203,7 +203,8 @@ const makeStyles = (theme: Theme) =>
       backgroundColor: theme.background,
     },
     header: {
-      padding: 20,
+      paddingTop: 100,
+      paddingHorizontal: 20,
     },
     userInfo: {
       flexDirection: 'row',

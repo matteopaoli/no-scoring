@@ -21,7 +21,7 @@
     "@choc-ui/chakra-autocomplete": "^5.7.0",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
-    "@paytomorrow/db": "*",
+    "@paytomorrow/db": "workspace:*",
     "@prisma/client": "^5.19.1",
     "@react-google-maps/api": "^2.20.6",
     "@tanstack/react-table": "^8.20.5",
