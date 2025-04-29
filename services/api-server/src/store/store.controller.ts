@@ -1,5 +1,5 @@
 // store.controller.ts
-import { Controller, Get, Query, Param, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Query, Param, UseGuards, Req, Body, Post } from '@nestjs/common';
 import { StoreService } from './store.service';
 import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
 import { RoleGuard } from 'src/auth/role/role.guard';
@@ -9,7 +9,7 @@ import { Throttle } from '@nestjs/throttler';
 
 @Controller('store')
 export class StoreController {
-  constructor(private readonly storeService: StoreService) { }
+  constructor(private readonly storeService: StoreService) {}
 
   @Get('search')
   @Throttle({ default: { limit: 100, ttl: 60000 } })
@@ -28,14 +28,14 @@ export class StoreController {
     const parsedOffset = parseInt(offset || '0', 10);
     const radiusInMeters = radius ? parseFloat(radius) : undefined;
 
-    console.log(query)
-  
+    console.log(query);
+
     if (isNaN(latitude) || isNaN(longitude)) {
       throw new Error('Invalid coordinates');
     }
-  
+
     const isSearch = !!query || !!categoryId;
-  
+
     if (isSearch) {
       return this.storeService.searchStoresNearby(
         query,
@@ -44,10 +44,10 @@ export class StoreController {
         parsedLimit,
         parsedOffset,
         categoryId,
-        radiusInMeters
+        radiusInMeters,
       );
     }
-  
+
     // If no query/category → behave like the old getNearbyStores
     return this.storeService.findNearbyStores(
       latitude,
@@ -57,7 +57,6 @@ export class StoreController {
       radiusInMeters,
     );
   }
-  
 
   @UseGuards(AccessTokenGuard, RoleGuard)
   @Roles('user')
@@ -65,13 +64,22 @@ export class StoreController {
   async getMyStoreInfo(@Req() req: Request) {
     const userId = req.user?.['sub'];
     const store = await this.storeService.getDetailedStoreInfoByUserId(userId);
-    return store
+    return store;
   }
 
-    // GET /store/:id
-    @Get(':id')
-    async getStoreDetails(@Param('id') id: string) {
-      return this.storeService.getStoreDetailsById(id);
-    }
-  
+  // GET /store/:id
+  @Get(':id')
+  async getStoreDetails(@Param('id') id: string) {
+    return this.storeService.getStoreDetailsById(id);
+  }
+
+  @UseGuards(AccessTokenGuard, RoleGuard)
+  @Roles('user')
+  @Post('/:id/set-fees')
+  async setStoreFees(
+    @Param('id') id: string,
+    @Body() body: { customerPaysFees: boolean; },
+  ) {
+    return this.storeService.setStoreFees(id, body.customerPaysFees);
+  }
 }
