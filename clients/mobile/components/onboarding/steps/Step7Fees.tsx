@@ -36,7 +36,7 @@ const Step7Fees: React.FC = () => {
     <View style={styles.stepContainer}>
       <Text style={styles.stepTitle}>Commissioni di Servizio</Text>
       <Text style={styles.stepDescription}>
-        Le commissioni di servizio (2%) coprono i costi di pagamento e manutenzione della piattaforma.
+        Le commissioni di servizio coprono i costi di pagamento e manutenzione della piattaforma.
       </Text>
 
       {feeOptions.map(({ label, subtext, value }) => {
