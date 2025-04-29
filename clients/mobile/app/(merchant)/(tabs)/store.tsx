@@ -5,7 +5,6 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
-  SafeAreaView,
   ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -28,6 +27,7 @@ import apiClient from '@/lib/httpClient';
 import useSales from '@/hooks/useSales';
 import useSalesStats from '@/hooks/useSalesStats';
 import useMyStoreDetails from '@/hooks/useMyStoreDetails';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function MerchantProfileScreen() {;
   const router = useRouter();
@@ -192,7 +192,7 @@ const makeStyles = (theme: Theme) =>
       backgroundColor: theme.background,
     },
     header: {
-      paddingTop: 100,
+      paddingTop: 20,
       paddingHorizontal: 20,
     },
     userInfo: {
