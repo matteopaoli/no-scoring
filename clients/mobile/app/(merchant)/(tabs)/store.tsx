@@ -27,25 +27,14 @@ import { useQuery } from '@tanstack/react-query';
 import apiClient from '@/lib/httpClient';
 import useSales from '@/hooks/useSales';
 import useSalesStats from '@/hooks/useSalesStats';
-
-type MerchantStoreDetails = {
-  id: string;
-  name: string;
-  image: string;
-  address: string;
-  totalRevenue: number;
-  salesCount: number;
-};
+import useMyStoreDetails from '@/hooks/useMyStoreDetails';
 
 export default function MerchantProfileScreen() {;
   const router = useRouter();
   const { isAuthenticated, logout, user } = useAuth();
   const theme = useAppTheme();
   const styles = makeStyles(theme);
-  const { isPending, isError, data, error } = useQuery<MerchantStoreDetails>({
-    queryKey: ['myStore'],
-    queryFn: async () => (await apiClient.get('/store/me')).data,
-  });
+  const { isPending, isError, data, error } = useMyStoreDetails();
   const { data: sales } = useSales();
 
   const handleCreatePaymentLink = () => {

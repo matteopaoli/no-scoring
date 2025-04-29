@@ -12,6 +12,7 @@ import {
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { LocationProvider } from '@/contexts/LocationContext';
+import ToastManager from 'toastify-react-native'
 
 import {
   QueryClient,
@@ -49,6 +50,7 @@ export default function Root() {
           <LocationProvider>
             <SafeAreaProvider>
               <Slot />
+              <ToastManager />
             </SafeAreaProvider>
           </LocationProvider>
         </ThemeProvider>
