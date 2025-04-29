@@ -22,12 +22,12 @@ const Step7Fees: React.FC = () => {
   const feeOptions = [
     {
       label: 'Addebita le commissioni al cliente',
-      subtext: '(Il prezzo visualizzato includerà +2%)',
+      subtext: '(Il prezzo visualizzato includerà i costi di servizio)',
       value: true,
     },
     {
       label: 'Assorbi le commissioni nel tuo prezzo',
-      subtext: "(Riceverai il 98% dell'importo pagato)",
+      subtext: "Riceverai il pagamento dopo aver dedotto i costi di servizio",
       value: false,
     },
   ];
