@@ -1,16 +1,16 @@
 import axios, { AxiosError } from "axios";
 import { setStorageItemAsync } from '@/hooks/useStorageState'; // Adjust import path
 
-const backendUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
-
 let tokenCache = {
   accessToken: null as string | null,
   refreshToken: null as string | null,
   logout: async () => {}, // Will be set by syncAuthTokens
 };
 
+console.log(process.env.EXPO_PUBLIC_BACKEND_URL);
+
 const apiClient = axios.create({
-  baseURL: backendUrl,
+  baseURL: process.env.EXPO_PUBLIC_BACKEND_URL,
   headers: { "Content-Type": "application/json" },
 });
 
@@ -62,7 +62,7 @@ apiClient.interceptors.response.use(
     try {
       if (!tokenCache.refreshToken) throw new Error('No refresh token');
       
-      const refreshResponse = await axios.get(`${backendUrl}/auth/refresh`, {
+      const refreshResponse = await axios.get(`${process.env.EXPO_PUBLIC_BACKEND_URL}/auth/refresh`, {
         headers: { Authorization: `Bearer ${tokenCache.refreshToken}` },
       });
 

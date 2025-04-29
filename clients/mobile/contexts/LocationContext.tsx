@@ -1,61 +1,66 @@
-// LocationContext.tsx
-import React, { createContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useState, useEffect, ReactNode, useContext } from 'react';
 import * as Location from 'expo-location';
 
-interface LocationContextType {
-  location: { latitude: number; longitude: number } | null;
-  updateLocation: () => void;
+interface Coordinates {
+  latitude: number;
+  longitude: number;
 }
 
-const LocationContext = createContext<LocationContextType | undefined>(
-  undefined,
-);
+interface LocationContextType {
+  location: Coordinates | null;
+  loading: boolean;
+  error: string | null;
+  updateLocation: () => Promise<void>;
+}
+
+const LocationContext = createContext<LocationContextType | undefined>(undefined);
 
 interface LocationProviderProps {
   children: ReactNode;
 }
 
-export const LocationProvider: React.FC<LocationProviderProps> = ({
-  children,
-}) => {
-  const [location, setLocation] = useState<{
-    latitude: number;
-    longitude: number;
-  } | null>(null);
-  const [permissionDenied, setPermissionDenied] = useState(false);
+export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) => {
+  const [location, setLocation] = useState<Coordinates | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   const updateLocation = async () => {
-    const currentLocation = await Location.getCurrentPositionAsync({});
-    const { latitude, longitude } = currentLocation.coords;
-    setLocation({ latitude, longitude });
+    try {
+      setLoading(true);
+      const { status } = await Location.requestForegroundPermissionsAsync();
+
+      if (status !== 'granted') {
+        setError('Permesso di localizzazione negato.');
+        setLocation(null);
+        return;
+      }
+
+      const currentLocation = await Location.getCurrentPositionAsync({});
+      const { latitude, longitude } = currentLocation.coords;
+      setLocation({ latitude, longitude });
+      setError(null);
+    } catch (err) {
+      console.error('Errore nel recuperare la posizione:', err);
+      setError('Errore nel recuperare la posizione.');
+      setLocation(null);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    const checkPermission = async () => {
-        const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== 'granted') {
-            setPermissionDenied(true);
-            return;
-        }
-    }
-    checkPermission();
+    updateLocation(); // Fetch location immediately on mount
   }, []);
-  useEffect(() => {
-    if (!permissionDenied) {
-        updateLocation();
-    }
-  }, [permissionDenied]);
 
   return (
-    <LocationContext.Provider value={{ location, updateLocation }}>
+    <LocationContext.Provider value={{ location, loading, error, updateLocation }}>
       {children}
     </LocationContext.Provider>
   );
 };
 
-// Custom hook to use location context
 export const useLocation = (): LocationContextType => {
-  const context = React.useContext(LocationContext);
+  const context = useContext(LocationContext);
   if (!context) {
     throw new Error('useLocation must be used within a LocationProvider');
   }

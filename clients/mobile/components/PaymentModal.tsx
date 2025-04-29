@@ -5,6 +5,7 @@ import {
   TextInput,
   TouchableOpacity,
   Modal,
+  Alert,
 } from 'react-native';
 import { Euro } from 'lucide-react-native';
 import { StripeProvider, useStripe } from '@stripe/stripe-react-native';
@@ -48,7 +49,7 @@ const PaymentModal = ({ store, theme, onClose, onPaymentSuccess }: PaymentModalP
       const { error: paymentError } = await presentPaymentSheet();
 
       if (paymentError) {
-        alert(`Payment failed: ${paymentError.message}`);
+        Alert.alert('Errore', 'Il pagamento non è andato a buon fine. Riprova.')
       } else {
         onPaymentSuccess();
       }

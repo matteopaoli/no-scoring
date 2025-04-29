@@ -164,17 +164,14 @@ const styles = StyleSheet.create({
     color: '#FFD580',
   },
   categoriesGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    flexDirection: 'row',          // Horizontal layout
+    flexWrap: 'wrap',              // Wrap items onto the next line if needed
+    justifyContent: 'space-between', // Space between the items
     paddingHorizontal: 20,
-    marginBottom: 10,
-  },
-  categoryGridItem: {
-    flexBasis: '48%',
   },
   categoryText: {
     textAlign: 'center',
+    marginBottom: 16,
   },
   mapContainer: {
     height: 300,

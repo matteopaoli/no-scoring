@@ -5,6 +5,7 @@ import {
   Switch,
   TouchableOpacity,
   Linking,
+  Alert,
 } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'expo-router';
@@ -19,17 +20,23 @@ import {
   Smartphone,
   Moon,
   Sun,
+  Euro,
 } from 'lucide-react-native';
 import { useThemeContext } from '@/contexts/ThemeContext';
 import DeleteAccountModal from '@/components/delete-account-modal';
 import apiClient from '@/lib/httpClient';
+import useStoreDetails from '@/hooks/useStoreDetails';
+import useMyStoreDetails from '@/hooks/useMyStoreDetails';
+import { useUpdateCustomerPaysFees } from '@/hooks/useUpdateCustomerPaysFees';
+import { Toast } from 'toastify-react-native';
 
 export default function MerchantSettingsScreen() {
   const { logout } = useAuth();
   const router = useRouter();
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const { isPending, isError, data: store, error } = useMyStoreDetails();
   const { theme, themePreference, setThemePreference } = useThemeContext();
   const [isDeleteModalVisible, setDeleteModalVisible] = useState(false);
+  const { mutate: updateFees, isPending: isUpdatingFees } = useUpdateCustomerPaysFees();
 
   const handleLogout = async () => {
     await logout();
@@ -39,10 +46,14 @@ export default function MerchantSettingsScreen() {
   const confirmDeleteAccount = () => {
     setDeleteModalVisible(false); // Close the modal
     apiClient
-      .post('/user/delete')
+      .post('/users/delete')
       .then(() => {
         handleLogout();
-  })
+        Toast.success(
+          'Il tuo account è stato eliminato con successo. Ci dispiace vederti andare via.',
+          'bottom',
+        );
+      })
       .catch((error) => {
         console.error('Error deleting account:', error);
         // Handle the error, e.g., show an alert
@@ -60,7 +71,7 @@ export default function MerchantSettingsScreen() {
   const openTermsOfService = () => {
     Linking.openURL('https://app.paytomorrow.it/terms');
   };
-  
+
   const isActive = (mode: 'light' | 'dark' | null) => themePreference === mode;
 
   return (
@@ -71,7 +82,7 @@ export default function MerchantSettingsScreen() {
 
       {/* Preferences Section */}
       <SettingsSection title="Preferenze" theme={theme}>
-        <SettingsItem
+        {/* <SettingsItem
           icon={<Bell size={20} color={theme.subtext} />}
           label="Notifiche"
           theme={theme}
@@ -84,6 +95,39 @@ export default function MerchantSettingsScreen() {
                 notificationsEnabled ? theme.primary : theme.background
               }
             />
+          }
+        /> */}
+
+        <SettingsItem
+          icon={<Euro size={20} color={theme.subtext} />}
+          label="Commissioni a carico del cliente"
+          theme={theme}
+          rightElement={
+            <>
+              <TouchableOpacity
+                onPress={() =>
+                  Alert.alert(
+                    'Commissioni a carico del cliente',
+                    "Questa impostazione si applica esclusivamente all'app mobile PayTomorrow. Quando crei un link di pagamento sul sito web o tramite POS, ti verrà sempre chiesto di scegliere se le commissioni sono a tuo carico o del cliente.",
+                  )
+                }
+              >
+                <HelpCircle
+                  style={{ marginLeft: 10 }}
+                  size={20}
+                  color={theme.primary}
+                />
+              </TouchableOpacity>
+              <Switch
+                value={store?.customerPaysFees}
+                onValueChange={(value) => updateFees(value)}
+                disabled={isPending}
+                trackColor={{ false: theme.secondary, true: theme.primary }}
+                thumbColor={
+                  store?.customerPaysFees ? theme.primary : theme.background
+                }
+              />
+            </>
           }
         />
 

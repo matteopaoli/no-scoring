@@ -128,7 +128,6 @@ export class StoreService {
     return result[0] || null;
   }
   
-
   async getStoreByUserId(userId: string) {
     const result = await db
       .select({
@@ -286,5 +285,14 @@ export class StoreService {
     return result;
   }
   
+  async setStoreFees(storeId: string, value: boolean) {
+    const result = await db
+      .update(stores)
+      .set({ customerPaysFees: value })
+      .where(eq(stores.id, storeId))
+      .returning();
+  
+    return result[0];
+  }
   
 }

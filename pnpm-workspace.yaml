@@ -1,0 +1,18 @@
+packages:
+  - packages/*
+  - clients/*
+  - services/*
+
+ignoredBuiltDependencies:
+  - '@nestjs/core'
+  - '@prisma/client'
+  - '@prisma/engines'
+  - '@swc/core'
+  - bcrypt
+  - esbuild
+  - prisma
+  - sharp
+  - unrs-resolver
+
+onlyBuiltDependencies:
+  - canvas

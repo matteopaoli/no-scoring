@@ -1,7 +1,7 @@
 {
   "name": "api",
   "private": true,
-  "version": "1.4.1",
+  "version": "1.5.0",
   "description": "Nest TypeScript starter repository",
   "license": "MIT",
   "scripts": {
@@ -32,7 +32,7 @@
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.16",
     "@nestjs/throttler": "^6.4.0",
-    "@paytomorrow/db": "*",
+    "@paytomorrow/db": "workspace:*",
     "axios": "^1.8.4",
     "bcrypt": "^5.1.1",
     "bcrypt-ts": "^6.0.0",

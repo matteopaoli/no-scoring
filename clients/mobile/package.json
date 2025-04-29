@@ -1,7 +1,7 @@
 {
   "name": "mobile",
   "main": "expo-router/entry",
-  "version": "0.1.0",
+  "version": "1.0.1",
   "private": true,
   "scripts": {
     "dev": "expo start",
@@ -25,6 +25,7 @@
     }
   },
   "dependencies": {
+    "@babel/runtime": "^7.27.0",
     "@bam.tech/react-native-image-resizer": "^3.0.11",
     "@expo-google-fonts/dm-sans": "^0.3.0",
     "@expo-google-fonts/poppins": "^0.2.3",
@@ -37,11 +38,12 @@
     "@stripe/stripe-react-native": "0.38.6",
     "@tanstack/react-query": "^5.74.0",
     "axios": "^1.8.4",
-    "expo": "~52.0.42",
+    "expo": "~52.0.46",
     "expo-asset": "~11.0.5",
     "expo-auth-session": "~6.0.3",
     "expo-blur": "^14.0.3",
     "expo-camera": "~16.0.18",
+    "expo-clipboard": "~7.0.1",
     "expo-constants": "^17.0.5",
     "expo-dev-client": "~5.0.19",
     "expo-font": "~13.0.4",
@@ -73,10 +75,11 @@
     "react-native-screens": "~4.4.0",
     "react-native-svg": "15.8.0",
     "react-native-url-polyfill": "^2.0.0",
+    "react-native-vector-icons": "^10.2.0",
     "react-native-web": "^0.19.13",
     "react-native-webview": "13.12.5",
-    "undefined": "@dev-plugins/react-query\\",
-    "expo-clipboard": "~7.0.1"
+    "toastify-react-native": "^7.2.0",
+    "undefined": "@dev-plugins/react-query\\"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
