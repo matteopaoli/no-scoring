@@ -25,7 +25,7 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Permetti a $(PRODUCT_NAME) di usare la tua posizione"
+          "locationAlwaysAndWhenInUsePermission": "Permetti a $(PRODUCT_NAME) di usare la tua posizione per poterti mostrare i punti vendita più vicini."
         }
       ],
       [

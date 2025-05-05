@@ -58,11 +58,11 @@
     <key>NSFaceIDUsageDescription</key>
     <string>Allow $(PRODUCT_NAME) to access your Face ID biometric data.</string>
     <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-    <string>Permetti a $(PRODUCT_NAME) di usare la tua posizione</string>
+    <string>Permetti a $(PRODUCT_NAME) di usare la tua posizione per poterti mostrare i punti vendita più vicini.</string>
     <key>NSLocationAlwaysUsageDescription</key>
-    <string>Allow $(PRODUCT_NAME) to access your location</string>
+    <string>Permetti a $(PRODUCT_NAME) di usare la tua posizione per poterti mostrare i punti vendita più vicini.</string>
     <key>NSLocationWhenInUseUsageDescription</key>
-    <string>Allow $(PRODUCT_NAME) to access your location</string>
+    <string>Permetti a $(PRODUCT_NAME) di usare la tua posizione per poterti mostrare i punti vendita più vicini.</string>
     <key>NSMicrophoneUsageDescription</key>
     <string>Allow $(PRODUCT_NAME) to access your microphone</string>
     <key>NSPhotoLibraryUsageDescription</key>
