@@ -25,7 +25,7 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Permetti a $(PRODUCT_NAME) di usare la tua posizione"
+          "locationAlwaysAndWhenInUsePermission": "Permetti a $(PRODUCT_NAME) di usare la tua posizione per poterti mostrare i punti vendita più vicini."
         }
       ],
       [
@@ -51,7 +51,9 @@
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION"
       ],
-      "package": "com.matteopaoli.paytomorrowapp"
+      "package": "com.matteopaoli.paytomorrowapp",
+      "versionCode": 2,
+      "version": "1.0.2"
     }
   }
 }
