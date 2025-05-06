@@ -54,7 +54,8 @@ exports.stores = (0, pg_core_1.pgTable)("store", {
     address: (0, pg_core_1.text)("address"),
     location: (0, pg_core_1.geometry)("location", { type: 'point', srid: 4326 }),
     geodata: (0, pg_core_1.jsonb)('geodata').$type(),
-    customerPaysFees: (0, pg_core_1.boolean)('customerPaysFees').notNull().default(false)
+    customerPaysFees: (0, pg_core_1.boolean)('customerPaysFees').notNull().default(false),
+    apiKey: (0, pg_core_1.text)("apiKey").notNull(),
 });
 exports.sales = (0, pg_core_1.pgTable)("sale", {
     id: (0, pg_core_1.text)("id")

@@ -136,6 +136,7 @@ export default async function createUserAction(
     regionId,
   });
 
-    ({ email, onboardingLink: accountLink.url, inviteCode: merchant[0].inviteCode });
+  accountCreatedMerchantEmail({ email, onboardingLink: accountLink.url, inviteCode: merchant[0].inviteCode! });
+
   redirect(`/admin/users?success=true&action=create`);
 }

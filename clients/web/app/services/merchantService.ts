@@ -12,6 +12,7 @@ import { and, count, desc, eq, getTableColumns, inArray, sql } from "drizzle-orm
 import { UserService } from "./userService";
 import { alias } from "drizzle-orm/pg-core";
 import { PartnerService } from "./partnerService";
+import { randomBytes } from "node:crypto";
 
 export class MerchantService {
   static async createMerchant({
@@ -37,6 +38,8 @@ export class MerchantService {
   }) {
     const hash = UserService.getDefaultPassword();
     const inviteCode = await UserService.generateInviteCode();
+    const apiKey = randomBytes(32).toString('hex');
+    
     return await db.insert(users).values({
       email,
       role: "user",
@@ -50,7 +53,8 @@ export class MerchantService {
       refName,
       password: hash,
       regionId,
-      inviteCode
+      inviteCode,
+      apiKey,
     }).returning();
   }
 

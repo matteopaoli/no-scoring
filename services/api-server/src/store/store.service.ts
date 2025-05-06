@@ -10,6 +10,7 @@ import {
   sales,
   businessType,
 } from '@paytomorrow/db';
+import { randomBytes } from 'crypto';
 import { and, eq, getTableColumns, sql } from 'drizzle-orm';
 import { UsersService } from 'src/users/users.service';
 
@@ -28,6 +29,7 @@ export class StoreService {
     partnerId: string;
     userId: string;
   }) {
+    const apiKey = randomBytes(32).toString('hex');
     return db.transaction(async (tx) => {
       // Correct the issue by ensuring that we're passing the correct structure to `values()`
       const [newStore] = await tx
@@ -44,6 +46,7 @@ export class StoreService {
             placeId: createStoreDto.placeId,
           },
           customerPaysFees: createStoreDto.customerPaysFees, // Required field
+          apiKey,
         })
         .returning();
 
@@ -294,5 +297,18 @@ export class StoreService {
   
     return result[0];
   }
+
+  async findByApiKey(apiKey: string): Promise<string | null> {
+    try {
+      const result = await db
+        .select({ id: stores.id })
+        .from(stores)
+        .where(eq(stores.apiKey, apiKey));
   
+      return result[0]?.id ?? null;
+    } catch (error) {
+      console.error(error);
+      throw new Error('Error executing query');
+    }
+  }
 }

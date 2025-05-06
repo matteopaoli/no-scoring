@@ -125,7 +125,7 @@ export default async function createUserAction(
     throw new Error("Could not create account link");
   }
 
-  await MerchantService.createMerchant({
+  const merchant = await MerchantService.createMerchant({
     email,
     businessTypeId,
     businessName,
@@ -137,7 +137,7 @@ export default async function createUserAction(
     regionId,
   });
 
-  accountCreatedMerchantEmail({ email, onboardingLink: accountLink.url });
+  accountCreatedMerchantEmail({ email, onboardingLink: accountLink.url, inviteCode: merchant[0].inviteCode! });
   newMerchantAdminEmail({
     merchantEmail: email,
     partnerName: `${user.firstName} ${user.lastName}`,

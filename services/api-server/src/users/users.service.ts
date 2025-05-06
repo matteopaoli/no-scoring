@@ -70,7 +70,7 @@ export class UsersService {
       throw new Error('Error executing query', error);
     }
   }
-
+  
   async searchUsers(searchQuery: string): Promise<any> {
     try {
       return await db

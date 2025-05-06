@@ -1,6 +1,7 @@
 import 'server-only'
-import { auth } from '../auth'
+import { auth, signOut } from '../auth'
 import { UserService } from '../services/userService'
+import { redirect } from 'next/navigation'
 
 export default async function getUserFromAuth() {
   const session = await auth()
@@ -9,7 +10,7 @@ export default async function getUserFromAuth() {
   }
   const user = await UserService.getUserByEmail(session.user.email)
   if (!user) {
-    throw new Error('Authenticated but not found in our users database');
+    redirect('/signout')
   }
   return user;
 }

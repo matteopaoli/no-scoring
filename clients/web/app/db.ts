@@ -18,6 +18,7 @@ import { imageToBase64, compressProfileImageToBase64 } from "./utils/images";
 import { alias } from "drizzle-orm/pg-core";
 import { UserService } from "./services/userService";
 import { PartnerService } from "./services/partnerService";
+import { randomBytes } from "crypto";
 
 export {
   db
@@ -122,6 +123,7 @@ export async function createStore({
   if (storeLogo) {
     logoData = await imageToBase64(storeLogo);
   }
+  const apiKey = randomBytes(32).toString('hex');
   const newStore = await db
     .insert(stores)
     .values({
@@ -131,6 +133,7 @@ export async function createStore({
       address,
       location: sql`ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)` as any,
       geodata: { lat, lng, placeId },
+      apiKey,
     })
     .returning();
 
