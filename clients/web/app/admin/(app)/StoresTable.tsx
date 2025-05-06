@@ -2,12 +2,13 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import GenericTable from "@/app/components/GenericTable"; // Adjust the import path if needed
-import { Switch } from "@chakra-ui/react";
+import { Box, Button, IconButton, Switch, useToast } from "@chakra-ui/react";
 import changeStoreStatus from "./changeStoreStatus.action";
 import { useRouter } from "next/navigation";
 import StoreFilters from "./StoreFilters";
 import { startTransition, useState } from "react";
 import SwitchField from "@/app/components/fields/SwitchField";
+import { CopyIcon } from "@chakra-ui/icons";
 
 interface Store {
   id: string;
@@ -27,6 +28,18 @@ interface StoresTableProps {
 export default function StoresTable({ stores, canDisable }: StoresTableProps) {
   const [filtered, setFiltered] = useState(stores);
   const [updatingIds, setUpdatingIds] = useState<Set<string>>(new Set());
+  const toast = useToast();
+
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast({
+      title: "Chiave copiata",
+      description: "La chiave API è stata copiata negli appunti.",
+      status: "success",
+      duration: 2000,
+      isClosable: true,
+    });
+  };
 
   const storeColumns: ColumnDef<Store>[] = [
     {
@@ -77,6 +90,29 @@ export default function StoresTable({ stores, canDisable }: StoresTableProps) {
         new Date(info.getValue() as string).toLocaleDateString("it-IT", {
           dateStyle: "long",
         }),
+    },
+    {
+      accessorKey: "apiKey",
+      header: "Chiave API",
+      cell: (info) => (
+        <>
+          {info.getValue() ? (
+            <Box display="flex" gap={2} alignItems="center">
+              <Button
+                aria-label="Copy API key"
+                rightIcon={<CopyIcon />}
+                size="sm"
+                variant="outline"
+                onClick={() => handleCopy(info.getValue() as string)}
+              >
+                Copia Chiave API
+              </Button>
+            </Box>
+          ) : (
+            "N/A"
+          )}
+        </>
+      ),
     },
     ...(canDisable
       ? [

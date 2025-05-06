@@ -65,6 +65,7 @@ export class Store {
         address: stores.address,
         location: stores.location,
         geodata: stores.geodata,
+        apiKey: stores.apiKey
       })
       .from(stores)
       .innerJoin(userStoreRoles, eq(userStoreRoles.storeId, stores.id))

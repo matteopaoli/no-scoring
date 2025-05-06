@@ -66,7 +66,8 @@ export const stores = pgTable("store", {
   address: text("address"),
   location: geometry("location", { type: 'point', srid: 4326 }),
   geodata: jsonb('geodata').$type<{ lng: number, lat: number, placeId: string }>(),
-  customerPaysFees: boolean('customerPaysFees').notNull().default(false)
+  customerPaysFees: boolean('customerPaysFees').notNull().default(false),
+  apiKey: text("apiKey"),
 });
 
 export const sales = pgTable("sale", {

@@ -2,6 +2,8 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import GenericTable from "@/app/components/GenericTable"; // Adjust the import path if needed
+import { Box, Button, useToast } from "@chakra-ui/react";
+import { CopyIcon } from "@chakra-ui/icons";
 
 interface Store {
   storeId: string;
@@ -17,6 +19,19 @@ interface StoresTableProps {
 }
 
 export default function StoresTable({ stores }: StoresTableProps) {
+  const toast = useToast();
+
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast({
+      title: "Chiave copiata",
+      description: "La chiave API è stata copiata negli appunti.",
+      status: "success",
+      duration: 2000,
+      isClosable: true,
+    });
+  };
+
   const storeColumns: ColumnDef<Store>[] = [
     {
       accessorKey: "name",
@@ -54,6 +69,29 @@ export default function StoresTable({ stores }: StoresTableProps) {
       cell: (info) => `€ ${Number(info.getValue() ?? 0).toFixed(2)}`,
     },
     {
+      accessorKey: "apiKey",
+      header: "Chiave API",
+      cell: (info) => (
+        <>
+          {info.getValue() ? (
+            <Box display="flex" gap={2} alignItems="center">
+              <Button
+                aria-label="Copy API key"
+                rightIcon={<CopyIcon />}
+                size="sm"
+                variant="outline"
+                onClick={() => handleCopy(info.getValue() as string)}
+              >
+                Copia Chiave API
+              </Button>
+            </Box>
+          ) : (
+            "N/A"
+          )}
+        </>
+      ),
+    },
+    {
       accessorKey: "createdAt",
       header: "Data Creazione",
       cell: (info) =>
@@ -73,7 +111,9 @@ export default function StoresTable({ stores }: StoresTableProps) {
         hideColumnsResponsive={["createdAt"]}
         getRowProps={(row) => ({
           style: {
-            backgroundColor: row.original.hasPaid ? "rgba(0, 255, 0, 0.1)" : "transparent",
+            backgroundColor: row.original.hasPaid
+              ? "rgba(0, 255, 0, 0.1)"
+              : "transparent",
           },
         })}
       />
