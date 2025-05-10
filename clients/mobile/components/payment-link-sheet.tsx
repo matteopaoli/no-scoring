@@ -7,6 +7,7 @@ import {
   Pressable,
 } from 'react-native';
 import { Check, Share2, Copy } from 'lucide-react-native';
+import { Share } from 'react-native';
 
 const PaymentSheet = ({ paymentLink, qrCode, amount, onCopy, onClose, theme, router }) => {
   const styles = createSheetStyles(theme);
@@ -28,7 +29,7 @@ const PaymentSheet = ({ paymentLink, qrCode, amount, onCopy, onClose, theme, rou
           <Pressable style={styles.openBtn} onPress={() => router.push(paymentLink)}>
             <Text style={styles.openText}>Apri</Text>
           </Pressable>
-          <Pressable style={styles.shareBtn} onPress={() => Share.share({ message: paymentLink })}>
+          <Pressable style={styles.shareBtn} onPress={() => Share.share({ message: `Ciao! Completa il pagamento di €${amount} su PayTomorrow con questo link: ${paymentLink}` })}>
             <Share2 size={16} color={theme.primary} />
           </Pressable>
         </View>
