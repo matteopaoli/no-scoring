@@ -21,6 +21,7 @@ import {
   Moon,
   Sun,
   Euro,
+  SunDimIcon,
 } from 'lucide-react-native';
 import { useThemeContext } from '@/contexts/ThemeContext';
 import DeleteAccountModal from '@/components/delete-account-modal';
@@ -149,7 +150,7 @@ export default function MerchantSettingsScreen() {
             }}
           >
             <View style={styles.settingIcon}>
-              <CreditCard size={20} color={theme.subtext} />
+              <SunDimIcon size={20} color={theme.subtext} />
             </View>
             <Text style={[styles.settingText, { color: theme.text }]}>
               Tema
