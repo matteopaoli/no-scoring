@@ -154,6 +154,7 @@ export class StoreService {
         address: stores.address,
         image: stores.image,
         customerPaysFees: stores.customerPaysFees,
+        isSubscriptionActive: stores.isSubscriptionActive,
       })
       .from(stores)
       .innerJoin(userStoreRoles, eq(userStoreRoles.storeId, stores.id))
