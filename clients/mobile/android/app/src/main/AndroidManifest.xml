@@ -30,7 +30,6 @@
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="paytomorrow"/>
-        <data android:scheme="com.matteopaoli.paytomorrowapp"/>
         <data android:scheme="exp+paytomorrow-app"/>
       </intent-filter>
     </activity>

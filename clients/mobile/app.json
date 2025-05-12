@@ -2,7 +2,7 @@
   "expo": {
     "name": "PayTomorrow",
     "slug": "paytomorrow-app",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/favicon.png",
     "scheme": "paytomorrow",
@@ -51,9 +51,7 @@
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION"
       ],
-      "package": "com.matteopaoli.paytomorrowapp",
-      "versionCode": 2,
-      "version": "1.0.2"
+      "package": "com.matteopaoli.paytomorrowapp"
     }
   }
 }
