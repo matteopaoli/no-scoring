@@ -10,6 +10,7 @@ import apiClient, { syncAuthTokens } from '@/lib/httpClient';
 import { useStorageState } from '@/hooks/useStorageState'; // Adjust the import path
 
 type User = any; // Replace with your actual user type
+type Store = any;
 
 type AuthContextType = {
   login: (email: string, password: string) => Promise<void>;
@@ -18,6 +19,7 @@ type AuthContextType = {
   isAuthenticated: boolean;
   isLoading: boolean;
   refreshUser: () => Promise<void>;
+  store: Store | null;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -28,6 +30,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [[isRefreshTokenLoading, refreshToken], setRefreshToken] =
     useStorageState('refreshToken');
   const [user, setUser] = useState<User | null>(null);
+  const [store, setStore] = useState<Store |null>(null)
 
   const isTokensLoading = isAccessTokenLoading || isRefreshTokenLoading;
   const isLoading = isTokensLoading;
@@ -47,9 +50,6 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const response = await apiClient.post('/auth/login', { email, password });
       const { accessToken, refreshToken } = response.data;
-
-      // Update storage through custom hook setters
-      console.log(accessToken, refreshToken)
       setAccessToken(accessToken);
       setRefreshToken(refreshToken);
     } catch (error) {
@@ -66,8 +66,12 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const refreshUser = async () => {
     try {
-      const response = await apiClient.get('/users/me');
-      setUser(response.data.user);
+      const [user, store] = await Promise.all([
+        apiClient.get('/users/me'),
+        apiClient.get('/store/me')
+      ])
+      setUser(user.data.user);
+      setStore(store.data)
     } catch (error) {
       console.error('Failed to refresh user:', error);
       await logout();
@@ -84,6 +88,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         isAuthenticated,
         isLoading,
         refreshUser,
+        store
       }}
     >
       {children}

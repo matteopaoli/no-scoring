@@ -7,8 +7,6 @@ let tokenCache = {
   logout: async () => {}, // Will be set by syncAuthTokens
 };
 
-console.log(process.env.EXPO_PUBLIC_BACKEND_URL);
-
 const apiClient = axios.create({
   baseURL: process.env.EXPO_PUBLIC_BACKEND_URL,
   headers: { "Content-Type": "application/json" },

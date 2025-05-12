@@ -6,7 +6,7 @@ import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
 export default function MerchantLayout() {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, store } = useAuth();
   const router = useRouter();
   const theme = useAppTheme();
 
@@ -18,6 +18,9 @@ export default function MerchantLayout() {
       router.replace('/');
     } else if (!user.onboardingCompleted) {
       router.replace('/profile-setup');
+    }
+    else if (!store.isSubscriptionActive) {
+      router.replace('/subscription-expired')
     }
   }, [isLoading, user, router]);
 

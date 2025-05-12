@@ -37,7 +37,8 @@ export default function MerchantSettingsScreen() {
   const { isPending, isError, data: store, error } = useMyStoreDetails();
   const { theme, themePreference, setThemePreference } = useThemeContext();
   const [isDeleteModalVisible, setDeleteModalVisible] = useState(false);
-  const { mutate: updateFees, isPending: isUpdatingFees } = useUpdateCustomerPaysFees();
+  const { mutate: updateFees, isPending: isUpdatingFees } =
+    useUpdateCustomerPaysFees();
 
   const handleLogout = async () => {
     await logout();
@@ -195,6 +196,39 @@ export default function MerchantSettingsScreen() {
               theme={theme}
             />
           </View>
+
+          <TouchableOpacity
+            onPress={() =>
+              Linking.openURL(
+                'https://secureprivacy.thrivecart.com/paytomorrow-abbonamento',
+              )
+            }
+            style={[
+              styles.settingItem,
+              {
+                borderBottomWidth: 0,
+                paddingVertical: 16,
+                marginTop: 20,
+              },
+            ]}
+          >
+            <View style={styles.settingIcon}>
+              <CreditCard size={20} color={theme.primary} />
+            </View>
+            <Text
+              style={[
+                styles.settingText,
+                { color: theme.primary, fontWeight: '600' },
+              ]}
+            >
+              Acquista PayTomorrow
+            </Text>
+            <ArrowLeft
+              size={18}
+              color={theme.primary}
+              style={{ transform: [{ rotate: '180deg' }] }}
+            />
+          </TouchableOpacity>
         </View>
 
         {/* Account Section */}
