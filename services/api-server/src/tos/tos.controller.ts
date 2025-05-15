@@ -7,11 +7,11 @@ import { TosService } from './tos.service';
 @Controller('tos')
 @UseGuards(AccessTokenGuard)
 export class TosController {
-    constructor(private readonly toS: TosService) {}
-    @Post('accept')
-    async acceptTos(@Body() dto: AcceptTosDto, @Req() req: Request) {
-        const userId = req.user?.['sub'];
-        this.toS.acceptTos(userId);
-        return { message: 'Terms of Service accepted' };
-    }
+  constructor(private readonly toS: TosService) {}
+  @Post('accept')
+  async acceptTos(@Body() dto: AcceptTosDto, @Req() req: Request) {
+    const userId = req.user?.['sub'];
+    await this.toS.acceptTos(userId!);
+    return { message: 'Terms of Service accepted' };
+  }
 }

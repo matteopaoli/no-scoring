@@ -7,7 +7,7 @@ import { UpdateUserDto } from 'src/users/dto/updateUser.dto';
 export class UsersService {
   constructor() {}
 
-  async findByEmail(email: string): Promise<any> {
+  async findByEmail(email: string) {
     try {
       const result = await db
         .select({
@@ -27,7 +27,7 @@ export class UsersService {
     }
   }
 
-  async findById(id: string): Promise<any> {
+  async findById(id: string) {
     try {
       const result = await db
         .select({
@@ -38,7 +38,7 @@ export class UsersService {
           email: users.email,
           role: users.role,
           onboardingCompleted: users.onboardingCompleted,
-          partnerId: users.partnerId
+          partnerId: users.partnerId,
         })
         .from(users)
         .where(eq(users.id, id));
@@ -50,7 +50,7 @@ export class UsersService {
   }
 
   async findByInviteCode(inviteCode: string) {
-    if (!inviteCode) return null
+    if (!inviteCode) return null;
     try {
       const result = await db
         .select({
@@ -60,7 +60,7 @@ export class UsersService {
           lastName: users.lastName,
           email: users.email,
           role: users.role,
-          onboardingLink: users.onboardingLink
+          onboardingLink: users.onboardingLink,
         })
         .from(users)
         .where(eq(users.inviteCode, inviteCode));
@@ -70,7 +70,7 @@ export class UsersService {
       throw new Error('Error executing query', error);
     }
   }
-  
+
   async searchUsers(searchQuery: string): Promise<any> {
     try {
       return await db
@@ -104,18 +104,18 @@ export class UsersService {
       .select()
       .from(userStoreRoles)
       .where(
-        and(eq(userStoreRoles.userId, id), eq(userStoreRoles.role, "admin"))
+        and(eq(userStoreRoles.userId, id), eq(userStoreRoles.role, 'admin')),
       );
-  
+
     const storeIds = userStores.map((storeRole) => storeRole.storeId);
-  
+
     if (storeIds.length > 0) {
       await db
         .delete(userStoreRoles)
         .where(inArray(userStoreRoles.storeId, storeIds));
       await db.delete(stores).where(inArray(stores.id, storeIds));
     }
-  
+
     await db.delete(products).where(eq(products.userId, id));
     await db.delete(users).where(eq(users.id, id));
   }

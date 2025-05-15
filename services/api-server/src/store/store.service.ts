@@ -26,7 +26,7 @@ export class StoreService {
     locationLat: string;
     locationLng: string;
     customerPaysFees: boolean;
-    partnerId: string;
+    partnerId?: string | null;
     userId: string;
   }) {
     const apiKey = randomBytes(32).toString('hex');

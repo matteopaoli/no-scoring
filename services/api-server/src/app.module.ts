@@ -14,6 +14,7 @@ import { BusinessTypeService } from './business-type/business-type.service';
 import { BusinessTypeModule } from './business-type/business-type.module';
 import { TosModule } from './tos/tos.module';
 import { ExternalModule } from './external/external.module';
+import { CustomerModule } from './customer/customer.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { ExternalModule } from './external/external.module';
     BusinessTypeModule,
     TosModule,
     ExternalModule,
+    CustomerModule,
   ],
   providers: [
     {

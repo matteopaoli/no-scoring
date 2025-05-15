@@ -22,7 +22,10 @@ export class AuthService {
   async signIn(email: string, password: string) {
     const user = await this.usersService.findByEmail(email);
     if (!user) throw new BadRequestException('User does not exist');
-    const passwordMatches = await compare(password, user.password);
+    if (!['customer', 'user'].includes(user.role)) {
+      throw new BadRequestException('This user role is not supported');
+    }
+    const passwordMatches = await compare(password, user.password!);
     if (!passwordMatches)
       throw new BadRequestException('Password is incorrect');
     const tokens = await this.getTokens(user);

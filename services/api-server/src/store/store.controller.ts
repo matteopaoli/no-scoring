@@ -63,7 +63,7 @@ export class StoreController {
   @Get('me')
   async getMyStoreInfo(@Req() req: Request) {
     const userId = req.user?.['sub'];
-    const store = await this.storeService.getDetailedStoreInfoByUserId(userId);
+    const store = await this.storeService.getDetailedStoreInfoByUserId(userId!);
     return store;
   }
 

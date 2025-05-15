@@ -681,7 +681,7 @@ export declare const stores: import("drizzle-orm/pg-core").PgTableWithColumns<{
             columnType: "PgText";
             data: string;
             driverParam: string;
-            notNull: true;
+            notNull: false;
             hasDefault: false;
             isPrimaryKey: false;
             isAutoincrement: false;
