@@ -50,6 +50,11 @@ export default function ReferMerchantScreen() {
     onSuccess: (m) => {
       console.log(m)
       Alert.alert('Successo', 'Il commerciante è stato segnalato con successo!');
+      setBusinessType(null)
+      setRegion(null)
+      setMerchantName('')
+      setEmail('')
+      setNotes('')
       router.back();
     },
     onError: (e) => {

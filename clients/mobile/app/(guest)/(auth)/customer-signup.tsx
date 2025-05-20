@@ -54,6 +54,7 @@ export default function CustomerSignupScreen(): JSX.Element {
   const [repeatPassword, setRepeatPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showRepeatPassword, setShowRepeatPassword] = useState(false);
+  const { login } = useAuth()
 
   const handleNext = () => {
     if (step === 1 && (!firstName || !lastName)) {
@@ -92,9 +93,11 @@ export default function CustomerSignupScreen(): JSX.Element {
         repeatPassword,
         phoneNumber: phone
        })
+      await login(email, password)
       Alert.alert('Successo', 'Registrazione completata');
-      router.replace('/(guest)/(home)');
+      router.replace('/(guest)/(customer)');
     } catch (error) {
+      console.log(error)
       Alert.alert('Errore', 'Si è verificato un errore durante la registrazione');
     }
   };
@@ -222,7 +225,7 @@ export default function CustomerSignupScreen(): JSX.Element {
             )}
           </View>
 
-          <TouchableOpacity style={styles.loginLink} onPress={() => router.replace('/')}>
+          <TouchableOpacity style={styles.loginLink} onPress={() => router.replace('/(guest)/(auth)/login')}>
             <Text style={[styles.loginText, { color: theme.text }]}>Hai già un account? Accedi</Text>
           </TouchableOpacity>
         </View>

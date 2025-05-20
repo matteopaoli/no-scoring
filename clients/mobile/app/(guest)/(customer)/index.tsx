@@ -39,6 +39,14 @@ export default function CustomerProfileScreen() {
           </View>
         </View>
 
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Il Tuo Profilo</Text>
+          <Text style={styles.sectionText}>
+            Benvenuto, {user?.firstName}! Questo è il tuo spazio personale dove puoi vedere e gestire le informazioni legate al tuo account PayTomorrow. Puoi anche invitare negozi e contribuire alla crescita della nostra community.
+          </Text>
+        </View>
+
+
         <TouchableOpacity
           style={styles.referButton}
           onPress={() => router.push('/refer-merchant')}
@@ -95,5 +103,21 @@ const makeStyles = (theme: Theme) =>
       fontSize: theme.fontSizeHeading,
       color: theme.cardBackgroundColor,
       marginLeft: 10,
+    },
+    section: {
+      marginTop: 30,
+      paddingHorizontal: 20,
+    },
+    sectionTitle: {
+      fontFamily: theme.fontSemiBold,
+      fontSize: theme.fontSizeHeading,
+      color: theme.text,
+      marginBottom: 10,
+    },
+    sectionText: {
+      fontFamily: theme.fontRegular,
+      fontSize: theme.fontSize,
+      color: theme.subtext,
+      lineHeight: 22,
     },
   });

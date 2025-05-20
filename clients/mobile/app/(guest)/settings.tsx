@@ -26,12 +26,13 @@ export default function MerchantSettingsScreen() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [isDeleteModalVisible, setDeleteModalVisible] = useState(false);
   const { theme, themePreference, setThemePreference } = useThemeContext();
+  const { user } = useAuth()
 
   const isActive = (mode: 'light' | 'dark' | null) => themePreference === mode;
 
   const handleLogout = async () => {
     await logout();
-    router.replace('/');
+    router.replace('/(guest)/(home)');
   };
 
   const confirmDeleteAccount = () => {
@@ -166,10 +167,14 @@ export default function MerchantSettingsScreen() {
             theme={theme}
           /> */}
       </SettingsSection>
-      <TouchableOpacity style={styles.signOutButton} onPress={handleLogout}>
-        <LogOut size={24} color="#FFFFFF" />
-        <Text style={styles.signOutButtonText}>Esci</Text>
-      </TouchableOpacity>
+      {
+        !!user ? (
+          <TouchableOpacity style={styles.signOutButton} onPress={handleLogout}>
+            <LogOut size={24} color="#FFFFFF" />
+            <Text style={styles.signOutButtonText}>Esci</Text>
+          </TouchableOpacity>
+        ) : null
+      }
       <View style={styles.footerLinks}>
         <TouchableOpacity onPress={openPrivacyPolicy}>
           <Text style={[styles.footerLinkText, { color: theme.subtext }]}>
@@ -186,21 +191,31 @@ export default function MerchantSettingsScreen() {
             Termini di servizio
           </Text>
         </TouchableOpacity>
-        <Text style={[styles.footerLinkSeparator, { color: theme.subtext }]}>
-          •
-        </Text>
 
-        <TouchableOpacity onPress={() => setDeleteModalVisible(true)}>
-          <Text style={[styles.footerLinkText, { color: theme.subtext }]}>
-            Elimina Account
-          </Text>
-        </TouchableOpacity>
+        {
+          !!user ? (
+            <>
+              <Text style={[styles.footerLinkSeparator, { color: theme.subtext }]}>
+                •
+              </Text>
+              <TouchableOpacity onPress={() => setDeleteModalVisible(true)}>
+                <Text style={[styles.footerLinkText, { color: theme.subtext }]}>
+                  Elimina Account
+                </Text>
+              </TouchableOpacity>
+            </>
+          ) : null
+        }
       </View>
-      <DeleteAccountModal
-        visible={isDeleteModalVisible}
-        onCancel={cancelDeleteAccount}
-        onConfirm={confirmDeleteAccount}
-      />
+      {
+        !!user ? (
+          <DeleteAccountModal
+            visible={isDeleteModalVisible}
+            onCancel={cancelDeleteAccount}
+            onConfirm={confirmDeleteAccount}
+          />
+        ) : null
+      }
     </View>
   );
 }
