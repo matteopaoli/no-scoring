@@ -38,8 +38,7 @@ export class MerchantService {
   }) {
     const hash = UserService.getDefaultPassword();
     const inviteCode = await UserService.generateInviteCode();
-    const apiKey = randomBytes(32).toString('hex');
-    
+
     return await db.insert(users).values({
       email,
       role: "user",
@@ -54,7 +53,6 @@ export class MerchantService {
       password: hash,
       regionId,
       inviteCode,
-      apiKey,
     }).returning();
   }
 
@@ -151,7 +149,7 @@ export class MerchantService {
       phoneNumber: users.phoneNumber,
       regionName: regions.name,
     };
-  
+
     // Perform the query
     return await db
       .select(selectedColumns)
@@ -171,7 +169,7 @@ export class MerchantService {
         regions.id // Ensure the region is included in group by for aggregation
       );
   }
-  
+
 
   static async updateNotes(userId: string, value: string) {
     return await db.update(users).set({ notes: value }).where(eq(users.id, userId));
