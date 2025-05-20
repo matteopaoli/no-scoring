@@ -17,9 +17,9 @@ import ToastManager from 'toastify-react-native'
 import {
   QueryClient,
   QueryClientProvider,
-  useQuery,
 } from '@tanstack/react-query'
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { Provider as PaperProvider } from 'react-native-paper'
 
 const queryClient = new QueryClient()
 
@@ -49,7 +49,9 @@ export default function Root() {
         <ThemeProvider>
           <LocationProvider>
             <SafeAreaProvider>
-              <Slot />
+              <PaperProvider>
+                <Slot />
+              </PaperProvider>
               <ToastManager />
             </SafeAreaProvider>
           </LocationProvider>

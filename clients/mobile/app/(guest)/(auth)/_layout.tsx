@@ -13,7 +13,8 @@ export default function RootLayout() {
       },
       headerTintColor: theme.text
     }}>
-      <Stack.Screen name="login" options={{ headerShown: false }}  />
+      <Stack.Screen name="login" options={{ headerShown: false, title: 'Accedi' }}  />
+      <Stack.Screen name="customer-signup" options={{  title: 'Registrati' }}  />
       <Stack.Screen name="merchant-onboarding" options={{ title: 'Registrazione Commerciante' }} />
     </Stack>
   );

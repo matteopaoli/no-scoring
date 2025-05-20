@@ -1,3 +1,4 @@
+import { Transform, TransformFnParams } from 'class-transformer';
 import {
   IsEmail,
   IsString,
@@ -11,17 +12,14 @@ import {
   ValidatorConstraintInterface,
 } from 'class-validator';
 
-interface PasswordContainer {
-  newPassword: string;
-  repeatPassword: string;
-}
 
 // Custom validator to check if passwords match
 @ValidatorConstraint({ name: 'MatchPasswords', async: false })
 class MatchPasswords implements ValidatorConstraintInterface {
   validate(value: string, args: ValidationArguments) {
-    const object = args.object as PasswordContainer;
-    return object.newPassword === object.repeatPassword;
+    const object = args.object as SignupCustomerDTO;
+    console.log(object)
+    return object.password === object.repeatPassword;
   }
 
   defaultMessage() {
@@ -31,12 +29,15 @@ class MatchPasswords implements ValidatorConstraintInterface {
 
 export class SignupCustomerDTO {
   @IsEmail({}, { message: 'Email non valida' })
+  @Transform(({ value }: TransformFnParams) => value?.trim())
   email: string;
 
   @IsString({ message: 'Il nome è obbligatorio' })
+  @Transform(({ value }: TransformFnParams) => value?.trim())
   firstName: string;
 
   @IsString({ message: 'Il cognome è obbligatorio' })
+  @Transform(({ value }: TransformFnParams) => value?.trim())
   lastName: string;
 
   @IsString()
@@ -53,12 +54,13 @@ export class SignupCustomerDTO {
   @Matches(/(?=.*[!@#$%^&*(),.?":{}|<>])/, {
     message: 'La password deve contenere almeno un simbolo speciale',
   })
-  newPassword: string;
+  password: string;
 
   @IsString({ message: 'La conferma della password è obbligatoria' })
   @Validate(MatchPasswords)
   repeatPassword: string;
 
   @IsPhoneNumber('IT', { message: 'Numero di telefono non valido' })
+  @Transform(({ value }: TransformFnParams) => value?.trim())
   phoneNumber: string;
 }

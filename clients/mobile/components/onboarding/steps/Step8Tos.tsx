@@ -23,7 +23,7 @@ const Step8TOS: React.FC = () => {
   const theme = useAppTheme();
   const styles = makeStyles(theme);
   const { refreshUser } = useAuth();
-    const validation = validateStep(7, userInfo);
+  const validation = validateStep(7, userInfo);
   
 
   const handleSubmit = async () => {
@@ -43,7 +43,7 @@ const Step8TOS: React.FC = () => {
           const reader = new FileReader();
           reader.onloadend = () => {
             if (typeof reader.result === 'string') {
-              const base64Prefix = '  ';
+              const base64Prefix = 'data:image/jpeg;base64,';
               resolve(base64Prefix + reader.result.split(',')[1]);
             } else {
               reject(new Error('Failed to convert image to Base64'));

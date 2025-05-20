@@ -15,14 +15,45 @@ import {
   SunDimIcon,
 } from 'lucide-react-native';
 import { useThemeContext } from '@/contexts/ThemeContext';
+import apiClient from '@/lib/httpClient';
+import { Toast } from 'toastify-react-native';
+import DeleteAccountModal from '@/components/delete-account-modal';
+
 
 export default function MerchantSettingsScreen() {
   const { logout } = useAuth();
   const router = useRouter();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [isDeleteModalVisible, setDeleteModalVisible] = useState(false);
   const { theme, themePreference, setThemePreference } = useThemeContext();
 
   const isActive = (mode: 'light' | 'dark' | null) => themePreference === mode;
+
+  const handleLogout = async () => {
+    await logout();
+    router.replace('/');
+  };
+
+  const confirmDeleteAccount = () => {
+    setDeleteModalVisible(false); // Close the modal
+    apiClient
+      .post('/users/delete')
+      .then(() => {
+        handleLogout();
+        Toast.success(
+          'Il tuo account è stato eliminato con successo. Ci dispiace vederti andare via.',
+          'bottom',
+        );
+      })
+      .catch((error) => {
+        console.error('Error deleting account:', error);
+        // Handle the error, e.g., show an alert
+      });
+  };
+
+  const cancelDeleteAccount = () => {
+    setDeleteModalVisible(false); // Just close the modal
+  };
 
   const openPrivacyPolicy = () => {
     Linking.openURL('https://app.paytomorrow.it/privacy');
@@ -55,6 +86,7 @@ export default function MerchantSettingsScreen() {
             />
           }
         />
+
 
         <View
           style={[
@@ -134,6 +166,10 @@ export default function MerchantSettingsScreen() {
             theme={theme}
           /> */}
       </SettingsSection>
+      <TouchableOpacity style={styles.signOutButton} onPress={handleLogout}>
+        <LogOut size={24} color="#FFFFFF" />
+        <Text style={styles.signOutButtonText}>Esci</Text>
+      </TouchableOpacity>
       <View style={styles.footerLinks}>
         <TouchableOpacity onPress={openPrivacyPolicy}>
           <Text style={[styles.footerLinkText, { color: theme.subtext }]}>
@@ -150,7 +186,21 @@ export default function MerchantSettingsScreen() {
             Termini di servizio
           </Text>
         </TouchableOpacity>
+        <Text style={[styles.footerLinkSeparator, { color: theme.subtext }]}>
+          •
+        </Text>
+
+        <TouchableOpacity onPress={() => setDeleteModalVisible(true)}>
+          <Text style={[styles.footerLinkText, { color: theme.subtext }]}>
+            Elimina Account
+          </Text>
+        </TouchableOpacity>
       </View>
+      <DeleteAccountModal
+        visible={isDeleteModalVisible}
+        onCancel={cancelDeleteAccount}
+        onConfirm={confirmDeleteAccount}
+      />
     </View>
   );
 }

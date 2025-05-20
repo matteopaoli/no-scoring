@@ -1,0 +1,78 @@
+From: "PayTomorrow" <no-reply@paytomorrow.it>
+To: {{to}}
+Subject: Benvenuto su PayTomorrow! Completa la creazione del tuo account
+MIME-Version: 1.0
+Date: {{date}}
+Content-Type: multipart/alternative; boundary="boundary-string"
+
+--boundary-string
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+Ciao e benvenuto su PayTomorrow!
+
+Per completare la creazione del tuo account, clicca direttamente sul link qui sotto. Una volta terminata la procedura, riceverai una mail con tutte le informazioni e la password per accedere.
+
+Registrati ora: {{onboardingLink}}
+
+In alternativa, puoi scaricare l'App PayTomorrow e avviare la procedura di onboarding utilizzando il seguente codice invito: {{inviteCode}}.
+
+Scarica l'app:
+- iOS: https://apps.apple.com/app/idYOUR_APP_ID
+- Android: https://play.google.com/store/apps/details?id=YOUR_APP_ID
+
+Se preferisci ricevere assistenza per la registrazione, puoi contattare il tuo referente, scriverci a info@paytomorrow.it, oppure inviarci un messaggio o WhatsApp al 351 4753825, o prendi direttamente un appuntamento con noi: https://calendar.app.google/hQiYB7DLDmReLcVV6
+
+Siamo qui per aiutarti a iniziare con PayTomorrow!
+
+A presto,  
+Il Team di PayTomorrow
+
+--boundary-string
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Benvenuto su PayTomorrow! Completa la creazione del tuo account</title>
+  <style>
+    body { font-family: Arial, sans-serif; color: #333; background-color: #f9f9f9; padding: 20px; text-align: center; }
+    .container { background-color: #ffffff; padding: 20px; border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); max-width: 600px; margin: 0 auto; }
+    .button { display: inline-block; padding: 12px 20px; margin: 20px 0; color: #fff; background-color: #007bff; text-decoration: none; border-radius: 5px; font-size: 18px; font-weight: bold; }
+    .invite-code { font-size: 24px; font-weight: bold; color: #007bff; background-color: #f0f8ff; padding: 10px; border-radius: 5px; display: inline-block; margin-top: 20px; }
+    .app-buttons img { width: 150px; margin: 10px; }
+    .footer { font-size: 0.8em; color: #777; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Ciao e benvenuto su PayTomorrow!</h1>
+    <p>Per completare la creazione del tuo account, clicca sul pulsante qui sotto. Una volta terminata la procedura, riceverai una mail con tutte le informazioni e la password per accedere.</p>
+    
+    <a class="button" href="{{onboardingLink}}">Registrati ora</a>
+
+    <p>In alternativa, puoi scaricare l'App PayTomorrow e avviare la procedura di onboarding utilizzando il seguente codice invito:</p>
+    <p class="invite-code">{{inviteCode}}</p>
+
+    <p><strong>Scarica l'app per un'esperienza migliore:</strong></p>
+    <div class="app-buttons">
+      <a href="https://apps.apple.com/app/idYOUR_APP_ID"><img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store"></a>
+      <a href="https://play.google.com/store/apps/details?id=YOUR_APP_ID"><img src="https://upload.wikimedia.org/wikipedia/commons/c/cd/Get_it_on_Google_play.svg" alt="Get it on Google Play"></a>
+    </div>
+
+    <p>Se preferisci ricevere assistenza per la registrazione, puoi contattare il tuo referente, scriverci a <a href="mailto:info@paytomorrow.it">info@paytomorrow.it</a>, oppure inviarci un messaggio o WhatsApp al <strong>351 4753825</strong>, o prendi direttamente un appuntamento con noi: <a href="https://calendar.app.google/hQiYB7DLDmReLcVV6">Appuntamento con PayTomorrow</a></p>
+    
+    <p>Siamo qui per aiutarti a iniziare con PayTomorrow!</p>
+    <p>A presto,<br>Il Team di PayTomorrow</p>
+    
+    <div class="footer">
+      <p>Se non sei stato tu a richiedere questo account, ti preghiamo di ignorare questa email.</p>
+    </div>
+  </div>
+</body>
+</html>
+
+--boundary-string--

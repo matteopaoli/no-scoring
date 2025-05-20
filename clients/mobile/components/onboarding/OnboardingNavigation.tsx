@@ -24,7 +24,6 @@ const OnboardingNavigation: React.FC<Props> = ({ onSubmit }) => {
   const styles = makeStyles(theme);
 
   const goBack = useCallback(() => {
-    console.log('step', step);
     if (step > 1) {
       dispatch({ type: 'SET_VALIDATE', payload: false });
       dispatch({ type: 'SET_STEP', payload: step - 1 });

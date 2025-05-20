@@ -1,0 +1,84 @@
+From: "PayTomorrow" <no-reply@paytomorrow.it>
+To: {{to}}
+Subject: Nuovo utente creato su PayTomorrow
+MIME-Version: 1.0
+Date: {{date}}
+Content-Type: multipart/alternative; boundary="boundary-string"
+
+--boundary-string
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+Ciao Admin,
+
+Un nuovo utente è stato creato su PayTomorrow da {{partnerName}}.
+
+- Email: {{leadEmail}}
+
+--boundary-string
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nuovo Utente Creato - PayTomorrow</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      color: #333;
+      background-color: #f9f9f9;
+      padding: 20px;
+    }
+
+    .container {
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .details {
+      margin: 20px 0;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 10px 20px;
+      color: #fff;
+      background-color: #007bff;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+
+    .footer {
+      font-size: 0.8em;
+      color: #777;
+      margin-top: 20px;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Nuovo Utente Creato</h1>
+
+    <p>Ciao Admin,<br />Un nuovo utente è stato creato su PayTomorrow da <strong>{{partnerName}}</strong>.</p>
+    <div class="details">
+      <p><strong>Email:</strong> {{merchantEmail}}</p>
+    </div>
+    <div class="footer">
+      <p>Questa è una notifica automatica di PayTomorrow.</p>
+    </div>
+  </div>
+</body>
+
+</html>
+
+--boundary-string--

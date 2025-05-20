@@ -51,6 +51,7 @@ export const users = pgTable("user", {
   emailVerified: timestamp("emailVerified", { mode: "date" }),
   resetToken: text("resetToken"),
   inviteCode: text("inviteCode"),
+  referrerCustomerId: text("referrerCustomerId")
 });
 
 export const stores = pgTable("store", {

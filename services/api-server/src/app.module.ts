@@ -15,6 +15,8 @@ import { BusinessTypeModule } from './business-type/business-type.module';
 import { TosModule } from './tos/tos.module';
 import { ExternalModule } from './external/external.module';
 import { CustomerModule } from './customer/customer.module';
+import { GeolocationModule } from './geolocation/geolocation.module';
+import { MessagingModule } from './messaging/messaging.module';
 
 @Module({
   imports: [
@@ -36,6 +38,8 @@ import { CustomerModule } from './customer/customer.module';
     TosModule,
     ExternalModule,
     CustomerModule,
+    GeolocationModule,
+    MessagingModule,
   ],
   providers: [
     {

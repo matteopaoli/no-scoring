@@ -1,4 +1,13 @@
 services:
+  messaging:
+    build: ./services/messaging
+    container_name: messaging
+    ports:
+      - 6000:6000
+    environment:
+      - AWS_REGION=${AWS_REGION}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
   postgres:
     image: postgis/postgis:15-3.3-alpine
     container_name: db

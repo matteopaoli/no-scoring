@@ -1,13 +1,18 @@
 import { useAppTheme } from '@/contexts/ThemeContext';
 import { Tabs } from 'expo-router';
-import { Home, Map, Search, Settings, User } from 'lucide-react-native';
+import { Gift, Home, Map, Search, Settings, User } from 'lucide-react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function TabLayout() {
   const theme = useAppTheme();
-    const insets = useSafeAreaInsets()
-  
+  const insets = useSafeAreaInsets()
+  const { user } = useAuth()
+
+  console.log('user', user)
+  console.log()
+
   return (
     <>
       <StatusBar
@@ -50,12 +55,20 @@ export default function TabLayout() {
             tabBarIcon: ({ color, size }) => <Search size={size} color={color} />,
           }}
         />
-        {/* Hide these screens from the tab bar but keep them accessible via direct navigation */}
+        <Tabs.Screen
+          name="(customer)/index"
+          options={{
+            title: 'Profilo',
+            tabBarIcon: ({ color, size }) => <User size={size} color={color} />,
+            ...(user?.role === 'customer' ? {} : { href: null })
+          }}
+        />
         <Tabs.Screen
           name="(auth)"
           options={{
             title: 'Accedi',
             tabBarIcon: ({ color, size }) => <User size={size} color={color} />,
+            ...(!!user ? { href: null } : {})
           }}
         />
         <Tabs.Screen
@@ -63,6 +76,14 @@ export default function TabLayout() {
           options={{
             title: 'Impostazioni',
             tabBarIcon: ({ color, size }) => <Settings size={size} color={color} />,
+          }}
+        />
+        <Tabs.Screen
+          name="(customer)/refer-merchant"
+          options={{
+            title: 'Invita un negozio',
+            tabBarIcon: ({ color, size }) => <Gift size={size} color={color} />,
+            href: null,
           }}
         />
       </Tabs>

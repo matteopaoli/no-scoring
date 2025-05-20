@@ -15,6 +15,7 @@ export default function RootLayout() {
     }}>
       <Stack.Screen name="index" options={{ headerShown: false, title: 'Home' }}  />
       <Stack.Screen name="categories" options={{ title: 'Categorie' }} />
+      <Stack.Screen name="refer-merchant" options={{ title: 'Invita in PayTomorrow' }} />
     </Stack>
   );
 }

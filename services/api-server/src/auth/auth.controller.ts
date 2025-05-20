@@ -34,7 +34,7 @@ export class AuthController {
    * Endpoint to verify the password reset token.
    * @param body - Contains the reset token.
    * @returns Success or error message based on token validity.
-   */
+  */
   @Post('verify-reset-token')
   async verifyResetToken(@Body() body: { token: string }): Promise<any> {
     const { token } = body;
