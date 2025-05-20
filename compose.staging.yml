@@ -12,6 +12,15 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./db:/docker-entrypoint-initdb.d 
     restart: unless-stopped
+  messaging:
+    build: ./services/messaging
+    container_name: messaging
+    ports:
+      - 6000:6000
+    environment:
+      - AWS_REGION=${AWS_REGION}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
 
   # web:
   #   container_name: web
