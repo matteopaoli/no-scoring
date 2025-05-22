@@ -14,7 +14,7 @@ type User = any; // Replace with your actual user type
 type Store = any;
 
 type AuthContextType = {
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
   logout: () => Promise<void>;
   user: User | null;
   isAuthenticated: boolean;
@@ -53,6 +53,9 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       const { accessToken, refreshToken } = response.data;
       setAccessToken(accessToken);
       setRefreshToken(refreshToken);
+      // TODO: LOGIN ENDPOINT SHOULD RETURN USER ROLE
+      const user = await apiClient.get('/users/me');
+      return user.data.user.role
     } catch (error) {
       console.error('Login failed:', error);
       throw error;
@@ -70,7 +73,6 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   const refreshUser = async () => {
     const user = await apiClient.get('/users/me');
     setUser(user.data.user)
-    console.log(user.data.user)
     if (user.data.user.role === 'user') {
       const store = await apiClient.get('/store/me')
       setStore(store.data)

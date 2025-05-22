@@ -26,8 +26,13 @@ export default function AuthScreen(): JSX.Element {
 
   const handleLogin = async (): Promise<void> => {
     try {
-      await login(email, password);
-      router.replace('/(merchant)/(tabs)/store');
+      const user = await login(email, password);
+      if (user.role === 'user') {
+        router.replace('/(merchant)/(tabs)/store');
+      }
+      else {
+        router.replace('/(guest)/customer')
+      }
     } catch (error) {
       Alert.alert('Errore', 'Si è verificato un errore durante il login');
     }

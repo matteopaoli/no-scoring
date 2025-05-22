@@ -10,9 +10,6 @@ export default function TabLayout() {
   const insets = useSafeAreaInsets()
   const { user } = useAuth()
 
-  console.log('user', user)
-  console.log()
-
   return (
     <>
       <StatusBar
@@ -56,7 +53,7 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="(customer)/index"
+          name="customer/index"
           options={{
             title: 'Profilo',
             tabBarIcon: ({ color, size }) => <User size={size} color={color} />,
@@ -79,7 +76,7 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="(customer)/refer-merchant"
+          name="customer/refer-merchant"
           options={{
             title: 'Invita un negozio',
             tabBarIcon: ({ color, size }) => <Gift size={size} color={color} />,

@@ -95,7 +95,7 @@ export default function CustomerSignupScreen(): JSX.Element {
        })
       await login(email, password)
       Alert.alert('Successo', 'Registrazione completata');
-      router.replace('/(guest)/(customer)');
+      router.replace('/(guest)/customer');
     } catch (error) {
       console.log(error)
       Alert.alert('Errore', 'Si è verificato un errore durante la registrazione');
