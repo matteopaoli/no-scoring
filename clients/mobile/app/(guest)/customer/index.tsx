@@ -30,7 +30,7 @@ export default function CustomerProfileScreen() {
               style={styles.avatar}
             />
             <View>
-              <Text style={styles.userName}>{`${user?.firstName} ${user?.lastName}`}</Text>
+              <Text style={styles.userName}>{`${user?.firstName}`}</Text>
               <Text style={styles.userEmail}>{user?.email}</Text>
             </View>
           </View>
