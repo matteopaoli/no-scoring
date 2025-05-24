@@ -4,6 +4,8 @@ import { Request } from 'express';
 import { CustomerService } from './customer.service';
 import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
 import { ReferMerchantDTO } from './dto/refer-merchant.dto';
+import { RoleGuard } from 'src/auth/role/role.guard';
+import { Roles } from 'src/auth/role/roles.decorator';
 
 @Controller('customer')
 export class CustomerController {
@@ -21,15 +23,19 @@ export class CustomerController {
   }
 
   @Post('refer')
-  @UseGuards(AccessTokenGuard)
-  async referMerchant(@Req() req: Request, @Body(new ValidationPipe()) body: ReferMerchantDTO) {
-    try {
-      const customerId = req.user?.['sub'];
-      if (!customerId) throw new UnauthorizedException()
-      return await this.customerService.createMerchantRefer({ ...body, referrerCustomerId: customerId})
-    }
-    catch (e) {
-      return e
-    }
+  @UseGuards(AccessTokenGuard, RoleGuard)
+  @Roles('customer')
+  async referMerchant(
+    @Req() req: Request,
+    @Body(new ValidationPipe()) body: ReferMerchantDTO
+  ) {
+    const customerId = req.user?.['sub'];
+    if (!customerId) throw new UnauthorizedException();
+
+    return await this.customerService.createMerchantRefer({
+      ...body,
+      referrerCustomerId: customerId,
+    });
   }
+
 }

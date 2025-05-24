@@ -55,7 +55,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       setRefreshToken(refreshToken);
       // TODO: LOGIN ENDPOINT SHOULD RETURN USER ROLE
       const user = await apiClient.get('/users/me');
-      return user.data.user.role
+      return user.data.user
     } catch (error) {
       console.error('Login failed:', error);
       throw error;

@@ -24,8 +24,17 @@ export default function ReferMerchantScreen() {
   const theme = useAppTheme();
   const styles = makeStyles(theme);
   const router = useRouter();
-  const { data: regions } = useRegions();
-  const { data: businessTypes } = useBusinessTypes();
+  const {
+    data: regions,
+    isLoading: isRegionsLoading,
+    isError: isRegionsError,
+  } = useRegions();
+
+  const {
+    data: businessTypes,
+    isLoading: isBusinessTypesLoading,
+    isError: isBusinessTypesError,
+  } = useBusinessTypes();
 
   const [merchantName, setMerchantName] = useState('');
   const [email, setEmail] = useState('');
@@ -57,10 +66,22 @@ export default function ReferMerchantScreen() {
       setNotes('')
       router.back();
     },
-    onError: (e) => {
-      console.log(e)
-      Alert.alert('Errore', 'Si è verificato un errore. Riprova più tardi.');
-    },
+    onError: (error: any) => {
+      if (error.response) {
+        Alert.alert(
+          'Errore dal server',
+          error.response.data.message || 'Si è verificato un errore. Riprova più tardi.'
+        );
+      } else if (error.request) {
+        Alert.alert(
+          'Errore di rete',
+          'Impossibile connettersi al server. Controlla la tua connessione Internet.'
+        );
+      } else {
+        Alert.alert('Errore', 'Si è verificato un errore inaspettato. Riprova più tardi.');
+      }
+    }
+
   });
 
   const handleSubmit = () => {
@@ -70,6 +91,28 @@ export default function ReferMerchantScreen() {
     }
     referMerchantMutation.mutate();
   };
+
+  if (isRegionsLoading || isBusinessTypesLoading) {
+    return (
+      <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" />
+      </SafeAreaView>
+    );
+  }
+
+
+  if (isRegionsError || isBusinessTypesError) {
+    return (
+      <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+        <Text style={{ textAlign: 'center', marginBottom: 20 }}>
+          Errore nel caricamento dei dati. Verifica la connessione internet e riprova.
+        </Text>
+        <Button mode="contained" onPress={() => router.replace('/(guest)/customer/refer-merchant')}>
+          Riprova
+        </Button>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>

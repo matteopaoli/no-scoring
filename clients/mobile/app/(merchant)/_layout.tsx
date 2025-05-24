@@ -13,16 +13,15 @@ export default function MerchantLayout() {
   // Only redirect once loading finishes
   useEffect(() => {
     if (isLoading) return;
-
     if (user?.role !== 'user') {
       router.replace('/');
     } else if (!user.onboardingCompleted) {
       router.replace('/profile-setup');
     }
-    else if (!store.isSubscriptionActive) {
+    else if (store && !store.isSubscriptionActive) {
       router.replace('/subscription-expired')
     }
-  }, [isLoading, user, router]);
+  }, [isLoading, user, router, store]);
 
   // Show spinner while auth is initializing
   if (isLoading) {
