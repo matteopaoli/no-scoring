@@ -58,6 +58,7 @@ export default function TabLayout() {
             title: 'Profilo',
             tabBarIcon: ({ color, size }) => <User size={size} color={color} />,
             ...(user?.role === 'customer' ? {} : { href: null })
+            
           }}
         />
         <Tabs.Screen

@@ -249,7 +249,6 @@ export class StoreService {
     categoryId?: number,
     radiusInMeters?: number,
   ) {
-    console.log(radiusInMeters)
     const sqlPoint = sql`ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography`;
     
     // Ensure query is always a string (even if it's empty)
@@ -281,8 +280,6 @@ export class StoreService {
     .orderBy(sql`${stores.location} <-> ${sqlPoint}`)
     .limit(limit)
     .offset(offset);
-   
-    console.log(sqlquery.toSQL())
 
     const result = await sqlquery
   

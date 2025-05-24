@@ -81,9 +81,7 @@ export class MapsService {
       maxLng,
       maxLat,
     });
-
-    console.log(markers)
-
+    
     return markers;
   }
 }

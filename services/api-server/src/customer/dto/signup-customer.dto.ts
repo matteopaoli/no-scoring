@@ -18,7 +18,6 @@ import {
 class MatchPasswords implements ValidatorConstraintInterface {
   validate(value: string, args: ValidationArguments) {
     const object = args.object as SignupCustomerDTO;
-    console.log(object)
     return object.password === object.repeatPassword;
   }
 

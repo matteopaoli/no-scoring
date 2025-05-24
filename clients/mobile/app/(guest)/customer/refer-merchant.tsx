@@ -64,13 +64,19 @@ export default function ReferMerchantScreen() {
       setMerchantName('')
       setEmail('')
       setNotes('')
-      router.back();
+      router.replace('/(guest)/customer')
     },
     onError: (error: any) => {
-      if (error.response) {
+      const serverMessage = error?.response?.data?.message;
+      const serverCode = error?.response?.data?.code;
+      if (serverCode === 'USER_EXISTS') {
+        Alert.alert('Utente già registrato', 'Esiste già un account con queste credenziali.');
+      } else if (serverMessage === 'Invalid region') {
+        Alert.alert('Regione non valida', 'Seleziona una regione valida.');
+      } else if (error.response) {
         Alert.alert(
           'Errore dal server',
-          error.response.data.message || 'Si è verificato un errore. Riprova più tardi.'
+          serverMessage || 'Si è verificato un errore. Riprova più tardi.'
         );
       } else if (error.request) {
         Alert.alert(
@@ -172,8 +178,7 @@ export default function ReferMerchantScreen() {
             placeholderTextColor={theme.subtext}
           />
           <View style={styles.dropdownContainer}>
-            {/* Regione */}
-            <Text style={styles.dropdownLabel}>Regione*</Text>
+            <Text style={styles.dropdownLabel}>Provincia*</Text>
             <Menu
               visible={regionMenuVisible}
               onDismiss={() => setRegionMenuVisible(false)}
@@ -185,7 +190,7 @@ export default function ReferMerchantScreen() {
                   labelStyle={styles.dropdownButtonLabel}
                   contentStyle={{ justifyContent: 'flex-start' }}
                 >
-                  {regions?.find(r => r.id === region)?.name || 'Seleziona una regione'}
+                  {regions?.find(r => r.id === region)?.name || 'Seleziona una provincia'}
                 </Button>
               }
               contentStyle={styles.menuContent}

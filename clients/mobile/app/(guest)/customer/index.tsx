@@ -1,20 +1,17 @@
-// app/(user)/profile.tsx
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
-  TouchableOpacity,
   Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { User as UserIcon, Link } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { Theme, useAppTheme } from '@/contexts/ThemeContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import ReferredLeadsComponent from '@/components/ReferredLeadsList';
 
 export default function CustomerProfileScreen() {
-  const router = useRouter();
   const { user } = useAuth();
   const theme = useAppTheme();
   const styles = makeStyles(theme);
@@ -45,15 +42,7 @@ export default function CustomerProfileScreen() {
             Benvenuto, {user?.firstName}! Questo è il tuo spazio personale dove puoi vedere e gestire le informazioni legate al tuo account PayTomorrow. Puoi anche invitare negozi e contribuire alla crescita della nostra community.
           </Text>
         </View>
-
-
-        <TouchableOpacity
-          style={styles.referButton}
-          onPress={() => router.push('/customer/refer-merchant')}
-        >
-          <Link size={24} color={theme.cardBackgroundColor} />
-          <Text style={styles.referButtonText}>Invita un negozio in PayTomorrow</Text>
-        </TouchableOpacity>
+        <ReferredLeadsComponent />
       </ScrollView>
     </SafeAreaView>
   );

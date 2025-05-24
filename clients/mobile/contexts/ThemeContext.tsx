@@ -31,8 +31,8 @@ const lightTheme: Theme = {
   fontRegular: 'DMSans_400Regular',
   fontSemiBold: 'DMSans_600SemiBold',
   fontBold: 'DMSans_700Bold',
-  fontSize: 14,
-  fontSizeHeading: 16,
+  fontSize: 16,
+  fontSizeHeading: 18,
   buttonTextColor: '#FFFFFF',
 };
 
@@ -48,8 +48,8 @@ const darkTheme: Theme = {
   fontRegular: 'DMSans_400Regular',
   fontSemiBold: 'DMSans_600SemiBold',
   fontBold: 'DMSans_700Bold',
-  fontSize: 14,
-  fontSizeHeading: 16,
+  fontSize: 16,
+  fontSizeHeading: 18,
   buttonTextColor: '#333333',
 };
 

@@ -27,9 +27,7 @@ export class StoreController {
     const parsedLimit = Math.min(parseInt(limit || '10', 10), 50);
     const parsedOffset = parseInt(offset || '0', 10);
     const radiusInMeters = radius ? parseFloat(radius) : undefined;
-
-    console.log(query);
-
+    
     if (isNaN(latitude) || isNaN(longitude)) {
       throw new Error('Invalid coordinates');
     }

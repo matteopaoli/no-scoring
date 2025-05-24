@@ -1,4 +1,4 @@
-import { Body, Controller, HttpException, HttpStatus, Post, Req, UnauthorizedException, UseGuards, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, HttpStatus, Post, Req, UnauthorizedException, UseGuards, ValidationPipe } from '@nestjs/common';
 import { SignupCustomerDTO } from './dto/signup-customer.dto';
 import { Request } from 'express';
 import { CustomerService } from './customer.service';
@@ -36,6 +36,15 @@ export class CustomerController {
       ...body,
       referrerCustomerId: customerId,
     });
+  }
+
+  @Get('referred')
+  @UseGuards(AccessTokenGuard, RoleGuard)
+  @Roles('customer')
+  async getReferredLeads(@Req() req: Request) {
+    const customerId = req.user?.['sub'];
+    if (!customerId) throw new UnauthorizedException();
+    return this.customerService.getReferredLeads(customerId);
   }
 
 }

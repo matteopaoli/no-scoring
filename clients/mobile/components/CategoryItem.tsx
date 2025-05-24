@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
   },
 
   categoryText: {
-    fontSize: 12,
+    fontSize: 14,
     textAlign: 'center',
     flexWrap: 'wrap',
     paddingHorizontal: 4,

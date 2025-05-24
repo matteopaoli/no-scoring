@@ -199,10 +199,10 @@ export class UsersService {
       password: hash,
       regionId: merchantData.regionId,
       inviteCode,
-      notes: merchantData.notes
+      notes: merchantData.notes,
+      referrerCustomerId: merchantData.referrerCustomerId
     }).returning();
 
-    console.log('newMerchant', newMerchant)
     return newMerchant
   }
 }

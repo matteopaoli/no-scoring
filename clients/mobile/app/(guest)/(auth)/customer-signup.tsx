@@ -10,13 +10,14 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { Eye, EyeOff } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAppTheme } from '@/contexts/ThemeContext';
 import apiClient from '@/lib/httpClient';
 import { useMutation } from '@tanstack/react-query';
+import { useIsFocused } from '@react-navigation/native';
 
 type SignupDTO = {
   firstName: string;
@@ -29,21 +30,23 @@ type SignupDTO = {
 
 export default function CustomerSignupScreen(): JSX.Element {
   const router = useRouter();
-    const signupMutation = useMutation({
-      mutationFn: async (newCustomerData: SignupDTO) => {
-        return await apiClient.post('/customer/signup', newCustomerData)
-      },
-      onSuccess: () => {
-        Alert.alert('Successo', 'Registrazione completata');
-        router.replace('/(guest)/(home)');
-      },
-      onError: () => {
-        Alert.alert('Errore', 'Si è verificato un errore durante la registrazione');
-      },
-    });
-  
-  const theme = useAppTheme();
+  const signupMutation = useMutation({
+    mutationFn: async (newCustomerData: SignupDTO) => {
+      return await apiClient.post('/customer/signup', newCustomerData)
+    },
+    onSuccess: () => {
+      Alert.alert('Successo', 'Registrazione completata');
+      login(email, password).then(() => {
+        router.replace('/(guest)/customer');
+      })
+    },
+    onError: () => {
+      Alert.alert('Errore', 'Si è verificato un errore durante la registrazione');
+    },
+  });
 
+  const theme = useAppTheme();
+  const isFocused = useIsFocused()
   const [step, setStep] = useState(1);
 
   const [firstName, setFirstName] = useState('');
@@ -55,6 +58,18 @@ export default function CustomerSignupScreen(): JSX.Element {
   const [showPassword, setShowPassword] = useState(false);
   const [showRepeatPassword, setShowRepeatPassword] = useState(false);
   const { login } = useAuth()
+
+  useEffect(() => {
+    if (!isFocused) {
+      setFirstName('')
+      setLastName('')
+      setPassword('')
+      setRepeatPassword('')
+      setShowPassword(false)
+      setShowRepeatPassword(false)
+      setStep(1)
+    }
+  }, [isFocused])
 
   const handleNext = () => {
     if (step === 1 && (!firstName || !lastName)) {
@@ -85,17 +100,14 @@ export default function CustomerSignupScreen(): JSX.Element {
     }
 
     try {
-      await signupMutation.mutate({ 
+      await signupMutation.mutate({
         firstName,
         lastName,
         email,
         password,
         repeatPassword,
         phoneNumber: phone
-       })
-      await login(email, password)
-      Alert.alert('Successo', 'Registrazione completata');
-      router.replace('/(guest)/customer');
+      })
     } catch (error) {
       console.log(error)
       Alert.alert('Errore', 'Si è verificato un errore durante la registrazione');

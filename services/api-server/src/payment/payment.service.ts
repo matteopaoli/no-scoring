@@ -116,7 +116,6 @@ export class PaymentService {
 
 
   async getSales(stripeAccountId: string, storeId: string, limit = 10, offset = 0) {
-    console.log(stripeAccountId, storeId)
     const stripe = new Stripe(
       this.configService.get<string>('STRIPE_API_KEY')!,
       {

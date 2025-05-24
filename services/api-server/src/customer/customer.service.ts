@@ -7,6 +7,7 @@ import { BusinessTypeService } from 'src/business-type/business-type.service';
 import { GeolocationService } from 'src/geolocation/geolocation.service';
 import { UsersService } from 'src/users/users.service';
 import { MessagingService } from 'src/messaging/messaging.service';
+import { eq } from 'drizzle-orm';
 
 @Injectable()
 export class CustomerService {
@@ -56,9 +57,12 @@ export class CustomerService {
     }
 
     if (existingUser) {
-      throw new BadRequestException()
+      throw new BadRequestException({
+        message: 'User already exists',
+        code: 'USER_EXISTS',
+      })
     }
-    
+
     const customer = await this.userService.findById(merchantData.referrerCustomerId)
 
     const merchant = await this.userService.createMerchant({
@@ -71,8 +75,6 @@ export class CustomerService {
       regionId: merchantData.regionId,
       notes: `CREATO DA CUSTOMER ${customer.firstName} ${customer.lastName} - ${customer.email} ${customer.id} \n\n ${merchantData.notes}`
     });
-
-    console.log(merchantData.email)
 
     this.messagingService.sendEmail({
       template_name: 'accountCreatedMerchantWithCustomerReferral',
@@ -95,6 +97,10 @@ export class CustomerService {
 
     return { status: "success" };
 
+  }
+
+  async getReferredLeads(customerId: string) {
+    return await db.select({ refName: users.refName, leadStatus: users.leadStatus, createdAt: users.createdAt }).from(users).where(eq(users.referrerCustomerId, customerId))
   }
 }
 
