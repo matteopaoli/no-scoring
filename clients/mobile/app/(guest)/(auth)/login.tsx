@@ -149,6 +149,7 @@ const makeStyles = (theme: Theme) => {
   title: {  
     fontFamily: theme.fontBold,
     fontSize: 32,
+    marginBottom: 30,
   },
   formContainer: {
     width: '100%',
