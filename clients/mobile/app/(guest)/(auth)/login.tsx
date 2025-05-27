@@ -14,7 +14,7 @@ import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { Eye, EyeOff } from 'lucide-react-native'; // Importing the eye icons from lucide-react-native
 import { useAuth } from '@/contexts/AuthContext';
-import { useAppTheme } from '@/contexts/ThemeContext'; // Import the theme hook
+import { Theme, useAppTheme } from '@/contexts/ThemeContext'; // Import the theme hook
 
 export default function AuthScreen(): JSX.Element {
   const router = useRouter();
@@ -23,6 +23,7 @@ export default function AuthScreen(): JSX.Element {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const { login, isLoading, isAuthenticated, user } = useAuth();
   const theme = useAppTheme(); // Access the current theme
+  const styles = makeStyles(theme)
 
   const handleLogin = async (): Promise<void> => {
     try {
@@ -123,23 +124,31 @@ export default function AuthScreen(): JSX.Element {
               Sei un cliente? Registrati qui
             </Text>
           </TouchableOpacity>
+          {/* <TouchableOpacity
+            style={styles.registrationLink}
+            onPress={() => router.push('./forgot-password')}
+          >
+            <Text style={[styles.registrationText, { color: theme.text }]}>
+              Ho dimenticato la password
+            </Text>
+          </TouchableOpacity> */}
         </View>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => {
+  return StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  title: {
-    fontFamily: 'Poppins-Bold',
+  title: {  
+    fontFamily: theme.fontBold,
     fontSize: 32,
-    marginBottom: 30,
   },
   formContainer: {
     width: '100%',
@@ -154,7 +163,7 @@ const styles = StyleSheet.create({
   input: {
     padding: 15,
     borderRadius: 10,
-    fontFamily: 'Poppins-Regular',
+    fontFamily: theme.fontRegular,
     marginBottom: 15,
   },
   passwordContainer: {
@@ -178,15 +187,16 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   loginButtonText: {
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: theme.fontSemiBold,
     fontSize: 16,
   },
   registrationLink: {
     marginTop: 20,
   },
   registrationText: {
-    fontFamily: 'Poppins-Regular',
+    fontFamily: theme.fontRegular,
     fontSize: 14,
     textDecorationLine: 'underline',
   },
-});
+})
+}

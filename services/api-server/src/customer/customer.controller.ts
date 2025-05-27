@@ -1,4 +1,15 @@
-import { Body, Controller, Get, HttpException, HttpStatus, Post, Req, UnauthorizedException, UseGuards, ValidationPipe } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpException,
+  HttpStatus,
+  Post,
+  Req,
+  UnauthorizedException,
+  UseGuards,
+  ValidationPipe,
+} from '@nestjs/common';
 import { SignupCustomerDTO } from './dto/signup-customer.dto';
 import { Request } from 'express';
 import { CustomerService } from './customer.service';
@@ -12,13 +23,11 @@ export class CustomerController {
   constructor(private readonly customerService: CustomerService) { }
 
   @Post('signup')
-  async signupCustomer(
-    @Body(new ValidationPipe()) body: SignupCustomerDTO,
-  ) {
+  async signupCustomer(@Body(new ValidationPipe()) body: SignupCustomerDTO) {
     try {
       return await this.customerService.create(body);
     } catch (error) {
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      throw new HttpException(error.message as string, HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -27,7 +36,7 @@ export class CustomerController {
   @Roles('customer')
   async referMerchant(
     @Req() req: Request,
-    @Body(new ValidationPipe()) body: ReferMerchantDTO
+    @Body(new ValidationPipe()) body: ReferMerchantDTO,
   ) {
     const customerId = req.user?.['sub'];
     if (!customerId) throw new UnauthorizedException();
@@ -46,5 +55,4 @@ export class CustomerController {
     if (!customerId) throw new UnauthorizedException();
     return this.customerService.getReferredLeads(customerId);
   }
-
 }

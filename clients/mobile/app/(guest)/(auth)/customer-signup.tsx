@@ -14,10 +14,12 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { Eye, EyeOff } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
-import { useAppTheme } from '@/contexts/ThemeContext';
+import { Theme, useAppTheme } from '@/contexts/ThemeContext';
 import apiClient from '@/lib/httpClient';
 import { useMutation } from '@tanstack/react-query';
 import { useIsFocused } from '@react-navigation/native';
+import { Linking } from 'react-native';
+
 
 type SignupDTO = {
   firstName: string;
@@ -57,6 +59,9 @@ export default function CustomerSignupScreen(): JSX.Element {
   const [repeatPassword, setRepeatPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showRepeatPassword, setShowRepeatPassword] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const styles = makeStyles(theme)
+
   const { login } = useAuth()
 
   useEffect(() => {
@@ -94,8 +99,13 @@ export default function CustomerSignupScreen(): JSX.Element {
   };
 
   const handleSignup = async () => {
-    if (password !== repeatPassword) {
+    if (!password || !repeatPassword || password !== repeatPassword) {
       Alert.alert('Errore', 'Le password non corrispondono');
+      return;
+    }
+
+    if (!acceptedTerms) {
+      Alert.alert('Errore', 'Devi accettare i Termini e Condizioni');
       return;
     }
 
@@ -193,6 +203,35 @@ export default function CustomerSignupScreen(): JSX.Element {
                 {showRepeatPassword ? <EyeOff size={24} color={theme.text} /> : <Eye size={24} color={theme.text} />}
               </TouchableOpacity>
             </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
+              <TouchableOpacity
+                onPress={() => setAcceptedTerms((prev) => !prev)}
+                style={{
+                  width: 24,
+                  height: 24,
+                  borderWidth: 1,
+                  borderColor: theme.text,
+                  backgroundColor: acceptedTerms ? theme.primary : 'transparent',
+                  marginRight: 10,
+                  borderRadius: 4,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                {acceptedTerms && <Text style={{ color: '#fff', fontSize: 16 }}>✓</Text>}
+              </TouchableOpacity>
+              <Text style={{ color: theme.text, flex: 1 }}>
+                Accetto i{' '}
+                <Text
+                  style={{ textDecorationLine: 'underline' }}
+                  onPress={() => {
+                    Linking.openURL('https://app.paytomorrow.it/customer-terms')
+                  }}
+                >
+                  Termini e Condizioni
+                </Text>
+              </Text>
+            </View>
           </>
         );
       default:
@@ -246,7 +285,9 @@ export default function CustomerSignupScreen(): JSX.Element {
   );
 }
 
-const styles = StyleSheet.create({
+
+
+const makeStyles = (theme: Theme) => StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
@@ -254,7 +295,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontFamily: 'Poppins-Bold',
+    fontFamily: theme.fontBold,
     fontSize: 32,
     marginBottom: 30,
   },
@@ -271,7 +312,7 @@ const styles = StyleSheet.create({
   input: {
     padding: 15,
     borderRadius: 10,
-    fontFamily: 'Poppins-Regular',
+    fontFamily: theme.fontRegular,
     marginBottom: 15,
   },
   passwordContainer: {
@@ -295,14 +336,14 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   signupButtonText: {
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: theme.fontSemiBold,
     fontSize: 16,
   },
   loginLink: {
     marginTop: 20,
   },
   loginText: {
-    fontFamily: 'Poppins-Regular',
+    fontFamily: theme.fontRegular,
     fontSize: 14,
     textDecorationLine: 'underline',
   },

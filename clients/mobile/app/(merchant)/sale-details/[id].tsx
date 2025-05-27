@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { ArrowLeft, Printer, Mail, Download, ChevronRight } from 'lucide-react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { Theme, useAppTheme } from '@/contexts/ThemeContext';
 
 const MOCK_SALE_DETAILS = {
   id: '1',
@@ -44,7 +45,8 @@ const MOCK_SALE_DETAILS = {
 export default function SaleDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
-  
+  const theme = useAppTheme()
+  const styles = makeStyles(theme)
   // In a real app, you would fetch the sale details based on the ID
   const sale = MOCK_SALE_DETAILS;
 
@@ -152,7 +154,8 @@ export default function SaleDetailScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => {
+  return StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFD580',
@@ -179,7 +182,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   title: {
-    fontFamily: 'Poppins-Bold',
+    fontFamily: theme.fontBold,
     fontSize: 20,
     color: '#333',
   },
@@ -211,12 +214,12 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   saleId: {
-    fontFamily: 'Poppins-Regular',
+    fontFamily: theme.fontRegular,
     fontSize: 14,
     color: '#666',
   },
   saleStatus: {
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: theme.fontSemiBold,
     fontSize: 14,
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -246,7 +249,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   cardTitle: {
-    fontFamily: 'Poppins-Bold',
+    fontFamily: theme.fontBold,
     fontSize: 18,
     color: '#333',
     marginBottom: 15,
@@ -255,13 +258,13 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   customerName: {
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: theme.fontSemiBold,
     fontSize: 16,
     color: '#333',
     marginBottom: 5,
   },
   customerDetail: {
-    fontFamily: 'Poppins-Regular',
+    fontFamily: theme.fontRegular,
     fontSize: 14,
     color: '#666',
     marginBottom: 3,
@@ -278,18 +281,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   productName: {
-    fontFamily: 'Poppins-Regular',
+    fontFamily: theme.fontRegular,
     fontSize: 15,
     color: '#333',
     marginBottom: 5,
   },
   productPrice: {
-    fontFamily: 'Poppins-Regular',
+    fontFamily: theme.fontRegular,
     fontSize: 13,
     color: '#666',
   },
   productTotal: {
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: theme.fontSemiBold,
     fontSize: 15,
     color: '#333',
   },
@@ -308,23 +311,23 @@ const styles = StyleSheet.create({
     borderTopColor: '#EEE',
   },
   totalLabel: {
-    fontFamily: 'Poppins-Regular',
+    fontFamily: theme.fontRegular,
     fontSize: 15,
     color: '#666',
   },
   totalValue: {
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: theme.fontSemiBold,
     fontSize: 15,
     color: '#333',
   },
   shippingMethod: {
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: theme.fontSemiBold,
     fontSize: 15,
     color: '#333',
     marginBottom: 5,
   },
   shippingAddress: {
-    fontFamily: 'Poppins-Regular',
+    fontFamily: theme.fontRegular,
     fontSize: 14,
     color: '#666',
   },
@@ -334,12 +337,12 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   paymentText: {
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: theme.fontSemiBold,
     fontSize: 15,
     color: '#333',
   },
   paymentAmount: {
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: theme.fontSemiBold,
     fontSize: 15,
     color: '#28A745',
   },
@@ -352,7 +355,7 @@ const styles = StyleSheet.create({
     borderTopColor: '#EEE',
   },
   viewReceiptText: {
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: theme.fontSemiBold,
     fontSize: 15,
     color: '#007BFF',
   },
@@ -370,8 +373,9 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   refundButtonText: {
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: theme.fontSemiBold,
     fontSize: 16,
     color: '#FFFFFF',
   },
-});
+})
+}
