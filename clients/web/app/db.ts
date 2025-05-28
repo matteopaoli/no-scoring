@@ -927,7 +927,7 @@ export async function getAreaManagerIdByRegion(regionId: number) {
     .from(regions)
     .where(eq(regions.id, regionId))
     .limit(1)
-    .then(res => res[0].areaId)
+    .then(res => res?.[0]?.areaId)
 
   if (!areaId) return null;
 
@@ -936,7 +936,7 @@ export async function getAreaManagerIdByRegion(regionId: number) {
     .from(areas)
     .where(eq(areas.id, areaId))
     .limit(1)
-    .then(res => res[0].managerId);
+    .then(res => res?.[0]?.managerId);
 
   if (!areaManagerId) return null;
   return areaManagerId;
