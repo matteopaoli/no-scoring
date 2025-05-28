@@ -36,7 +36,7 @@ export class CustomerController {
   @Roles('customer')
   async referMerchant(
     @Req() req: Request,
-    @Body(new ValidationPipe()) body: ReferMerchantDTO,
+    @Body(new ValidationPipe({ transform: true })) body: ReferMerchantDTO,
   ) {
     const customerId = req.user?.['sub'];
     if (!customerId) throw new UnauthorizedException();

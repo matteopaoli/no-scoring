@@ -7,14 +7,17 @@ import {
   IsOptional,
 } from 'class-validator';
 
-
 export class ReferMerchantDTO {
   @IsEmail({}, { message: 'Email non valida' })
-  @Transform(({ value }: TransformFnParams) => value?.trim())
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.trim().toLowerCase() : value,
+  )
   email: string;
 
   @IsString({ message: 'Il nome è obbligatorio' })
-  @Transform(({ value }: TransformFnParams) => value?.trim())
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.trim() : value,
+  )
   refName: string;
 
   @IsNumber()
@@ -25,7 +28,9 @@ export class ReferMerchantDTO {
 
   @IsOptional()
   @IsPhoneNumber('IT', { message: 'Numero di telefono non valido' })
-  @Transform(({ value }: TransformFnParams) => value?.trim())
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.trim() : value,
+  )
   phoneNumber: string;
 
   @IsOptional()
