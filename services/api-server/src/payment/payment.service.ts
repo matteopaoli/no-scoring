@@ -17,7 +17,7 @@ export class PaymentService {
   private FEES_DISCLAIMER =
     'Il prezzo è stato aumentato per includere le commissioni associate al pagamento in più rate.';
 
-  constructor(private readonly configService: ConfigService) { }
+  constructor(private readonly configService: ConfigService) {}
 
   getAmountWithFees(amount: number) {
     const stripeFeeVarVAT = this.STRIPE_FEE_VAR * this.VAT;
@@ -98,7 +98,9 @@ export class PaymentService {
       { customer: customer.id },
       { apiVersion: '2022-11-15' },
     );
-    const transferAmount = Math.round(amount * this.LEG_FEE_RATE * this.VAT);
+    const transferAmount = Math.round(
+      amount * this.LEG_FEE_RATE * this.VAT * 100,
+    );
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(amount * 100),
       currency: 'eur',
@@ -111,11 +113,15 @@ export class PaymentService {
       paymentIntent: paymentIntent.client_secret,
       ephemeralKey: ephemeralKey.secret,
       customer: customer.id,
-    }
+    };
   }
 
-
-  async getSales(stripeAccountId: string, storeId: string, limit = 10, offset = 0) {
+  async getSales(
+    stripeAccountId: string,
+    storeId: string,
+    limit = 10,
+    offset = 0,
+  ) {
     const stripe = new Stripe(
       this.configService.get<string>('STRIPE_API_KEY')!,
       {
@@ -133,17 +139,21 @@ export class PaymentService {
       .offset(offset);
 
     // Step 2: Fetch corresponding payment intents from Stripe
-    const paymentIntentIds = localSales.map((sale) => sale.stripePaymentIntentId);
+    const paymentIntentIds = localSales.map(
+      (sale) => sale.stripePaymentIntentId,
+    );
 
     const stripeResponses = await Promise.all(
       paymentIntentIds.map((id) =>
-        stripe.paymentIntents.retrieve(id, { expand: ['customer'] }).catch(() => null)
-      )
+        stripe.paymentIntents
+          .retrieve(id, { expand: ['customer'] })
+          .catch(() => null),
+      ),
     );
 
     const mergedSales = localSales.map((sale) => {
       const stripeData = stripeResponses.find(
-        (pi) => pi && pi.id === sale.stripePaymentIntentId
+        (pi) => pi && pi.id === sale.stripePaymentIntentId,
       );
       return {
         ...sale,
@@ -161,15 +171,21 @@ export class PaymentService {
     const todaySales = await db
       .select({ amount: sales.amount })
       .from(sales)
-      .where(and(eq(sales.storeId, storeId), gte(sales.createdAt, todayStart)))
+      .where(and(eq(sales.storeId, storeId), gte(sales.createdAt, todayStart)));
 
     const weekSales = await db
       .select({ amount: sales.amount })
       .from(sales)
-      .where(and(eq(sales.storeId, storeId), gte(sales.createdAt, weekStart)))
+      .where(and(eq(sales.storeId, storeId), gte(sales.createdAt, weekStart)));
 
-    const today = todaySales.reduce((sum, sale) => sum + parseFloat(sale.amount as unknown as string), 0);
-    const week = weekSales.reduce((sum, sale) => sum + parseFloat(sale.amount as unknown as string), 0);
+    const today = todaySales.reduce(
+      (sum, sale) => sum + parseFloat(sale.amount as unknown as string),
+      0,
+    );
+    const week = weekSales.reduce(
+      (sum, sale) => sum + parseFloat(sale.amount as unknown as string),
+      0,
+    );
 
     return {
       today,
