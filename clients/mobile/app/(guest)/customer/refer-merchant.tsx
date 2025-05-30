@@ -57,13 +57,13 @@ export default function ReferMerchantScreen() {
       });
     },
     onSuccess: (m) => {
-      console.log(m)
       Alert.alert('Successo', 'Il commerciante è stato segnalato con successo!');
       setBusinessType(null)
       setRegion(null)
       setMerchantName('')
       setEmail('')
       setNotes('')
+      setPhone('')
       router.replace('/(guest)/customer')
     },
     onError: (error: any) => {
