@@ -9,32 +9,21 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import {
-  ArrowLeft,
-  CreditCard,
-  DollarSign,
-  LogOut,
   Link,
   ShoppingBag,
-  Users,
-  Activity,
   EuroIcon,
   Package,
 } from 'lucide-react-native';
-import { useAuth } from '@/contexts/AuthContext';
 import { Theme, useAppTheme } from '@/contexts/ThemeContext'; // Adjust the import path as needed
-import { useQuery } from '@tanstack/react-query';
-import apiClient from '@/lib/httpClient';
 import useSales from '@/hooks/useSales';
-import useSalesStats from '@/hooks/useSalesStats';
 import useMyStoreDetails from '@/hooks/useMyStoreDetails';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function MerchantProfileScreen() {;
   const router = useRouter();
-  const { isAuthenticated, logout, user } = useAuth();
   const theme = useAppTheme();
   const styles = makeStyles(theme);
-  const { isPending, isError, data, error } = useMyStoreDetails();
+  const { isPending, data } = useMyStoreDetails();
   const { data: sales } = useSales();
 
   const handleCreatePaymentLink = () => {
@@ -231,6 +220,7 @@ const makeStyles = (theme: Theme) =>
       fontFamily: theme.fontBold,
       fontSize: theme.fontSizeHeading + 8,
       color: theme.text,
+      maxWidth: 250,
     },
     userEmail: {
       fontFamily: theme.fontRegular,
@@ -242,6 +232,7 @@ const makeStyles = (theme: Theme) =>
       fontSize: theme.fontSize - 2,
       color: theme.subtext,
       marginTop: 4,
+      maxWidth: 250,
     },
     statsContainer: {
       flexDirection: 'row',

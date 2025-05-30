@@ -10,6 +10,5 @@ async function bootstrap() {
   app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
   app.set('trust proxy', 'loopback');
   await app.listen(8000);
-  
 }
 bootstrap();
