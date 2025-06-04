@@ -20,7 +20,6 @@ import { useMutation } from '@tanstack/react-query';
 import { useIsFocused } from '@react-navigation/native';
 import { Linking } from 'react-native';
 
-
 type SignupDTO = {
   firstName: string;
   lastName: string;
@@ -28,27 +27,30 @@ type SignupDTO = {
   repeatPassword: string;
   phoneNumber: string;
   email: string;
-}
+};
 
 export default function CustomerSignupScreen(): JSX.Element {
   const router = useRouter();
   const signupMutation = useMutation({
     mutationFn: async (newCustomerData: SignupDTO) => {
-      return await apiClient.post('/customer/signup', newCustomerData)
+      return await apiClient.post('/customer/signup', newCustomerData);
     },
     onSuccess: () => {
       Alert.alert('Successo', 'Registrazione completata');
       login(email, password).then(() => {
         router.replace('/(guest)/customer');
-      })
+      });
     },
     onError: () => {
-      Alert.alert('Errore', 'Si è verificato un errore durante la registrazione');
+      Alert.alert(
+        'Errore',
+        'Si è verificato un errore durante la registrazione',
+      );
     },
   });
 
   const theme = useAppTheme();
-  const isFocused = useIsFocused()
+  const isFocused = useIsFocused();
   const [step, setStep] = useState(1);
 
   const [firstName, setFirstName] = useState('');
@@ -60,21 +62,21 @@ export default function CustomerSignupScreen(): JSX.Element {
   const [showPassword, setShowPassword] = useState(false);
   const [showRepeatPassword, setShowRepeatPassword] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
-  const styles = makeStyles(theme)
+  const styles = makeStyles(theme);
 
-  const { login } = useAuth()
+  const { login } = useAuth();
 
   useEffect(() => {
     if (!isFocused) {
-      setFirstName('')
-      setLastName('')
-      setPassword('')
-      setRepeatPassword('')
-      setShowPassword(false)
-      setShowRepeatPassword(false)
-      setStep(1)
+      setFirstName('');
+      setLastName('');
+      setPassword('');
+      setRepeatPassword('');
+      setShowPassword(false);
+      setShowRepeatPassword(false);
+      setStep(1);
     }
-  }, [isFocused])
+  }, [isFocused]);
 
   const handleNext = () => {
     if (step === 1 && (!firstName || !lastName)) {
@@ -104,6 +106,17 @@ export default function CustomerSignupScreen(): JSX.Element {
       return;
     }
 
+    const strongPasswordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
+
+    if (!strongPasswordRegex.test(password)) {
+      Alert.alert(
+        'Errore',
+        'La password deve contenere almeno 8 caratteri, una lettera minuscola, una maiuscola, un numero e un simbolo speciale',
+      );
+      return;
+    }
+
     if (!acceptedTerms) {
       Alert.alert('Errore', 'Devi accettare i Termini e Condizioni');
       return;
@@ -116,11 +129,14 @@ export default function CustomerSignupScreen(): JSX.Element {
         email,
         password,
         repeatPassword,
-        phoneNumber: phone
-      })
+        phoneNumber: phone,
+      });
     } catch (error) {
-      console.log(error)
-      Alert.alert('Errore', 'Si è verificato un errore durante la registrazione');
+      console.log(error);
+      Alert.alert(
+        'Errore',
+        'Si è verificato un errore durante la registrazione',
+      );
     }
   };
 
@@ -130,14 +146,20 @@ export default function CustomerSignupScreen(): JSX.Element {
         return (
           <>
             <TextInput
-              style={[styles.input, { backgroundColor: theme.background, color: theme.text }]}
+              style={[
+                styles.input,
+                { backgroundColor: theme.background, color: theme.text },
+              ]}
               placeholder="Nome"
               placeholderTextColor={theme.subtext}
               value={firstName}
               onChangeText={setFirstName}
             />
             <TextInput
-              style={[styles.input, { backgroundColor: theme.background, color: theme.text }]}
+              style={[
+                styles.input,
+                { backgroundColor: theme.background, color: theme.text },
+              ]}
               placeholder="Cognome"
               placeholderTextColor={theme.subtext}
               value={lastName}
@@ -149,7 +171,10 @@ export default function CustomerSignupScreen(): JSX.Element {
         return (
           <>
             <TextInput
-              style={[styles.input, { backgroundColor: theme.background, color: theme.text }]}
+              style={[
+                styles.input,
+                { backgroundColor: theme.background, color: theme.text },
+              ]}
               placeholder="Email"
               placeholderTextColor={theme.subtext}
               value={email}
@@ -158,7 +183,10 @@ export default function CustomerSignupScreen(): JSX.Element {
               autoCapitalize="none"
             />
             <TextInput
-              style={[styles.input, { backgroundColor: theme.background, color: theme.text }]}
+              style={[
+                styles.input,
+                { backgroundColor: theme.background, color: theme.text },
+              ]}
               placeholder="Numero di telefono"
               placeholderTextColor={theme.subtext}
               value={phone}
@@ -173,7 +201,10 @@ export default function CustomerSignupScreen(): JSX.Element {
           <>
             <View style={styles.passwordContainer}>
               <TextInput
-                style={[styles.input, { backgroundColor: theme.background, color: theme.text }]}
+                style={[
+                  styles.input,
+                  { backgroundColor: theme.background, color: theme.text },
+                ]}
                 placeholder="Password"
                 placeholderTextColor={theme.subtext}
                 secureTextEntry={!showPassword}
@@ -184,12 +215,19 @@ export default function CustomerSignupScreen(): JSX.Element {
                 onPress={() => setShowPassword((prev) => !prev)}
                 style={styles.eyeButton}
               >
-                {showPassword ? <EyeOff size={24} color={theme.text} /> : <Eye size={24} color={theme.text} />}
+                {showPassword ? (
+                  <EyeOff size={24} color={theme.text} />
+                ) : (
+                  <Eye size={24} color={theme.text} />
+                )}
               </TouchableOpacity>
             </View>
             <View style={styles.passwordContainer}>
               <TextInput
-                style={[styles.input, { backgroundColor: theme.background, color: theme.text }]}
+                style={[
+                  styles.input,
+                  { backgroundColor: theme.background, color: theme.text },
+                ]}
                 placeholder="Ripeti Password"
                 placeholderTextColor={theme.subtext}
                 secureTextEntry={!showRepeatPassword}
@@ -200,10 +238,20 @@ export default function CustomerSignupScreen(): JSX.Element {
                 onPress={() => setShowRepeatPassword((prev) => !prev)}
                 style={styles.eyeButton}
               >
-                {showRepeatPassword ? <EyeOff size={24} color={theme.text} /> : <Eye size={24} color={theme.text} />}
+                {showRepeatPassword ? (
+                  <EyeOff size={24} color={theme.text} />
+                ) : (
+                  <Eye size={24} color={theme.text} />
+                )}
               </TouchableOpacity>
             </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                marginTop: 10,
+              }}
+            >
               <TouchableOpacity
                 onPress={() => setAcceptedTerms((prev) => !prev)}
                 style={{
@@ -211,21 +259,27 @@ export default function CustomerSignupScreen(): JSX.Element {
                   height: 24,
                   borderWidth: 1,
                   borderColor: theme.text,
-                  backgroundColor: acceptedTerms ? theme.primary : 'transparent',
+                  backgroundColor: acceptedTerms
+                    ? theme.primary
+                    : 'transparent',
                   marginRight: 10,
                   borderRadius: 4,
                   justifyContent: 'center',
                   alignItems: 'center',
                 }}
               >
-                {acceptedTerms && <Text style={{ color: '#fff', fontSize: 16 }}>✓</Text>}
+                {acceptedTerms && (
+                  <Text style={{ color: '#fff', fontSize: 16 }}>✓</Text>
+                )}
               </TouchableOpacity>
               <Text style={{ color: theme.text, flex: 1 }}>
                 Accetto i{' '}
                 <Text
                   style={{ textDecorationLine: 'underline' }}
                   onPress={() => {
-                    Linking.openURL('https://app.paytomorrow.it/customer-terms')
+                    Linking.openURL(
+                      'https://app.paytomorrow.it/customer-terms',
+                    );
                   }}
                 >
                   Termini e Condizioni
@@ -240,25 +294,63 @@ export default function CustomerSignupScreen(): JSX.Element {
   };
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
       <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
         <View style={[styles.container, { backgroundColor: theme.background }]}>
           <Text style={[styles.title, { color: theme.text }]}>Registrati</Text>
 
-          <View style={[styles.formContainer, { backgroundColor: theme.cardBackgroundColor }]}>
+          <View
+            style={[
+              styles.formContainer,
+              { backgroundColor: theme.cardBackgroundColor },
+            ]}
+          >
             {renderStep()}
           </View>
 
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginTop: 20 }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              width: '100%',
+              marginTop: 20,
+            }}
+          >
             {step > 1 && (
-              <TouchableOpacity style={[styles.signupButton, { backgroundColor: '#aaa' }]} onPress={handleBack}>
-                <Text style={[styles.signupButtonText, { color: theme.cardBackgroundColor }]}>Indietro</Text>
+              <TouchableOpacity
+                style={[styles.signupButton, { backgroundColor: '#aaa' }]}
+                onPress={handleBack}
+              >
+                <Text
+                  style={[
+                    styles.signupButtonText,
+                    { color: theme.cardBackgroundColor },
+                  ]}
+                >
+                  Indietro
+                </Text>
               </TouchableOpacity>
             )}
 
             {step < 3 ? (
-              <TouchableOpacity style={[styles.signupButton, { backgroundColor: theme.primary }]} onPress={handleNext}>
-                <Text style={[styles.signupButtonText, { color: theme.cardBackgroundColor }]}>Avanti</Text>
+              <TouchableOpacity
+                style={[
+                  styles.signupButton,
+                  { backgroundColor: theme.primary },
+                ]}
+                onPress={handleNext}
+              >
+                <Text
+                  style={[
+                    styles.signupButtonText,
+                    { color: theme.cardBackgroundColor },
+                  ]}
+                >
+                  Avanti
+                </Text>
               </TouchableOpacity>
             ) : (
               <TouchableOpacity
@@ -269,15 +361,25 @@ export default function CustomerSignupScreen(): JSX.Element {
                 ]}
                 onPress={handleSignup}
               >
-                <Text style={[styles.signupButtonText, { color: theme.cardBackgroundColor }]}>
+                <Text
+                  style={[
+                    styles.signupButtonText,
+                    { color: theme.cardBackgroundColor },
+                  ]}
+                >
                   {signupMutation.isPending ? 'Registrazione...' : 'Registrati'}
                 </Text>
               </TouchableOpacity>
             )}
           </View>
 
-          <TouchableOpacity style={styles.loginLink} onPress={() => router.replace('/(guest)/(auth)/login')}>
-            <Text style={[styles.loginText, { color: theme.text }]}>Hai già un account? Accedi</Text>
+          <TouchableOpacity
+            style={styles.loginLink}
+            onPress={() => router.replace('/(guest)/(auth)/login')}
+          >
+            <Text style={[styles.loginText, { color: theme.text }]}>
+              Hai già un account? Accedi
+            </Text>
           </TouchableOpacity>
         </View>
       </TouchableWithoutFeedback>
@@ -285,66 +387,65 @@ export default function CustomerSignupScreen(): JSX.Element {
   );
 }
 
-
-
-const makeStyles = (theme: Theme) => StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  title: {
-    fontFamily: theme.fontBold,
-    fontSize: 32,
-    marginBottom: 30,
-  },
-  formContainer: {
-    width: '100%',
-    padding: 20,
-    borderRadius: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  input: {
-    padding: 15,
-    borderRadius: 10,
-    fontFamily: theme.fontRegular,
-    marginBottom: 15,
-  },
-  passwordContainer: {
-    position: 'relative',
-  },
-  eyeButton: {
-    position: 'absolute',
-    right: 10,
-    top: '50%',
-    transform: [{ translateY: -18 }],
-    zIndex: 1,
-  },
-  signupButton: {
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-    flex: 1,
-    marginHorizontal: 5,
-  },
-  signupButtonDisabled: {
-    opacity: 0.7,
-  },
-  signupButtonText: {
-    fontFamily: theme.fontSemiBold,
-    fontSize: 16,
-  },
-  loginLink: {
-    marginTop: 20,
-  },
-  loginText: {
-    fontFamily: theme.fontRegular,
-    fontSize: 14,
-    textDecorationLine: 'underline',
-  },
-});
+const makeStyles = (theme: Theme) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      padding: 20,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    title: {
+      fontFamily: theme.fontBold,
+      fontSize: 32,
+      marginBottom: 30,
+    },
+    formContainer: {
+      width: '100%',
+      padding: 20,
+      borderRadius: 15,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    input: {
+      padding: 15,
+      borderRadius: 10,
+      fontFamily: theme.fontRegular,
+      marginBottom: 15,
+    },
+    passwordContainer: {
+      position: 'relative',
+    },
+    eyeButton: {
+      position: 'absolute',
+      right: 10,
+      top: '50%',
+      transform: [{ translateY: -18 }],
+      zIndex: 1,
+    },
+    signupButton: {
+      padding: 15,
+      borderRadius: 10,
+      alignItems: 'center',
+      flex: 1,
+      marginHorizontal: 5,
+    },
+    signupButtonDisabled: {
+      opacity: 0.7,
+    },
+    signupButtonText: {
+      fontFamily: theme.fontSemiBold,
+      fontSize: 16,
+    },
+    loginLink: {
+      marginTop: 20,
+    },
+    loginText: {
+      fontFamily: theme.fontRegular,
+      fontSize: 14,
+      textDecorationLine: 'underline',
+    },
+  });

@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Linking,
   Alert,
+  Share,
 } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'expo-router';
@@ -13,8 +14,6 @@ import { useState } from 'react';
 import {
   ArrowLeft,
   CreditCard,
-  Bell,
-  Lock,
   HelpCircle,
   LogOut,
   Smartphone,
@@ -23,13 +22,13 @@ import {
   Euro,
   SunDimIcon,
 } from 'lucide-react-native';
-import { useThemeContext } from '@/contexts/ThemeContext';
+import { Theme, useThemeContext } from '@/contexts/ThemeContext';
 import DeleteAccountModal from '@/components/delete-account-modal';
 import apiClient from '@/lib/httpClient';
-import useStoreDetails from '@/hooks/useStoreDetails';
 import useMyStoreDetails from '@/hooks/useMyStoreDetails';
 import { useUpdateCustomerPaysFees } from '@/hooks/useUpdateCustomerPaysFees';
 import { Toast } from 'toastify-react-native';
+import { FontAwesome } from '@expo/vector-icons';
 
 export default function MerchantSettingsScreen() {
   const { logout } = useAuth();
@@ -39,6 +38,7 @@ export default function MerchantSettingsScreen() {
   const [isDeleteModalVisible, setDeleteModalVisible] = useState(false);
   const { mutate: updateFees, isPending: isUpdatingFees } =
     useUpdateCustomerPaysFees();
+  const styles = makeStyles(theme);
 
   const handleLogout = async () => {
     await logout();
@@ -72,6 +72,17 @@ export default function MerchantSettingsScreen() {
 
   const openTermsOfService = () => {
     Linking.openURL('https://app.paytomorrow.it/terms');
+  };
+
+  const handleShareApp = async () => {
+    try {
+      await Share.share({
+        message:
+          'Scarica l’app PayTomorrow!\n\n📱 Android: https://play.google.com/store/apps/details?id=com.matteopaoli.paytomorrowapp&pli=1\n🍏 iOS: https://apps.apple.com/it/app/paytomorrow/id6745253657',
+      });
+    } catch (error) {
+      console.error('Errore condivisione:', error);
+    }
   };
 
   const isActive = (mode: 'light' | 'dark' | null) => themePreference === mode;
@@ -275,6 +286,43 @@ export default function MerchantSettingsScreen() {
           </Text>
         </TouchableOpacity>
       </View>
+      <View>
+        <Text style={styles.socialText}>
+          Ti piace PayTomorrow? Seguici sui nostri profili social
+        </Text>
+        <View
+          style={{
+            flexDirection: 'row',
+            marginTop: 10,
+            justifyContent: 'center',
+          }}
+        >
+          <TouchableOpacity
+            onPress={() =>
+              Linking.openURL(
+                'https://www.facebook.com/people/Pay-Tomorrow/61565769418431/',
+              )
+            }
+          >
+            <FontAwesome
+              name="facebook-square"
+              size={48}
+              color="#3b5998"
+              style={{ marginRight: 15 }}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() =>
+              Linking.openURL('https://www.instagram.com/pay.tomorrow/')
+            }
+          >
+            <FontAwesome name="instagram" size={48} color="#C13584" />
+          </TouchableOpacity>
+        </View>
+      </View>
+      <TouchableOpacity style={styles.shareButton} onPress={handleShareApp}>
+        <Text style={styles.shareButtonText}>Condividi l'app</Text>
+      </TouchableOpacity>
       <DeleteAccountModal
         visible={isDeleteModalVisible}
         onCancel={cancelDeleteAccount}
@@ -285,6 +333,7 @@ export default function MerchantSettingsScreen() {
 }
 
 function SettingsSection({ title, children, theme }) {
+  const styles = makeStyles(theme);
   return (
     <View
       style={[styles.section, { backgroundColor: theme.cardBackgroundColor }]}
@@ -304,6 +353,7 @@ function SettingsItem({
   rightElement = null,
   noBorder = false,
 }) {
+  const styles = makeStyles(theme);
   return (
     <View
       style={[
@@ -322,6 +372,7 @@ function SettingsItem({
 }
 
 function ThemeOption({ icon, label, active, onPress, theme }) {
+  const styles = makeStyles(theme);
   return (
     <TouchableOpacity
       style={[
@@ -349,115 +400,134 @@ function ThemeOption({ icon, label, active, onPress, theme }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    paddingTop: 60,
-  },
-  title: {
-    fontFamily: 'DMSans_700Bold',
-    fontSize: 24,
-    marginBottom: 30,
-  },
-  section: {
-    marginBottom: 20,
-    borderRadius: 15,
-    padding: 15,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  sectionTitle: {
-    fontFamily: 'DMSans_600SemiBold',
-    fontSize: 18,
-    marginBottom: 15,
-  },
-  settingItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-  },
-  settingIcon: {
-    marginRight: 15,
-  },
-  settingText: {
-    fontFamily: 'DMSans_400Regular',
-    fontSize: 16,
-    flex: 1,
-  },
-  logoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 15,
-    borderRadius: 15,
-    marginTop: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  logoutText: {
-    fontFamily: 'DMSans_600SemiBold',
-    fontSize: 16,
-    marginLeft: 10,
-  },
-  themeButtonsContainer: {
-    flexDirection: 'row',
-    marginLeft: 10,
-    width: '100%',
-    justifyContent: 'center',
-  },
-  themeButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-    marginLeft: 5,
-  },
-  themeButtonText: {
-    fontSize: 14,
-    marginLeft: 6,
-  },
-  footerLinks: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 30,
-    marginBottom: 20,
-  },
-  footerLinkText: {
-    fontFamily: 'DMSans_400Regular',
-    fontSize: 14,
-  },
-  footerLinkSeparator: {
-    marginHorizontal: 10,
-  },
-  signOutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FF4D4D',
-    marginHorizontal: 20,
-    padding: 15,
-    borderRadius: 15,
-    marginTop: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  signOutButtonText: {
-    fontFamily: 'Poppins-SemiBold',
-    fontSize: 16,
-    color: '#FFFFFF',
-    marginLeft: 10,
-  },
-});
+const makeStyles = (theme: Theme) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      padding: 20,
+      paddingTop: 60,
+    },
+    title: {
+      fontFamily: theme.fontBold,
+      fontSize: 24,
+      marginBottom: 30,
+    },
+    section: {
+      marginBottom: 20,
+      borderRadius: 15,
+      padding: 15,
+      elevation: 3,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+    },
+    sectionTitle: {
+      fontFamily: theme.fontSemiBold,
+      fontSize: 18,
+      marginBottom: 15,
+    },
+    settingItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: 12,
+    },
+    settingIcon: {
+      marginRight: 15,
+    },
+    settingText: {
+      fontFamily: theme.fontRegular,
+      fontSize: 16,
+      flex: 1,
+    },
+    logoutButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 15,
+      borderRadius: 15,
+      marginTop: 20,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    logoutText: {
+      fontFamily: theme.fontSemiBold,
+      fontSize: 16,
+      marginLeft: 10,
+    },
+    themeButtonsContainer: {
+      flexDirection: 'row',
+      marginLeft: 10,
+      width: '100%',
+      justifyContent: 'center',
+    },
+    themeButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: 6,
+      paddingHorizontal: 10,
+      borderRadius: 8,
+      borderWidth: 1,
+      marginLeft: 5,
+    },
+    themeButtonText: {
+      fontSize: 14,
+      marginLeft: 6,
+    },
+    footerLinks: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginTop: 30,
+      marginBottom: 20,
+    },
+    footerLinkText: {
+      fontFamily: theme.fontRegular,
+      fontSize: 14,
+    },
+    footerLinkSeparator: {
+      marginHorizontal: 10,
+    },
+    signOutButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: '#FF4D4D',
+      marginHorizontal: 20,
+      padding: 15,
+      borderRadius: 15,
+      marginTop: 20,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    signOutButtonText: {
+      fontFamily: theme.fontSemiBold,
+      fontSize: 16,
+      color: '#FFFFFF',
+      marginLeft: 10,
+    },
+    shareButton: {
+      backgroundColor: '#1E90FF',
+      paddingVertical: 14,
+      borderRadius: 12,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginHorizontal: 20,
+      marginTop: 10,
+    },
+    shareButtonText: {
+      fontFamily: theme.fontSemiBold,
+      fontSize: 16,
+      color: '#FFFFFF',
+    },
+    socialText: {
+      color: theme.subtext,
+      textAlign: 'center',
+    },
+  });

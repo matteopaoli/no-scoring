@@ -39,7 +39,7 @@ export default function CustomerProfileScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Il Tuo Profilo</Text>
           <Text style={styles.sectionText}>
-            Benvenuto, {user?.firstName}! Questo è il tuo spazio personale dove puoi vedere e gestire le informazioni legate al tuo account PayTomorrow. Puoi anche invitare negozi e contribuire alla crescita della nostra community.
+            Invita un'attività e guadagna 30 euro per ogni attività segnalata
           </Text>
         </View>
         <ReferredLeadsComponent />
@@ -106,7 +106,7 @@ const makeStyles = (theme: Theme) =>
     sectionText: {
       fontFamily: theme.fontRegular,
       fontSize: theme.fontSize,
-      color: theme.subtext,
+      color: theme.text,
       lineHeight: 22,
     },
   });

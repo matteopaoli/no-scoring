@@ -1,5 +1,14 @@
 import React, { useCallback } from 'react';
-import { View, Text, TextInput, StyleSheet, TextStyle, ViewStyle, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TextStyle,
+  ViewStyle,
+  TouchableWithoutFeedback,
+  Keyboard,
+} from 'react-native';
 import { Store } from 'lucide-react-native';
 import { useOnboarding } from '../OnboardingContext';
 import { validateStep } from '../validation';
@@ -14,16 +23,22 @@ const Step3StoreDetails = () => {
 
   const handleStoreNameChange = useCallback(
     (text: string) => {
-      dispatch({ type: 'SET_USER_INFO', payload: { ...userInfo, storeName: text } });
+      dispatch({
+        type: 'SET_USER_INFO',
+        payload: { ...userInfo, storeName: text },
+      });
     },
-    [dispatch, userInfo]
+    [dispatch, userInfo],
   );
 
   const handleStoreDescriptionChange = useCallback(
     (text: string) => {
-      dispatch({ type: 'SET_USER_INFO', payload: { ...userInfo, storeDescription: text } });
+      dispatch({
+        type: 'SET_USER_INFO',
+        payload: { ...userInfo, storeDescription: text },
+      });
     },
-    [dispatch, userInfo]
+    [dispatch, userInfo],
   );
 
   return (
@@ -59,7 +74,9 @@ const Step3StoreDetails = () => {
             onChangeText={handleStoreDescriptionChange}
           />
         </View>
-
+        {shouldValidate && validation.errors.storeDescription && (
+          <Text style={styles.errorText}>{validation.errors.storeDescription}</Text>
+        )}
         {/* Hint Text */}
         <Text style={styles.hintText}>
           Descrivi cosa rende speciale il tuo negozio

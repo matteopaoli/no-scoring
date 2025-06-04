@@ -8,18 +8,14 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import {
-  Link,
-  ShoppingBag,
-  EuroIcon,
-  Package,
-} from 'lucide-react-native';
+import { Link, ShoppingBag, EuroIcon, Package } from 'lucide-react-native';
 import { Theme, useAppTheme } from '@/contexts/ThemeContext'; // Adjust the import path as needed
 import useSales from '@/hooks/useSales';
 import useMyStoreDetails from '@/hooks/useMyStoreDetails';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Linking } from 'react-native';
 
-export default function MerchantProfileScreen() {;
+export default function MerchantProfileScreen() {
   const router = useRouter();
   const theme = useAppTheme();
   const styles = makeStyles(theme);
@@ -48,6 +44,10 @@ export default function MerchantProfileScreen() {;
     );
   }
 
+  const openWebApp = () => {
+    Linking.openURL('https://app.paytomorrow.it/login');
+  };
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
       <ScrollView style={styles.container}>
@@ -66,6 +66,16 @@ export default function MerchantProfileScreen() {;
               <Text style={styles.storeAddress}>{data?.address}</Text>
             </View>
           </View>
+          <Text style={styles.webAppCTA}>
+            Scopri cos’altro puo’ fare Paytomorrow per te! Accedi alla versione
+            web con le stesse credenziali su{' '}
+            <Text
+              onPress={openWebApp}
+              style={[styles.webAppCTA, { textDecorationLine: 'underline' }]}
+            >
+              app.paytomorrow.it
+            </Text>
+          </Text>
         </View>
 
         <View style={styles.statsContainer}>
@@ -391,5 +401,11 @@ const makeStyles = (theme: Theme) =>
       fontSize: theme.fontSizeHeading,
       color: theme.cardBackgroundColor,
       marginLeft: 10,
+    },
+    webAppCTA: {
+      fontFamily: theme.fontRegular,
+      fontSize: theme.fontSize,
+      color: theme.subtext,
+      marginTop: 16,
     },
   });

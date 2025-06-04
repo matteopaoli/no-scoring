@@ -139,6 +139,7 @@ const makeStyles = (theme: Theme) =>
       fontFamily: theme.fontRegular,
       fontSize: theme.fontSize - 2,
       color: theme.subtext,
+      maxWidth: 100
     },
   });
 

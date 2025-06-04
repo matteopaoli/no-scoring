@@ -1,24 +1,28 @@
-import { View, Text, StyleSheet, Switch, TouchableOpacity, Linking } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Switch,
+  TouchableOpacity,
+  Linking,
+  Share,
+} from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
-  ArrowLeft,
-  CreditCard,
   Bell,
-  Lock,
-  HelpCircle,
   LogOut,
   Smartphone,
   Moon,
   Sun,
   SunDimIcon,
 } from 'lucide-react-native';
-import { useThemeContext } from '@/contexts/ThemeContext';
+import { Theme, useAppTheme, useThemeContext } from '@/contexts/ThemeContext';
 import apiClient from '@/lib/httpClient';
 import { Toast } from 'toastify-react-native';
 import DeleteAccountModal from '@/components/delete-account-modal';
-
+import { FontAwesome } from '@expo/vector-icons';
 
 export default function MerchantSettingsScreen() {
   const { logout } = useAuth();
@@ -26,7 +30,8 @@ export default function MerchantSettingsScreen() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [isDeleteModalVisible, setDeleteModalVisible] = useState(false);
   const { theme, themePreference, setThemePreference } = useThemeContext();
-  const { user } = useAuth()
+  const { user } = useAuth();
+  const styles = makeStyles(theme)
 
   const isActive = (mode: 'light' | 'dark' | null) => themePreference === mode;
 
@@ -64,12 +69,20 @@ export default function MerchantSettingsScreen() {
     Linking.openURL('https://app.paytomorrow.it/terms');
   };
 
+  const handleShareApp = async () => {
+    try {
+      await Share.share({
+        message:
+          'Scarica l’app PayTomorrow!\n\n📱 Android: https://play.google.com/store/apps/details?id=com.matteopaoli.paytomorrowapp&pli=1\n🍏 iOS: https://apps.apple.com/it/app/paytomorrow/id6745253657',
+      });
+    } catch (error) {
+      console.error('Errore condivisione:', error);
+    }
+  };
+
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <Text style={[styles.title, { color: theme.text }]}>
-        Impostazioni
-      </Text>
-
+      <Text style={[styles.title, { color: theme.text }]}>Impostazioni</Text>
       {/* Preferences Section */}
       <SettingsSection title="Preferenze" theme={theme}>
         <SettingsItem
@@ -87,7 +100,6 @@ export default function MerchantSettingsScreen() {
             />
           }
         />
-
 
         <View
           style={[
@@ -167,14 +179,12 @@ export default function MerchantSettingsScreen() {
             theme={theme}
           /> */}
       </SettingsSection>
-      {
-        !!user ? (
-          <TouchableOpacity style={styles.signOutButton} onPress={handleLogout}>
-            <LogOut size={24} color="#FFFFFF" />
-            <Text style={styles.signOutButtonText}>Esci</Text>
-          </TouchableOpacity>
-        ) : null
-      }
+      {!!user ? (
+        <TouchableOpacity style={styles.signOutButton} onPress={handleLogout}>
+          <LogOut size={24} color="#FFFFFF" />
+          <Text style={styles.signOutButtonText}>Esci</Text>
+        </TouchableOpacity>
+      ) : null}
       <View style={styles.footerLinks}>
         <TouchableOpacity onPress={openPrivacyPolicy}>
           <Text style={[styles.footerLinkText, { color: theme.subtext }]}>
@@ -192,35 +202,63 @@ export default function MerchantSettingsScreen() {
           </Text>
         </TouchableOpacity>
 
-        {
-          !!user ? (
-            <>
-              <Text style={[styles.footerLinkSeparator, { color: theme.subtext }]}>
-                •
+        {!!user ? (
+          <>
+            <Text
+              style={[styles.footerLinkSeparator, { color: theme.subtext }]}
+            >
+              •
+            </Text>
+            <TouchableOpacity onPress={() => setDeleteModalVisible(true)}>
+              <Text style={[styles.footerLinkText, { color: theme.subtext }]}>
+                Elimina Account
               </Text>
-              <TouchableOpacity onPress={() => setDeleteModalVisible(true)}>
-                <Text style={[styles.footerLinkText, { color: theme.subtext }]}>
-                  Elimina Account
-                </Text>
-              </TouchableOpacity>
-            </>
-          ) : null
-        }
+            </TouchableOpacity>
+          </>
+        ) : null}
       </View>
-      {
-        !!user ? (
-          <DeleteAccountModal
-            visible={isDeleteModalVisible}
-            onCancel={cancelDeleteAccount}
-            onConfirm={confirmDeleteAccount}
-          />
-        ) : null
-      }
+      <View>
+        <Text style={styles.socialText}>Ti piace PayTomorrow? Seguici sui nostri profili social</Text>
+        <View style={{ flexDirection: 'row', marginTop: 10, justifyContent: 'center'}}>
+          <TouchableOpacity
+            onPress={() =>
+              Linking.openURL(
+                'https://www.facebook.com/people/Pay-Tomorrow/61565769418431/',
+              )
+            }
+          >
+            <FontAwesome
+              name="facebook-square"
+              size={48}
+              color="#3b5998"
+              style={{ marginRight: 15 }}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() =>
+              Linking.openURL('https://www.instagram.com/pay.tomorrow/')
+            }
+          >
+            <FontAwesome name="instagram" size={48} color="#C13584" />
+          </TouchableOpacity>
+        </View>
+      </View>
+      <TouchableOpacity style={styles.shareButton} onPress={handleShareApp}>
+        <Text style={styles.shareButtonText}>Condividi l'app</Text>
+      </TouchableOpacity>
+      {!!user ? (
+        <DeleteAccountModal
+          visible={isDeleteModalVisible}
+          onCancel={cancelDeleteAccount}
+          onConfirm={confirmDeleteAccount}
+        />
+      ) : null}
     </View>
   );
 }
 
 function SettingsSection({ title, children, theme }) {
+  const styles = makeStyles(theme)
   return (
     <View
       style={[styles.section, { backgroundColor: theme.cardBackgroundColor }]}
@@ -240,6 +278,7 @@ function SettingsItem({
   rightElement = null,
   noBorder = false,
 }) {
+  const styles = makeStyles(theme)
   return (
     <View
       style={[
@@ -258,6 +297,7 @@ function SettingsItem({
 }
 
 function ThemeOption({ icon, label, active, onPress, theme }) {
+  const styles = makeStyles(theme)
   return (
     <TouchableOpacity
       style={[
@@ -285,14 +325,14 @@ function ThemeOption({ icon, label, active, onPress, theme }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
     paddingTop: 60,
   },
   title: {
-    fontFamily: 'DMSans_700Bold',
+    fontFamily: theme.fontBold,
     fontSize: 24,
     marginBottom: 30,
   },
@@ -307,7 +347,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   sectionTitle: {
-    fontFamily: 'DMSans_600SemiBold',
+    fontFamily: theme.fontSemiBold,
     fontSize: 18,
     marginBottom: 15,
   },
@@ -320,7 +360,7 @@ const styles = StyleSheet.create({
     marginRight: 15,
   },
   settingText: {
-    fontFamily: 'DMSans_400Regular',
+    fontFamily: theme.fontRegular,
     fontSize: 16,
     flex: 1,
   },
@@ -338,7 +378,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   logoutText: {
-    fontFamily: 'DMSans_600SemiBold',
+    fontFamily: theme.fontSemiBold,
     fontSize: 16,
     marginLeft: 10,
   },
@@ -377,7 +417,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   signOutButtonText: {
-    fontFamily: 'DMSans_600SemiBold',
+    fontFamily: theme.fontSemiBold,
     fontSize: 16,
     color: '#FFFFFF',
     marginLeft: 10,
@@ -390,10 +430,28 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   footerLinkText: {
-    fontFamily: 'DMSans_400Regular',
+    fontFamily: theme.fontRegular,
     fontSize: 14,
   },
   footerLinkSeparator: {
     marginHorizontal: 10,
   },
+  shareButton: {
+    backgroundColor: '#1E90FF',
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 20,
+    marginTop: 10,
+  },
+  shareButtonText: {
+    fontFamily: theme.fontSemiBold,
+    fontSize: 16,
+    color: '#FFFFFF',
+  },
+  socialText: {
+    color: theme.subtext,
+    textAlign: 'center'
+  }
 });

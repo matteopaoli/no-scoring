@@ -12,8 +12,13 @@ export const validateStep = (step: number, userInfo: UserInfo) => {
     }
   }
 
-  if (step === 3 && !userInfo.storeName.trim()) {
-    errors.storeName = 'Il nome del negozio è obbligatorio';
+  if (step === 3) {
+    if (!userInfo.storeName.trim()) {
+      errors.storeName = 'Il nome del negozio è obbligatorio';
+    }
+    if (!userInfo.storeDescription.trim()) {
+      errors.storeDescription = 'La descrizione del negozio è obbligatoria';
+    }
   }
 
   if (step === 4) {
@@ -27,8 +32,8 @@ export const validateStep = (step: number, userInfo: UserInfo) => {
 
   if (step === 5) {
     if (!userInfo.storePlaceId) {
-        errors.storePlaceId = 'L\'ID del luogo del negozio è obbligatorio';
-        }
+      errors.storePlaceId = "L'ID del luogo del negozio è obbligatorio";
+    }
   }
 
   if (step === 6) {
