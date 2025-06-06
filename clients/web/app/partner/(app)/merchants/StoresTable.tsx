@@ -41,7 +41,7 @@ export default function StoresTable({ stores }: StoresTableProps) {
     {
       accessorKey: "subscriptionFee",
       header: "Commissioni d'iscrizione",
-      cell: (info) => info.getValue(),
+      cell: (info) => `€ ${Number(info.getValue() ?? 0).toFixed(2)}`,
     },
     {
       accessorKey: "partnerName",
