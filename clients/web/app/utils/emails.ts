@@ -92,7 +92,7 @@ export async function accountCreatedMerchantEmail({
 }) {
   return await sendEmail({
     recipients: [email],
-    templateName: "accountCreatedMerchant",
+    templateName: "accountCreatedMerchantV2",
     data: {
       onboardingLink,
       inviteCode,
