@@ -25,6 +25,7 @@ export default function CreatePaymentLinkScreen() {
   const styles = createStyles(theme);
 
   const [amount, setAmount] = useState('');
+  const [note, setNote] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [paymentLink, setPaymentLink] = useState('');
@@ -39,7 +40,7 @@ export default function CreatePaymentLinkScreen() {
     setLoading(true);
     Vibration.vibrate(50);
     try {
-      const { data } = await apiClient.post('/payment/create', { price: parseFloat(amount) });
+      const { data } = await apiClient.post('/payment/create', { price: parseFloat(amount), note: note });
       setPaymentLink(data.paymentLink.url);
       setQrCode(data.qrCode);
       setShowSheet(true);
@@ -78,6 +79,22 @@ export default function CreatePaymentLinkScreen() {
             />
             {/* Euro Symbol */}
             <Text style={styles.euroSymbol}>€</Text>
+          </View>
+        
+           {/* Input for Note */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>Note</Text>
+            <TextInput
+              value={note}
+              onChangeText={(t) => { setNote(t); setError(''); }}
+              placeholderTextColor={theme.subtext}
+              placeholder="Note..."
+              multiline={true}
+              numberOfLines={4}
+              style={[
+                styles.multiLineInput, 
+              ]}
+            />
           </View>
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
@@ -124,6 +141,20 @@ const createStyles = (theme) => StyleSheet.create({
     paddingLeft: 40, // Space for Euro symbol
     paddingVertical: 12,
     fontSize: 32,
+    textAlign: 'left',
+    fontFamily: theme.fontBold,
+    color: theme.text,
+    marginTop: 8,
+    backgroundColor: theme.inputBackground, // Adjusted input background color
+  },
+  multiLineInput:{
+    width: '100%',
+    borderWidth: 1, // Adjusted border width
+    borderColor: theme.subtext,
+    verticalAlign: 'top',
+    borderRadius: 10,
+    padding: 20,
+    fontSize: 14,
     textAlign: 'left',
     fontFamily: theme.fontBold,
     color: theme.text,

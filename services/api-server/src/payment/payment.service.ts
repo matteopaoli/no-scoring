@@ -34,6 +34,7 @@ export class PaymentService {
     userId,
     customerPaysFees: boolean,
     stripeUserId: string,
+    note?: string,
   ) {
     const stripe = new Stripe(
       this.configService.get<string>('STRIPE_API_KEY')!,
@@ -48,7 +49,7 @@ export class PaymentService {
 
     const stripeProduct = await stripe.products.create({
       name: 'Pagamento istantaneo',
-      description: customerPaysFees ? this.FEES_DISCLAIMER : undefined,
+      description: customerPaysFees ? `${note} \n|\n ${this.FEES_DISCLAIMER}` : note,
       images: [],
       default_price_data: {
         currency: 'eur',

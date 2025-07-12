@@ -24,7 +24,7 @@ export class PaymentController {
 
   @Post('create')
   @UseGuards(AccessTokenGuard)
-  async createPayment(@Body('price') price: number, @Req() req: Request) {
+  async createPayment(@Body('price') price: number, @Body('note') note: string,@Req() req: Request) {
     const userId = req.user?.['sub'];
     const stripeUserId = await this.storesService.getAdminStripeUserIdByUserId(
       userId!,
@@ -38,6 +38,7 @@ export class PaymentController {
       userId,
       store.customerPaysFees,
       stripeUserId,
+      note
     );
 
     return { qrCode: result.qrcode, paymentLink: result.paymentLink };
