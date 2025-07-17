@@ -20,13 +20,14 @@ import { Request } from 'express';
 import { SetupProfileDTO } from './dto/setupProfile.dto';
 import { StoreService } from 'src/store/store.service';
 import { genSaltSync, hashSync } from 'bcryptjs';
+import { UpdateUserDataDto } from './dto/updateUserData.dto';
 
 @Controller('users')
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly storeService: StoreService,
-  ) {}
+  ) { }
 
   @Roles('admin')
   @UseGuards(AccessTokenGuard, RoleGuard)
@@ -122,4 +123,35 @@ export class UsersController {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
+
+
+  @UseGuards(AccessTokenGuard)
+  @Post('update')
+  async updateUser(
+    @Req() req: Request,
+    @Body(new ValidationPipe()) body: UpdateUserDataDto,
+  ) {
+    try {
+      const userId = req.user?.['sub'];
+      console.log("Update user")
+      if (userId) {
+        await this.usersService.update(userId,
+          {
+            firstName: body.firstName,
+            lastName: body.lastName,
+            image: body.image,
+            phoneNumber: body.phoneNumber
+          }
+        );
+        return { message: 'User updated successfully' };
+      } else throw new Error('');
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+
+  }
+
+
+  //TODO 1: Create a update password function with userGuards AccessToken and new updatePassword DTO
+
 }
