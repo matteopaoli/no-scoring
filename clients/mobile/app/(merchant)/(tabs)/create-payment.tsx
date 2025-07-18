@@ -9,10 +9,13 @@ import {
   ToastAndroid,
   Vibration,
   Keyboard,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
+  TouchableOpacity,
+  Switch,
+  Alert
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Link } from 'lucide-react-native';
+import { Euro, HelpCircle, Link } from 'lucide-react-native';
 import * as Clipboard from 'expo-clipboard';
 import { useAppTheme } from '@/contexts/ThemeContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -26,6 +29,8 @@ export default function CreatePaymentLinkScreen() {
 
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');
+  const [customerPaysFees, setFees] = useState(false);
+
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [paymentLink, setPaymentLink] = useState('');
@@ -40,7 +45,7 @@ export default function CreatePaymentLinkScreen() {
     setLoading(true);
     Vibration.vibrate(50);
     try {
-      const { data } = await apiClient.post('/payment/create', { price: parseFloat(amount), note: note });
+      const { data } = await apiClient.post('/payment/create', { price: parseFloat(amount), note: note, customerPaysFees: customerPaysFees });
       setPaymentLink(data.paymentLink.url);
       setQrCode(data.qrCode);
       setShowSheet(true);
@@ -73,15 +78,15 @@ export default function CreatePaymentLinkScreen() {
               placeholder="0.00"
               placeholderTextColor={theme.subtext}
               style={[
-                styles.input, 
+                styles.input,
                 error ? styles.inputError : isValid() ? styles.inputValid : null
               ]}
             />
             {/* Euro Symbol */}
             <Text style={styles.euroSymbol}>€</Text>
           </View>
-        
-           {/* Input for Note */}
+
+          {/* Input for Note */}
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Note</Text>
             <TextInput
@@ -92,10 +97,46 @@ export default function CreatePaymentLinkScreen() {
               multiline={true}
               numberOfLines={4}
               style={[
-                styles.multiLineInput, 
+                styles.multiLineInput,
               ]}
             />
           </View>
+
+          <View
+            style={[
+              styles.inputContainer,
+              {
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingVertical: 12,
+              },
+            ]}
+          >
+            <Text style={[styles.toggleText, { color: theme.text }]}>{"Commissioni a carico del cliente"}</Text>
+            <TouchableOpacity
+              onPress={() =>
+                Alert.alert(
+                  'Commissioni a carico del cliente',
+                  "Questa impostazione si applica esclusivamente all'app mobile PayTomorrow. Quando crei un link di pagamento sul sito web o tramite POS, ti verrà sempre chiesto di scegliere se le commissioni sono a tuo carico o del cliente.",
+                )
+              }
+            >
+              <HelpCircle
+                style={{ marginHorizontal: 10 }}
+                size={20}
+                color={theme.primary}
+              />
+            </TouchableOpacity>
+            <Switch
+              value={customerPaysFees}
+              onValueChange={(value) => setFees(value)}
+              trackColor={{ false: theme.secondary, true: theme.primary }}
+              thumbColor={
+                customerPaysFees ? theme.primary : theme.border
+              }
+            />
+          </View>
+
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
           {/* Generate Link Button */}
@@ -109,16 +150,18 @@ export default function CreatePaymentLinkScreen() {
       </TouchableWithoutFeedback>
 
       {/* Display Payment Sheet when showSheet is true */}
-      {showSheet && <PaymentSheet
-        paymentLink={paymentLink}
-        qrCode={qrCode}
-        amount={amount}
-        onCopy={handleCopy}
-        onClose={() => setShowSheet(false)}
-        theme={theme}
-        router={router}
-      />}
-    </SafeAreaView>
+      {
+        showSheet && <PaymentSheet
+          paymentLink={paymentLink}
+          qrCode={qrCode}
+          amount={amount}
+          onCopy={handleCopy}
+          onClose={() => setShowSheet(false)}
+          theme={theme}
+          router={router}
+        />
+      }
+    </SafeAreaView >
   );
 }
 
@@ -147,7 +190,7 @@ const createStyles = (theme) => StyleSheet.create({
     marginTop: 8,
     backgroundColor: theme.inputBackground, // Adjusted input background color
   },
-  multiLineInput:{
+  multiLineInput: {
     width: '100%',
     borderWidth: 1, // Adjusted border width
     borderColor: theme.subtext,
@@ -170,6 +213,19 @@ const createStyles = (theme) => StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     color: theme.text, // Euro symbol color
+  },
+  toggleItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+  },
+  toggleIcon: {
+    marginRight: 15,
+  },
+  toggleText: {
+    fontFamily: theme.fontRegular,
+    fontSize: 12,
+    flex: 1,
   },
   error: { color: 'red', marginTop: 8 },
   button: {
