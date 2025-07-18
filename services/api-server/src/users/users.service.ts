@@ -103,7 +103,7 @@ export class UsersService {
   }
 
   async delete(id: string): Promise<void> {
-    await db.delete(userStoreRoles).where(eq(userStoreRoles.userId, id));
++    await db.delete(userStoreRoles).where(eq(userStoreRoles.userId, id));
 
     const userStores = await db
       .select()

@@ -13,6 +13,9 @@ import {
 import { randomBytes } from 'crypto';
 import { and, eq, getTableColumns, sql } from 'drizzle-orm';
 import { UsersService } from 'src/users/users.service';
+import { UpadteStoreData,  } from './dto/updateStore';
+import { triggerAsyncId } from 'async_hooks';
+import { UpadteStoreDataDto } from './dto/updateStoreData dto';
 
 @Injectable()
 export class StoreService {
@@ -190,7 +193,7 @@ export class StoreService {
     offset: number = 0,
     radius?: number,
   ) {
-    // Create the point with SRID and cast to geography
+    // CPreate the point with SRID and cast to geography
     const sqlPoint = sql`ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography`;
     // Optional WHERE clause
     const whereClause = radius !== undefined
@@ -309,4 +312,33 @@ export class StoreService {
       throw new Error('Error executing query');
     }
   }
+
+  async update(id: string, upadteStoreData:UpadteStoreDataDto):Promise<void> {
+    try{
+      console.log("StoreId" + id);
+      console.log("Name" + upadteStoreData.name);
+      
+      const lat =upadteStoreData.locationLat;
+      const lng =upadteStoreData.locationLng;
+      const isLocationDataValid = (lat != "" && lng != "") && (lat != undefined && lng != undefined)
+      
+      await db.update(stores).set({
+        name: upadteStoreData.name,
+        address:upadteStoreData.address,
+        image: upadteStoreData.image,
+        description: upadteStoreData.description,
+          location: isLocationDataValid ? sql`ST_SetSRID(ST_MakePoint(${parseFloat(lng)}, ${parseFloat(lat)}), 4326)`:  null, // Geometry expression
+          geodata: {
+            lng: isLocationDataValid ? parseFloat(lng) : 0,
+            lat: isLocationDataValid ? parseFloat(lng) : 0,
+            placeId: upadteStoreData.placeId ?? "",
+          }, 
+      }).where(eq(stores.id, id));
+
+    } catch (error) {
+      console.error(error);
+      throw new Error('Error executing query');
+    }
+  }
+
 }

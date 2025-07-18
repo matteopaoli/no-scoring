@@ -6,6 +6,7 @@ import { RoleGuard } from 'src/auth/role/role.guard';
 import { Roles } from 'src/auth/role/roles.decorator';
 import { Request } from 'express';
 import { Throttle } from '@nestjs/throttler';
+import { UpadteStoreDataDto } from './dto/updateStoreData dto';
 
 @Controller('store')
 export class StoreController {
@@ -80,4 +81,19 @@ export class StoreController {
   ) {
     return this.storeService.setStoreFees(id, body.customerPaysFees);
   }
+
+  @UseGuards(AccessTokenGuard)
+  @Post('/update')
+  async updateStore(
+    @Req() req: Request,
+    @Body() body: UpadteStoreDataDto,
+  ) {
+      const userId = req.user?.['sub'];
+      console.log("Update Store")
+      if (userId) {
+        const storeId = (await this.storeService.getStoreByUserId(userId)).id;
+        await this.storeService.update(storeId,body);
+        return { message: 'Store updated successfully' };
+  }
+}
 }
