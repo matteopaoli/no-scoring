@@ -20,11 +20,11 @@ export class PaymentController {
   constructor(
     private readonly paymentService: PaymentService,
     private readonly storesService: StoreService,
-  ) {}
+  ) { }
 
   @Post('create')
   @UseGuards(AccessTokenGuard)
-  async createPayment(@Body('price') price: number, @Body('note') note: string,@Req() req: Request) {
+  async createPayment(@Body('price') price: number, @Body('note') note: string, @Body('customerPaysFees') customerPaysFees: boolean, @Req() req: Request,) {
     const userId = req.user?.['sub'];
     const stripeUserId = await this.storesService.getAdminStripeUserIdByUserId(
       userId!,
@@ -36,7 +36,7 @@ export class PaymentController {
     const result = await this.paymentService.createInstantPayment(
       price,
       userId,
-      store.customerPaysFees,
+      customerPaysFees ? customerPaysFees : store.customerPaysFees, //Override of store default value
       stripeUserId,
       note
     );
