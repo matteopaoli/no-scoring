@@ -24,7 +24,11 @@ export class PaymentController {
 
   @Post('create')
   @UseGuards(AccessTokenGuard)
-  async createPayment(@Body('price') price: number, @Body('note') note: string, @Body('customerPaysFees') customerPaysFees: boolean, @Req() req: Request,) {
+  async createPayment(@Body() body: {
+    price: number,
+    note? : string,
+    customerPaysFees?: boolean
+  }, @Req() req: Request,) {
     const userId = req.user?.['sub'];
     const stripeUserId = await this.storesService.getAdminStripeUserIdByUserId(
       userId!,
@@ -34,11 +38,11 @@ export class PaymentController {
     }
     const store = await this.storesService.getStoreByUserId(userId!);
     const result = await this.paymentService.createInstantPayment(
-      price,
+      body.price,
       userId,
-      customerPaysFees ? customerPaysFees : store.customerPaysFees, //Override of store default value
+      body.customerPaysFees ? body.customerPaysFees : store.customerPaysFees, //Override of store default value
       stripeUserId,
-      note
+      body.note
     );
 
     return { qrCode: result.qrcode, paymentLink: result.paymentLink };

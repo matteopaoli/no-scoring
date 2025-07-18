@@ -26,8 +26,9 @@ export class ExternalService {
     const result = await this.paymentService.createInstantPayment(
       body.price,
       storeAdmin.user.id,
-      store.customerPaysFees,
+      body.customerPaysFees ?? store.customerPaysFees,
       storeAdmin.user.stripeUserId,
+      body.note
     );
 
     return {
