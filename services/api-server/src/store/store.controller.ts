@@ -89,7 +89,6 @@ export class StoreController {
     @Body() body: UpadteStoreDataDto,
   ) {
       const userId = req.user?.['sub'];
-      console.log("Update Store")
       if (userId) {
         const storeId = (await this.storeService.getStoreByUserId(userId)).id;
         await this.storeService.update(storeId,body);

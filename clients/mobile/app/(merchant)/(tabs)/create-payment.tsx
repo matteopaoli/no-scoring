@@ -169,7 +169,7 @@ const createStyles = (theme) => StyleSheet.create({
   safe: { flex: 1, backgroundColor: theme.background }, // Set background color to theme's background
   container: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
   title: { fontSize: 30, fontFamily: theme.fontBold, marginBottom: 24, color: theme.text, textAlign: 'center' },
-  inputContainer: { width: '60%', marginBottom: 20, position: 'relative' },
+  inputContainer: { width: '90%', marginBottom: 20, position: 'relative' },
   inputLabel: {
     fontSize: 16,
     fontFamily: theme.fontRegular,
@@ -234,7 +234,7 @@ const createStyles = (theme) => StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 24,
     borderRadius: 20,
-    marginTop: 24,
+    marginTop: 40,
     alignItems: 'center',
     shadowColor: theme.shadowColor,
     shadowOffset: { width: 0, height: 4 },

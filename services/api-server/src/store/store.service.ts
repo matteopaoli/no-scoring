@@ -156,6 +156,7 @@ export class StoreService {
         partnerId: stores.partnerId,
         address: stores.address,
         image: stores.image,
+        description: stores.description,
         customerPaysFees: stores.customerPaysFees,
         isSubscriptionActive: stores.isSubscriptionActive,
       })
@@ -165,7 +166,6 @@ export class StoreService {
       .then(res => res[0]);
 
     if (!store) return null;
-  
     // Fetch more detailed store data
     const [salesCountResult, revenueResult] = await Promise.all([
       db
@@ -315,9 +315,7 @@ export class StoreService {
 
   async update(id: string, upadteStoreData:UpadteStoreDataDto):Promise<void> {
     try{
-      console.log("StoreId" + id);
-      console.log("Name" + upadteStoreData.name);
-      
+     
       const lat =upadteStoreData.locationLat;
       const lng =upadteStoreData.locationLng;
       const isLocationDataValid = (lat != "" && lng != "") && (lat != undefined && lng != undefined)

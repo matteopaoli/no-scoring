@@ -7,10 +7,17 @@ import {
   Linking,
   Alert,
   Share,
+  Image,
+  Modal,
+  ScrollView,
+  Pressable,
+  ActivityIndicator,
+  Keyboard,
+  Vibration,
 } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   ArrowLeft,
   CreditCard,
@@ -21,16 +28,46 @@ import {
   Sun,
   Euro,
   SunDimIcon,
+  RectangleEllipsis,
+  CircleEllipsis,
+  EllipsisVertical,
+  Pencil,
+  Lock,
+  Trash,
+  Delete,
+  Link,
+  PanelTopDashedIcon,
+  Save,
 } from 'lucide-react-native';
 import { Theme, useThemeContext } from '@/contexts/ThemeContext';
 import DeleteAccountModal from '@/components/delete-account-modal';
 import apiClient from '@/lib/httpClient';
+import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import useMyStoreDetails from '@/hooks/useMyStoreDetails';
 import { useUpdateCustomerPaysFees } from '@/hooks/useUpdateCustomerPaysFees';
 import { Toast } from 'toastify-react-native';
 import { FontAwesome } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Button, Menu, TextInput } from 'react-native-paper';
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import { openPlatformPaySetup } from '@stripe/stripe-react-native';
+import React from 'react';
 
 export default function MerchantSettingsScreen() {
+  //TODO
+  // [ ] Collegare selezione immagine di profilo (settings/change-user-data)
+  // [ ] Collegare form in change-user-data ai dati dell'utente e 
+  //     eseguire le chiamate user/update e store/update (per business type id) dopo validazione input 
+  // [ ] Modificare campo Business Type Id in un dropdown con la lista presa da chiamata ???
+  // [ ] Collegare pagina cambio password con servizi
+  // [ ] Aggiungere dropdown tema in settings (App)
+  // [ ] Aggiungere checkbox commissioni in settings (Store) 
+  // [X] Rimuovere numero di telefono nel header 
+  // [ ] Sistemare stile Dropdown di google
+  // [ ] Sistemare Bug Liste Dropdown
+  // [ ] Collegare risultato  Dropdown di google
+  // [ ] Pulizia codicew
+
   const { logout } = useAuth();
   const router = useRouter();
   const { isPending, isError, data: store, error } = useMyStoreDetails();
@@ -39,6 +76,15 @@ export default function MerchantSettingsScreen() {
   const { mutate: updateFees, isPending: isUpdatingFees } =
     useUpdateCustomerPaysFees();
   const styles = makeStyles(theme);
+
+  const [loading, setLoading] = useState(false);
+  const [storeName, setStoreName] = useState(store?.name)
+  const [storeNameError, setStoreNameError] = useState('');
+
+  const [storeDescription, setStoreDescription] = useState(store?.description)
+  const [storeDescriptionError, setStoreDescriptionError] = useState('');
+
+  const bottomSheetRef = useRef<BottomSheet>(null);
 
   const handleLogout = async () => {
     await logout();
@@ -85,215 +131,159 @@ export default function MerchantSettingsScreen() {
     }
   };
 
+  const handleSaveStoreData = async () => {
+    Keyboard.dismiss(); // Dismiss keyboard on submit
+    setLoading(true);
+    Vibration.vibrate(50);
+    console.log(storeDescription)
+    try {
+      const { data } = await apiClient.post('/store/update', { name: storeName, description: storeDescription });
+    } catch {
+      setStoreNameError("Errore riprova");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const isDataModified = store?.name != storeName || store?.description != storeDescription
+
+
   const isActive = (mode: 'light' | 'dark' | null) => themePreference === mode;
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <Text style={[styles.title, { color: theme.text }]}>
-        Impostazioni Negozio
-      </Text>
-
-      {/* Preferences Section */}
-      <SettingsSection title="Preferenze" theme={theme}>
-        {/* <SettingsItem
-          icon={<Bell size={20} color={theme.subtext} />}
-          label="Notifiche"
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+      <SettingsHeadaer
+        firstName="Davide"
+        lastName="Franceschi"
+        image={store?.image}
           theme={theme}
-          rightElement={
-            <Switch
-              value={notificationsEnabled}
-              onValueChange={setNotificationsEnabled}
-              trackColor={{ false: theme.secondary, true: theme.primary }}
-              thumbColor={
-                notificationsEnabled ? theme.primary : theme.background
-              }
-            />
+        handleMenuSelection={(value: string) => {
+          switch (value) {
+            case "Modifica dati utente":
+              router.push("/(merchant)/(settings)/change-user-data")
+              break;
+            case "Modifica password":
+              router.push("/(merchant)/(settings)/change-password")
+              break;
+            case "Logout":
+              handleLogout();
+              break;
+            case "Elimina account":
+              setDeleteModalVisible(true)
+              break;
+            default:
+              break;
           }
-        /> */}
+        }
+        }
+      >
 
-        <SettingsItem
-          icon={<Euro size={20} color={theme.subtext} />}
-          label="Commissioni a carico del cliente"
+      </SettingsHeadaer>
+      <ScrollView
+        nestedScrollEnabled={true}
+      >
+        <SettingsSection
+          title="Negozio"
           theme={theme}
-          rightElement={
-            <>
-              <TouchableOpacity
-                onPress={() =>
-                  Alert.alert(
-                    'Commissioni a carico del cliente',
-                    "Questa impostazione si applica esclusivamente all'app mobile PayTomorrow. Quando crei un link di pagamento sul sito web o tramite POS, ti verrà sempre chiesto di scegliere se le commissioni sono a tuo carico o del cliente.",
-                  )
-                }
-              >
-                <HelpCircle
-                  style={{ marginLeft: 10 }}
-                  size={20}
-                  color={theme.primary}
-                />
-              </TouchableOpacity>
-              <Switch
-                value={store?.customerPaysFees}
-                onValueChange={(value) => updateFees(value)}
-                disabled={isPending}
-                trackColor={{ false: theme.secondary, true: theme.primary }}
-                thumbColor={
-                  store?.customerPaysFees ? theme.primary : theme.background
-                }
-              />
-            </>
-          }
-        />
-
-        <View
-          style={[
-            styles.settingItem,
-            {
-              borderBottomWidth: 0,
-              flexDirection: 'column',
-              alignItems: 'flex-start',
-            },
-          ]}
         >
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              marginBottom: 10,
-            }}
-          >
-            <View style={styles.settingIcon}>
-              <SunDimIcon size={20} color={theme.subtext} />
-            </View>
-            <Text style={[styles.settingText, { color: theme.text }]}>
-              Tema
-            </Text>
-          </View>
+          <View style={styles.sectionContainer}>
 
-          <View style={styles.themeButtonsContainer}>
-            <ThemeOption
-              icon={
-                <Smartphone
-                  size={18}
-                  color={isActive(null) ? theme.background : theme.text}
-                />
-              }
-              label="Sistema"
-              active={isActive(null)}
-              onPress={() => setThemePreference(null)}
-              theme={theme}
-            />
-            <ThemeOption
-              icon={
-                <Sun
-                  size={18}
-                  color={isActive('light') ? theme.background : theme.text}
-                />
-              }
-              label="Chiaro"
-              active={isActive('light')}
-              onPress={() => setThemePreference('light')}
-              theme={theme}
-            />
-            <ThemeOption
-              icon={
-                <Moon
-                  size={18}
-                  color={isActive('dark') ? theme.background : theme.text}
-                />
-              }
-              label="Scuro"
-              active={isActive('dark')}
-              onPress={() => setThemePreference('dark')}
-              theme={theme}
-            />
-          </View>
-
-          <TouchableOpacity
-            onPress={() =>
-              Linking.openURL(
-                'https://secureprivacy.thrivecart.com/paytomorrow-abbonamento',
-              )
-            }
-            style={[
-              styles.settingItem,
-              {
-                borderBottomWidth: 0,
-                paddingVertical: 16,
-                marginTop: 20,
-              },
-            ]}
-          >
-            <View style={styles.settingIcon}>
-              <CreditCard size={20} color={theme.primary} />
+            <TouchableOpacity onPress={() => bottomSheetRef.current?.expand()}>
+              <Image
+                style={[styles.profileImage]}
+                source={{ uri: store?.image ?? defaultImage }}
+              >
+              </Image>
+              </TouchableOpacity>
+            <View style={[styles.inputContainer, { marginTop: 20 }]}>
+              <Text style={styles.inputLabel}>Name</Text>
+              <TextInput
+                value={storeName}
+                onChangeText={(t) => { setStoreName(t) }}
+                placeholder="Mario rossi"
+                placeholderTextColor={theme.subtext}
+                textColor={theme.text}
+                activeUnderlineColor={theme.primary}
+                style={[
+                  styles.input,
+                  storeNameError ? styles.inputError : null,
+                ]}
+              />
+              {storeNameError ? <Text style={styles.error}>{storeNameError}</Text> : null}
             </View>
-            <Text
-              style={[
-                styles.settingText,
-                { color: theme.primary, fontWeight: '600' },
-              ]}
-            >
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>Descrizione</Text>
+              <TextInput
+                value={storeDescription}
+                onChangeText={(t) => { setStoreDescription(t) }}
+                placeholder="Password123!"
+                activeUnderlineColor={theme.primary}
+                textColor={theme.text}
+                placeholderTextColor={theme.subtext}
+          style={[
+                  styles.input,
+                  storeDescriptionError ? styles.inputError : null
+                ]}
+              />
+              {storeDescriptionError ? <Text style={styles.error}>{storeDescriptionError}</Text> : null}
+            </View>
+            <View style={styles.autocompleteContainer}>
+              <GooglePlacesAutocomplete
+                placeholder="Cerca..."
+                minLength={2}
+                fetchDetails={true}
+                styles={{
+                  backgroundColor: theme.background
+                }}
+                onPress={() => { }}
+                query={{
+                  key: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
+                  language: 'it',
+                  components: 'country:it',
+                }}
+              />
+            </View>
+            <Pressable onPress={handleSaveStoreData} disabled={!isDataModified} style={styles.button}>
+              {loading ? <ActivityIndicator color="#fff" /> : <>
+                <Save size={28} color="#fff" style={{ marginRight: 8 }} />
+                <Text style={styles.buttonText}>Salva</Text>
+              </>}
+            </Pressable>
+
+          </View>
+        </SettingsSection>
+        <View
+          style={styles.sectionDivider}
+                />
+        <SettingsSection
+          title="App"
+              theme={theme}
+        >
+          <View style={styles.sectionContainer}>
+            <TouchableOpacity onPress={openPlatformPaySetup} style={styles.sectionTextItem}>
+              <Text style={{ color: theme.subtext, fontSize: 16 }}>
               Acquista PayTomorrow
             </Text>
-            <ArrowLeft
-              size={18}
-              color={theme.primary}
-              style={{ transform: [{ rotate: '180deg' }] }}
-            />
           </TouchableOpacity>
-        </View>
-
-        {/* Account Section */}
-        {/* <SettingsSection title="Account" theme={theme}>
-          <SettingsItem
-            icon={<Lock size={20} color={theme.subtext} />}
-            label="Sicurezza"
-            theme={theme}
-          />
-          <SettingsItem
-            icon={<HelpCircle size={20} color={theme.subtext} />}
-            label="Supporto"
-            theme={theme}
-          /> */}
-      </SettingsSection>
-      <TouchableOpacity style={styles.signOutButton} onPress={handleLogout}>
-        <LogOut size={24} color="#FFFFFF" />
-        <Text style={styles.signOutButtonText}>Esci</Text>
-      </TouchableOpacity>
-      <View style={styles.footerLinks}>
-        <TouchableOpacity onPress={openPrivacyPolicy}>
-          <Text style={[styles.footerLinkText, { color: theme.subtext }]}>
-            Privacy Policy
+            <TouchableOpacity onPress={() => openTermsOfService} style={styles.sectionTextItem}>
+              <Text style={{ color: theme.subtext, fontSize: 16 }}>
+                Termini e condizioni d'uso
           </Text>
         </TouchableOpacity>
-
-        <Text style={[styles.footerLinkSeparator, { color: theme.subtext }]}>
-          •
-        </Text>
-
-        <TouchableOpacity onPress={openTermsOfService}>
-          <Text style={[styles.footerLinkText, { color: theme.subtext }]}>
-            Termini di servizio
+            <TouchableOpacity onPress={openPrivacyPolicy} style={styles.sectionTextItem}>
+              <Text style={{ color: theme.subtext, fontSize: 16 }}>
+                Privacy policy
           </Text>
         </TouchableOpacity>
-
-        <Text style={[styles.footerLinkSeparator, { color: theme.subtext }]}>
-          •
-        </Text>
-
-        <TouchableOpacity onPress={() => setDeleteModalVisible(true)}>
-          <Text style={[styles.footerLinkText, { color: theme.subtext }]}>
-            Elimina Account
+            <TouchableOpacity onPress={handleShareApp} style={styles.sectionTextItem}>
+              <Text style={{ color: theme.subtext, fontSize: 16 }}>
+                Condividi l'app
           </Text>
         </TouchableOpacity>
-      </View>
-      <View>
-        <Text style={styles.socialText}>
-          Ti piace PayTomorrow? Seguici sui nostri profili social
-        </Text>
         <View
           style={{
             flexDirection: 'row',
-            marginTop: 10,
+                marginTop: 20,
             justifyContent: 'center',
           }}
         >
@@ -320,9 +310,8 @@ export default function MerchantSettingsScreen() {
           </TouchableOpacity>
         </View>
       </View>
-      <TouchableOpacity style={styles.shareButton} onPress={handleShareApp}>
-        <Text style={styles.shareButtonText}>Condividi l'app</Text>
-      </TouchableOpacity>
+        </SettingsSection>
+      </ScrollView>
       <DeleteAccountModal
         visible={isDeleteModalVisible}
         onCancel={cancelDeleteAccount}

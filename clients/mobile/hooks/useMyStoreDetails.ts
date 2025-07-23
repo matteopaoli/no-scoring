@@ -6,6 +6,7 @@ type MerchantStoreDetails = {
   name: string;
   image: string;
   address: string;
+  description: string;
   totalRevenue: number;
   salesCount: number;
   customerPaysFees: boolean;
