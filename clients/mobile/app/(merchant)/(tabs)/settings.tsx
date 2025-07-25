@@ -17,7 +17,7 @@ import {
 } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'expo-router';
-import { useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import {
   ArrowLeft,
   CreditCard,
@@ -38,6 +38,8 @@ import {
   Link,
   PanelTopDashedIcon,
   Save,
+  Camera,
+  GalleryHorizontal,
 } from 'lucide-react-native';
 import { Theme, useThemeContext } from '@/contexts/ThemeContext';
 import DeleteAccountModal from '@/components/delete-account-modal';
@@ -52,10 +54,11 @@ import { Button, Menu, TextInput } from 'react-native-paper';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { openPlatformPaySetup } from '@stripe/stripe-react-native';
 import React from 'react';
+import { pickPhoto, takePhoto } from '@/lib/photoUtils';
 
 export default function MerchantSettingsScreen() {
   //TODO
-  // [ ] Collegare selezione immagine di profilo (settings/change-user-data)
+  // [X] Collegare selezione immagine di profilo (settings/change-user-data)
   // [ ] Collegare form in change-user-data ai dati dell'utente e 
   //     eseguire le chiamate user/update e store/update (per business type id) dopo validazione input 
   // [ ] Modificare campo Business Type Id in un dropdown con la lista presa da chiamata ???
@@ -83,6 +86,8 @@ export default function MerchantSettingsScreen() {
 
   const [storeDescription, setStoreDescription] = useState(store?.description)
   const [storeDescriptionError, setStoreDescriptionError] = useState('');
+
+  const [storeImage, setStoreImage] = useState(store?.image != "" ? store?.image : defaultImage)
 
   const bottomSheetRef = useRef<BottomSheet>(null);
 
@@ -131,13 +136,27 @@ export default function MerchantSettingsScreen() {
     }
   };
 
+  const handleProfilePhoto =
+    async (action: 'take' | 'pick') => {
+      bottomSheetRef.current?.close()
+      let photo;
+      if (action === 'take') {
+        photo = await takePhoto();
+      } else if (action === 'pick') {
+        photo = await pickPhoto();
+      }
+      if (typeof(photo?.uri) == 'string') {
+        setStoreImage(photo?.uri as string)
+      }
+    };
+
   const handleSaveStoreData = async () => {
     Keyboard.dismiss(); // Dismiss keyboard on submit
     setLoading(true);
     Vibration.vibrate(50);
     console.log(storeDescription)
     try {
-      const { data } = await apiClient.post('/store/update', { name: storeName, description: storeDescription });
+      const { data } = await apiClient.post('/store/update', { name: storeName, description: storeDescription, image:storeImage });
     } catch {
       setStoreNameError("Errore riprova");
     } finally {
@@ -145,7 +164,7 @@ export default function MerchantSettingsScreen() {
     }
   }
 
-  const isDataModified = store?.name != storeName || store?.description != storeDescription
+  const isDataModified = store?.name != storeName || store?.description != storeDescription || store?.image != storeImage && storeImage != defaultImage
 
 
   const isActive = (mode: 'light' | 'dark' | null) => themePreference === mode;
@@ -155,7 +174,7 @@ export default function MerchantSettingsScreen() {
       <SettingsHeadaer
         firstName="Davide"
         lastName="Franceschi"
-        image={store?.image}
+        image={storeImage}
         theme={theme}
         handleMenuSelection={(value: string) => {
           switch (value) {
@@ -191,7 +210,7 @@ export default function MerchantSettingsScreen() {
             <TouchableOpacity onPress={() => bottomSheetRef.current?.expand()}>
               <Image
                 style={[styles.profileImage]}
-                source={{ uri: store?.image ?? defaultImage }}
+                source={{ uri: storeImage}}
               >
               </Image>
             </TouchableOpacity>
@@ -312,6 +331,40 @@ export default function MerchantSettingsScreen() {
           </View>
         </SettingsSection>
       </ScrollView>
+      <BottomSheet
+        index={-1}
+        enablePanDownToClose={true}
+        ref={bottomSheetRef}
+        backgroundStyle={{
+          backgroundColor: theme.cardBackgroundColor
+        }}
+      >
+        <BottomSheetView
+          style={{
+            paddingHorizontal: 20,
+            paddingVertical: 10,
+          }}
+        >
+          <TouchableOpacity onPress={() => handleProfilePhoto('take')} style={[styles.sectionTextItem, { flexDirection: 'row', alignItems: 'center' }]}>
+            <Text style={{ color: theme.subtext, fontSize: 20, flex: 1, paddingVertical: 10 }}>
+              Fotocamera
+            </Text>
+            <Camera
+              size={36}
+              color={theme.subtext}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => handleProfilePhoto('pick')} style={[styles.sectionTextItem, { flexDirection: 'row', alignItems: 'center', borderBottomWidth: 0 }]}>
+            <Text style={{ color: theme.subtext, fontSize: 20, flex: 1, paddingVertical: 10, marginBottom: 20 }}>
+              Galleria
+            </Text>
+            <GalleryHorizontal
+              size={36}
+              color={theme.subtext}
+            />
+          </TouchableOpacity>
+        </BottomSheetView>
+      </BottomSheet>
       <DeleteAccountModal
         visible={isDeleteModalVisible}
         onCancel={cancelDeleteAccount}

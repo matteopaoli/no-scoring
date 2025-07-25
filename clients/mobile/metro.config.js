@@ -1,6 +1,10 @@
 const { getDefaultConfig } = require('expo/metro-config');
 const path = require('path');
 
+const {
+  wrapWithReanimatedMetroConfig,
+} = require('react-native-reanimated/metro-config');
+
 // Find the project and workspace directories
 const projectRoot = __dirname;
 // This can be replaced with `find-yarn-workspace-root`
@@ -16,4 +20,4 @@ config.resolver.nodeModulesPaths = [
   path.resolve(monorepoRoot, 'node_modules'),
 ];
 
-module.exports = config;
+module.exports = wrapWithReanimatedMetroConfig(config);

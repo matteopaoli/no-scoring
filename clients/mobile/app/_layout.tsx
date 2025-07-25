@@ -24,6 +24,7 @@ import { Provider as PaperProvider } from 'react-native-paper';
 
 import WelcomeCarousel from '@/components/welcome-carousel';
 import { useStorageState } from '@/hooks/useStorageState';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const queryClient = new QueryClient();
 
@@ -47,22 +48,24 @@ export default function Root() {
   if (!loaded && !error) return null;
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <ThemeProvider>
-          <LocationProvider>
-            <SafeAreaProvider>
-              <PaperProvider>
-                <Slot />
-                {!loading && !hasLaunched && (
-                  <WelcomeCarousel onClose={() => setHasLaunched('true')} />
-                )}
-              </PaperProvider>
-              <ToastManager />
-            </SafeAreaProvider>
-          </LocationProvider>
-        </ThemeProvider>
-      </AuthProvider>
-    </QueryClientProvider>
+    <GestureHandlerRootView>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <ThemeProvider>
+            <LocationProvider>
+              <SafeAreaProvider>
+                <PaperProvider>
+                  <Slot />
+                  {!loading && !hasLaunched && (
+                    <WelcomeCarousel onClose={() => setHasLaunched('true')} />
+                  )}
+                </PaperProvider>
+                <ToastManager />
+              </SafeAreaProvider>
+            </LocationProvider>
+          </ThemeProvider>
+        </AuthProvider>
+      </QueryClientProvider>
+    </GestureHandlerRootView>
   );
 }
