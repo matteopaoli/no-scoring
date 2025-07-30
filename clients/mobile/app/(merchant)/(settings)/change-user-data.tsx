@@ -116,7 +116,9 @@ export default function ChangeUserDataForm() {
           </>}
         </Pressable>
       </View>
-      <BottomSheet
+     
+    </TouchableWithoutFeedback>
+     <BottomSheet
         index={-1}
         enablePanDownToClose={true}
         ref={bottomSheetRef}
@@ -150,7 +152,6 @@ export default function ChangeUserDataForm() {
           </TouchableOpacity>
         </BottomSheetView>
       </BottomSheet>
-    </TouchableWithoutFeedback>
   </SafeAreaView >
 
 }

@@ -10,6 +10,7 @@ import {
   Req,
   HttpException,
   HttpStatus,
+  UseFilters,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
@@ -21,6 +22,7 @@ import { SetupProfileDTO } from './dto/setupProfile.dto';
 import { StoreService } from 'src/store/store.service';
 import { genSaltSync, hashSync } from 'bcryptjs';
 import { UpdateUserDataDto } from './dto/updateUserData.dto';
+import { UpdatePasswordDto } from './dto/updatePassword.dto';
 
 @Controller('users')
 export class UsersController {
@@ -140,7 +142,8 @@ export class UsersController {
             firstName: body.firstName,
             lastName: body.lastName,
             image: body.image,
-            phoneNumber: body.phoneNumber
+            phoneNumber: body.phoneNumber,
+            password: body.password
           }
         );
         return { message: 'User updated successfully' };
@@ -150,8 +153,6 @@ export class UsersController {
     }
 
   }
-
-
   //TODO 1: Create a update password function with userGuards AccessToken and new updatePassword DTO
 
 }
