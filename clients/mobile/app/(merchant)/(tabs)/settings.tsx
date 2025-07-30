@@ -62,9 +62,9 @@ export default function MerchantSettingsScreen() {
   // [ ] Collegare form in change-user-data ai dati dell'utente e 
   //     eseguire le chiamate user/update e store/update (per business type id) dopo validazione input 
   // [ ] Modificare campo Business Type Id in un dropdown con la lista presa da chiamata ???
-  // [ ] Collegare pagina cambio password con servizi
+  // [X] Collegare pagina cambio password con servizi
   // [ ] Aggiungere dropdown tema in settings (App)
-  // [ ] Aggiungere checkbox commissioni in settings (Store) 
+  // [X] Aggiungere checkbox commissioni in settings (Store) 
   // [X] Rimuovere numero di telefono nel header 
   // [ ] Sistemare stile Dropdown di google
   // [ ] Sistemare Bug Liste Dropdown
@@ -78,6 +78,7 @@ export default function MerchantSettingsScreen() {
   const [isDeleteModalVisible, setDeleteModalVisible] = useState(false);
   const { mutate: updateFees, isPending: isUpdatingFees } =
     useUpdateCustomerPaysFees();
+
   const styles = makeStyles(theme);
 
   const [loading, setLoading] = useState(false);
@@ -86,9 +87,8 @@ export default function MerchantSettingsScreen() {
 
   const [storeDescription, setStoreDescription] = useState(store?.description)
   const [storeDescriptionError, setStoreDescriptionError] = useState('');
-
   const [storeImage, setStoreImage] = useState(store?.image != "" ? store?.image : defaultProfilePicture)
-
+  const [storeCustomerFees, setStroeCustomerFees] = useState(store?.customerPaysFees ?? false)
   const bottomSheetRef = useRef<BottomSheet>(null);
 
   const handleLogout = async () => {
@@ -145,7 +145,7 @@ export default function MerchantSettingsScreen() {
       } else if (action === 'pick') {
         photo = await pickPhoto();
       }
-      if (typeof(photo?.uri) == 'string') {
+      if (typeof (photo?.uri) == 'string') {
         setStoreImage(photo?.uri as string)
       }
     };
@@ -154,9 +154,15 @@ export default function MerchantSettingsScreen() {
     Keyboard.dismiss(); // Dismiss keyboard on submit
     setLoading(true);
     Vibration.vibrate(50);
-    console.log(storeDescription)
     try {
-      const { data } = await apiClient.post('/store/update', { name: storeName, description: storeDescription, image:storeImage });
+      console.log(store?.customerPaysFees)
+      console.log(storeCustomerFees)
+      if (isCustomerFeesModified) {
+        updateFees(storeCustomerFees)
+      }
+      if (isStoreDataModified) {
+        const { data } = await apiClient.post('/store/update', { name: storeName, description: storeDescription, image: storeImage });
+      }
     } catch {
       setStoreNameError("Errore riprova");
     } finally {
@@ -164,8 +170,9 @@ export default function MerchantSettingsScreen() {
     }
   }
 
-  const isDataModified = store?.name != storeName || store?.description != storeDescription || store?.image != storeImage && storeImage != defaultProfilePicture
-
+  const isStoreDataModified = store?.name != storeName || store?.description != storeDescription || store?.image != storeImage && storeImage != defaultProfilePicture
+  const isCustomerFeesModified = store?.customerPaysFees != storeCustomerFees
+  const isDataModified = isStoreDataModified || isCustomerFeesModified
 
   const isActive = (mode: 'light' | 'dark' | null) => themePreference === mode;
 
@@ -210,7 +217,7 @@ export default function MerchantSettingsScreen() {
             <TouchableOpacity onPress={() => bottomSheetRef.current?.expand()}>
               <Image
                 style={[styles.profileImage]}
-                source={{ uri: storeImage}}
+                source={{ uri: storeImage }}
               >
               </Image>
             </TouchableOpacity>
@@ -246,6 +253,38 @@ export default function MerchantSettingsScreen() {
               />
               {storeDescriptionError ? <Text style={styles.error}>{storeDescriptionError}</Text> : null}
             </View>
+            <SettingsItem
+              icon={<Euro size={20} color={theme.subtext} />}
+              label="Commissioni a carico del cliente"
+              theme={theme}
+              rightElement={
+                <>
+                  <TouchableOpacity
+                    onPress={() =>
+                      Alert.alert(
+                        'Commissioni a carico del cliente',
+                        "Questa impostazione si applica esclusivamente all'app mobile PayTomorrow. Quando crei un link di pagamento sul sito web o tramite POS, ti verrà sempre chiesto di scegliere se le commissioni sono a tuo carico o del cliente.",
+                      )
+                    }
+                  >
+                    <HelpCircle
+                      style={{ marginLeft: 10 }}
+                      size={20}
+                      color={theme.primary}
+                    />
+                  </TouchableOpacity>
+                  <Switch
+                    value={storeCustomerFees}
+                    onValueChange={(value) => setStroeCustomerFees(value)}
+                    disabled={isPending}
+                    trackColor={{ false: theme.secondary, true: theme.primary }}
+                    thumbColor={
+                      storeCustomerFees ? theme.primary : theme.background
+                    }
+                  />
+                </>
+              }
+            />
             <View style={styles.autocompleteContainer}>
               <GooglePlacesAutocomplete
                 placeholder="Cerca..."

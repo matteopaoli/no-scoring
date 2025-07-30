@@ -16,10 +16,6 @@ export class UpdateUserDataDto {
 
     @IsOptional()
     @IsString()
-    phoneNumber?: string;
-
-    @IsOptional()
-    @IsString()
     @MinLength(8, { message: 'La password deve essere lunga almeno 8 caratteri' })
     @Matches(/(?=.*[a-z])/, {
         message: 'La password deve contenere almeno una lettera minuscola',

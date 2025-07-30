@@ -142,7 +142,6 @@ export class UsersController {
             firstName: body.firstName,
             lastName: body.lastName,
             image: body.image,
-            phoneNumber: body.phoneNumber,
             password: body.password
           }
         );

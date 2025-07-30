@@ -1,4 +1,5 @@
 import { useAppTheme } from "@/contexts/ThemeContext";
+import apiClient from "@/lib/httpClient";
 import { pickPhoto, takePhoto } from "@/lib/photoUtils";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import { PaymentSheet } from "@stripe/stripe-react-native";
@@ -44,8 +45,21 @@ export default function ChangeUserDataForm() {
     };
 
 
-  const handleUpdateUser = () => {
-
+  const handleUpdateUser = async () => {
+    try {
+      const { data } = await apiClient.post('/users/update', { 
+        firstName: firstName,
+        lastName: lastName,
+        image: profileImage
+       });
+      if (data.message == "User updated successfully") {
+        router.back();
+      }
+    } catch {
+      setFirstNameError("Errore riprova");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return <SafeAreaView style={styles.safe}>
@@ -116,42 +130,42 @@ export default function ChangeUserDataForm() {
           </>}
         </Pressable>
       </View>
-     
+
     </TouchableWithoutFeedback>
-     <BottomSheet
-        index={-1}
-        enablePanDownToClose={true}
-        ref={bottomSheetRef}
-        backgroundStyle={{
-          backgroundColor: theme.cardBackgroundColor
+    <BottomSheet
+      index={-1}
+      enablePanDownToClose={true}
+      ref={bottomSheetRef}
+      backgroundStyle={{
+        backgroundColor: theme.cardBackgroundColor
+      }}
+    >
+      <BottomSheetView
+        style={{
+          paddingHorizontal: 20,
+          paddingVertical: 10,
         }}
       >
-        <BottomSheetView
-          style={{
-            paddingHorizontal: 20,
-            paddingVertical: 10,
-          }}
-        >
-          <TouchableOpacity onPress={() => handleProfilePhoto('take')} style={[styles.bottomSheetItem, { flexDirection: 'row', alignItems: 'center' }]}>
-            <Text style={{ color: theme.subtext, fontSize: 20, flex: 1, paddingVertical: 10 }}>
-              Fotocamera
-            </Text>
-            <Camera
-              size={36}
-              color={theme.subtext}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => handleProfilePhoto('pick')} style={[styles.bottomSheetItem, { flexDirection: 'row', alignItems: 'center', borderBottomWidth: 0 }]}>
-            <Text style={{ color: theme.subtext, fontSize: 20, flex: 1, paddingVertical: 10, marginBottom: 20 }}>
-              Galleria
-            </Text>
-            <GalleryHorizontal
-              size={36}
-              color={theme.subtext}
-            />
-          </TouchableOpacity>
-        </BottomSheetView>
-      </BottomSheet>
+        <TouchableOpacity onPress={() => handleProfilePhoto('take')} style={[styles.bottomSheetItem, { flexDirection: 'row', alignItems: 'center' }]}>
+          <Text style={{ color: theme.subtext, fontSize: 20, flex: 1, paddingVertical: 10 }}>
+            Fotocamera
+          </Text>
+          <Camera
+            size={36}
+            color={theme.subtext}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => handleProfilePhoto('pick')} style={[styles.bottomSheetItem, { flexDirection: 'row', alignItems: 'center', borderBottomWidth: 0 }]}>
+          <Text style={{ color: theme.subtext, fontSize: 20, flex: 1, paddingVertical: 10, marginBottom: 20 }}>
+            Galleria
+          </Text>
+          <GalleryHorizontal
+            size={36}
+            color={theme.subtext}
+          />
+        </TouchableOpacity>
+      </BottomSheetView>
+    </BottomSheet>
   </SafeAreaView >
 
 }
