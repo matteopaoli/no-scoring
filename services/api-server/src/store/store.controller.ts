@@ -7,10 +7,14 @@ import { Roles } from 'src/auth/role/roles.decorator';
 import { Request } from 'express';
 import { Throttle } from '@nestjs/throttler';
 import { UpadteStoreDataDto } from './dto/updateStoreData dto';
+import { UsersService } from 'src/users/users.service';
 
 @Controller('store')
 export class StoreController {
-  constructor(private readonly storeService: StoreService) {}
+  constructor(
+    private readonly storeService: StoreService,
+    private readonly usersService: UsersService
+  ) { }
 
   @Get('search')
   @Throttle({ default: { limit: 100, ttl: 60000 } })
@@ -28,7 +32,7 @@ export class StoreController {
     const parsedLimit = Math.min(parseInt(limit || '10', 10), 50);
     const parsedOffset = parseInt(offset || '0', 10);
     const radiusInMeters = radius ? parseFloat(radius) : undefined;
-    
+
     if (isNaN(latitude) || isNaN(longitude)) {
       throw new Error('Invalid coordinates');
     }
@@ -88,11 +92,20 @@ export class StoreController {
     @Req() req: Request,
     @Body() body: UpadteStoreDataDto,
   ) {
-      const userId = req.user?.['sub'];
-      if (userId) {
-        const storeId = (await this.storeService.getStoreByUserId(userId)).id;
-        await this.storeService.update(storeId,body);
-        return { message: 'Store updated successfully' };
+    const userId = req.user?.['sub'];
+    if (userId) {
+      const storeId = (await this.storeService.getStoreByUserId(userId)).id;
+
+      if (body.businessTypeId != null) {
+        this.usersService.update(
+          userId, {
+          businessTypeId: body.businessTypeId
+        }
+        )
+      }
+
+      await this.storeService.update(storeId, body);
+      return { message: 'Store updated successfully' };
+    }
   }
-}
 }

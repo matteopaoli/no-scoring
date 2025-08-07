@@ -55,6 +55,7 @@ import { GooglePlaceData, GooglePlaceDetail, GooglePlacesAutocomplete } from 're
 import { openPlatformPaySetup } from '@stripe/stripe-react-native';
 import React from 'react';
 import { defaultProfilePicture, pickPhoto, takePhoto } from '@/lib/photoUtils';
+import useBusinessTypes from '@/hooks/useBusinessTypes';
 
 export default function MerchantSettingsScreen() {
   //TODO
@@ -94,7 +95,15 @@ export default function MerchantSettingsScreen() {
   const [storeLocationLat, setStoreLocationLat] = useState(-1)
   const [storeLocationLng, setStoreLocationLng] = useState(-1)
 
+  const [businessType, setBusinessType] = useState<number | null>(null)
+  const [typeMenuVisible, setTypeMenuVisible] = useState(false);
   const [themeMenuVisible, setThemeMenuVisible] = useState(false);
+
+  const {
+    data: businessTypes,
+    isLoading: isBusinessTypesLoading,
+    isError: isBusinessTypesError,
+  } = useBusinessTypes();
 
   const bottomSheetRef = useRef<BottomSheet>(null);
 
@@ -168,9 +177,15 @@ export default function MerchantSettingsScreen() {
       }
 
       if (isStoreDataModified) {
-        const { data } = await apiClient.post('/store/update', { name: storeName, description: storeDescription, image: storeImage });
+
+        const { data } = await apiClient.post('/store/update', {
+          name: storeName, description: storeDescription, image: storeImage, businessTypeId: businessType
+        });
         if (data.message == "Store updated successfully") {
           Toast.success('Impostazione aggiornata con successo!', "bottom");
+        }
+        else {
+          setStoreNameError(data.error);
         }
       }
     } catch {
@@ -180,7 +195,7 @@ export default function MerchantSettingsScreen() {
     }
   }
 
-  const isStoreDataModified = store?.name != storeName || store?.description != storeDescription || store?.image != storeImage && storeImage != defaultProfilePicture
+  const isStoreDataModified = store?.name != storeName || store?.description != storeDescription || store?.image != storeImage && storeImage != defaultProfilePicture 
   const isCustomerFeesModified = store?.customerPaysFees != storeCustomerFees
   const isDataModified = isStoreDataModified || isCustomerFeesModified
 
@@ -278,7 +293,8 @@ export default function MerchantSettingsScreen() {
                   style: styles.input,
                   cursorColor: theme.primary,
                   selectionColor: theme.primary,
-                  underlineColorAndroid: theme.primary
+                  underlineColorAndroid: theme.primary,
+
                 }}
                 styles={{
                   poweredContainer: {
@@ -311,6 +327,42 @@ export default function MerchantSettingsScreen() {
                   components: 'country:it',
                 }}
               />
+            </View>
+
+            {/* Tipo di attività */}
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>Tipo di attività</Text>
+              <Menu
+                visible={typeMenuVisible}
+                onDismiss={() => setTypeMenuVisible(false)}
+                anchor={
+                  <Button
+                    mode="outlined"
+                    onPress={() => setTypeMenuVisible(true)}
+                    style={styles.typeDropdownButton}
+                    labelStyle={styles.typeDropdownButtonLabel}
+                    contentStyle={{ justifyContent: 'flex-start' }}
+                  >
+                    {businessTypes?.find(b => b.id === businessType)?.name || 'Seleziona un tipo di attività'}
+                  </Button>
+                }
+                contentStyle={styles.menuContent}
+              >
+                <View style={styles.scrollableMenu}>
+                  <ScrollView>
+                    {businessTypes?.map(r => (
+                      <Menu.Item
+                        key={r.id}
+                        onPress={() => {
+                          setBusinessType(r.id);
+                          setTypeMenuVisible(false);
+                        }}
+                        title={r.name}
+                      />
+                    ))}
+                  </ScrollView>
+                </View>
+              </Menu>
             </View>
             <SettingsItem
               icon={<Euro size={20} color={theme.subtext} />}
@@ -903,7 +955,7 @@ const makeStyles = (theme: Theme) =>
     autocompleteWrapper: {
       zIndex: 1, // Ensure it appears above other elements
       width: '100%',
-      marginBottom: 12
+      marginBottom: 18
     },
     autocompleteContainer: {
       flex: 0,
@@ -990,4 +1042,32 @@ const makeStyles = (theme: Theme) =>
       textAlign: 'center',
     },
 
+    typeDropdownContainer: {
+      marginBottom: 20,
+    },
+
+    typeDropdownLabel: {
+      fontFamily: theme.fontRegular,
+      fontSize: 15,
+      marginBottom: 6,
+      color: theme.subtext,
+    },
+
+    typeDropdownButton: {
+      backgroundColor: theme.background,
+      borderRadius: 10,
+      justifyContent: 'center',
+      marginBottom: 15,
+      marginTop: 8,
+      paddingLeft: 13, // Space for Euro symbol
+      paddingVertical: 6,
+    },
+
+    typeDropdownButtonLabel: {
+      fontFamily: theme.fontRegular,
+      fontSize: 15,
+      fontWeight: 'bold',
+      textAlign: 'left',
+      color: theme.subtext,
+    },
   });

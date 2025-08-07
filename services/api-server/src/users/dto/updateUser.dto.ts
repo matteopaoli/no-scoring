@@ -10,4 +10,5 @@ export type UpdateUserDto = {
     tosAccepted?: boolean;
     tosAcceptedAt?: Date;
     phoneNumber?: string; 
+    businessTypeId?:number;
 }

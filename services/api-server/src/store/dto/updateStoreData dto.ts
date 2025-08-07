@@ -8,4 +8,5 @@ export type UpadteStoreDataDto = {
     locationLat?: string; 
     locationLng?: string; 
     placeId?: string; 
+    businessTypeId?: number;
 }

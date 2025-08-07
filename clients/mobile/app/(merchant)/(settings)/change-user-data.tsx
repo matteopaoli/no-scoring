@@ -16,21 +16,14 @@ export default function ChangeUserDataForm() {
   const router = useRouter();
   const theme = useAppTheme();
   const styles = createStyles(theme);
-
-  const {
-    data: businessTypes,
-    isLoading: isBusinessTypesLoading,
-    isError: isBusinessTypesError,
-  } = useBusinessTypes();
-
+  
   const [firstName, setFirstName] = useState("")
   const [lastName, setLastName] = useState("")
   const [profileImage, setProfileImage] = useState("")
   const [firstNameError, setFirstNameError] = useState('');
   const [lastNameError, setLastNameError] = useState('');
 
-  const [businessType, setBusinessType] = useState<number | null>(null)
-  const [typeMenuVisible, setTypeMenuVisible] = useState(false);
+
   const [loading, setLoading] = useState(false)
 
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -56,7 +49,7 @@ export default function ChangeUserDataForm() {
       const { data } = await apiClient.post('/users/update', {
         firstName: firstName,
         lastName: lastName,
-        image: profileImage
+        image: profileImage,
       });
       if (data.message == "User updated successfully") {
         router.back();
@@ -115,41 +108,6 @@ export default function ChangeUserDataForm() {
 
         </View>
 
-        {/* Tipo di attività */}
-        <View style={styles.inputContainer}>
-        <Text style={styles.inputLabel}>Tipo di attività</Text>
-        <Menu
-          visible={typeMenuVisible}
-          onDismiss={() => setTypeMenuVisible(false)}
-          anchor={
-            <Button
-              mode="outlined"
-              onPress={() => setTypeMenuVisible(true)}
-              style={styles.dropdownButton}
-              labelStyle={styles.dropdownButtonLabel}
-              contentStyle={{ justifyContent: 'flex-start' }}
-            >
-              {businessTypes?.find(b => b.id === businessType)?.name || 'Seleziona un tipo di attività'}
-            </Button>
-          }
-          contentStyle={styles.menuContent}
-        >
-          <View style={styles.scrollableMenu}>
-            <ScrollView>
-              {businessTypes?.map(r => (
-                <Menu.Item
-                  key={r.id}
-                  onPress={() => {
-                    setBusinessType(r.id);
-                    setTypeMenuVisible(false);
-                  }}
-                  title={r.name}
-                />
-              ))}
-            </ScrollView>
-          </View>
-        </Menu>
-        </View>
         {/* Generate Link Button */}
         <Pressable onPress={handleUpdateUser} disabled={loading} style={styles.button}>
           {loading ? <ActivityIndicator color="#fff" /> : <>
