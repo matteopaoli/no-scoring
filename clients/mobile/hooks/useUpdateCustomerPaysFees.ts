@@ -17,7 +17,6 @@ export const useUpdateCustomerPaysFees = () => {
         });
       },
       onSuccess: () => {
-        Toast.success('Impostazione aggiornata con successo!', "bottom");
         queryClient.invalidateQueries({ queryKey: ['myStore'] });
       },
     });

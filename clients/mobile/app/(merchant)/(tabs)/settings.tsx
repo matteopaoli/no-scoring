@@ -51,7 +51,7 @@ import { Toast } from 'toastify-react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Menu, TextInput } from 'react-native-paper';
-import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import { GooglePlaceData, GooglePlaceDetail, GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { openPlatformPaySetup } from '@stripe/stripe-react-native';
 import React from 'react';
 import { defaultProfilePicture, pickPhoto, takePhoto } from '@/lib/photoUtils';
@@ -78,17 +78,24 @@ export default function MerchantSettingsScreen() {
   const [isDeleteModalVisible, setDeleteModalVisible] = useState(false);
   const { mutate: updateFees, isPending: isUpdatingFees } =
     useUpdateCustomerPaysFees();
-
   const styles = makeStyles(theme);
 
   const [loading, setLoading] = useState(false);
+
   const [storeName, setStoreName] = useState(store?.name)
   const [storeNameError, setStoreNameError] = useState('');
 
   const [storeDescription, setStoreDescription] = useState(store?.description)
   const [storeDescriptionError, setStoreDescriptionError] = useState('');
+
   const [storeImage, setStoreImage] = useState(store?.image != "" ? store?.image : defaultProfilePicture)
   const [storeCustomerFees, setStroeCustomerFees] = useState(store?.customerPaysFees ?? false)
+  const [storePlaceId, setStorePlaceId] = useState("")
+  const [storeLocationLat, setStoreLocationLat] = useState(-1)
+  const [storeLocationLng, setStoreLocationLng] = useState(-1)
+
+  const [themeMenuVisible, setThemeMenuVisible] = useState(false);
+
   const bottomSheetRef = useRef<BottomSheet>(null);
 
   const handleLogout = async () => {
@@ -155,13 +162,16 @@ export default function MerchantSettingsScreen() {
     setLoading(true);
     Vibration.vibrate(50);
     try {
-      console.log(store?.customerPaysFees)
-      console.log(storeCustomerFees)
+
       if (isCustomerFeesModified) {
         updateFees(storeCustomerFees)
       }
+
       if (isStoreDataModified) {
         const { data } = await apiClient.post('/store/update', { name: storeName, description: storeDescription, image: storeImage });
+        if (data.message == "Store updated successfully") {
+          Toast.success('Impostazione aggiornata con successo!', "bottom");
+        }
       }
     } catch {
       setStoreNameError("Errore riprova");
@@ -174,7 +184,6 @@ export default function MerchantSettingsScreen() {
   const isCustomerFeesModified = store?.customerPaysFees != storeCustomerFees
   const isDataModified = isStoreDataModified || isCustomerFeesModified
 
-  const isActive = (mode: 'light' | 'dark' | null) => themePreference === mode;
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
@@ -257,6 +266,7 @@ export default function MerchantSettingsScreen() {
               icon={<Euro size={20} color={theme.subtext} />}
               label="Commissioni a carico del cliente"
               theme={theme}
+              noBorder={true}
               rightElement={
                 <>
                   <TouchableOpacity
@@ -285,15 +295,48 @@ export default function MerchantSettingsScreen() {
                 </>
               }
             />
-            <View style={styles.autocompleteContainer}>
+
+            <View style={styles.autocompleteWrapper}>
+              <Text style={styles.inputLabel}>Location</Text>
               <GooglePlacesAutocomplete
                 placeholder="Cerca..."
+                enablePoweredByContainer={false}
                 minLength={2}
+                listUnderlayColor={theme.primary}
                 fetchDetails={true}
-                styles={{
-                  backgroundColor: theme.background
+                textInputProps={{
+                  InputComp: TextInput,
+                  activeUnderlineColor: theme.primary,
+                  style: styles.input,
+                  cursorColor: theme.primary,
+                  selectionColor: theme.primary,
+                  underlineColorAndroid: theme.primary
                 }}
-                onPress={() => { }}
+                styles={{
+                  poweredContainer: {
+                    color: theme.primary,
+                  },
+                  textInput: styles.textInput,
+                  container: styles.autocompleteContainer,
+                  listView: styles.listView,
+                  row: styles.autocompleteRow,
+                  description: styles.description,
+                  predefinedPlacesDescription: styles.predefinedPlacesDescription,
+                }}
+                onPress={(data: GooglePlaceData, details: GooglePlaceDetail | null) => {
+                  console.log(data)
+                  console.log(details)
+
+                  if (details) {
+                    setStorePlaceId(details.place_id)
+                    setStoreLocationLat(details.geometry.location.lat)
+                    setStoreLocationLng(details.geometry.location.lng)
+
+                    console.log(storePlaceId)
+                    console.log(storeLocationLat)
+                    console.log(storeLocationLng)
+                  }
+                }}
                 query={{
                   key: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
                   language: 'it',
@@ -318,6 +361,56 @@ export default function MerchantSettingsScreen() {
           theme={theme}
         >
           <View style={styles.sectionContainer}>
+
+            {/* Tipo di attività */}
+            <Text style={styles.dropdownLabel}>Tema</Text>
+            <Menu
+              visible={themeMenuVisible}
+              onDismiss={() => setThemeMenuVisible(false)}
+              anchor={
+                <Button
+                  mode="outlined"
+                  onPress={() => setThemeMenuVisible(true)}
+                  style={styles.dropdownButton}
+                  labelStyle={styles.dropdownButtonLabel}
+                  contentStyle={{ justifyContent: 'flex-start' }}
+                >
+                  {themePreference ? themePreference == 'dark' ? "Scuro" : "Chiaro" : "Sistema"}
+                </Button>
+              }
+              contentStyle={styles.menuContent}
+            >
+              <View style={styles.scrollableMenu}>
+                <ScrollView>
+                  <Menu.Item
+                    key={0}
+                    onPress={() => {
+                      setThemePreference(null)
+                      setThemeMenuVisible(false)
+                    }}
+                    title={"Sistema"}
+                  />
+                  <Menu.Item
+                    key={1}
+                    onPress={() => {
+                      setThemePreference('light')
+                      setThemeMenuVisible(false)
+
+                    }}
+                    title={"Chiaro"}
+                  />
+                  <Menu.Item
+                    key={2}
+                    onPress={() => {
+                      setThemePreference('dark')
+                      setThemeMenuVisible(false)
+
+                    }}
+                    title={"Scuro"}
+                  />
+                </ScrollView>
+              </View>
+            </Menu>
             <TouchableOpacity onPress={openPlatformPaySetup} style={styles.sectionTextItem}>
               <Text style={{ color: theme.subtext, fontSize: 16 }}>
                 Acquista PayTomorrow
@@ -598,8 +691,7 @@ const makeStyles = (theme: Theme) =>
     headerImage: {
       width: 50,
       height: 50,
-      objectFit: 'contain',
-      backgroundColor: "red",
+      objectFit: 'cover',
       borderRadius: 50,
       margin: 20,
     },
@@ -643,10 +735,47 @@ const makeStyles = (theme: Theme) =>
     dropdownItemText: {
       fontSize: 16,
     },
+
+    dropdownContainer: {
+      marginBottom: 20,
+    },
+
+    dropdownLabel: {
+      fontFamily: theme.fontRegular,
+      marginBottom: 8,
+      marginTop:12,
+      color: theme.subtext, 
+      fontSize: 16
+
+    },
+
+    dropdownButton: {
+      backgroundColor: theme.background,
+      borderRadius: 10,
+      justifyContent: 'center',
+      marginBottom: 8,
+      color: theme.subtext,
+      fontSize: 16
+    },
+
+    dropdownButtonLabel: {
+      fontFamily: theme.fontRegular,
+      fontSize: 16,
+      textAlign: 'left',
+      color: theme.subtext,
+    },
+    menuContent: {
+      borderRadius: 10,
+      paddingVertical: 0,
+    },
+
+    scrollableMenu: {
+      maxHeight: 250,
+    },
     profileImage: {
       width: 100,
       height: 100,
-      objectFit: 'contain',
+      objectFit: 'cover',
       alignSelf: 'center',
       borderRadius: 50,
       marginTop: 50,
@@ -672,7 +801,7 @@ const makeStyles = (theme: Theme) =>
       fontFamily: theme.fontBold,
       color: theme.text,
       marginTop: 8,
-      backgroundColor: theme.inputBackground, // Adjusted input background color
+      backgroundColor: theme.background, // Adjusted input background color
     },
     section: {
       marginBottom: 20,
@@ -770,10 +899,39 @@ const makeStyles = (theme: Theme) =>
     footerLinkSeparator: {
       marginHorizontal: 10,
     },
-    autocompleteContainer: {
+    autocompleteWrapper: {
       zIndex: 1, // Ensure it appears above other elements
       width: '100%',
+      marginTop: 8
     },
+    autocompleteContainer: {
+      flex: 0,
+      zIndex: 1, // ensure it's above other content
+    },
+    autocompleteRow: {
+      backgroundColor: theme.cardBackgroundColor,
+      borderWidth: 0,
+    },
+    textInput: {
+      height: 50,
+      borderRadius: 8,
+      paddingHorizontal: 16,
+      borderColor: 'red',
+      borderWidth: 1,
+      fontSize: 16,
+      backgroundColor: '#f0f0f0',
+    },
+    listView: {
+      backgroundColor: theme.cardBackgroundColor,
+    },
+    description: {
+      fontWeight: 'bold',
+      color: theme.subtext
+    },
+    predefinedPlacesDescription: {
+      color: '#1faadb',
+    },
+
     button: {
       flexDirection: 'row',
       backgroundColor: theme.primary,
@@ -830,4 +988,5 @@ const makeStyles = (theme: Theme) =>
       color: theme.subtext,
       textAlign: 'center',
     },
+
   });

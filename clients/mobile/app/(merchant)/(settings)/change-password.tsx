@@ -2,11 +2,12 @@ import { useAppTheme } from "@/contexts/ThemeContext";
 import apiClient from "@/lib/httpClient";
 import { PaymentSheet } from "@stripe/stripe-react-native";
 import { router, useRouter } from "expo-router";
-import { HelpCircle, Link } from "lucide-react-native";
+import { HelpCircle, Link, Save } from "lucide-react-native";
 import { useState } from "react";
 import { ActivityIndicator, Alert, Keyboard, StyleSheet, Pressable, Switch, TextInput, TouchableOpacity, TouchableWithoutFeedback, View, Text, Image } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Toast } from "toastify-react-native";
 
 export default function ChangePasswordForm() {
 
@@ -45,7 +46,7 @@ export default function ChangePasswordForm() {
   }
 
   const validateaPassword = (password: string): string => {
-    console.log("Testing password :"+password)
+    console.log("Testing password :" + password)
     switch (true) {
       case password.length < 8:
         return "La password deve essere di alemno 8 caratteri"
@@ -57,6 +58,8 @@ export default function ChangePasswordForm() {
         return "La password deve contere almeno un numero"
       case !/[!@#$%^&*(),.?":{}|<>]/.test(password):
         return "La password deve contere almeno un carattere speciale"
+      case password == "Password123!":
+        return "La password deve essere diversa da quella di esempio"
       default:
         return ""
     }
@@ -67,12 +70,12 @@ export default function ChangePasswordForm() {
       return;
     try {
       const { data } = await apiClient.post('/users/update', { password: newPassword });
-      if(data.message == "User updated successfully"){
+      if (data.message == "User updated successfully") {
+        Toast.success('Impostazione aggiornata con successo!', "bottom");
         router.back();
-      }else{
+      } else {
         setConfirmNewPasswordError(data.message)
       }
-
     } catch {
       setConfirmNewPasswordError("Errore riprova");
     } finally {
@@ -88,12 +91,13 @@ export default function ChangePasswordForm() {
           <Text style={styles.title}>Modifica Password</Text>
 
           {/* Input for New password */}
-          <View style={[styles.inputContainer,{marginTop:'40%', marginBottom:40}]}>
+          <View style={[styles.inputContainer, { marginTop: '40%', marginBottom: 40 }]}>
             <Text style={styles.inputLabel}>Nuova password</Text>
             <TextInput
               value={newPassword}
               onChangeText={(t) => { setNewPassword(t) }}
               placeholder="Password123!"
+              secureTextEntry={true}
               placeholderTextColor={theme.subtext}
               style={[
                 styles.input,
@@ -111,6 +115,7 @@ export default function ChangePasswordForm() {
               value={confirmNewPassword}
               onChangeText={(t) => { setConfirmNewPassword(t) }}
               placeholder="Password123!"
+              secureTextEntry={true}
               placeholderTextColor={theme.subtext}
               style={[
                 styles.input,
@@ -122,7 +127,7 @@ export default function ChangePasswordForm() {
           {/* Generate Link Button */}
           <Pressable onPress={handleUpdateUser} disabled={loading} style={styles.button}>
             {loading ? <ActivityIndicator color="#fff" /> : <>
-              <Link size={20} color="#fff" style={{ marginRight: 8 }} />
+              <Save size={30} color="#fff" style={{ marginRight: 8 }} />
               <Text style={styles.buttonText}>Salva</Text>
             </>}
           </Pressable>
@@ -203,7 +208,8 @@ const createStyles = (theme) => StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 24,
     borderRadius: 20,
-    marginTop: 24,
+    marginTop: 40,
+    marginHorizontal: 40,
     alignItems: 'center',
     shadowColor: theme.shadowColor,
     shadowOffset: { width: 0, height: 4 },
@@ -211,7 +217,7 @@ const createStyles = (theme) => StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  buttonText: { color: '#fff', fontFamily: theme.fontSemiBold, fontSize: 18 },
+  buttonText: { flex: 1, color: '#fff', fontFamily: theme.fontSemiBold, fontSize: 24, textAlign: 'center' },
   profileImage: {
     width: 100,
     height: 100,

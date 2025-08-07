@@ -22,7 +22,6 @@ import { SetupProfileDTO } from './dto/setupProfile.dto';
 import { StoreService } from 'src/store/store.service';
 import { genSaltSync, hashSync } from 'bcryptjs';
 import { UpdateUserDataDto } from './dto/updateUserData.dto';
-import { UpdatePasswordDto } from './dto/updatePassword.dto';
 
 @Controller('users')
 export class UsersController {
@@ -135,14 +134,14 @@ export class UsersController {
   ) {
     try {
       const userId = req.user?.['sub'];
-      console.log("Update user")
+      
       if (userId) {
         await this.usersService.update(userId,
           {
             firstName: body.firstName,
             lastName: body.lastName,
             image: body.image,
-            password: body.password
+            password: body.password ? hashSync(body.password, genSaltSync(10)) : undefined
           }
         );
         return { message: 'User updated successfully' };
