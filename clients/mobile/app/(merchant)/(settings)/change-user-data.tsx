@@ -1,12 +1,14 @@
 import { useAppTheme } from "@/contexts/ThemeContext";
+import useBusinessTypes from "@/hooks/useBusinessTypes";
 import apiClient from "@/lib/httpClient";
 import { pickPhoto, takePhoto } from "@/lib/photoUtils";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import { PaymentSheet } from "@stripe/stripe-react-native";
 import { router, useRouter } from "expo-router";
-import { Camera, GalleryHorizontal, HelpCircle, Link } from "lucide-react-native";
+import { Bold, Camera, GalleryHorizontal, HelpCircle, Link } from "lucide-react-native";
 import { useRef, useState } from "react";
-import { ActivityIndicator, Alert, Keyboard, StyleSheet, Pressable, Switch, TextInput, TouchableOpacity, TouchableWithoutFeedback, View, Text, Image } from "react-native";
+import { ActivityIndicator, Alert, Keyboard, StyleSheet, Pressable, Switch, TextInput, TouchableOpacity, TouchableWithoutFeedback, View, Text, Image, ScrollView } from "react-native";
+import { Button, Menu } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ChangeUserDataForm() {
@@ -15,16 +17,20 @@ export default function ChangeUserDataForm() {
   const theme = useAppTheme();
   const styles = createStyles(theme);
 
+  const {
+    data: businessTypes,
+    isLoading: isBusinessTypesLoading,
+    isError: isBusinessTypesError,
+  } = useBusinessTypes();
 
   const [firstName, setFirstName] = useState("")
   const [lastName, setLastName] = useState("")
   const [profileImage, setProfileImage] = useState("")
-  const [businessId, setBusinessId] = useState("")
   const [firstNameError, setFirstNameError] = useState('');
   const [lastNameError, setLastNameError] = useState('');
-  const [profileImageError, setProfileImageError] = useState('');
-  const [businessIdError, setBusinessIdError] = useState('');
 
+  const [businessType, setBusinessType] = useState<number | null>(null)
+  const [typeMenuVisible, setTypeMenuVisible] = useState(false);
   const [loading, setLoading] = useState(false)
 
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -47,11 +53,11 @@ export default function ChangeUserDataForm() {
 
   const handleUpdateUser = async () => {
     try {
-      const { data } = await apiClient.post('/users/update', { 
+      const { data } = await apiClient.post('/users/update', {
         firstName: firstName,
         lastName: lastName,
         image: profileImage
-       });
+      });
       if (data.message == "User updated successfully") {
         router.back();
       }
@@ -61,6 +67,8 @@ export default function ChangeUserDataForm() {
       setLoading(false);
     }
   }
+
+
 
   return <SafeAreaView style={styles.safe}>
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
@@ -107,20 +115,40 @@ export default function ChangeUserDataForm() {
 
         </View>
 
-        {/* Input for Phone Number */}
-        <View style={[styles.inputContainer, { marginBottom: 32 }]}>
-          <Text style={styles.inputLabel}>Business Type ID</Text>
-          <TextInput
-            value={businessId}
-            onChangeText={(t) => { setBusinessId(t) }}
-            placeholder="+123123123132"
-            placeholderTextColor={theme.subtext}
-            style={[
-              styles.input,
-              businessIdError ? styles.inputError : null
-            ]}
-          />
-          {businessIdError ? <Text style={styles.error}>{businessIdError}</Text> : null}
+        {/* Tipo di attività */}
+        <View style={styles.inputContainer}>
+        <Text style={styles.inputLabel}>Tipo di attività</Text>
+        <Menu
+          visible={typeMenuVisible}
+          onDismiss={() => setTypeMenuVisible(false)}
+          anchor={
+            <Button
+              mode="outlined"
+              onPress={() => setTypeMenuVisible(true)}
+              style={styles.dropdownButton}
+              labelStyle={styles.dropdownButtonLabel}
+              contentStyle={{ justifyContent: 'flex-start' }}
+            >
+              {businessTypes?.find(b => b.id === businessType)?.name || 'Seleziona un tipo di attività'}
+            </Button>
+          }
+          contentStyle={styles.menuContent}
+        >
+          <View style={styles.scrollableMenu}>
+            <ScrollView>
+              {businessTypes?.map(r => (
+                <Menu.Item
+                  key={r.id}
+                  onPress={() => {
+                    setBusinessType(r.id);
+                    setTypeMenuVisible(false);
+                  }}
+                  title={r.name}
+                />
+              ))}
+            </ScrollView>
+          </View>
+        </Menu>
         </View>
         {/* Generate Link Button */}
         <Pressable onPress={handleUpdateUser} disabled={loading} style={styles.button}>
@@ -265,4 +293,40 @@ const createStyles = (theme) => StyleSheet.create({
     fontSize: 16,
     color: 'white'
   },
+  dropdownContainer: {
+    marginBottom: 20,
+  },
+
+  dropdownLabel: {
+    fontFamily: theme.fontRegular,
+    fontSize: 15,
+    marginBottom: 6,
+    color: theme.subtext,
+  },
+
+  dropdownButton: {
+    backgroundColor: theme.background,
+    borderRadius: 10,
+    justifyContent: 'center',
+    marginBottom: 15,
+    marginTop:8,
+    paddingLeft: 13, // Space for Euro symbol
+    paddingVertical: 6,
+  },
+
+  dropdownButtonLabel: {
+    fontFamily: theme.fontRegular,
+    fontSize: 15,
+    fontWeight:'bold',
+    textAlign: 'left',
+    color: theme.subtext,
+  },
+  menuContent: {
+    borderRadius: 10,
+    paddingVertical: 0,
+  },
+
+  scrollableMenu: {
+    maxHeight: 250,
+  }
 });

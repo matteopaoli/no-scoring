@@ -262,39 +262,7 @@ export default function MerchantSettingsScreen() {
               />
               {storeDescriptionError ? <Text style={styles.error}>{storeDescriptionError}</Text> : null}
             </View>
-            <SettingsItem
-              icon={<Euro size={20} color={theme.subtext} />}
-              label="Commissioni a carico del cliente"
-              theme={theme}
-              noBorder={true}
-              rightElement={
-                <>
-                  <TouchableOpacity
-                    onPress={() =>
-                      Alert.alert(
-                        'Commissioni a carico del cliente',
-                        "Questa impostazione si applica esclusivamente all'app mobile PayTomorrow. Quando crei un link di pagamento sul sito web o tramite POS, ti verrà sempre chiesto di scegliere se le commissioni sono a tuo carico o del cliente.",
-                      )
-                    }
-                  >
-                    <HelpCircle
-                      style={{ marginLeft: 10 }}
-                      size={20}
-                      color={theme.primary}
-                    />
-                  </TouchableOpacity>
-                  <Switch
-                    value={storeCustomerFees}
-                    onValueChange={(value) => setStroeCustomerFees(value)}
-                    disabled={isPending}
-                    trackColor={{ false: theme.secondary, true: theme.primary }}
-                    thumbColor={
-                      storeCustomerFees ? theme.primary : theme.background
-                    }
-                  />
-                </>
-              }
-            />
+
 
             <View style={styles.autocompleteWrapper}>
               <Text style={styles.inputLabel}>Location</Text>
@@ -344,6 +312,39 @@ export default function MerchantSettingsScreen() {
                 }}
               />
             </View>
+            <SettingsItem
+              icon={<Euro size={20} color={theme.subtext} />}
+              label="Commissioni a carico del cliente"
+              theme={theme}
+              noBorder={true}
+              rightElement={
+                <>
+                  <TouchableOpacity
+                    onPress={() =>
+                      Alert.alert(
+                        'Commissioni a carico del cliente',
+                        "Questa impostazione si applica esclusivamente all'app mobile PayTomorrow. Quando crei un link di pagamento sul sito web o tramite POS, ti verrà sempre chiesto di scegliere se le commissioni sono a tuo carico o del cliente.",
+                      )
+                    }
+                  >
+                    <HelpCircle
+                      style={{ marginLeft: 10 }}
+                      size={20}
+                      color={theme.primary}
+                    />
+                  </TouchableOpacity>
+                  <Switch
+                    value={storeCustomerFees}
+                    onValueChange={(value) => setStroeCustomerFees(value)}
+                    disabled={isPending}
+                    trackColor={{ false: theme.secondary, true: theme.primary }}
+                    thumbColor={
+                      storeCustomerFees ? theme.primary : theme.background
+                    }
+                  />
+                </>
+              }
+            />
             <Pressable onPress={handleSaveStoreData} disabled={!isDataModified} style={styles.button}>
               {loading ? <ActivityIndicator color="#fff" /> : <>
                 <Save size={28} color="#fff" style={{ marginRight: 8 }} />
@@ -743,8 +744,8 @@ const makeStyles = (theme: Theme) =>
     dropdownLabel: {
       fontFamily: theme.fontRegular,
       marginBottom: 8,
-      marginTop:12,
-      color: theme.subtext, 
+      marginTop: 12,
+      color: theme.subtext,
       fontSize: 16
 
     },
@@ -902,7 +903,7 @@ const makeStyles = (theme: Theme) =>
     autocompleteWrapper: {
       zIndex: 1, // Ensure it appears above other elements
       width: '100%',
-      marginTop: 8
+      marginBottom: 12
     },
     autocompleteContainer: {
       flex: 0,
