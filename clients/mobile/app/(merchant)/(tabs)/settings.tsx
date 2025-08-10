@@ -101,11 +101,17 @@ export default function MerchantSettingsScreen() {
 
   const {
     data: businessTypes,
-    isLoading: isBusinessTypesLoading,
-    isError: isBusinessTypesError,
   } = useBusinessTypes();
 
   const bottomSheetRef = useRef<BottomSheet>(null);
+
+  const handleLocationSelect = useCallback((data: GooglePlaceData, details: GooglePlaceDetail | null = null) => {
+    if (details) {
+      setStorePlaceId(details.place_id)
+      setStoreLocationLat(details.geometry.location.lat)
+      setStoreLocationLng(details.geometry.location.lng)
+    }
+  }, [setStorePlaceId, setStoreLocationLat, setStoreLocationLng, storePlaceId, storeLocationLat, storeLocationLng])
 
   const handleLogout = async () => {
     await logout();
@@ -179,7 +185,10 @@ export default function MerchantSettingsScreen() {
       if (isStoreDataModified) {
 
         const { data } = await apiClient.post('/store/update', {
-          name: storeName, description: storeDescription, image: storeImage, businessTypeId: businessType
+          name: storeName, description: storeDescription, image: storeImage, businessTypeId: businessType,
+          locationLat: storeLocationLat,
+          locationLng: storeLocationLng,
+          placeId: storePlaceId,
         });
         if (data.message == "Store updated successfully") {
           Toast.success('Impostazione aggiornata con successo!', "bottom");
@@ -195,7 +204,7 @@ export default function MerchantSettingsScreen() {
     }
   }
 
-  const isStoreDataModified = store?.name != storeName || store?.description != storeDescription || store?.image != storeImage && storeImage != defaultProfilePicture 
+  const isStoreDataModified = store?.name != storeName || store?.description != storeDescription || (store?.image != storeImage && storeImage != defaultProfilePicture) || (storeLocationLat != 0 && storeLocationLng != 0 && storePlaceId != "") 
   const isCustomerFeesModified = store?.customerPaysFees != storeCustomerFees
   const isDataModified = isStoreDataModified || isCustomerFeesModified
 
@@ -231,6 +240,7 @@ export default function MerchantSettingsScreen() {
       </SettingsHeadaer>
       <ScrollView
         nestedScrollEnabled={true}
+        keyboardShouldPersistTaps='always'
       >
         <SettingsSection
           title="Negozio"
@@ -287,6 +297,7 @@ export default function MerchantSettingsScreen() {
                 minLength={2}
                 listUnderlayColor={theme.primary}
                 fetchDetails={true}
+                listViewDisplayed={false}
                 textInputProps={{
                   InputComp: TextInput,
                   activeUnderlineColor: theme.primary,
@@ -294,7 +305,6 @@ export default function MerchantSettingsScreen() {
                   cursorColor: theme.primary,
                   selectionColor: theme.primary,
                   underlineColorAndroid: theme.primary,
-
                 }}
                 styles={{
                   poweredContainer: {
@@ -307,20 +317,8 @@ export default function MerchantSettingsScreen() {
                   description: styles.description,
                   predefinedPlacesDescription: styles.predefinedPlacesDescription,
                 }}
-                onPress={(data: GooglePlaceData, details: GooglePlaceDetail | null) => {
-                  console.log(data)
-                  console.log(details)
-
-                  if (details) {
-                    setStorePlaceId(details.place_id)
-                    setStoreLocationLat(details.geometry.location.lat)
-                    setStoreLocationLng(details.geometry.location.lng)
-
-                    console.log(storePlaceId)
-                    console.log(storeLocationLat)
-                    console.log(storeLocationLng)
-                  }
-                }}
+                onPress={handleLocationSelect}
+                onFail={() => console.log(error)}
                 query={{
                   key: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
                   language: 'it',
