@@ -17,6 +17,8 @@ export interface Theme {
   fontSizeHeading: number;
   cardBackgroundColor: string;
   buttonTextColor: string;
+  surfaceSecondary: string;
+  surfaceSecondaryText: string;
 }
 
 const lightTheme: Theme = {
@@ -34,6 +36,8 @@ const lightTheme: Theme = {
   fontSize: 16,
   fontSizeHeading: 18,
   buttonTextColor: '#FFFFFF',
+  surfaceSecondary:'#FFF4E5',
+  surfaceSecondaryText: '#333',
 };
 
 const darkTheme: Theme = {
@@ -51,6 +55,8 @@ const darkTheme: Theme = {
   fontSize: 16,
   fontSizeHeading: 18,
   buttonTextColor: '#333333',
+  surfaceSecondary:'#1a1a1a88',
+  surfaceSecondaryText: '#E1E1E1',
 };
 
 type ThemePreference = 'light' | 'dark' | null;
