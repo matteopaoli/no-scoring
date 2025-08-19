@@ -64,13 +64,13 @@ export default function AuthScreen(): JSX.Element {
             >
               {/* Brand / Hero */}
               <View style={styles.brandWrap}>
-                <View
+                {/* <View
                   style={[styles.logoBadge, { borderColor: theme.secondary }]}
                 >
                   <Text style={[styles.logoText, { color: theme.secondary }]}>
                     PT
                   </Text>
-                </View>
+                </View> */}
                 <Text style={[styles.title, { color: theme.text }]}>
                   Accedi al tuo account
                 </Text>

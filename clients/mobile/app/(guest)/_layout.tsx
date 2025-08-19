@@ -22,6 +22,9 @@ export default function TabLayout() {
 
       <Tabs
         screenOptions={{
+          sceneStyle: {
+            paddingBottom: 90,
+          },
           headerShown: false,
           tabBarHideOnKeyboard: true,
           tabBarShowLabel: true,
@@ -39,6 +42,7 @@ export default function TabLayout() {
             right: 16,
             bottom: insets.bottom + 10,
             height: 72,
+            marginHorizontal: 10,
             paddingHorizontal: 3,
             paddingTop: 8,
             borderRadius: 18,

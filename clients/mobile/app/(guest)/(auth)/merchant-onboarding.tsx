@@ -85,9 +85,9 @@ export default function MerchantOnboardingScreen(): JSX.Element {
 
             {/* Header */}
             <View style={styles.headerWrap}>
-              <View style={[styles.logoBadge, { borderColor: theme.secondary }]}>
+              {/* <View style={[styles.logoBadge, { borderColor: theme.secondary }]}>
                 <Text style={[styles.logoText, { color: theme.secondary }]}>PT</Text>
-              </View>
+              </View> */}
               <Text style={[styles.heading, { color: theme.text }]}>Benvenuto su PayTomorrow</Text>
               <Text style={styles.subtitle}>
                 Se sei stato invitato, inserisci il codice per iniziare l’onboarding come
@@ -117,7 +117,7 @@ export default function MerchantOnboardingScreen(): JSX.Element {
                 <KeyRound size={18} color={focused ? theme.primary : theme.subtext} />
                 <TextInput
                   style={[styles.input, { color: theme.text }]}
-                  placeholder="Es: INVITO-1234"
+                  placeholder="Es: ABCDE"
                   placeholderTextColor={theme.subtext}
                   autoCapitalize="characters"
                   autoCorrect={false}
@@ -154,8 +154,7 @@ export default function MerchantOnboardingScreen(): JSX.Element {
               <View style={styles.tipBlock}>
                 <Text style={styles.tipTitle}>Non hai il codice?</Text>
                 <Text style={styles.tipText}>
-                  Contatta il tuo referente PayTomorrow oppure richiedi un nuovo invito dal
-                  portale.
+                  Contatta il tuo referente PayTomorrow.
                 </Text>
               </View>
             </View>
