@@ -11,22 +11,35 @@ export default function TabLayout() {
 
   const icon =
     (Icon: any) =>
-    ({ color, size, focused }: { color: string; size: number; focused: boolean }) =>
-      <Icon size={focused ? size + 2 : size} color={color} />;
+    ({
+      color,
+      size,
+      focused,
+    }: {
+      color: string;
+      size: number;
+      focused: boolean;
+    }) => <Icon size={focused ? size + 2 : size} color={color} />;
 
   return (
     <>
-      <StatusBar style={theme.type === 'dark' ? 'light' : 'dark'} backgroundColor={theme.background} />
+      <StatusBar
+        style={theme.type === 'dark' ? 'light' : 'dark'}
+        backgroundColor={theme.background}
+      />
       <Tabs
         screenOptions={{
+          sceneStyle: {
+            paddingBottom: 90,
+          },
           headerShown: false,
           tabBarHideOnKeyboard: true,
           tabBarShowLabel: true,
-          tabBarActiveTintColor: theme.primary,   // icon color
-          tabBarInactiveTintColor: theme.subtext, // icon color inactive
+          tabBarActiveTintColor: theme.primary,
+          tabBarInactiveTintColor: theme.subtext,
           tabBarLabelStyle: {
             fontFamily: theme.fontRegular,
-            fontSize: theme.fontSize - 3,
+            fontSize: theme.fontSize - 4,
             marginTop: 2,
             color: theme.text,
           },
@@ -36,8 +49,8 @@ export default function TabLayout() {
             right: 16,
             bottom: insets.bottom + 10,
             height: 72,
-            paddingHorizontal: 0,
             marginHorizontal: 10,
+            paddingHorizontal: 3,
             paddingTop: 8,
             borderRadius: 18,
             backgroundColor: theme.cardBackgroundColor,
@@ -48,7 +61,10 @@ export default function TabLayout() {
             shadowOpacity: theme.type === 'dark' ? 0.3 : 0.08,
             shadowRadius: 10,
             ...(Platform.OS === 'ios'
-              ? { backdropFilter: 'blur(10px)', backgroundColor: `${theme.cardBackgroundColor}DD` }
+              ? {
+                  backdropFilter: 'blur(10px)',
+                  backgroundColor: `${theme.cardBackgroundColor}DD`,
+                }
               : {}),
           },
         }}
