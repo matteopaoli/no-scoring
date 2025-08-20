@@ -40,6 +40,7 @@ export class UsersService {
           password: users.password,
           firstName: users.firstName,
           lastName: users.lastName,
+          image: users.image,
           email: users.email,
           role: users.role,
           onboardingCompleted: users.onboardingCompleted,

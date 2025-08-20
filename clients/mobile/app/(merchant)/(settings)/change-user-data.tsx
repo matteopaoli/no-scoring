@@ -15,14 +15,14 @@ import { Toast } from "toastify-react-native";
 
 export default function ChangeUserDataForm() {
 
-  const { user } = useAuth()
+  const { user, refreshUser } = useAuth()
   const router = useRouter();
   const theme = useAppTheme();
   const styles = createStyles(theme);
 
   const [firstName, setFirstName] = useState(user.firstName)
   const [lastName, setLastName] = useState(user.lastName)
-  const [profileImage, setProfileImage] = useState(user.profileImage ?? defaultProfilePicture)
+  const [profileImage, setProfileImage] = useState(user.image ?? defaultProfilePicture)
   const [firstNameError, setFirstNameError] = useState('');
   const [lastNameError, setLastNameError] = useState('');
 
@@ -41,21 +41,21 @@ export default function ChangeUserDataForm() {
       } else if (action === 'pick') {
         photo = await pickPhoto();
       }
-      if (typeof (photo?.uri) == 'string') {
-        setProfileImage(photo?.uri as string)
+      if (typeof (photo?.base64) == 'string') {
+        setProfileImage(photo?.base64 as string)
       }
     };
 
 
   const handleUpdateUser = async () => {
     try {
-      console.log(profileImage)
       const { data } = await apiClient.post('/users/update', {
         firstName: firstName,
         lastName: lastName,
         image: profileImage,
       });
       if (data.message == "User updated successfully") {
+        await refreshUser();
         Toast.success(
           'Modifiche salvate con successo.',
           'bottom',
@@ -80,8 +80,8 @@ export default function ChangeUserDataForm() {
           <Image
             style={[styles.profileImage]}
             source={{ uri: profileImage }}
-          >
-          </Image>
+          />
+
         </TouchableOpacity>
         {/* Input for First Name */}
         <View style={[styles.inputContainer, { marginTop: 20 }]}>
@@ -246,8 +246,8 @@ const createStyles = (theme) => StyleSheet.create({
   profileImage: {
     width: 100,
     height: 100,
-    objectFit: 'contain',
-    backgroundColor: "red",
+    objectFit: 'cover',
+    alignSelf: 'center',
     borderRadius: 50,
     marginTop: 50,
   },

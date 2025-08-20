@@ -8,7 +8,6 @@ import {
   Alert,
   Share,
   Image,
-  Modal,
   ScrollView,
   Pressable,
   ActivityIndicator,
@@ -19,24 +18,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
 import {
-  ArrowLeft,
-  CreditCard,
   HelpCircle,
-  LogOut,
-  Smartphone,
-  Moon,
-  Sun,
   Euro,
-  SunDimIcon,
-  RectangleEllipsis,
-  CircleEllipsis,
   EllipsisVertical,
-  Pencil,
-  Lock,
-  Trash,
-  Delete,
-  Link,
-  PanelTopDashedIcon,
   Save,
   Camera,
   GalleryHorizontal,
@@ -58,27 +42,13 @@ import { defaultProfilePicture, pickPhoto, takePhoto } from '@/lib/photoUtils';
 import useBusinessTypes from '@/hooks/useBusinessTypes';
 
 export default function MerchantSettingsScreen() {
-  //TODO
-  // [X] Collegare selezione immagine di profilo (settings/change-user-data)
-  // [ ] Collegare form in change-user-data ai dati dell'utente e 
-  //     eseguire le chiamate user/update e store/update (per business type id) dopo validazione input 
-  // [ ] Modificare campo Business Type Id in un dropdown con la lista presa da chiamata ???
-  // [X] Collegare pagina cambio password con servizi
-  // [ ] Aggiungere dropdown tema in settings (App)
-  // [X] Aggiungere checkbox commissioni in settings (Store) 
-  // [X] Rimuovere numero di telefono nel header 
-  // [ ] Sistemare stile Dropdown di google
-  // [ ] Sistemare Bug Liste Dropdown
-  // [ ] Collegare risultato  Dropdown di google
-  // [ ] Pulizia codicew
-
   const { user } = useAuth()
   const { logout } = useAuth();
   const router = useRouter();
-  const { isPending, isError, data: store, error } = useMyStoreDetails();
+  const { isPending, data: store, error } = useMyStoreDetails();
   const { theme, themePreference, setThemePreference } = useThemeContext();
   const [isDeleteModalVisible, setDeleteModalVisible] = useState(false);
-  const { mutate: updateFees, isPending: isUpdatingFees } =
+  const { mutate: updateFees } =
     useUpdateCustomerPaysFees();
   const styles = makeStyles(theme);
 
@@ -88,9 +58,8 @@ export default function MerchantSettingsScreen() {
   const [storeNameError, setStoreNameError] = useState('');
 
   const [storeDescription, setStoreDescription] = useState(store?.description)
-  const [storeDescriptionError, setStoreDescriptionError] = useState('');
 
-  const [storeImage, setStoreImage] = useState(store?.image != "" ? store?.image : defaultProfilePicture)
+  const [storeImage, setStoreImage] = useState(store?.image ?? defaultProfilePicture)
   const [storeCustomerFees, setStroeCustomerFees] = useState(store?.customerPaysFees ?? false)
   const [storePlaceId, setStorePlaceId] = useState("")
   const [storeLocationLat, setStoreLocationLat] = useState(-1)
@@ -145,6 +114,7 @@ export default function MerchantSettingsScreen() {
   };
 
   const openTermsOfService = () => {
+    console.log("Testing");
     Linking.openURL('https://app.paytomorrow.it/terms');
   };
 
@@ -168,8 +138,9 @@ export default function MerchantSettingsScreen() {
       } else if (action === 'pick') {
         photo = await pickPhoto();
       }
-      if (typeof (photo?.uri) == 'string') {
-        setStoreImage(photo?.uri as string)
+
+      if (typeof (photo?.base64) == 'string') {
+        setStoreImage(photo?.base64 as string)
       }
     };
 
@@ -212,10 +183,10 @@ export default function MerchantSettingsScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
-      <SettingsHeadaer
+      <SettingsHeader
         firstName={user.firstName}
         lastName={user.lastName}
-        image={user.image != "" && user.image ? user.image: defaultProfilePicture}
+        image={user.image != "" && user.image ? user.image : defaultProfilePicture}
         theme={theme}
         handleMenuSelection={(value: string) => {
           switch (value) {
@@ -238,7 +209,7 @@ export default function MerchantSettingsScreen() {
         }
       >
 
-      </SettingsHeadaer>
+      </SettingsHeader>
       <ScrollView
         nestedScrollEnabled={true}
         keyboardShouldPersistTaps='always'
@@ -253,8 +224,7 @@ export default function MerchantSettingsScreen() {
               <Image
                 style={[styles.profileImage]}
                 source={{ uri: storeImage }}
-              >
-              </Image>
+              />
             </TouchableOpacity>
             <View style={[styles.inputContainer, { marginTop: 20 }]}>
               <Text style={styles.inputLabel}>Name</Text>
@@ -283,10 +253,8 @@ export default function MerchantSettingsScreen() {
                 placeholderTextColor={theme.subtext}
                 style={[
                   styles.input,
-                  storeDescriptionError ? styles.inputError : null
                 ]}
               />
-              {storeDescriptionError ? <Text style={styles.error}>{storeDescriptionError}</Text> : null}
             </View>
 
 
@@ -468,7 +436,7 @@ export default function MerchantSettingsScreen() {
                 Acquista PayTomorrow
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => openTermsOfService} style={styles.sectionTextItem}>
+            <TouchableOpacity onPress={openTermsOfService} style={styles.sectionTextItem}>
               <Text style={{ color: theme.subtext, fontSize: 16 }}>
                 Termini e condizioni d'uso
               </Text>
@@ -529,7 +497,9 @@ export default function MerchantSettingsScreen() {
             paddingVertical: 10,
           }}
         >
-          <TouchableOpacity onPress={() => handleProfilePhoto('take')} style={[styles.sectionTextItem, { flexDirection: 'row', alignItems: 'center' }]}>
+          <TouchableOpacity onPress={() => {
+            handleProfilePhoto('take')
+          }} style={[styles.sectionTextItem, { flexDirection: 'row', alignItems: 'center' }]}>
             <Text style={{ color: theme.subtext, fontSize: 20, flex: 1, paddingVertical: 10 }}>
               Fotocamera
             </Text>
@@ -572,7 +542,7 @@ function SettingsSection({ title, children, theme }) {
   );
 }
 
-function SettingsHeadaer({ firstName, lastName, image, theme, handleMenuSelection }) {
+function SettingsHeader({ firstName, lastName, image, theme, handleMenuSelection }) {
   const styles = makeStyles(theme);
   const [isDropDownVisible, setIsDropDownVisible] = useState(false);
   const options: Array<DropdownMenuItem> = [
@@ -767,7 +737,8 @@ const makeStyles = (theme: Theme) =>
       marginRight: 20
     },
     dropdownThreeDots: {
-      borderRadius: 50
+      borderRadius: 50,
+      marginTop:8
     },
     dropdownList: {
       backgroundColor: theme.cardBackgroundColor,

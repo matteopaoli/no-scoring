@@ -1,5 +1,6 @@
 // utils/photoUtils.ts
 import * as ImagePicker from 'expo-image-picker';
+import { MediaType } from 'expo-image-picker';
 import { Camera } from 'expo-camera';
 import { Alert } from 'react-native';
 
@@ -7,12 +8,13 @@ export type ImageResult = {
   uri: string;
   name?: string;
   type?: string;
+  base64?: string;
 };
 
 export const requestMediaPermissions = async () => {
   const { status: cameraStatus } = await Camera.requestCameraPermissionsAsync();
   const { status: mediaStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-  
+
   if (cameraStatus !== 'granted' || mediaStatus !== 'granted') {
     Alert.alert(
       'Permission required',
@@ -29,8 +31,9 @@ export const takePhoto = async (): Promise<ImageResult | null> => {
   if (!hasPermission) return null;
 
   const result = await ImagePicker.launchCameraAsync({
-    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    mediaTypes: ['images'],
     allowsEditing: true,
+    base64: true,
     aspect: [4, 3],
     quality: 0.7,
   });
@@ -38,8 +41,11 @@ export const takePhoto = async (): Promise<ImageResult | null> => {
   if (result.canceled) return null;
 
   const asset = result.assets[0];
+  const dataUri = `data:${asset.mimeType};base64,${asset.base64}`;
+
   return {
     uri: asset.uri,
+    base64: dataUri,
     name: `photo_${Date.now()}.jpg`,
     type: 'image/jpeg',
   };
@@ -50,8 +56,9 @@ export const pickPhoto = async (): Promise<ImageResult | null> => {
   if (!hasPermission) return null;
 
   const result = await ImagePicker.launchImageLibraryAsync({
-    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    mediaTypes: ['images'],
     allowsEditing: true,
+    base64: true,
     aspect: [4, 3],
     quality: 0.7,
   });
@@ -61,6 +68,7 @@ export const pickPhoto = async (): Promise<ImageResult | null> => {
   const asset = result.assets[0];
   return {
     uri: asset.uri,
+    base64: asset.base64 ? asset.base64 : undefined,
     name: asset.fileName || `photo_${Date.now()}.jpg`,
     type: asset.type === 'image' ? 'image/jpeg' : asset.type,
   };
@@ -72,6 +80,7 @@ export const prepareUpload = (image: ImageResult) => {
     uri: image.uri,
     name: image.name,
     type: image.type,
+    base64: image.base64
   } as any);
   return formData;
 };

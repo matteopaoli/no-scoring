@@ -46,7 +46,6 @@ export default function ChangePasswordForm() {
   }
 
   const validateaPassword = (password: string): string => {
-    console.log("Testing password :" + password)
     switch (true) {
       case password.length < 8:
         return "La password deve essere di alemno 8 caratteri"
