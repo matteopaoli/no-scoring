@@ -1,70 +1,103 @@
-import { useAuth } from '@/contexts/AuthContext';
 import { useAppTheme } from '@/contexts/ThemeContext';
-import { Tabs, useRouter } from 'expo-router';
-import { Home, Map, PlusCircle, Settings, ShoppingBag, User } from 'lucide-react-native';
+import { Tabs } from 'expo-router';
+import { Home, PlusCircle, Settings, ShoppingBag } from 'lucide-react-native';
+import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Platform } from 'react-native';
 
 export default function TabLayout() {
   const theme = useAppTheme();
-  const insets = useSafeAreaInsets()
+  const insets = useSafeAreaInsets();
+
+  const icon =
+    (Icon: any) =>
+    ({
+      color,
+      size,
+      focused,
+    }: {
+      color: string;
+      size: number;
+      focused: boolean;
+    }) => <Icon size={focused ? size + 2 : size} color={color} />;
+
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarStyle: {
-          backgroundColor: theme.cardBackgroundColor,
-          borderTopWidth: 0,
-          elevation: 8,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: theme.type === 'dark' ? 0.3 : 0.1,
-          shadowRadius: 4,
-          height: 60 + insets.bottom,
-          paddingTop: 10
-        },
-        tabBarActiveTintColor: theme.primary,
-        tabBarInactiveTintColor: theme.subtext,
-        tabBarLabelStyle: {
-          fontFamily: theme.fontRegular,
-          fontSize: theme.fontSize - 2, // Slightly smaller than body text
-        },
-      }}
-    >
-      <Tabs.Screen
-        name="store"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color, size }) => <Home size={size} color={color} />,
-        }}
+    <>
+      <StatusBar
+        style={theme.type === 'dark' ? 'light' : 'dark'}
+        backgroundColor={theme.background}
       />
-      <Tabs.Screen
-        name="create-payment"
-        options={{
-          title: 'Nuovo',
-          tabBarIcon: ({ color, size }) => (
-            <PlusCircle size={size} color={color} />
-          ),
+      <Tabs
+        screenOptions={{
+          sceneStyle: {
+            paddingBottom: 90,
+          },
+          headerShown: false,
+          tabBarHideOnKeyboard: true,
+          tabBarShowLabel: true,
+          tabBarActiveTintColor: theme.primary,
+          tabBarInactiveTintColor: theme.subtext,
+          tabBarLabelStyle: {
+            fontFamily: theme.fontRegular,
+            fontSize: theme.fontSize - 4,
+            marginTop: 2,
+            color: theme.text,
+          },
+          tabBarStyle: {
+            position: 'absolute',
+            left: 16,
+            right: 16,
+            bottom: insets.bottom + 10,
+            height: 72,
+            marginHorizontal: 10,
+            paddingHorizontal: 3,
+            paddingTop: 8,
+            borderRadius: 18,
+            backgroundColor: theme.cardBackgroundColor,
+            borderTopWidth: 0,
+            elevation: 10,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: -2 },
+            shadowOpacity: theme.type === 'dark' ? 0.3 : 0.08,
+            shadowRadius: 10,
+            ...(Platform.OS === 'ios'
+              ? {
+                  backdropFilter: 'blur(10px)',
+                  backgroundColor: `${theme.cardBackgroundColor}DD`,
+                }
+              : {}),
+          },
         }}
-      />
-      <Tabs.Screen
-        name="sales"
-        options={{
-          title: 'Vendite',
-          tabBarIcon: ({ color, size }) => (
-            <ShoppingBag size={size} color={color} />
-          ),
-        }}
-      />
-      {/* Hide these screens from the tab bar but keep them accessible via direct navigation */}
-      <Tabs.Screen
-        name="settings"
-        options={{
-          title: 'Impostazioni',
-          tabBarIcon: ({ color, size }) => (
-            <Settings size={size} color={color} />
-          ),
-        }}
-      />
-    </Tabs>
+      >
+        <Tabs.Screen
+          name="store"
+          options={{
+            title: 'Home',
+            tabBarIcon: icon(Home),
+          }}
+        />
+        <Tabs.Screen
+          name="create-payment"
+          options={{
+            title: 'Nuovo',
+            tabBarIcon: icon(PlusCircle),
+          }}
+        />
+        <Tabs.Screen
+          name="sales"
+          options={{
+            title: 'Vendite',
+            tabBarIcon: icon(ShoppingBag),
+          }}
+        />
+        <Tabs.Screen
+          name="settings"
+          options={{
+            title: 'Impostazioni',
+            tabBarIcon: icon(Settings),
+          }}
+        />
+      </Tabs>
+    </>
   );
 }
