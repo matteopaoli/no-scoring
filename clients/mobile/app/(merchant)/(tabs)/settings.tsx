@@ -72,6 +72,7 @@ export default function MerchantSettingsScreen() {
   // [ ] Collegare risultato  Dropdown di google
   // [ ] Pulizia codicew
 
+  const { user } = useAuth()
   const { logout } = useAuth();
   const router = useRouter();
   const { isPending, isError, data: store, error } = useMyStoreDetails();
@@ -204,7 +205,7 @@ export default function MerchantSettingsScreen() {
     }
   }
 
-  const isStoreDataModified = store?.name != storeName || store?.description != storeDescription || (store?.image != storeImage && storeImage != defaultProfilePicture) || (storeLocationLat != 0 && storeLocationLng != 0 && storePlaceId != "") 
+  const isStoreDataModified = store?.name != storeName || store?.description != storeDescription || (store?.image != storeImage && storeImage != defaultProfilePicture) || (storeLocationLat != 0 && storeLocationLng != 0 && storePlaceId != "")
   const isCustomerFeesModified = store?.customerPaysFees != storeCustomerFees
   const isDataModified = isStoreDataModified || isCustomerFeesModified
 
@@ -212,9 +213,9 @@ export default function MerchantSettingsScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       <SettingsHeadaer
-        firstName="Davide"
-        lastName="Franceschi"
-        image={storeImage}
+        firstName={user.firstName}
+        lastName={user.lastName}
+        image={user.image != "" && user.image ? user.image: defaultProfilePicture}
         theme={theme}
         handleMenuSelection={(value: string) => {
           switch (value) {

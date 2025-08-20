@@ -1,7 +1,8 @@
+import { useAuth } from "@/contexts/AuthContext";
 import { useAppTheme } from "@/contexts/ThemeContext";
 import useBusinessTypes from "@/hooks/useBusinessTypes";
 import apiClient from "@/lib/httpClient";
-import { pickPhoto, takePhoto } from "@/lib/photoUtils";
+import { defaultProfilePicture, pickPhoto, takePhoto } from "@/lib/photoUtils";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import { PaymentSheet } from "@stripe/stripe-react-native";
 import { router, useRouter } from "expo-router";
@@ -10,16 +11,18 @@ import { useRef, useState } from "react";
 import { ActivityIndicator, Alert, Keyboard, StyleSheet, Pressable, Switch, TextInput, TouchableOpacity, TouchableWithoutFeedback, View, Text, Image, ScrollView } from "react-native";
 import { Button, Menu } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Toast } from "toastify-react-native";
 
 export default function ChangeUserDataForm() {
 
+  const { user } = useAuth()
   const router = useRouter();
   const theme = useAppTheme();
   const styles = createStyles(theme);
-  
-  const [firstName, setFirstName] = useState("")
-  const [lastName, setLastName] = useState("")
-  const [profileImage, setProfileImage] = useState("")
+
+  const [firstName, setFirstName] = useState(user.firstName)
+  const [lastName, setLastName] = useState(user.lastName)
+  const [profileImage, setProfileImage] = useState(user.profileImage ?? defaultProfilePicture)
   const [firstNameError, setFirstNameError] = useState('');
   const [lastNameError, setLastNameError] = useState('');
 
@@ -46,12 +49,17 @@ export default function ChangeUserDataForm() {
 
   const handleUpdateUser = async () => {
     try {
+      console.log(profileImage)
       const { data } = await apiClient.post('/users/update', {
         firstName: firstName,
         lastName: lastName,
         image: profileImage,
       });
       if (data.message == "User updated successfully") {
+        Toast.success(
+          'Modifiche salvate con successo.',
+          'bottom',
+        );
         router.back();
       }
     } catch {
@@ -267,7 +275,7 @@ const createStyles = (theme) => StyleSheet.create({
     borderRadius: 10,
     justifyContent: 'center',
     marginBottom: 15,
-    marginTop:8,
+    marginTop: 8,
     paddingLeft: 13, // Space for Euro symbol
     paddingVertical: 6,
   },
@@ -275,7 +283,7 @@ const createStyles = (theme) => StyleSheet.create({
   dropdownButtonLabel: {
     fontFamily: theme.fontRegular,
     fontSize: 15,
-    fontWeight:'bold',
+    fontWeight: 'bold',
     textAlign: 'left',
     color: theme.subtext,
   },
