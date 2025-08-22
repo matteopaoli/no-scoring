@@ -7,7 +7,7 @@
     "icon": "./assets/images/favicon.png",
     "scheme": "paytomorrow",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": false,
+    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.matteopaoli.paytomorrowapp",
