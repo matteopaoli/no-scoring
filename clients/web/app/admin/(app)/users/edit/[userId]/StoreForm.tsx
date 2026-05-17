@@ -1,10 +1,9 @@
 "use client";
 
 import { Box, Spinner, Text, useColorModeValue, Flex } from "@chakra-ui/react";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useActionState } from "react";
 import { debounce } from "lodash";
 import SubmitButton from "@/app/components/SubmitButton";
-import { useFormState } from "react-dom";
 import updateStoreAction from "./updateStore.action";
 
 type Suggestion = {
@@ -32,7 +31,7 @@ export default function StoreForm({ existingStore }: { existingStore: any }) {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedPlace, setSelectedPlace] = useState<PlaceDetails | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, action] = useFormState(updateStoreAction, []);
+  const [errors, action] = useActionState(updateStoreAction, []);
 
   const fetchSuggestions = useCallback(
     debounce(async (input: string) => {

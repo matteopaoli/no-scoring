@@ -4,11 +4,12 @@ import DefaultAuth from "@/app/layouts/admin/Auth";
 import { Box, Heading } from "@chakra-ui/react";
 import ForgotPasswordExpired from "./expired";
 
-export default async function ResetPasswordPage({
-  searchParams,
-}: {
-  searchParams?: { [key: string]: string };
-}) {
+export default async function ResetPasswordPage(
+  props: {
+    searchParams?: Promise<{ [key: string]: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const token = searchParams?.token;
   if (!token) {
     throw new Error("Missing token");

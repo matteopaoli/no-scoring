@@ -29,11 +29,14 @@
         }
       ],
       [
-      "expo-splash-screen",
-      {
-        "image": "./assets/images/favicon.png"
-      }
-    ]
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/favicon.png"
+        }
+      ],
+      "expo-asset",
+      "expo-font",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true

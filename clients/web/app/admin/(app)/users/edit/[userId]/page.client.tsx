@@ -9,8 +9,7 @@ import {
   TabPanel,
   useColorModeValue,
 } from "@chakra-ui/react";
-import { ReactNode } from "react";
-import { useFormState } from "react-dom";
+import { ReactNode, useActionState } from "react";
 import updateUserAction from "./updateUser.action";
 import InputField from "@/app/components/fields/InputField";
 import Select from "@/app/components/fields/Select";
@@ -30,7 +29,7 @@ export default function UpdateUserPage({
   existingUser,
   existingStore,
 }: UpdateUserPageProps) {
-  const [errors, action] = useFormState(updateUserAction, []);
+  const [errors, action] = useActionState(updateUserAction, []);
 
   return (
     <Box width="100%">

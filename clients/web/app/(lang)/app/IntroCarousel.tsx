@@ -60,8 +60,9 @@ export default function Carousel() {
         type="text/css"
         href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick-theme.min.css"
       />
-
-      <Slider {...settings} ref={(slider) => setSlider(slider)}>
+      <Slider {...settings} ref={slider => {
+        setSlider(slider);
+      }}>
         <Box {...slideProps}>
           <Flex alignItems="center" h="100%">
             <Box>

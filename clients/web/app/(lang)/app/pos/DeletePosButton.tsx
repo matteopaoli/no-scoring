@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useActionState } from "react";
 import {
   Tooltip,
   IconButton,
@@ -13,13 +13,12 @@ import {
   Button,
 } from "@chakra-ui/react";
 import { MdDelete } from "react-icons/md";
-import { useFormState } from "react-dom";
 import deletePosAction from "./deletePos.action";
 import { useRouter } from 'next/navigation';
 
 export default function DeletePOSButton({ posId }: { posId: string }) {
   const [isPopoverOpen, setPopoverOpen] = useState(false);
-  const [formState, deletePos] = useFormState(deletePosAction, {});
+  const [formState, deletePos] = useActionState(deletePosAction, {});
   const router = useRouter();
 
   const togglePopover = () => {

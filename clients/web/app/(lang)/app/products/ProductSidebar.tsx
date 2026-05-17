@@ -21,7 +21,7 @@ import { useRouter } from 'next/navigation';
 type ProductSidebarProps = {
   isOpen: boolean;
   onClose: () => void;
-  btnRef?: React.RefObject<HTMLTableRowElement>;
+  btnRef?: React.RefObject<HTMLTableRowElement | null>;
   productId: string | null;
 };
 

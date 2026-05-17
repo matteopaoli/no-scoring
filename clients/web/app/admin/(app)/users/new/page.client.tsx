@@ -1,9 +1,8 @@
 "use client";
 
 import { Box, FormControl, SimpleGrid, Flex } from "@chakra-ui/react";
-import { ReactNode, useState } from "react";
+import { ReactNode, useState, useActionState } from "react";
 import createUserAction from "./createUser.action";
-import { useFormState } from "react-dom";
 import InputField from "@/app/components/fields/InputField";
 import getFormErrors from "@/app/utils/getFormErrors";
 import Select from "@/app/components/fields/Select";
@@ -34,7 +33,7 @@ export default function CreateUserPage({
   partners,
   regionsOptions
 }: CreateUserPageProps) {
-  const [errors, action] = useFormState(createUserAction, []);
+  const [errors, action] = useActionState(createUserAction, []);
   const [partnerId, setPartnerId] = useState(null);
 
   const handlePartnerChange = (p) => {

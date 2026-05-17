@@ -27,7 +27,7 @@ import {
   getSortedRowModel,
   SortingState,
 } from "@tanstack/react-table";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type JSX } from "react";
 import { FaSort, FaSortDown, FaSortUp } from "react-icons/fa";
 
 interface GenericTableProps<T> {

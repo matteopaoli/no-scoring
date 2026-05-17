@@ -1,8 +1,7 @@
 "use client";
 
 import { Box, Flex, useColorModeValue } from "@chakra-ui/react";
-import { ReactNode } from "react";
-import { useFormState } from "react-dom";
+import { ReactNode, useActionState } from "react";
 import updateUserAction from "./updatePartner.action";
 import InputField from "@/app/components/fields/InputField";
 import getFormErrors from "@/app/utils/getFormErrors";
@@ -19,7 +18,7 @@ export default function UpdateUserPage({
   existingPartner,
   regionsOptions,
 }: UpdateUserPageProps) {
-  const [errors, action] = useFormState(updateUserAction, []);
+  const [errors, action] = useActionState(updateUserAction, []);
 
   // Chakra color mode
   const textColor = useColorModeValue("navy.700", "white");

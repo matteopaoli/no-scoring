@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useActionState } from "react";
 // Chakra imports
 import {
   Box,
@@ -18,7 +18,6 @@ import DefaultAuth from "@/app/layouts/admin/Auth";
 // Assets
 import login from "./posLogin.action";
 import { useDictionary } from "@/app/DictionaryProvider";
-import { useFormState } from "react-dom";
 import Callout from "@/app/components/Callout";
 import SubmitButton from "@/app/components/SubmitButton";
 
@@ -26,7 +25,7 @@ const initialState: Record<string, any> = {};
 
 export default function SignIn() {
   const t = useDictionary();
-  const [formState, action] = useFormState(login, initialState);
+  const [formState, action] = useActionState(login, initialState);
 
   // Chakra color mode
   const textColor = useColorModeValue("navy.700", "white");

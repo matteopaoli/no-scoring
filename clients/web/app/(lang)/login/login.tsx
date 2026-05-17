@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useActionState } from "react";
 // Chakra imports
 import {
   Box,
@@ -29,7 +29,6 @@ import { RiEyeCloseLine } from "react-icons/ri";
 import login from "./login.action";
 import { Link } from "@chakra-ui/next-js";
 import { useDictionary } from "@/app/DictionaryProvider";
-import { useFormState } from "react-dom";
 import { useSearchParams } from "next/navigation"; // Add this import
 import Callout from "@/app/components/Callout";
 import SubmitButton from "@/app/components/SubmitButton";
@@ -38,7 +37,7 @@ const initialState: Record<string, any> = {};
 
 export default function SignIn() {
   const t = useDictionary();
-  const [formState, action] = useFormState(login, initialState);
+  const [formState, action] = useActionState(login, initialState);
   const searchParams = useSearchParams();
   const onboardingComplete = searchParams.get("onboarding-complete") === "true"; // Check for the query param
 
@@ -62,7 +61,7 @@ export default function SignIn() {
   const handleClick = () => setShow(!show);
 
   return (
-    <DefaultAuth>
+    (<DefaultAuth>
       <Callout autoDismiss={true} dismissDuration={5000} />
       <Flex
         justifyContent="space-between"
@@ -86,11 +85,10 @@ export default function SignIn() {
           bgColor="white"
         >
           {onboardingComplete && ( // Conditionally render the alert
-            <Alert status="success" mb="20px">
-              <AlertIcon />
-              Procedura di onboarding completata. Per favore autenticati di
-              nuovo.
-            </Alert>
+            (<Alert status="success" mb="20px">
+              <AlertIcon />Procedura di onboarding completata. Per favore autenticati di
+                            nuovo.
+                          </Alert>)
           )}
           <Box me="auto">
             <Heading color={textColor} fontSize="36px" mb="10px">
@@ -276,6 +274,6 @@ export default function SignIn() {
           </Text>
         </Box>
       </Flex>
-    </DefaultAuth>
+    </DefaultAuth>)
   );
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useActionState } from "react";
 import {
   Box,
   Button,
@@ -7,7 +7,6 @@ import {
   Input,
   FormErrorMessage,
 } from "@chakra-ui/react";
-import { useFormState } from "react-dom";
 import { createStoreAction } from "../createStore.action";
 import ProfileImageInput from "@/app/components/fields/ProfileImageInput";
 import InputField from "@/app/components/fields/InputField";
@@ -17,7 +16,7 @@ import ImageInput from "@/app/components/fields/ImageInput";
 import AddressInputField from "@/app/components/fields/AddressInputField";
 
 const StepStore: React.FC = () => {
-  const [errors, action] = useFormState(createStoreAction, []);
+  const [errors, action] = useActionState(createStoreAction, []);
 
   return (
     <form action={action} method="post">

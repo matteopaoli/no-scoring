@@ -6,6 +6,12 @@ import fs from "node:fs";
 import path from "node:path";
 import { v4 as uuidv4 } from "uuid";
 
+// Register custom fonts for server-side canvas drawing
+registerFont(path.resolve(process.cwd(), "fonts/Poppins-Bold.ttf"), {
+  family: "Poppins",
+  weight: "bold",
+});
+
 // Promisified file operations
 const writeFile = promisify(fs.writeFile);
 const unlink = promisify(fs.unlink);

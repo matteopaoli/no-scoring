@@ -1,6 +1,5 @@
-import type React from "react";
+import type React, { useActionState } from "react";
 import { Box, Button, GridItem, SimpleGrid } from "@chakra-ui/react";
-import { useFormState } from "react-dom";
 import { updateProfileAction } from "../updateProfile.action";
 import InputField from "@/app/components/fields/InputField";
 import getFormErrors from "@/app/utils/getFormErrors";
@@ -15,7 +14,7 @@ interface StepProfileProps {
 }
 
 const StepProfile: React.FC<StepProfileProps> = ({ onNext }) => {
-  const [profileFormState, action] = useFormState(updateProfileAction, {});
+  const [profileFormState, action] = useActionState(updateProfileAction, {});
 
   useEffect(() => {
     if (profileFormState.status === "success") {

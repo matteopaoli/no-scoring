@@ -3,13 +3,12 @@
 import { Box, GridItem, Checkbox, Text, SimpleGrid } from "@chakra-ui/react";
 
 import createProduct from "../createProduct.action";
-import { useFormState } from "react-dom";
 import InputField from "@/app/components/fields/InputField"; // Import the InputField component
 import TextArea from "@/app/components/fields/TextArea"; // Import the TextArea component
 import ImageInput from "@/app/components/fields/ImageInput";
 import getFormErrors from "@/app/utils/getFormErrors";
 import PriceInput from "@/app/components/fields/PriceField";
-import { useState } from "react";
+import { useState, useActionState } from "react";
 import SubmitButton from "../../../../components/SubmitButton";
 import { getAmountWithFees } from "@/app/utils/fees";
 import { FEES_DISCLAIMER } from "@/app/constants";
@@ -19,7 +18,7 @@ type ClientPageProps = {
 };
 
 export default function Client({ storeImage }: ClientPageProps) {
-  const [errors, action] = useFormState(createProduct, []);
+  const [errors, action] = useActionState(createProduct, []);
   const [includeCommission, setIncludeCommission] = useState(false);
   const [finalPrice, setFinalPrice] = useState(0);
   const [description, setDescription] = useState("");

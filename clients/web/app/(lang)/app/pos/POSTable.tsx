@@ -41,7 +41,7 @@ import { MdAddCircleOutline, MdArrowForward, MdEmail } from "react-icons/md";
 // Custom components
 import Card from "@/app/components/card/Card";
 import Menu from "./ProductsTableMenu";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useActionState } from "react";
 import { Link } from "@chakra-ui/next-js";
 import type Stripe from "stripe";
 import ProductSidebar from "./ProductSidebar";
@@ -50,7 +50,6 @@ import styles from "./Table.module.css";
 import createPosAction from "./createPos.action";
 import InputField from "@/app/components/fields/InputField";
 import getFormErrors from "@/app/utils/getFormErrors";
-import { useFormState } from "react-dom";
 import SubmitButton from "@/app/components/SubmitButton";
 import CopyButton from "@/app/components/CopyButton";
 import GenericTable from "@/app/components/GenericTable";

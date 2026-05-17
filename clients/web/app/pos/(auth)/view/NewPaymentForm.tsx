@@ -11,8 +11,7 @@ import {
 } from "@chakra-ui/react";
 import PriceField from "@/app/components/fields/PriceField";
 import getFormErrors from "@/app/utils/getFormErrors";
-import { useFormState } from "react-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useActionState } from "react";
 import createNewPaymentAction from "@/app/actions/createNewPayment.action";
 import { getAmountWithFees } from "@/app/utils/fees";
 import SubmitButton from "@/app/components/SubmitButton";
@@ -20,7 +19,7 @@ import CopyTextBox from "@/app/components/copyTextBox/CopyTextBox";
 import Image from "next/image";
 
 export default function NewPaymentForm() {
-  const [formState, action] = useFormState(createNewPaymentAction, {});
+  const [formState, action] = useActionState(createNewPaymentAction, {});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [amount, setAmount] = useState(0);
   const [includeFees, setIncludeFees] = useState(false);

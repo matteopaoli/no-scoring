@@ -1,6 +1,5 @@
 import InputField from "@/app/components/fields/InputField";
-import { useEffect, useRef, useState } from "react";
-import { useFormState } from "react-dom";
+import { useEffect, useRef, useState, useActionState } from "react";
 import createPosAction from "./createPos.action";
 import getFormErrors from "@/app/utils/getFormErrors";
 import { Box, Button, Flex, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, Portal, Text } from "@chakra-ui/react";
@@ -9,7 +8,7 @@ import SubmitButton from "@/app/components/SubmitButton";
 import { MdAddCircleOutline } from "react-icons/md";
 
 export default function CreatePosForm() {
-  const [createPosState, createPos] = useFormState(createPosAction, {});
+  const [createPosState, createPos] = useActionState(createPosAction, {});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const createPosNameInputRef = useRef<HTMLInputElement | null>(null);
   const formRef = useRef<HTMLFormElement | null>(null);

@@ -1,6 +1,5 @@
 "use client";
 
-import { useFormState } from "react-dom";
 import {
   Box,
   Flex,
@@ -20,7 +19,7 @@ import InputField from "@/app/components/fields/InputField";
 import getFormErrors from "@/app/utils/getFormErrors";
 import SubmitButton from "@/app/components/SubmitButton";
 import partnerCreateMerchantAction from "./partnerCreateMerchant.action";
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useActionState } from "react";
 import PhoneNumberField from "../fields/PhoneNumberField";
 import { useRouter } from "next/navigation";
 
@@ -35,7 +34,7 @@ export default function ReferLeadForm({
   businessTypesOptions: ReactNode[];
   regionsOptions: ReactNode[];
 }) {
-  const [formState, action] = useFormState(partnerCreateMerchantAction, {});
+  const [formState, action] = useActionState(partnerCreateMerchantAction, {});
   const router = useRouter();
 
   useEffect(() => {

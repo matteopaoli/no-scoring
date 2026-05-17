@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useActionState } from "react";
 import {
   Box,
   Button,
@@ -13,14 +13,13 @@ import {
 import { Link } from "@chakra-ui/next-js";
 import SubmitButton from "@/app/components/SubmitButton";
 import { acceptTosAction } from "@/app/api/acceptTos/acceptTos.action";
-import { useFormState } from "react-dom";
 
 interface StepTOSProps {
   onAccept: () => void;
 }
 
 const StepTOS: React.FC<StepTOSProps> = ({ onAccept }) => {
-  const [formState, action] = useFormState(acceptTosAction, {});
+  const [formState, action] = useActionState(acceptTosAction, {});
 
   useEffect(() => {
     if (formState.status === "success") {

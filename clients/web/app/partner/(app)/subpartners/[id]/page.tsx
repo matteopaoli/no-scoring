@@ -11,11 +11,12 @@ import { Store } from "@/app/services/storeService";
 import { db, earnings as earningsTable } from "@paytomorrow/db";
 import { eq } from "drizzle-orm";
 
-export default async function AgentDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function AgentDetailPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
   const user = await getUserFromAuth();
   const agent = await UserService.getUserById(params.id);
   if (!UserService.isPartner(agent)) {

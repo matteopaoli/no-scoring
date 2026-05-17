@@ -15,7 +15,6 @@ import {
 // Custom Components
 import { SearchBar } from "../../components/navbar/searchBar/SearchBar";
 import { SidebarResponsive } from "../../components/sidebar/Sidebar";
-import PropTypes from "prop-types";
 import React, { useContext } from "react";
 // Assets;
 import { UserContext } from "@/app/contexts/UserContext";
@@ -32,13 +31,20 @@ type HeaderLinksProps = {
   user: User;
 };
 
+interface HeaderLinksProps {
+  variant?: string;
+  fixed?: boolean;
+  secondary?: boolean;
+  onOpen?(...args: unknown[]): unknown;
+}
+
 export default function HeaderLinks({
   variant,
   fixed,
   secondary,
   onOpen,
   routes,
-  user,
+  user
 }: HeaderLinksProps) {
   const { colorMode, toggleColorMode } = useColorMode();
   // Chakra Color Mode
@@ -196,10 +202,3 @@ export default function HeaderLinks({
     </Flex>
   );
 }
-
-HeaderLinks.propTypes = {
-  variant: PropTypes.string,
-  fixed: PropTypes.bool,
-  secondary: PropTypes.bool,
-  onOpen: PropTypes.func,
-};

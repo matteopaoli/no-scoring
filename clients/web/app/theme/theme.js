@@ -11,7 +11,7 @@ import { linkStyles } from "./components/link";
 import { breakpoints } from "./foundations/breakpoints";
 import { globalStyles } from "./styles";
 export default extendTheme(
-  { breakpoints, fonts: { heading: "DM Sans, sans-serif" } }, // Breakpoints
+  { breakpoints, fonts: { heading: "var(--font-dm-sans), sans-serif" } }, // Breakpoints
   globalStyles,
   badgeStyles, // badge styles
   buttonStyles, // button styles

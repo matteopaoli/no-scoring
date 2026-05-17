@@ -17,10 +17,9 @@ import {
   Button,
   IconButton,
 } from "@chakra-ui/react";
-import { useFormState } from "react-dom";
 import { updateStoreAction } from "./updateStore.action";
 import AddressInputField from "@/app/components/fields/AddressInputField";
-import { use, useState } from "react";
+import { use, useState, useActionState } from "react";
 import { updateStoreFeesAction } from "./updateStoreFees.action";
 import { generateApiKeyAction } from "./generateApiKey.action";
 import { CopyIcon, ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
@@ -35,8 +34,8 @@ interface Store {
 }
 
 export default function UpdateStoreForm({ store }: { store: Store }) {
-  const [errors, action] = useFormState(updateStoreAction, []);
-  const [storeFeeErrors, storeFeesAction] = useFormState(
+  const [errors, action] = useActionState(updateStoreAction, []);
+  const [storeFeeErrors, storeFeesAction] = useActionState(
     updateStoreFeesAction,
     {}
   );

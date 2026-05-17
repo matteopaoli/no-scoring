@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useActionState } from "react";
 import {
   Box,
   Flex,
@@ -18,7 +18,6 @@ import {
 import PriceField from "@/app/components/fields/PriceField";
 import getFormErrors from "@/app/utils/getFormErrors";
 import SubmitButton from "@/app/components/SubmitButton";
-import { useFormState } from "react-dom";
 import createNewPaymentAction from "@/app/actions/createNewPayment.action";
 import CopyTextBox from "../copyTextBox/CopyTextBox";
 import { getAmountWithFees } from "@/app/utils/fees";
@@ -30,7 +29,7 @@ export default function PaymentModal({
   isOpen: boolean;
   onClose: () => void;
 }) {
-  const [formState, action] = useFormState(createNewPaymentAction, {});
+  const [formState, action] = useActionState(createNewPaymentAction, {});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [amount, setAmount] = useState(0);
   const [includeFees, setIncludeFees] = useState(false);
