@@ -1,4 +1,4 @@
-import type React, { useActionState } from "react";
+import { useActionState } from "react";
 import { Box, Button, GridItem, SimpleGrid } from "@chakra-ui/react";
 import { updateProfileAction } from "../updateProfile.action";
 import InputField from "@/app/components/fields/InputField";
