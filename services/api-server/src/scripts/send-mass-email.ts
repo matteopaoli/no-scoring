@@ -15,7 +15,7 @@ async function main() {
   const mailer = new MailerService();
 
   // Load the schema dynamically AFTER process.env has been configured
-  const { db, users } = await import('../../../../packages/db/schema');
+  const { db, users } = await import('@paytomorrow/db');
 
   // 🚨 TEST MODE SAFEGUARD 🚨
   // Set this to your email address to test the script locally.
