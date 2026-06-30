@@ -1,7 +1,7 @@
 import { regions, stores, users, userStoreRoles } from "@paytomorrow/db";
 import { db } from "@paytomorrow/db";
 import { User } from '../db'
-import { and, eq, getTableColumns } from "drizzle-orm";
+import { and, eq, ilike, getTableColumns } from "drizzle-orm";
 import { genSaltSync, hashSync } from "bcrypt-ts";
 import { Store } from "./storeService";
 
@@ -48,10 +48,11 @@ export class UserService {
       await db
         .select({ ...getTableColumns(users), regionName: regions.name })
         .from(users)
-        .where(eq(users.email, email ?? ""))
+        .where(ilike(users.email, email ?? ""))
         .leftJoin(regions, eq(users.regionId, regions.id))
     )?.[0] as User | undefined;
   }
+
 
   static async getUserById(id: string) {
     const { password, image, ...nonPwCols } = getTableColumns(users);

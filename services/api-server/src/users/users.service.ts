@@ -24,13 +24,14 @@ export class UsersService {
           role: users.role,
         })
         .from(users)
-        .where(eq(users.email, email));
+        .where(ilike(users.email, email));
       return result[0];
     } catch (error) {
       console.log(error);
       throw new Error('Error executing query', error);
     }
   }
+
 
   async findById(id: string) {
     try {

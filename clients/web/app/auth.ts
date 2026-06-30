@@ -27,6 +27,7 @@ export const {
           const { image,  ...rest } = user
           return rest
         }
+        return null;
       },
     }),
     {
